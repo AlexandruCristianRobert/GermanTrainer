@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(D:\\Repos\\GermanTrainer\\**)",
+      "Write(D:\\Repos\\GermanTrainer\\**)",
+      "Edit(D:\\Repos\\GermanTrainer\\**)",
+      "Bash(cd D:\\Repos\\GermanTrainer*)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)"
+    ],
+    "additionalDirectories": [
+      "D:\\Repos\\GermanTrainer"
+    ]
+  }
+}

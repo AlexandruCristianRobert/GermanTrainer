@@ -1,0 +1,6908 @@
+[
+  {
+    "german": "Abbuchung",
+    "gender": "die",
+    "english": "debit / deduction",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Abend",
+    "gender": "der",
+    "english": "evening",
+    "group": "Other"
+  },
+  {
+    "german": "Abendessen",
+    "gender": "das",
+    "english": "dinner / supper",
+    "group": "Food"
+  },
+  {
+    "german": "Abfindung",
+    "gender": "die",
+    "english": "severance pay",
+    "group": "Work"
+  },
+  {
+    "german": "Abfluss",
+    "gender": "der",
+    "english": "drain",
+    "group": "House"
+  },
+  {
+    "german": "Abitur",
+    "gender": "das",
+    "english": "A-levels / high school diploma",
+    "group": "School"
+  },
+  {
+    "german": "Ablage",
+    "gender": "die",
+    "english": "tray / filing",
+    "group": "Office"
+  },
+  {
+    "german": "Abschluss",
+    "gender": "der",
+    "english": "degree / qualification / graduation",
+    "group": "School"
+  },
+  {
+    "german": "Abstellraum",
+    "gender": "der",
+    "english": "storage room / utility room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Abteilung",
+    "gender": "die",
+    "english": "department",
+    "group": "Work"
+  },
+  {
+    "german": "Adoption",
+    "gender": "die",
+    "english": "adoption",
+    "group": "Family"
+  },
+  {
+    "german": "Adoptivkind",
+    "gender": "das",
+    "english": "adopted child",
+    "group": "Family"
+  },
+  {
+    "german": "Adoptivmutter",
+    "gender": "die",
+    "english": "adoptive mother",
+    "group": "Family"
+  },
+  {
+    "german": "Adoptivvater",
+    "gender": "der",
+    "english": "adoptive father",
+    "group": "Family"
+  },
+  {
+    "german": "Adressbuch",
+    "gender": "das",
+    "english": "address book",
+    "group": "Office"
+  },
+  {
+    "german": "Affe",
+    "gender": "der",
+    "english": "monkey / ape",
+    "group": "Other"
+  },
+  {
+    "german": "Agenda",
+    "gender": "die",
+    "english": "agenda",
+    "group": "Office"
+  },
+  {
+    "german": "Akku",
+    "gender": "der",
+    "english": "battery / rechargeable battery",
+    "group": "Other"
+  },
+  {
+    "german": "Akte",
+    "gender": "die",
+    "english": "file / dossier",
+    "group": "Office"
+  },
+  {
+    "german": "Aktenhülle",
+    "gender": "die",
+    "english": "document wallet",
+    "group": "Office"
+  },
+  {
+    "german": "Aktenschrank",
+    "gender": "der",
+    "english": "filing cabinet",
+    "group": "Office"
+  },
+  {
+    "german": "Aktentasche",
+    "gender": "die",
+    "english": "briefcase",
+    "group": "Office"
+  },
+  {
+    "german": "Aktie",
+    "gender": "die",
+    "english": "share / stock",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Alarmanlage",
+    "gender": "die",
+    "english": "alarm system",
+    "group": "Office"
+  },
+  {
+    "german": "Allergie",
+    "gender": "die",
+    "english": "allergy",
+    "group": "Other"
+  },
+  {
+    "german": "Ameise",
+    "gender": "die",
+    "english": "ant",
+    "group": "Other"
+  },
+  {
+    "german": "Ampel",
+    "gender": "die",
+    "english": "traffic light",
+    "group": "Other"
+  },
+  {
+    "german": "Ananas",
+    "gender": "die",
+    "english": "pineapple",
+    "group": "Food"
+  },
+  {
+    "german": "Angebot",
+    "gender": "das",
+    "english": "offer / quote",
+    "group": "Office"
+  },
+  {
+    "german": "Angst",
+    "gender": "die",
+    "english": "fear / anxiety",
+    "group": "Other"
+  },
+  {
+    "german": "Ankleidekammer",
+    "gender": "die",
+    "english": "cloakroom / small dressing room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Ankleidezimmer",
+    "gender": "das",
+    "english": "dressing room / walk-in wardrobe",
+    "group": "Rooms"
+  },
+  {
+    "german": "Anspitzer",
+    "gender": "der",
+    "english": "pencil sharpener",
+    "group": "Office"
+  },
+  {
+    "german": "Anzug",
+    "gender": "der",
+    "english": "suit",
+    "group": "Other"
+  },
+  {
+    "german": "Apfel",
+    "gender": "der",
+    "english": "apple",
+    "group": "Food"
+  },
+  {
+    "german": "Apfelsaft",
+    "gender": "der",
+    "english": "apple juice",
+    "group": "Food"
+  },
+  {
+    "german": "Apotheke",
+    "gender": "die",
+    "english": "pharmacy",
+    "group": "Other"
+  },
+  {
+    "german": "App",
+    "gender": "die",
+    "english": "app",
+    "group": "Other"
+  },
+  {
+    "german": "Aprikose",
+    "gender": "die",
+    "english": "apricot",
+    "group": "Food"
+  },
+  {
+    "german": "Aquarium",
+    "gender": "das",
+    "english": "aquarium / fish tank",
+    "group": "Furniture"
+  },
+  {
+    "german": "Arbeitgeber",
+    "gender": "der",
+    "english": "employer",
+    "group": "Work"
+  },
+  {
+    "german": "Arbeitnehmer",
+    "gender": "der",
+    "english": "employee",
+    "group": "Work"
+  },
+  {
+    "german": "Arbeitslosengeld",
+    "gender": "das",
+    "english": "unemployment benefit",
+    "group": "Work"
+  },
+  {
+    "german": "Arbeitsvertrag",
+    "gender": "der",
+    "english": "employment contract",
+    "group": "Work"
+  },
+  {
+    "german": "Arbeitszeit",
+    "gender": "die",
+    "english": "working hours",
+    "group": "Work"
+  },
+  {
+    "german": "Arbeitszimmer",
+    "gender": "das",
+    "english": "study / home office",
+    "group": "Rooms"
+  },
+  {
+    "german": "Arm",
+    "gender": "der",
+    "english": "arm",
+    "group": "Other"
+  },
+  {
+    "german": "Armut",
+    "gender": "die",
+    "english": "poverty",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Artischocke",
+    "gender": "die",
+    "english": "artichoke",
+    "group": "Food"
+  },
+  {
+    "german": "Arzt",
+    "gender": "der",
+    "english": "doctor",
+    "group": "Other"
+  },
+  {
+    "german": "Aubergine",
+    "gender": "die",
+    "english": "aubergine / eggplant",
+    "group": "Food"
+  },
+  {
+    "german": "Aufgabe",
+    "gender": "die",
+    "english": "task",
+    "group": "Work"
+  },
+  {
+    "german": "Aufsatz",
+    "gender": "der",
+    "english": "essay / composition",
+    "group": "School"
+  },
+  {
+    "german": "Aufschnitt",
+    "gender": "der",
+    "english": "cold cuts / deli meats",
+    "group": "Food"
+  },
+  {
+    "german": "Auftrag",
+    "gender": "der",
+    "english": "order / assignment",
+    "group": "Office"
+  },
+  {
+    "german": "Aufzug",
+    "gender": "der",
+    "english": "lift / elevator",
+    "group": "Office"
+  },
+  {
+    "german": "Auge",
+    "gender": "das",
+    "english": "eye",
+    "group": "Other"
+  },
+  {
+    "german": "Aula",
+    "gender": "die",
+    "english": "school hall / auditorium",
+    "group": "School"
+  },
+  {
+    "german": "Ausbildung",
+    "gender": "die",
+    "english": "vocational training / education",
+    "group": "Work"
+  },
+  {
+    "german": "Ausgabe",
+    "gender": "die",
+    "english": "expense / expenditure",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Ausgang",
+    "gender": "der",
+    "english": "exit",
+    "group": "House"
+  },
+  {
+    "german": "Ausgangskorb",
+    "gender": "der",
+    "english": "out-tray",
+    "group": "Office"
+  },
+  {
+    "german": "Auszahlung",
+    "gender": "die",
+    "english": "withdrawal / payout",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Auto",
+    "gender": "das",
+    "english": "car",
+    "group": "Other"
+  },
+  {
+    "german": "Autobahn",
+    "gender": "die",
+    "english": "motorway / highway",
+    "group": "Other"
+  },
+  {
+    "german": "Avocado",
+    "gender": "die",
+    "english": "avocado",
+    "group": "Food"
+  },
+  {
+    "german": "Baby",
+    "gender": "das",
+    "english": "baby",
+    "group": "Family"
+  },
+  {
+    "german": "Bachelor",
+    "gender": "der",
+    "english": "bachelor's degree",
+    "group": "School"
+  },
+  {
+    "german": "Bäckerei",
+    "gender": "die",
+    "english": "bakery",
+    "group": "Food"
+  },
+  {
+    "german": "Bad",
+    "gender": "das",
+    "english": "bathroom / bath",
+    "group": "Rooms"
+  },
+  {
+    "german": "Badewanne",
+    "gender": "die",
+    "english": "bathtub",
+    "group": "Furniture"
+  },
+  {
+    "german": "Badezimmer",
+    "gender": "das",
+    "english": "bathroom",
+    "group": "Rooms"
+  },
+  {
+    "german": "Badezimmerschrank",
+    "gender": "der",
+    "english": "bathroom cabinet",
+    "group": "Furniture"
+  },
+  {
+    "german": "Baguette",
+    "gender": "das",
+    "english": "baguette",
+    "group": "Food"
+  },
+  {
+    "german": "Bahnhof",
+    "gender": "der",
+    "english": "train station",
+    "group": "Other"
+  },
+  {
+    "german": "Balkon",
+    "gender": "der",
+    "english": "balcony",
+    "group": "House"
+  },
+  {
+    "german": "Banane",
+    "gender": "die",
+    "english": "banana",
+    "group": "Food"
+  },
+  {
+    "german": "Bank",
+    "gender": "die",
+    "english": "bench",
+    "group": "Furniture"
+  },
+  {
+    "german": "Bar",
+    "gender": "die",
+    "english": "bar",
+    "group": "Food"
+  },
+  {
+    "german": "Bär",
+    "gender": "der",
+    "english": "bear",
+    "group": "Other"
+  },
+  {
+    "german": "Bargeld",
+    "gender": "das",
+    "english": "cash",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Barhocker",
+    "gender": "der",
+    "english": "bar stool",
+    "group": "Furniture"
+  },
+  {
+    "german": "Basilikum",
+    "gender": "das",
+    "english": "basil",
+    "group": "Food"
+  },
+  {
+    "german": "Basketball",
+    "gender": "der",
+    "english": "basketball",
+    "group": "Other"
+  },
+  {
+    "german": "Bauch",
+    "gender": "der",
+    "english": "belly / stomach",
+    "group": "Other"
+  },
+  {
+    "german": "Baum",
+    "gender": "der",
+    "english": "tree",
+    "group": "Other"
+  },
+  {
+    "german": "Beamer",
+    "gender": "der",
+    "english": "projector / beamer",
+    "group": "Office"
+  },
+  {
+    "german": "Beerdigung",
+    "gender": "die",
+    "english": "funeral",
+    "group": "Family"
+  },
+  {
+    "german": "Beförderung",
+    "gender": "die",
+    "english": "promotion",
+    "group": "Work"
+  },
+  {
+    "german": "Beilage",
+    "gender": "die",
+    "english": "side dish",
+    "group": "Food"
+  },
+  {
+    "german": "Bein",
+    "gender": "das",
+    "english": "leg",
+    "group": "Other"
+  },
+  {
+    "german": "Beitrag",
+    "gender": "der",
+    "english": "contribution / premium",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Beleg",
+    "gender": "der",
+    "english": "receipt / voucher / proof of payment",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Belegschaft",
+    "gender": "die",
+    "english": "workforce / staff",
+    "group": "Work"
+  },
+  {
+    "german": "Berater",
+    "gender": "der",
+    "english": "advisor / consultant",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Beraterin",
+    "gender": "die",
+    "english": "advisor / consultant (female)",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Berg",
+    "gender": "der",
+    "english": "mountain",
+    "group": "Other"
+  },
+  {
+    "german": "Bericht",
+    "gender": "der",
+    "english": "report",
+    "group": "Office"
+  },
+  {
+    "german": "Beruf",
+    "gender": "der",
+    "english": "profession / occupation",
+    "group": "Work"
+  },
+  {
+    "german": "Berufsschule",
+    "gender": "die",
+    "english": "vocational school",
+    "group": "School"
+  },
+  {
+    "german": "Besprechung",
+    "gender": "die",
+    "english": "meeting",
+    "group": "Office"
+  },
+  {
+    "german": "Besprechungstisch",
+    "gender": "der",
+    "english": "meeting table",
+    "group": "Office"
+  },
+  {
+    "german": "Betrieb",
+    "gender": "der",
+    "english": "company / plant",
+    "group": "Work"
+  },
+  {
+    "german": "Betriebsrat",
+    "gender": "der",
+    "english": "works council",
+    "group": "Work"
+  },
+  {
+    "german": "Bett",
+    "gender": "das",
+    "english": "bed",
+    "group": "Furniture"
+  },
+  {
+    "german": "Bettgestell",
+    "gender": "das",
+    "english": "bed frame",
+    "group": "Furniture"
+  },
+  {
+    "german": "Beurteilung",
+    "gender": "die",
+    "english": "appraisal / assessment",
+    "group": "Work"
+  },
+  {
+    "german": "Bewerbung",
+    "gender": "die",
+    "english": "application",
+    "group": "Work"
+  },
+  {
+    "german": "Beziehung",
+    "gender": "die",
+    "english": "relationship",
+    "group": "Family"
+  },
+  {
+    "german": "Bibliothek",
+    "gender": "die",
+    "english": "library (room)",
+    "group": "Rooms"
+  },
+  {
+    "german": "BIC",
+    "gender": "der",
+    "english": "BIC / SWIFT code",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Biene",
+    "gender": "die",
+    "english": "bee",
+    "group": "Other"
+  },
+  {
+    "german": "Bier",
+    "gender": "das",
+    "english": "beer",
+    "group": "Food"
+  },
+  {
+    "german": "Bildschirm",
+    "gender": "der",
+    "english": "screen / monitor",
+    "group": "Office"
+  },
+  {
+    "german": "Biologie",
+    "gender": "die",
+    "english": "biology",
+    "group": "School"
+  },
+  {
+    "german": "Birne",
+    "gender": "die",
+    "english": "pear",
+    "group": "Food"
+  },
+  {
+    "german": "Blaubeere",
+    "gender": "die",
+    "english": "blueberry",
+    "group": "Food"
+  },
+  {
+    "german": "Bleistift",
+    "gender": "der",
+    "english": "pencil",
+    "group": "Office"
+  },
+  {
+    "german": "Blitz",
+    "gender": "der",
+    "english": "lightning",
+    "group": "Other"
+  },
+  {
+    "german": "Blume",
+    "gender": "die",
+    "english": "flower",
+    "group": "Other"
+  },
+  {
+    "german": "Blumenkohl",
+    "gender": "der",
+    "english": "cauliflower",
+    "group": "Food"
+  },
+  {
+    "german": "Blumenständer",
+    "gender": "der",
+    "english": "plant stand",
+    "group": "Furniture"
+  },
+  {
+    "german": "Bluse",
+    "gender": "die",
+    "english": "blouse",
+    "group": "Other"
+  },
+  {
+    "german": "Blut",
+    "gender": "das",
+    "english": "blood",
+    "group": "Other"
+  },
+  {
+    "german": "Boden",
+    "gender": "der",
+    "english": "floor",
+    "group": "Office"
+  },
+  {
+    "german": "Bohne",
+    "gender": "die",
+    "english": "bean",
+    "group": "Food"
+  },
+  {
+    "german": "Bonbon",
+    "gender": "das",
+    "english": "sweet / candy",
+    "group": "Food"
+  },
+  {
+    "german": "Bonus",
+    "gender": "der",
+    "english": "bonus",
+    "group": "Work"
+  },
+  {
+    "german": "Boot",
+    "gender": "das",
+    "english": "boat",
+    "group": "Other"
+  },
+  {
+    "german": "Bratwurst",
+    "gender": "die",
+    "english": "fried sausage",
+    "group": "Food"
+  },
+  {
+    "german": "Bremse",
+    "gender": "die",
+    "english": "brake",
+    "group": "Other"
+  },
+  {
+    "german": "Brettspiel",
+    "gender": "das",
+    "english": "board game",
+    "group": "Other"
+  },
+  {
+    "german": "Brezel",
+    "gender": "die",
+    "english": "pretzel",
+    "group": "Food"
+  },
+  {
+    "german": "Brie",
+    "gender": "der",
+    "english": "brie",
+    "group": "Food"
+  },
+  {
+    "german": "Briefkasten",
+    "gender": "der",
+    "english": "letterbox / mailbox",
+    "group": "Office"
+  },
+  {
+    "german": "Briefklemme",
+    "gender": "die",
+    "english": "binder clip",
+    "group": "Office"
+  },
+  {
+    "german": "Briefkopf",
+    "gender": "der",
+    "english": "letterhead",
+    "group": "Office"
+  },
+  {
+    "german": "Briefmarke",
+    "gender": "die",
+    "english": "stamp",
+    "group": "Office"
+  },
+  {
+    "german": "Briefschlitz",
+    "gender": "der",
+    "english": "letter slot / mail slot",
+    "group": "House"
+  },
+  {
+    "german": "Brieftasche",
+    "gender": "die",
+    "english": "wallet / billfold",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Briefumschlag",
+    "gender": "der",
+    "english": "envelope",
+    "group": "Office"
+  },
+  {
+    "german": "Brokkoli",
+    "gender": "der",
+    "english": "broccoli",
+    "group": "Food"
+  },
+  {
+    "german": "Brombeere",
+    "gender": "die",
+    "english": "blackberry",
+    "group": "Food"
+  },
+  {
+    "german": "Brot",
+    "gender": "das",
+    "english": "bread",
+    "group": "Food"
+  },
+  {
+    "german": "Brötchen",
+    "gender": "das",
+    "english": "bread roll",
+    "group": "Food"
+  },
+  {
+    "german": "Brücke",
+    "gender": "die",
+    "english": "bridge",
+    "group": "Other"
+  },
+  {
+    "german": "Bruder",
+    "gender": "der",
+    "english": "brother",
+    "group": "Family"
+  },
+  {
+    "german": "Brühe",
+    "gender": "die",
+    "english": "broth / stock",
+    "group": "Food"
+  },
+  {
+    "german": "Bruttolohn",
+    "gender": "der",
+    "english": "gross wage",
+    "group": "Work"
+  },
+  {
+    "german": "Buch",
+    "gender": "das",
+    "english": "book",
+    "group": "Other"
+  },
+  {
+    "german": "Bücherregal",
+    "gender": "das",
+    "english": "bookshelf / bookcase",
+    "group": "Furniture"
+  },
+  {
+    "german": "Budget",
+    "gender": "das",
+    "english": "budget",
+    "group": "Work"
+  },
+  {
+    "german": "Bundesland",
+    "gender": "das",
+    "english": "federal state",
+    "group": "Other"
+  },
+  {
+    "german": "Burg",
+    "gender": "die",
+    "english": "castle / fortress",
+    "group": "Other"
+  },
+  {
+    "german": "Burger",
+    "gender": "der",
+    "english": "burger",
+    "group": "Food"
+  },
+  {
+    "german": "Büro",
+    "gender": "das",
+    "english": "office (room)",
+    "group": "Office"
+  },
+  {
+    "german": "Büroklammer",
+    "gender": "die",
+    "english": "paper clip",
+    "group": "Office"
+  },
+  {
+    "german": "Bürostuhl",
+    "gender": "der",
+    "english": "office chair",
+    "group": "Office"
+  },
+  {
+    "german": "Bürotelefon",
+    "gender": "das",
+    "english": "office phone",
+    "group": "Office"
+  },
+  {
+    "german": "Bus",
+    "gender": "der",
+    "english": "bus",
+    "group": "Other"
+  },
+  {
+    "german": "Butter",
+    "gender": "die",
+    "english": "butter",
+    "group": "Food"
+  },
+  {
+    "german": "Café",
+    "gender": "das",
+    "english": "café",
+    "group": "Food"
+  },
+  {
+    "german": "Camembert",
+    "gender": "der",
+    "english": "camembert",
+    "group": "Food"
+  },
+  {
+    "german": "Cappuccino",
+    "gender": "der",
+    "english": "cappuccino",
+    "group": "Food"
+  },
+  {
+    "german": "Carport",
+    "gender": "der",
+    "english": "carport",
+    "group": "House"
+  },
+  {
+    "german": "Cent",
+    "gender": "der",
+    "english": "cent",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Champagner",
+    "gender": "der",
+    "english": "champagne",
+    "group": "Food"
+  },
+  {
+    "german": "Champignon",
+    "gender": "der",
+    "english": "button mushroom",
+    "group": "Food"
+  },
+  {
+    "german": "Chef",
+    "gender": "der",
+    "english": "boss / manager",
+    "group": "Work"
+  },
+  {
+    "german": "Chemie",
+    "gender": "die",
+    "english": "chemistry",
+    "group": "School"
+  },
+  {
+    "german": "Chili",
+    "gender": "der",
+    "english": "chilli",
+    "group": "Food"
+  },
+  {
+    "german": "Chips",
+    "gender": "die",
+    "english": "crisps / chips",
+    "group": "Food"
+  },
+  {
+    "german": "Cola",
+    "gender": "die",
+    "english": "cola",
+    "group": "Food"
+  },
+  {
+    "german": "Computer",
+    "gender": "der",
+    "english": "computer",
+    "group": "Office"
+  },
+  {
+    "german": "Cornflakes",
+    "gender": "die",
+    "english": "cornflakes",
+    "group": "Food"
+  },
+  {
+    "german": "Couchtisch",
+    "gender": "der",
+    "english": "coffee table",
+    "group": "Furniture"
+  },
+  {
+    "german": "Cousin",
+    "gender": "der",
+    "english": "male cousin",
+    "group": "Family"
+  },
+  {
+    "german": "Cousine",
+    "gender": "die",
+    "english": "female cousin",
+    "group": "Family"
+  },
+  {
+    "german": "Croissant",
+    "gender": "das",
+    "english": "croissant",
+    "group": "Food"
+  },
+  {
+    "german": "Dach",
+    "gender": "das",
+    "english": "roof",
+    "group": "House"
+  },
+  {
+    "german": "Dachboden",
+    "gender": "der",
+    "english": "attic / loft",
+    "group": "House"
+  },
+  {
+    "german": "Dachfenster",
+    "gender": "das",
+    "english": "roof window / skylight",
+    "group": "House"
+  },
+  {
+    "german": "Dachgeschoss",
+    "gender": "das",
+    "english": "top floor / attic floor",
+    "group": "House"
+  },
+  {
+    "german": "Dachkammer",
+    "gender": "die",
+    "english": "attic room / garret",
+    "group": "Rooms"
+  },
+  {
+    "german": "Dachrinne",
+    "gender": "die",
+    "english": "gutter / rain gutter",
+    "group": "House"
+  },
+  {
+    "german": "Dachziegel",
+    "gender": "der",
+    "english": "roof tile",
+    "group": "House"
+  },
+  {
+    "german": "Darlehen",
+    "gender": "das",
+    "english": "loan",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Dattel",
+    "gender": "die",
+    "english": "date",
+    "group": "Food"
+  },
+  {
+    "german": "Datum",
+    "gender": "das",
+    "english": "date",
+    "group": "Other"
+  },
+  {
+    "german": "Dauerauftrag",
+    "gender": "der",
+    "english": "standing order",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Deadline",
+    "gender": "die",
+    "english": "deadline",
+    "group": "Work"
+  },
+  {
+    "german": "Decke",
+    "gender": "die",
+    "english": "ceiling",
+    "group": "Office"
+  },
+  {
+    "german": "Deckenlampe",
+    "gender": "die",
+    "english": "ceiling lamp / overhead light",
+    "group": "Furniture"
+  },
+  {
+    "german": "Defizit",
+    "gender": "das",
+    "english": "deficit",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Depot",
+    "gender": "das",
+    "english": "securities account / depot",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Dessert",
+    "gender": "das",
+    "english": "dessert",
+    "group": "Food"
+  },
+  {
+    "german": "Deutsch",
+    "gender": "das",
+    "english": "German (language/subject)",
+    "group": "School"
+  },
+  {
+    "german": "Diagramm",
+    "gender": "das",
+    "english": "diagram / chart",
+    "group": "Office"
+  },
+  {
+    "german": "Diele",
+    "gender": "die",
+    "english": "entrance hall / foyer",
+    "group": "Rooms"
+  },
+  {
+    "german": "Dielen",
+    "gender": "die",
+    "english": "floorboards",
+    "group": "House"
+  },
+  {
+    "german": "Dienstag",
+    "gender": "der",
+    "english": "tuesday",
+    "group": "Other"
+  },
+  {
+    "german": "Dienstreise",
+    "gender": "die",
+    "english": "business trip",
+    "group": "Work"
+  },
+  {
+    "german": "Diktiergerät",
+    "gender": "das",
+    "english": "dictation machine",
+    "group": "Office"
+  },
+  {
+    "german": "Dill",
+    "gender": "der",
+    "english": "dill",
+    "group": "Food"
+  },
+  {
+    "german": "Direktor",
+    "gender": "der",
+    "english": "director",
+    "group": "Work"
+  },
+  {
+    "german": "Direktorin",
+    "gender": "die",
+    "english": "principal / director (female)",
+    "group": "School"
+  },
+  {
+    "german": "Dispo",
+    "gender": "der",
+    "english": "overdraft facility",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Doktor",
+    "gender": "der",
+    "english": "doctorate / doctor",
+    "group": "School"
+  },
+  {
+    "german": "Dokument",
+    "gender": "das",
+    "english": "document",
+    "group": "Office"
+  },
+  {
+    "german": "Dollar",
+    "gender": "der",
+    "english": "dollar",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Döner",
+    "gender": "der",
+    "english": "döner kebab",
+    "group": "Food"
+  },
+  {
+    "german": "Donner",
+    "gender": "der",
+    "english": "thunder",
+    "group": "Other"
+  },
+  {
+    "german": "Doppelbett",
+    "gender": "das",
+    "english": "double bed",
+    "group": "Furniture"
+  },
+  {
+    "german": "Dorf",
+    "gender": "das",
+    "english": "village",
+    "group": "Other"
+  },
+  {
+    "german": "Drucker",
+    "gender": "der",
+    "english": "printer",
+    "group": "Office"
+  },
+  {
+    "german": "Drucker­papier",
+    "gender": "das",
+    "english": "printer paper",
+    "group": "Office"
+  },
+  {
+    "german": "Drucker­patrone",
+    "gender": "die",
+    "english": "printer cartridge",
+    "group": "Office"
+  },
+  {
+    "german": "Drucker­raum",
+    "gender": "der",
+    "english": "print room",
+    "group": "Office"
+  },
+  {
+    "german": "Drucker­warteschlange",
+    "gender": "die",
+    "english": "print queue",
+    "group": "Office"
+  },
+  {
+    "german": "Durchgangszimmer",
+    "gender": "das",
+    "english": "through room / connecting room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Duschbad",
+    "gender": "das",
+    "english": "shower room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Dusche",
+    "gender": "die",
+    "english": "shower",
+    "group": "Furniture"
+  },
+  {
+    "german": "E-Mail",
+    "gender": "die",
+    "english": "email",
+    "group": "Office"
+  },
+  {
+    "german": "EC-Karte",
+    "gender": "die",
+    "english": "debit card",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Ehe",
+    "gender": "die",
+    "english": "marriage",
+    "group": "Family"
+  },
+  {
+    "german": "Ehefrau",
+    "gender": "die",
+    "english": "wife",
+    "group": "Family"
+  },
+  {
+    "german": "Ehemann",
+    "gender": "der",
+    "english": "husband",
+    "group": "Family"
+  },
+  {
+    "german": "Ehepaar",
+    "gender": "das",
+    "english": "married couple",
+    "group": "Family"
+  },
+  {
+    "german": "Ei",
+    "gender": "das",
+    "english": "egg",
+    "group": "Food"
+  },
+  {
+    "german": "Eichhörnchen",
+    "gender": "das",
+    "english": "squirrel",
+    "group": "Other"
+  },
+  {
+    "german": "Einfahrt",
+    "gender": "die",
+    "english": "driveway",
+    "group": "House"
+  },
+  {
+    "german": "Eingang",
+    "gender": "der",
+    "english": "entrance / entry",
+    "group": "House"
+  },
+  {
+    "german": "Eingangskorb",
+    "gender": "der",
+    "english": "in-tray",
+    "group": "Office"
+  },
+  {
+    "german": "Einkommen",
+    "gender": "das",
+    "english": "income",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Einkommensteuer",
+    "gender": "die",
+    "english": "income tax",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Einliegerwohnung",
+    "gender": "die",
+    "english": "annexe flat / granny flat",
+    "group": "Rooms"
+  },
+  {
+    "german": "Einstellung",
+    "gender": "die",
+    "english": "hiring / recruitment",
+    "group": "Work"
+  },
+  {
+    "german": "Eintopf",
+    "gender": "der",
+    "english": "stew",
+    "group": "Food"
+  },
+  {
+    "german": "Einzahlung",
+    "gender": "die",
+    "english": "deposit",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Einzelbett",
+    "gender": "das",
+    "english": "single bed",
+    "group": "Furniture"
+  },
+  {
+    "german": "Einzelbüro",
+    "gender": "das",
+    "english": "private office",
+    "group": "Office"
+  },
+  {
+    "german": "Eis",
+    "gender": "das",
+    "english": "ice cream / ice",
+    "group": "Food"
+  },
+  {
+    "german": "Elefant",
+    "gender": "der",
+    "english": "elephant",
+    "group": "Other"
+  },
+  {
+    "german": "Eltern",
+    "gender": "die",
+    "english": "parents",
+    "group": "Family"
+  },
+  {
+    "german": "Elternzeit",
+    "gender": "die",
+    "english": "parental leave",
+    "group": "Work"
+  },
+  {
+    "german": "Empfang",
+    "gender": "der",
+    "english": "reception",
+    "group": "Office"
+  },
+  {
+    "german": "Empfehlung",
+    "gender": "die",
+    "english": "recommendation",
+    "group": "Work"
+  },
+  {
+    "german": "Englisch",
+    "gender": "das",
+    "english": "English (language/subject)",
+    "group": "School"
+  },
+  {
+    "german": "Enkel",
+    "gender": "der",
+    "english": "grandson / grandchild",
+    "group": "Family"
+  },
+  {
+    "german": "Enkelin",
+    "gender": "die",
+    "english": "granddaughter",
+    "group": "Family"
+  },
+  {
+    "german": "Entlassung",
+    "gender": "die",
+    "english": "dismissal / layoff",
+    "group": "Work"
+  },
+  {
+    "german": "Erbse",
+    "gender": "die",
+    "english": "pea",
+    "group": "Food"
+  },
+  {
+    "german": "Erdbeere",
+    "gender": "die",
+    "english": "strawberry",
+    "group": "Food"
+  },
+  {
+    "german": "Erdgeschoss",
+    "gender": "das",
+    "english": "ground floor",
+    "group": "House"
+  },
+  {
+    "german": "Erdkunde",
+    "gender": "die",
+    "english": "geography",
+    "group": "School"
+  },
+  {
+    "german": "Erdnuss",
+    "gender": "die",
+    "english": "peanut",
+    "group": "Food"
+  },
+  {
+    "german": "Erfahrung",
+    "gender": "die",
+    "english": "experience",
+    "group": "Other"
+  },
+  {
+    "german": "Erfolg",
+    "gender": "der",
+    "english": "success",
+    "group": "Other"
+  },
+  {
+    "german": "Ergebnis",
+    "gender": "das",
+    "english": "result / outcome",
+    "group": "Work"
+  },
+  {
+    "german": "Erinnerung",
+    "gender": "die",
+    "english": "memory / recollection",
+    "group": "Other"
+  },
+  {
+    "german": "Erkältung",
+    "gender": "die",
+    "english": "cold",
+    "group": "Other"
+  },
+  {
+    "german": "Ersparnis",
+    "gender": "die",
+    "english": "savings",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Erste-Hilfe-Kasten",
+    "gender": "der",
+    "english": "first-aid kit",
+    "group": "Office"
+  },
+  {
+    "german": "Erwachsener",
+    "gender": "der",
+    "english": "adult",
+    "group": "Family"
+  },
+  {
+    "german": "Erziehung",
+    "gender": "die",
+    "english": "upbringing / education",
+    "group": "Family"
+  },
+  {
+    "german": "Espresso",
+    "gender": "der",
+    "english": "espresso",
+    "group": "Food"
+  },
+  {
+    "german": "Essig",
+    "gender": "der",
+    "english": "vinegar",
+    "group": "Food"
+  },
+  {
+    "german": "Essnische",
+    "gender": "die",
+    "english": "breakfast nook / dining nook",
+    "group": "Rooms"
+  },
+  {
+    "german": "Esstisch",
+    "gender": "der",
+    "english": "dining table",
+    "group": "Furniture"
+  },
+  {
+    "german": "Esszimmer",
+    "gender": "das",
+    "english": "dining room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Ethik",
+    "gender": "die",
+    "english": "ethics",
+    "group": "School"
+  },
+  {
+    "german": "Euro",
+    "gender": "der",
+    "english": "euro",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Fach",
+    "gender": "das",
+    "english": "subject",
+    "group": "School"
+  },
+  {
+    "german": "Fachhochschule",
+    "gender": "die",
+    "english": "university of applied sciences",
+    "group": "School"
+  },
+  {
+    "german": "Fahrkarte",
+    "gender": "die",
+    "english": "ticket",
+    "group": "Other"
+  },
+  {
+    "german": "Fahrplan",
+    "gender": "der",
+    "english": "timetable / schedule",
+    "group": "Other"
+  },
+  {
+    "german": "Fahrrad",
+    "gender": "das",
+    "english": "bicycle",
+    "group": "Other"
+  },
+  {
+    "german": "Fallrohr",
+    "gender": "das",
+    "english": "downpipe / drainpipe",
+    "group": "House"
+  },
+  {
+    "german": "Familie",
+    "gender": "die",
+    "english": "family",
+    "group": "Family"
+  },
+  {
+    "german": "Farbe",
+    "gender": "die",
+    "english": "paint / colour",
+    "group": "House"
+  },
+  {
+    "german": "Fassade",
+    "gender": "die",
+    "english": "facade / exterior wall",
+    "group": "House"
+  },
+  {
+    "german": "Fax",
+    "gender": "das",
+    "english": "fax",
+    "group": "Office"
+  },
+  {
+    "german": "Feierabend",
+    "gender": "der",
+    "english": "end of work / knock-off time",
+    "group": "Work"
+  },
+  {
+    "german": "Feiertag",
+    "gender": "der",
+    "english": "public holiday",
+    "group": "Other"
+  },
+  {
+    "german": "Feige",
+    "gender": "die",
+    "english": "fig",
+    "group": "Food"
+  },
+  {
+    "german": "Feld",
+    "gender": "das",
+    "english": "field",
+    "group": "Other"
+  },
+  {
+    "german": "Fenchel",
+    "gender": "der",
+    "english": "fennel",
+    "group": "Food"
+  },
+  {
+    "german": "Fenster",
+    "gender": "das",
+    "english": "window",
+    "group": "Office"
+  },
+  {
+    "german": "Fensterbrett",
+    "gender": "das",
+    "english": "window sill",
+    "group": "House"
+  },
+  {
+    "german": "Fensterrahmen",
+    "gender": "der",
+    "english": "window frame",
+    "group": "House"
+  },
+  {
+    "german": "Fernseher",
+    "gender": "der",
+    "english": "television / TV",
+    "group": "Furniture"
+  },
+  {
+    "german": "Festplatte",
+    "gender": "die",
+    "english": "hard drive",
+    "group": "Office"
+  },
+  {
+    "german": "Feuerlöscher",
+    "gender": "der",
+    "english": "fire extinguisher",
+    "group": "Office"
+  },
+  {
+    "german": "Fieber",
+    "gender": "das",
+    "english": "fever",
+    "group": "Other"
+  },
+  {
+    "german": "Filiale",
+    "gender": "die",
+    "english": "branch office",
+    "group": "Work"
+  },
+  {
+    "german": "Film",
+    "gender": "der",
+    "english": "film / movie",
+    "group": "Other"
+  },
+  {
+    "german": "Finger",
+    "gender": "der",
+    "english": "finger",
+    "group": "Other"
+  },
+  {
+    "german": "Firma",
+    "gender": "die",
+    "english": "firm / company",
+    "group": "Work"
+  },
+  {
+    "german": "Fisch",
+    "gender": "der",
+    "english": "fish",
+    "group": "Food"
+  },
+  {
+    "german": "Fitnessraum",
+    "gender": "der",
+    "english": "fitness room / gym",
+    "group": "Rooms"
+  },
+  {
+    "german": "Flachdach",
+    "gender": "das",
+    "english": "flat roof",
+    "group": "House"
+  },
+  {
+    "german": "Flasche",
+    "gender": "die",
+    "english": "bottle",
+    "group": "Food"
+  },
+  {
+    "german": "Fleisch",
+    "gender": "das",
+    "english": "meat",
+    "group": "Food"
+  },
+  {
+    "german": "Fliege",
+    "gender": "die",
+    "english": "fly",
+    "group": "Other"
+  },
+  {
+    "german": "Fliese",
+    "gender": "die",
+    "english": "tile",
+    "group": "House"
+  },
+  {
+    "german": "Flipchart",
+    "gender": "das",
+    "english": "flipchart",
+    "group": "Office"
+  },
+  {
+    "german": "Flughafen",
+    "gender": "der",
+    "english": "airport",
+    "group": "Other"
+  },
+  {
+    "german": "Flugzeug",
+    "gender": "das",
+    "english": "airplane",
+    "group": "Other"
+  },
+  {
+    "german": "Flur",
+    "gender": "der",
+    "english": "corridor / hallway",
+    "group": "Office"
+  },
+  {
+    "german": "Fluss",
+    "gender": "der",
+    "english": "river",
+    "group": "Other"
+  },
+  {
+    "german": "Folie",
+    "gender": "die",
+    "english": "slide / transparency",
+    "group": "Office"
+  },
+  {
+    "german": "Fonds",
+    "gender": "der",
+    "english": "fund",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Forelle",
+    "gender": "die",
+    "english": "trout",
+    "group": "Food"
+  },
+  {
+    "german": "Formular",
+    "gender": "das",
+    "english": "form",
+    "group": "Office"
+  },
+  {
+    "german": "Fortbildung",
+    "gender": "die",
+    "english": "advanced training",
+    "group": "Work"
+  },
+  {
+    "german": "Französisch",
+    "gender": "das",
+    "english": "French (language/subject)",
+    "group": "School"
+  },
+  {
+    "german": "Freiheit",
+    "gender": "die",
+    "english": "freedom / liberty",
+    "group": "Other"
+  },
+  {
+    "german": "Freund",
+    "gender": "der",
+    "english": "boyfriend / friend (male)",
+    "group": "Family"
+  },
+  {
+    "german": "Freundin",
+    "gender": "die",
+    "english": "girlfriend / friend (female)",
+    "group": "Family"
+  },
+  {
+    "german": "Freundschaft",
+    "gender": "die",
+    "english": "friendship",
+    "group": "Other"
+  },
+  {
+    "german": "Frieden",
+    "gender": "der",
+    "english": "peace",
+    "group": "Other"
+  },
+  {
+    "german": "Frischkäse",
+    "gender": "der",
+    "english": "cream cheese",
+    "group": "Food"
+  },
+  {
+    "german": "Frist",
+    "gender": "die",
+    "english": "deadline / time limit",
+    "group": "Work"
+  },
+  {
+    "german": "Frost",
+    "gender": "der",
+    "english": "frost",
+    "group": "Other"
+  },
+  {
+    "german": "Frühling",
+    "gender": "der",
+    "english": "spring",
+    "group": "Other"
+  },
+  {
+    "german": "Frühstück",
+    "gender": "das",
+    "english": "breakfast",
+    "group": "Food"
+  },
+  {
+    "german": "Fundament",
+    "gender": "das",
+    "english": "foundation",
+    "group": "House"
+  },
+  {
+    "german": "Fuß",
+    "gender": "der",
+    "english": "foot",
+    "group": "Other"
+  },
+  {
+    "german": "Fußball",
+    "gender": "der",
+    "english": "football / soccer",
+    "group": "Other"
+  },
+  {
+    "german": "Fußhocker",
+    "gender": "der",
+    "english": "footstool / ottoman",
+    "group": "Furniture"
+  },
+  {
+    "german": "Fußteil",
+    "gender": "das",
+    "english": "footboard",
+    "group": "Furniture"
+  },
+  {
+    "german": "Garage",
+    "gender": "die",
+    "english": "garage",
+    "group": "House"
+  },
+  {
+    "german": "Garagentor",
+    "gender": "das",
+    "english": "garage door",
+    "group": "House"
+  },
+  {
+    "german": "Garderobe",
+    "gender": "die",
+    "english": "cloakroom / coat rack",
+    "group": "Office"
+  },
+  {
+    "german": "Garnele",
+    "gender": "die",
+    "english": "shrimp / prawn",
+    "group": "Food"
+  },
+  {
+    "german": "Garten",
+    "gender": "der",
+    "english": "garden",
+    "group": "House"
+  },
+  {
+    "german": "Gäste-WC",
+    "gender": "das",
+    "english": "guest toilet / powder room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Gästezimmer",
+    "gender": "das",
+    "english": "guest room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Gebühr",
+    "gender": "die",
+    "english": "fee / charge",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Geburt",
+    "gender": "die",
+    "english": "birth",
+    "group": "Family"
+  },
+  {
+    "german": "Geburtstag",
+    "gender": "der",
+    "english": "birthday",
+    "group": "Family"
+  },
+  {
+    "german": "Gedanke",
+    "gender": "der",
+    "english": "thought",
+    "group": "Other"
+  },
+  {
+    "german": "Gehalt",
+    "gender": "das",
+    "english": "salary",
+    "group": "Work"
+  },
+  {
+    "german": "Gehaltsabrechnung",
+    "gender": "die",
+    "english": "payslip / payroll",
+    "group": "Work"
+  },
+  {
+    "german": "Gehirn",
+    "gender": "das",
+    "english": "brain",
+    "group": "Other"
+  },
+  {
+    "german": "Gehweg",
+    "gender": "der",
+    "english": "footpath / walkway",
+    "group": "House"
+  },
+  {
+    "german": "Geländer",
+    "gender": "das",
+    "english": "railing / banister",
+    "group": "House"
+  },
+  {
+    "german": "Geld",
+    "gender": "das",
+    "english": "money",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Geldautomat",
+    "gender": "der",
+    "english": "ATM / cash machine",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Geldbörse",
+    "gender": "die",
+    "english": "purse / wallet",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Generation",
+    "gender": "die",
+    "english": "generation",
+    "group": "Family"
+  },
+  {
+    "german": "Geräteschuppen",
+    "gender": "der",
+    "english": "tool shed",
+    "group": "House"
+  },
+  {
+    "german": "Gerechtigkeit",
+    "gender": "die",
+    "english": "justice",
+    "group": "Other"
+  },
+  {
+    "german": "Gericht",
+    "gender": "das",
+    "english": "dish / course",
+    "group": "Food"
+  },
+  {
+    "german": "Gesamtschule",
+    "gender": "die",
+    "english": "comprehensive school",
+    "group": "School"
+  },
+  {
+    "german": "Geschäft",
+    "gender": "das",
+    "english": "shop / store",
+    "group": "Other"
+  },
+  {
+    "german": "Geschäftsführer",
+    "gender": "der",
+    "english": "managing director / CEO",
+    "group": "Work"
+  },
+  {
+    "german": "Geschäftsreise",
+    "gender": "die",
+    "english": "business trip",
+    "group": "Work"
+  },
+  {
+    "german": "Geschichte",
+    "gender": "die",
+    "english": "history",
+    "group": "School"
+  },
+  {
+    "german": "Geschwister",
+    "gender": "die",
+    "english": "siblings",
+    "group": "Family"
+  },
+  {
+    "german": "Gesellschaft",
+    "gender": "die",
+    "english": "society",
+    "group": "Other"
+  },
+  {
+    "german": "Gewerkschaft",
+    "gender": "die",
+    "english": "trade union",
+    "group": "Work"
+  },
+  {
+    "german": "Gewinn",
+    "gender": "der",
+    "english": "profit",
+    "group": "Work"
+  },
+  {
+    "german": "Gewürz",
+    "gender": "das",
+    "english": "spice / seasoning",
+    "group": "Food"
+  },
+  {
+    "german": "Girokonto",
+    "gender": "das",
+    "english": "current account / checking account",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Glas",
+    "gender": "das",
+    "english": "glass",
+    "group": "Food"
+  },
+  {
+    "german": "Glück",
+    "gender": "das",
+    "english": "happiness / luck",
+    "group": "Other"
+  },
+  {
+    "german": "Gouda",
+    "gender": "der",
+    "english": "gouda",
+    "group": "Food"
+  },
+  {
+    "german": "Granatapfel",
+    "gender": "der",
+    "english": "pomegranate",
+    "group": "Food"
+  },
+  {
+    "german": "Grapefruit",
+    "gender": "die",
+    "english": "grapefruit",
+    "group": "Food"
+  },
+  {
+    "german": "Gras",
+    "gender": "das",
+    "english": "grass",
+    "group": "Other"
+  },
+  {
+    "german": "Grenze",
+    "gender": "die",
+    "english": "border",
+    "group": "Other"
+  },
+  {
+    "german": "Grippe",
+    "gender": "die",
+    "english": "flu",
+    "group": "Other"
+  },
+  {
+    "german": "Großmutter",
+    "gender": "die",
+    "english": "grandmother",
+    "group": "Family"
+  },
+  {
+    "german": "Großraumbüro",
+    "gender": "das",
+    "english": "open-plan office",
+    "group": "Office"
+  },
+  {
+    "german": "Großvater",
+    "gender": "der",
+    "english": "grandfather",
+    "group": "Family"
+  },
+  {
+    "german": "Grundschule",
+    "gender": "die",
+    "english": "primary school / elementary school",
+    "group": "School"
+  },
+  {
+    "german": "Grundstück",
+    "gender": "das",
+    "english": "plot / property",
+    "group": "House"
+  },
+  {
+    "german": "Grüntee",
+    "gender": "der",
+    "english": "green tea",
+    "group": "Food"
+  },
+  {
+    "german": "Gummi",
+    "gender": "das",
+    "english": "gummy candy",
+    "group": "Food"
+  },
+  {
+    "german": "Gummiband",
+    "gender": "das",
+    "english": "rubber band",
+    "group": "Office"
+  },
+  {
+    "german": "Gurke",
+    "gender": "die",
+    "english": "cucumber",
+    "group": "Food"
+  },
+  {
+    "german": "Gürtel",
+    "gender": "der",
+    "english": "belt",
+    "group": "Other"
+  },
+  {
+    "german": "Gutschrift",
+    "gender": "die",
+    "english": "credit note / credit entry",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Gymnasium",
+    "gender": "das",
+    "english": "grammar school / high school",
+    "group": "School"
+  },
+  {
+    "german": "Haar",
+    "gender": "das",
+    "english": "hair",
+    "group": "Other"
+  },
+  {
+    "german": "Hafen",
+    "gender": "der",
+    "english": "port / harbour",
+    "group": "Other"
+  },
+  {
+    "german": "Haferflocken",
+    "gender": "die",
+    "english": "oats / oatmeal",
+    "group": "Food"
+  },
+  {
+    "german": "Hafermilch",
+    "gender": "die",
+    "english": "oat milk",
+    "group": "Food"
+  },
+  {
+    "german": "Haftnotiz",
+    "gender": "die",
+    "english": "sticky note / Post-it",
+    "group": "Office"
+  },
+  {
+    "german": "Hagel",
+    "gender": "der",
+    "english": "hail",
+    "group": "Other"
+  },
+  {
+    "german": "Hahn",
+    "gender": "der",
+    "english": "tap / faucet",
+    "group": "House"
+  },
+  {
+    "german": "Hähnchen",
+    "gender": "das",
+    "english": "chicken",
+    "group": "Food"
+  },
+  {
+    "german": "Hakenleiste",
+    "gender": "die",
+    "english": "coat hook rail",
+    "group": "Furniture"
+  },
+  {
+    "german": "Halbbruder",
+    "gender": "der",
+    "english": "half-brother",
+    "group": "Family"
+  },
+  {
+    "german": "Halbschwester",
+    "gender": "die",
+    "english": "half-sister",
+    "group": "Family"
+  },
+  {
+    "german": "Hals",
+    "gender": "der",
+    "english": "neck / throat",
+    "group": "Other"
+  },
+  {
+    "german": "Haltestelle",
+    "gender": "die",
+    "english": "stop / bus stop",
+    "group": "Other"
+  },
+  {
+    "german": "Hand",
+    "gender": "die",
+    "english": "hand",
+    "group": "Other"
+  },
+  {
+    "german": "Handschuh",
+    "gender": "der",
+    "english": "glove",
+    "group": "Other"
+  },
+  {
+    "german": "Handy",
+    "gender": "das",
+    "english": "mobile phone",
+    "group": "Other"
+  },
+  {
+    "german": "Hängematte",
+    "gender": "die",
+    "english": "hammock",
+    "group": "Furniture"
+  },
+  {
+    "german": "Hängeschrank",
+    "gender": "der",
+    "english": "wall cabinet / overhead cabinet",
+    "group": "Furniture"
+  },
+  {
+    "german": "Hase",
+    "gender": "der",
+    "english": "rabbit / hare",
+    "group": "Other"
+  },
+  {
+    "german": "Haselnuss",
+    "gender": "die",
+    "english": "hazelnut",
+    "group": "Food"
+  },
+  {
+    "german": "Hauptgericht",
+    "gender": "das",
+    "english": "main course",
+    "group": "Food"
+  },
+  {
+    "german": "Hauptschule",
+    "gender": "die",
+    "english": "secondary school (basic)",
+    "group": "School"
+  },
+  {
+    "german": "Hauptstadt",
+    "gender": "die",
+    "english": "capital city",
+    "group": "Other"
+  },
+  {
+    "german": "Hausaufgabe",
+    "gender": "die",
+    "english": "homework",
+    "group": "School"
+  },
+  {
+    "german": "Hauseingang",
+    "gender": "der",
+    "english": "front door / house entrance",
+    "group": "House"
+  },
+  {
+    "german": "Hausflur",
+    "gender": "der",
+    "english": "hallway / corridor (building)",
+    "group": "House"
+  },
+  {
+    "german": "Haushalt",
+    "gender": "der",
+    "english": "household",
+    "group": "Family"
+  },
+  {
+    "german": "Hauspost",
+    "gender": "die",
+    "english": "internal mail",
+    "group": "Office"
+  },
+  {
+    "german": "Haustür",
+    "gender": "die",
+    "english": "front door",
+    "group": "House"
+  },
+  {
+    "german": "Hauswirtschaftsraum",
+    "gender": "der",
+    "english": "utility room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Haut",
+    "gender": "die",
+    "english": "skin",
+    "group": "Other"
+  },
+  {
+    "german": "Headset",
+    "gender": "das",
+    "english": "headset",
+    "group": "Office"
+  },
+  {
+    "german": "Hecke",
+    "gender": "die",
+    "english": "hedge",
+    "group": "House"
+  },
+  {
+    "german": "Heft",
+    "gender": "das",
+    "english": "exercise book / notebook",
+    "group": "School"
+  },
+  {
+    "german": "Heftklammer",
+    "gender": "die",
+    "english": "staple",
+    "group": "Office"
+  },
+  {
+    "german": "Heizkörper",
+    "gender": "der",
+    "english": "radiator",
+    "group": "Furniture"
+  },
+  {
+    "german": "Heizung",
+    "gender": "die",
+    "english": "heating",
+    "group": "Office"
+  },
+  {
+    "german": "Heizungskeller",
+    "gender": "der",
+    "english": "boiler room / heating cellar",
+    "group": "Rooms"
+  },
+  {
+    "german": "Helm",
+    "gender": "der",
+    "english": "helmet",
+    "group": "Other"
+  },
+  {
+    "german": "Hemd",
+    "gender": "das",
+    "english": "shirt",
+    "group": "Other"
+  },
+  {
+    "german": "Herbst",
+    "gender": "der",
+    "english": "autumn / fall",
+    "group": "Other"
+  },
+  {
+    "german": "Hering",
+    "gender": "der",
+    "english": "herring",
+    "group": "Food"
+  },
+  {
+    "german": "Herz",
+    "gender": "das",
+    "english": "heart",
+    "group": "Other"
+  },
+  {
+    "german": "Himbeere",
+    "gender": "die",
+    "english": "raspberry",
+    "group": "Food"
+  },
+  {
+    "german": "Hitze",
+    "gender": "die",
+    "english": "heat",
+    "group": "Other"
+  },
+  {
+    "german": "Hobby",
+    "gender": "das",
+    "english": "hobby",
+    "group": "Other"
+  },
+  {
+    "german": "Hobbyraum",
+    "gender": "der",
+    "english": "hobby room / recreation room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Hochschule",
+    "gender": "die",
+    "english": "university / college",
+    "group": "School"
+  },
+  {
+    "german": "Hochstuhl",
+    "gender": "der",
+    "english": "high chair",
+    "group": "Furniture"
+  },
+  {
+    "german": "Hochzeit",
+    "gender": "die",
+    "english": "wedding",
+    "group": "Family"
+  },
+  {
+    "german": "Hocker",
+    "gender": "der",
+    "english": "stool",
+    "group": "Furniture"
+  },
+  {
+    "german": "Hof",
+    "gender": "der",
+    "english": "courtyard / yard",
+    "group": "House"
+  },
+  {
+    "german": "Hoffnung",
+    "gender": "die",
+    "english": "hope",
+    "group": "Other"
+  },
+  {
+    "german": "Homeoffice",
+    "gender": "das",
+    "english": "home office / remote work",
+    "group": "Work"
+  },
+  {
+    "german": "Honig",
+    "gender": "der",
+    "english": "honey",
+    "group": "Food"
+  },
+  {
+    "german": "Honigmelone",
+    "gender": "die",
+    "english": "honeydew melon",
+    "group": "Food"
+  },
+  {
+    "german": "Hose",
+    "gender": "die",
+    "english": "trousers / pants",
+    "group": "Other"
+  },
+  {
+    "german": "Hotel",
+    "gender": "das",
+    "english": "hotel",
+    "group": "Other"
+  },
+  {
+    "german": "Hügel",
+    "gender": "der",
+    "english": "hill",
+    "group": "Other"
+  },
+  {
+    "german": "Huhn",
+    "gender": "das",
+    "english": "chicken / hen",
+    "group": "Other"
+  },
+  {
+    "german": "Hühnchen",
+    "gender": "das",
+    "english": "chicken",
+    "group": "Food"
+  },
+  {
+    "german": "Hummer",
+    "gender": "der",
+    "english": "lobster",
+    "group": "Food"
+  },
+  {
+    "german": "Hund",
+    "gender": "der",
+    "english": "dog",
+    "group": "Other"
+  },
+  {
+    "german": "Husten",
+    "gender": "der",
+    "english": "cough",
+    "group": "Other"
+  },
+  {
+    "german": "Hut",
+    "gender": "der",
+    "english": "hat",
+    "group": "Other"
+  },
+  {
+    "german": "Hypothek",
+    "gender": "die",
+    "english": "mortgage",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "IBAN",
+    "gender": "die",
+    "english": "IBAN",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Idee",
+    "gender": "die",
+    "english": "idea",
+    "group": "Other"
+  },
+  {
+    "german": "Igel",
+    "gender": "der",
+    "english": "hedgehog",
+    "group": "Other"
+  },
+  {
+    "german": "Imbiss",
+    "gender": "der",
+    "english": "snack / fast food",
+    "group": "Food"
+  },
+  {
+    "german": "Imbissstube",
+    "gender": "die",
+    "english": "snack bar",
+    "group": "Food"
+  },
+  {
+    "german": "Informatik",
+    "gender": "die",
+    "english": "computer science",
+    "group": "School"
+  },
+  {
+    "german": "Ingwer",
+    "gender": "der",
+    "english": "ginger",
+    "group": "Food"
+  },
+  {
+    "german": "Insekt",
+    "gender": "das",
+    "english": "insect",
+    "group": "Other"
+  },
+  {
+    "german": "Insel",
+    "gender": "die",
+    "english": "island",
+    "group": "Other"
+  },
+  {
+    "german": "Internet",
+    "gender": "das",
+    "english": "internet",
+    "group": "Other"
+  },
+  {
+    "german": "Investition",
+    "gender": "die",
+    "english": "investment",
+    "group": "Work"
+  },
+  {
+    "german": "Jacke",
+    "gender": "die",
+    "english": "jacket",
+    "group": "Other"
+  },
+  {
+    "german": "Jahr",
+    "gender": "das",
+    "english": "year",
+    "group": "Other"
+  },
+  {
+    "german": "Jahrhundert",
+    "gender": "das",
+    "english": "century",
+    "group": "Other"
+  },
+  {
+    "german": "Jalousie",
+    "gender": "die",
+    "english": "blind / shutter",
+    "group": "Office"
+  },
+  {
+    "german": "Jeans",
+    "gender": "die",
+    "english": "jeans",
+    "group": "Other"
+  },
+  {
+    "german": "Joghurt",
+    "gender": "der",
+    "english": "yoghurt",
+    "group": "Food"
+  },
+  {
+    "german": "Johannisbeere",
+    "gender": "die",
+    "english": "currant",
+    "group": "Food"
+  },
+  {
+    "german": "Jubiläum",
+    "gender": "das",
+    "english": "anniversary / jubilee",
+    "group": "Other"
+  },
+  {
+    "german": "Jugendherberge",
+    "gender": "die",
+    "english": "youth hostel",
+    "group": "Other"
+  },
+  {
+    "german": "Jugendlicher",
+    "gender": "der",
+    "english": "teenager / youth",
+    "group": "Family"
+  },
+  {
+    "german": "Kabel",
+    "gender": "das",
+    "english": "cable",
+    "group": "Office"
+  },
+  {
+    "german": "Kaffee",
+    "gender": "der",
+    "english": "coffee",
+    "group": "Food"
+  },
+  {
+    "german": "Kaffeeküche",
+    "gender": "die",
+    "english": "office kitchen / kitchenette",
+    "group": "Office"
+  },
+  {
+    "german": "Kaffeemaschine",
+    "gender": "die",
+    "english": "coffee machine",
+    "group": "Office"
+  },
+  {
+    "german": "Kakao",
+    "gender": "der",
+    "english": "cocoa / hot chocolate",
+    "group": "Food"
+  },
+  {
+    "german": "Kalender",
+    "gender": "der",
+    "english": "calendar",
+    "group": "Office"
+  },
+  {
+    "german": "Kälte",
+    "gender": "die",
+    "english": "cold",
+    "group": "Other"
+  },
+  {
+    "german": "Kamera",
+    "gender": "die",
+    "english": "camera",
+    "group": "Other"
+  },
+  {
+    "german": "Kamin",
+    "gender": "der",
+    "english": "fireplace",
+    "group": "Furniture"
+  },
+  {
+    "german": "Kammer",
+    "gender": "die",
+    "english": "small room / box room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Kantine",
+    "gender": "die",
+    "english": "canteen / cafeteria",
+    "group": "Office"
+  },
+  {
+    "german": "Karotte",
+    "gender": "die",
+    "english": "carrot",
+    "group": "Food"
+  },
+  {
+    "german": "Karriere",
+    "gender": "die",
+    "english": "career",
+    "group": "Work"
+  },
+  {
+    "german": "Karte",
+    "gender": "die",
+    "english": "card",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Kartoffel",
+    "gender": "die",
+    "english": "potato",
+    "group": "Food"
+  },
+  {
+    "german": "Käse",
+    "gender": "der",
+    "english": "cheese",
+    "group": "Food"
+  },
+  {
+    "german": "Kassenbon",
+    "gender": "der",
+    "english": "till receipt",
+    "group": "Office"
+  },
+  {
+    "german": "Kastanie",
+    "gender": "die",
+    "english": "chestnut",
+    "group": "Food"
+  },
+  {
+    "german": "Kathedrale",
+    "gender": "die",
+    "english": "cathedral",
+    "group": "Other"
+  },
+  {
+    "german": "Katze",
+    "gender": "die",
+    "english": "cat",
+    "group": "Other"
+  },
+  {
+    "german": "Keks",
+    "gender": "der",
+    "english": "biscuit / cookie",
+    "group": "Food"
+  },
+  {
+    "german": "Keller",
+    "gender": "der",
+    "english": "cellar / basement",
+    "group": "House"
+  },
+  {
+    "german": "Keller­fenster",
+    "gender": "das",
+    "english": "basement window",
+    "group": "House"
+  },
+  {
+    "german": "Kellerraum",
+    "gender": "der",
+    "english": "cellar room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Kellertreppe",
+    "gender": "die",
+    "english": "cellar stairs",
+    "group": "House"
+  },
+  {
+    "german": "Kellner",
+    "gender": "der",
+    "english": "waiter",
+    "group": "Food"
+  },
+  {
+    "german": "Ketchup",
+    "gender": "der",
+    "english": "ketchup",
+    "group": "Food"
+  },
+  {
+    "german": "Kichererbse",
+    "gender": "die",
+    "english": "chickpea",
+    "group": "Food"
+  },
+  {
+    "german": "Kind",
+    "gender": "das",
+    "english": "child",
+    "group": "Family"
+  },
+  {
+    "german": "Kinderbett",
+    "gender": "das",
+    "english": "cot / crib",
+    "group": "Furniture"
+  },
+  {
+    "german": "Kindergarten",
+    "gender": "der",
+    "english": "kindergarten / nursery school",
+    "group": "School"
+  },
+  {
+    "german": "Kinderzimmer",
+    "gender": "das",
+    "english": "children's room / nursery",
+    "group": "Rooms"
+  },
+  {
+    "german": "Kino",
+    "gender": "das",
+    "english": "cinema",
+    "group": "Other"
+  },
+  {
+    "german": "Kirche",
+    "gender": "die",
+    "english": "church",
+    "group": "Other"
+  },
+  {
+    "german": "Kirsche",
+    "gender": "die",
+    "english": "cherry",
+    "group": "Food"
+  },
+  {
+    "german": "Kissen",
+    "gender": "das",
+    "english": "cushion / pillow",
+    "group": "Furniture"
+  },
+  {
+    "german": "Kita",
+    "gender": "die",
+    "english": "day care / nursery",
+    "group": "School"
+  },
+  {
+    "german": "Kiwi",
+    "gender": "die",
+    "english": "kiwi",
+    "group": "Food"
+  },
+  {
+    "german": "Klarsichtfolie",
+    "gender": "die",
+    "english": "transparent sleeve / sheet protector",
+    "group": "Office"
+  },
+  {
+    "german": "Klasse",
+    "gender": "die",
+    "english": "class / grade",
+    "group": "School"
+  },
+  {
+    "german": "Klassenarbeit",
+    "gender": "die",
+    "english": "class test / written test",
+    "group": "School"
+  },
+  {
+    "german": "Klassenzimmer",
+    "gender": "das",
+    "english": "classroom",
+    "group": "School"
+  },
+  {
+    "german": "Klausur",
+    "gender": "die",
+    "english": "written exam",
+    "group": "School"
+  },
+  {
+    "german": "Klebeband",
+    "gender": "das",
+    "english": "adhesive tape",
+    "group": "Office"
+  },
+  {
+    "german": "Klebstoff",
+    "gender": "der",
+    "english": "glue / adhesive",
+    "group": "School"
+  },
+  {
+    "german": "Kleid",
+    "gender": "das",
+    "english": "dress",
+    "group": "Other"
+  },
+  {
+    "german": "Kleiderschrank",
+    "gender": "der",
+    "english": "wardrobe",
+    "group": "Furniture"
+  },
+  {
+    "german": "Kleidung",
+    "gender": "die",
+    "english": "clothing",
+    "group": "Other"
+  },
+  {
+    "german": "Kleinkind",
+    "gender": "das",
+    "english": "toddler",
+    "group": "Family"
+  },
+  {
+    "german": "Klimaanlage",
+    "gender": "die",
+    "english": "air conditioning",
+    "group": "Office"
+  },
+  {
+    "german": "Klingel",
+    "gender": "die",
+    "english": "doorbell",
+    "group": "House"
+  },
+  {
+    "german": "Kneipe",
+    "gender": "die",
+    "english": "pub",
+    "group": "Food"
+  },
+  {
+    "german": "Knie",
+    "gender": "das",
+    "english": "knee",
+    "group": "Other"
+  },
+  {
+    "german": "Knoblauch",
+    "gender": "der",
+    "english": "garlic",
+    "group": "Food"
+  },
+  {
+    "german": "Knochen",
+    "gender": "der",
+    "english": "bone",
+    "group": "Other"
+  },
+  {
+    "german": "Koch",
+    "gender": "der",
+    "english": "cook / chef",
+    "group": "Food"
+  },
+  {
+    "german": "Kohl",
+    "gender": "der",
+    "english": "cabbage",
+    "group": "Food"
+  },
+  {
+    "german": "Kohlrabi",
+    "gender": "der",
+    "english": "kohlrabi",
+    "group": "Food"
+  },
+  {
+    "german": "Kokosnuss",
+    "gender": "die",
+    "english": "coconut",
+    "group": "Food"
+  },
+  {
+    "german": "Kollege",
+    "gender": "der",
+    "english": "colleague (male)",
+    "group": "Work"
+  },
+  {
+    "german": "Kollegin",
+    "gender": "die",
+    "english": "colleague (female)",
+    "group": "Work"
+  },
+  {
+    "german": "Kommode",
+    "gender": "die",
+    "english": "chest of drawers / dresser",
+    "group": "Furniture"
+  },
+  {
+    "german": "Konditorei",
+    "gender": "die",
+    "english": "patisserie / confectionery",
+    "group": "Food"
+  },
+  {
+    "german": "Konferenz",
+    "gender": "die",
+    "english": "conference",
+    "group": "Work"
+  },
+  {
+    "german": "Konferenzraum",
+    "gender": "der",
+    "english": "conference room",
+    "group": "Office"
+  },
+  {
+    "german": "Konkurrent",
+    "gender": "der",
+    "english": "competitor",
+    "group": "Work"
+  },
+  {
+    "german": "Kontinent",
+    "gender": "der",
+    "english": "continent",
+    "group": "Other"
+  },
+  {
+    "german": "Konto",
+    "gender": "das",
+    "english": "account",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Kontoauszug",
+    "gender": "der",
+    "english": "bank statement",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Kontonummer",
+    "gender": "die",
+    "english": "account number",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Kontostand",
+    "gender": "der",
+    "english": "account balance",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Konzert",
+    "gender": "das",
+    "english": "concert",
+    "group": "Other"
+  },
+  {
+    "german": "Kopf",
+    "gender": "der",
+    "english": "head",
+    "group": "Other"
+  },
+  {
+    "german": "Kopfhörer",
+    "gender": "der",
+    "english": "headphones",
+    "group": "Other"
+  },
+  {
+    "german": "Kopfteil",
+    "gender": "das",
+    "english": "headboard",
+    "group": "Furniture"
+  },
+  {
+    "german": "Kopierer",
+    "gender": "der",
+    "english": "photocopier",
+    "group": "Office"
+  },
+  {
+    "german": "Kosten",
+    "gender": "die",
+    "english": "costs / expenses",
+    "group": "Work"
+  },
+  {
+    "german": "Krabbe",
+    "gender": "die",
+    "english": "crab",
+    "group": "Food"
+  },
+  {
+    "german": "Krankenhaus",
+    "gender": "das",
+    "english": "hospital",
+    "group": "Other"
+  },
+  {
+    "german": "Krankenstand",
+    "gender": "der",
+    "english": "sick leave",
+    "group": "Work"
+  },
+  {
+    "german": "Krankenversicherung",
+    "gender": "die",
+    "english": "health insurance",
+    "group": "Work"
+  },
+  {
+    "german": "Krankheit",
+    "gender": "die",
+    "english": "illness / disease",
+    "group": "Other"
+  },
+  {
+    "german": "Kräuter",
+    "gender": "die",
+    "english": "herbs",
+    "group": "Food"
+  },
+  {
+    "german": "Kräutertee",
+    "gender": "der",
+    "english": "herbal tea",
+    "group": "Food"
+  },
+  {
+    "german": "Krawatte",
+    "gender": "die",
+    "english": "tie",
+    "group": "Other"
+  },
+  {
+    "german": "Kredit",
+    "gender": "der",
+    "english": "credit / loan",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Kreditkarte",
+    "gender": "die",
+    "english": "credit card",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Kreide",
+    "gender": "die",
+    "english": "chalk",
+    "group": "School"
+  },
+  {
+    "german": "Krieg",
+    "gender": "der",
+    "english": "war",
+    "group": "Other"
+  },
+  {
+    "german": "Kronleuchter",
+    "gender": "der",
+    "english": "chandelier",
+    "group": "Furniture"
+  },
+  {
+    "german": "Küche",
+    "gender": "die",
+    "english": "kitchen",
+    "group": "Rooms"
+  },
+  {
+    "german": "Kuchen",
+    "gender": "der",
+    "english": "cake",
+    "group": "Food"
+  },
+  {
+    "german": "Küchenschrank",
+    "gender": "der",
+    "english": "kitchen cupboard",
+    "group": "Furniture"
+  },
+  {
+    "german": "Kugelschreiber",
+    "gender": "der",
+    "english": "ballpoint pen",
+    "group": "Office"
+  },
+  {
+    "german": "Kuh",
+    "gender": "die",
+    "english": "cow",
+    "group": "Other"
+  },
+  {
+    "german": "Kühlschrank",
+    "gender": "der",
+    "english": "refrigerator / fridge",
+    "group": "Furniture"
+  },
+  {
+    "german": "Kultur",
+    "gender": "die",
+    "english": "culture",
+    "group": "Other"
+  },
+  {
+    "german": "Kunde",
+    "gender": "der",
+    "english": "customer / client",
+    "group": "Work"
+  },
+  {
+    "german": "Kündigung",
+    "gender": "die",
+    "english": "dismissal / resignation",
+    "group": "Work"
+  },
+  {
+    "german": "Kunst",
+    "gender": "die",
+    "english": "art",
+    "group": "School"
+  },
+  {
+    "german": "Kürbis",
+    "gender": "der",
+    "english": "pumpkin / squash",
+    "group": "Food"
+  },
+  {
+    "german": "Kurkuma",
+    "gender": "die",
+    "english": "turmeric",
+    "group": "Food"
+  },
+  {
+    "german": "Lachs",
+    "gender": "der",
+    "english": "salmon",
+    "group": "Food"
+  },
+  {
+    "german": "Ladekabel",
+    "gender": "das",
+    "english": "charging cable",
+    "group": "Other"
+  },
+  {
+    "german": "Laden",
+    "gender": "der",
+    "english": "shop / store",
+    "group": "Other"
+  },
+  {
+    "german": "Lagerraum",
+    "gender": "der",
+    "english": "storage room",
+    "group": "Office"
+  },
+  {
+    "german": "Lamm",
+    "gender": "das",
+    "english": "lamb",
+    "group": "Food"
+  },
+  {
+    "german": "Lampe",
+    "gender": "die",
+    "english": "lamp / light",
+    "group": "Office"
+  },
+  {
+    "german": "Land",
+    "gender": "das",
+    "english": "country / land",
+    "group": "Other"
+  },
+  {
+    "german": "Laptop",
+    "gender": "der",
+    "english": "laptop",
+    "group": "Office"
+  },
+  {
+    "german": "Lasagne",
+    "gender": "die",
+    "english": "lasagne",
+    "group": "Food"
+  },
+  {
+    "german": "Lastschrift",
+    "gender": "die",
+    "english": "direct debit",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Lateinisch",
+    "gender": "das",
+    "english": "Latin (language/subject)",
+    "group": "School"
+  },
+  {
+    "german": "Lattenrost",
+    "gender": "der",
+    "english": "slatted bed base",
+    "group": "Furniture"
+  },
+  {
+    "german": "Lauch",
+    "gender": "der",
+    "english": "leek",
+    "group": "Food"
+  },
+  {
+    "german": "Lautsprecher",
+    "gender": "der",
+    "english": "speaker",
+    "group": "Office"
+  },
+  {
+    "german": "Lebenslauf",
+    "gender": "der",
+    "english": "CV / résumé",
+    "group": "Work"
+  },
+  {
+    "german": "Leber",
+    "gender": "die",
+    "english": "liver",
+    "group": "Other"
+  },
+  {
+    "german": "Lehrer",
+    "gender": "der",
+    "english": "teacher (male)",
+    "group": "School"
+  },
+  {
+    "german": "Lehrerin",
+    "gender": "die",
+    "english": "teacher (female)",
+    "group": "School"
+  },
+  {
+    "german": "Lehrerzimmer",
+    "gender": "das",
+    "english": "staff room / teachers' room",
+    "group": "School"
+  },
+  {
+    "german": "Leistung",
+    "gender": "die",
+    "english": "performance / output",
+    "group": "Work"
+  },
+  {
+    "german": "Lenkrad",
+    "gender": "das",
+    "english": "steering wheel",
+    "group": "Other"
+  },
+  {
+    "german": "Lerngruppe",
+    "gender": "die",
+    "english": "study group",
+    "group": "School"
+  },
+  {
+    "german": "Lichtschalter",
+    "gender": "der",
+    "english": "light switch",
+    "group": "House"
+  },
+  {
+    "german": "Liebe",
+    "gender": "die",
+    "english": "love",
+    "group": "Family"
+  },
+  {
+    "german": "Lieferant",
+    "gender": "der",
+    "english": "supplier",
+    "group": "Work"
+  },
+  {
+    "german": "Lieferschein",
+    "gender": "der",
+    "english": "delivery note",
+    "group": "Office"
+  },
+  {
+    "german": "Liege",
+    "gender": "die",
+    "english": "lounger / daybed",
+    "group": "Furniture"
+  },
+  {
+    "german": "Liegestuhl",
+    "gender": "der",
+    "english": "deck chair / lounge chair",
+    "group": "Furniture"
+  },
+  {
+    "german": "Limonade",
+    "gender": "die",
+    "english": "lemonade / soft drink",
+    "group": "Food"
+  },
+  {
+    "german": "Lineal",
+    "gender": "das",
+    "english": "ruler",
+    "group": "Office"
+  },
+  {
+    "german": "Linse",
+    "gender": "die",
+    "english": "lentil",
+    "group": "Food"
+  },
+  {
+    "german": "LKW",
+    "gender": "der",
+    "english": "truck / lorry",
+    "group": "Other"
+  },
+  {
+    "german": "Locher",
+    "gender": "der",
+    "english": "hole punch",
+    "group": "Office"
+  },
+  {
+    "german": "Lohn",
+    "gender": "der",
+    "english": "wage",
+    "group": "Work"
+  },
+  {
+    "german": "Lorbeer",
+    "gender": "der",
+    "english": "bay leaf",
+    "group": "Food"
+  },
+  {
+    "german": "Löwe",
+    "gender": "der",
+    "english": "lion",
+    "group": "Other"
+  },
+  {
+    "german": "Lüge",
+    "gender": "die",
+    "english": "lie",
+    "group": "Other"
+  },
+  {
+    "german": "Lunge",
+    "gender": "die",
+    "english": "lung",
+    "group": "Other"
+  },
+  {
+    "german": "Macht",
+    "gender": "die",
+    "english": "power",
+    "group": "Other"
+  },
+  {
+    "german": "Magen",
+    "gender": "der",
+    "english": "stomach",
+    "group": "Other"
+  },
+  {
+    "german": "Mahlzeit",
+    "gender": "die",
+    "english": "meal",
+    "group": "Food"
+  },
+  {
+    "german": "Mais",
+    "gender": "der",
+    "english": "corn / maize",
+    "group": "Food"
+  },
+  {
+    "german": "Mandarine",
+    "gender": "die",
+    "english": "mandarin",
+    "group": "Food"
+  },
+  {
+    "german": "Mandel",
+    "gender": "die",
+    "english": "almond",
+    "group": "Food"
+  },
+  {
+    "german": "Mango",
+    "gender": "die",
+    "english": "mango",
+    "group": "Food"
+  },
+  {
+    "german": "Mannschaft",
+    "gender": "die",
+    "english": "team",
+    "group": "Other"
+  },
+  {
+    "german": "Mansarde",
+    "gender": "die",
+    "english": "mansard / garret room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Mantel",
+    "gender": "der",
+    "english": "coat",
+    "group": "Other"
+  },
+  {
+    "german": "Mappe",
+    "gender": "die",
+    "english": "folder / binder",
+    "group": "School"
+  },
+  {
+    "german": "Marker",
+    "gender": "der",
+    "english": "marker / highlighter",
+    "group": "Office"
+  },
+  {
+    "german": "Markise",
+    "gender": "die",
+    "english": "awning / sun shade",
+    "group": "House"
+  },
+  {
+    "german": "Markt",
+    "gender": "der",
+    "english": "market",
+    "group": "Work"
+  },
+  {
+    "german": "Marmelade",
+    "gender": "die",
+    "english": "jam",
+    "group": "Food"
+  },
+  {
+    "german": "Marmeladenbrot",
+    "gender": "das",
+    "english": "bread and jam",
+    "group": "Food"
+  },
+  {
+    "german": "Master",
+    "gender": "der",
+    "english": "master's degree",
+    "group": "School"
+  },
+  {
+    "german": "Mathematik",
+    "gender": "die",
+    "english": "mathematics",
+    "group": "School"
+  },
+  {
+    "german": "Matratze",
+    "gender": "die",
+    "english": "mattress",
+    "group": "Furniture"
+  },
+  {
+    "german": "Mauerwerk",
+    "gender": "das",
+    "english": "masonry / brickwork",
+    "group": "House"
+  },
+  {
+    "german": "Maus",
+    "gender": "die",
+    "english": "mouse",
+    "group": "Office"
+  },
+  {
+    "german": "Mayonnaise",
+    "gender": "die",
+    "english": "mayonnaise",
+    "group": "Food"
+  },
+  {
+    "german": "Medikament",
+    "gender": "das",
+    "english": "medication / medicine",
+    "group": "Other"
+  },
+  {
+    "german": "Meer",
+    "gender": "das",
+    "english": "sea / ocean",
+    "group": "Other"
+  },
+  {
+    "german": "Mehl",
+    "gender": "das",
+    "english": "flour",
+    "group": "Food"
+  },
+  {
+    "german": "Mehrwertsteuer",
+    "gender": "die",
+    "english": "VAT / value added tax",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Meinung",
+    "gender": "die",
+    "english": "opinion",
+    "group": "Other"
+  },
+  {
+    "german": "Melone",
+    "gender": "die",
+    "english": "melon",
+    "group": "Food"
+  },
+  {
+    "german": "Mensa",
+    "gender": "die",
+    "english": "canteen / cafeteria",
+    "group": "School"
+  },
+  {
+    "german": "Messe",
+    "gender": "die",
+    "english": "trade fair / exhibition",
+    "group": "Work"
+  },
+  {
+    "german": "Metzgerei",
+    "gender": "die",
+    "english": "butcher's shop",
+    "group": "Food"
+  },
+  {
+    "german": "Mikrofon",
+    "gender": "das",
+    "english": "microphone",
+    "group": "Office"
+  },
+  {
+    "german": "Milch",
+    "gender": "die",
+    "english": "milk",
+    "group": "Food"
+  },
+  {
+    "german": "Milchkaffee",
+    "gender": "der",
+    "english": "latte / white coffee",
+    "group": "Food"
+  },
+  {
+    "german": "Mineralwasser",
+    "gender": "das",
+    "english": "mineral water",
+    "group": "Food"
+  },
+  {
+    "german": "Minute",
+    "gender": "die",
+    "english": "minute",
+    "group": "Other"
+  },
+  {
+    "german": "Minze",
+    "gender": "die",
+    "english": "mint",
+    "group": "Food"
+  },
+  {
+    "german": "Misserfolg",
+    "gender": "der",
+    "english": "failure",
+    "group": "Other"
+  },
+  {
+    "german": "Mitarbeiter",
+    "gender": "der",
+    "english": "employee / staff member",
+    "group": "Work"
+  },
+  {
+    "german": "Mittag",
+    "gender": "der",
+    "english": "midday / noon",
+    "group": "Other"
+  },
+  {
+    "german": "Mittagessen",
+    "gender": "das",
+    "english": "lunch",
+    "group": "Food"
+  },
+  {
+    "german": "Mittagspause",
+    "gender": "die",
+    "english": "lunch break",
+    "group": "Work"
+  },
+  {
+    "german": "Möhre",
+    "gender": "die",
+    "english": "carrot",
+    "group": "Food"
+  },
+  {
+    "german": "Monat",
+    "gender": "der",
+    "english": "month",
+    "group": "Other"
+  },
+  {
+    "german": "Mond",
+    "gender": "der",
+    "english": "moon",
+    "group": "Other"
+  },
+  {
+    "german": "Montag",
+    "gender": "der",
+    "english": "monday",
+    "group": "Other"
+  },
+  {
+    "german": "Morgen",
+    "gender": "der",
+    "english": "morning",
+    "group": "Other"
+  },
+  {
+    "german": "Motorrad",
+    "gender": "das",
+    "english": "motorcycle",
+    "group": "Other"
+  },
+  {
+    "german": "Mozzarella",
+    "gender": "der",
+    "english": "mozzarella",
+    "group": "Food"
+  },
+  {
+    "german": "Mücke",
+    "gender": "die",
+    "english": "mosquito / gnat",
+    "group": "Other"
+  },
+  {
+    "german": "Muffin",
+    "gender": "der",
+    "english": "muffin",
+    "group": "Food"
+  },
+  {
+    "german": "Mülleimer",
+    "gender": "der",
+    "english": "rubbish bin / trash can",
+    "group": "Furniture"
+  },
+  {
+    "german": "Müllkorb",
+    "gender": "der",
+    "english": "wastepaper bin",
+    "group": "Office"
+  },
+  {
+    "german": "Mund",
+    "gender": "der",
+    "english": "mouth",
+    "group": "Other"
+  },
+  {
+    "german": "Münze",
+    "gender": "die",
+    "english": "coin",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Muschel",
+    "gender": "die",
+    "english": "mussel / clam",
+    "group": "Food"
+  },
+  {
+    "german": "Museum",
+    "gender": "das",
+    "english": "museum",
+    "group": "Other"
+  },
+  {
+    "german": "Musik",
+    "gender": "die",
+    "english": "music",
+    "group": "School"
+  },
+  {
+    "german": "Musikzimmer",
+    "gender": "das",
+    "english": "music room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Muskel",
+    "gender": "der",
+    "english": "muscle",
+    "group": "Other"
+  },
+  {
+    "german": "Müsli",
+    "gender": "das",
+    "english": "muesli",
+    "group": "Food"
+  },
+  {
+    "german": "Mutter",
+    "gender": "die",
+    "english": "mother",
+    "group": "Family"
+  },
+  {
+    "german": "Mutterschutz",
+    "gender": "der",
+    "english": "maternity protection",
+    "group": "Work"
+  },
+  {
+    "german": "Mütze",
+    "gender": "die",
+    "english": "hat / beanie",
+    "group": "Other"
+  },
+  {
+    "german": "Nachkomme",
+    "gender": "der",
+    "english": "descendant",
+    "group": "Family"
+  },
+  {
+    "german": "Nachname",
+    "gender": "der",
+    "english": "surname / last name",
+    "group": "Family"
+  },
+  {
+    "german": "Nachricht",
+    "gender": "die",
+    "english": "message / news",
+    "group": "Other"
+  },
+  {
+    "german": "Nacht",
+    "gender": "die",
+    "english": "night",
+    "group": "Other"
+  },
+  {
+    "german": "Nachtisch",
+    "gender": "der",
+    "english": "dessert",
+    "group": "Food"
+  },
+  {
+    "german": "Nachttisch",
+    "gender": "der",
+    "english": "bedside table / nightstand",
+    "group": "Furniture"
+  },
+  {
+    "german": "Namensschildchen",
+    "gender": "das",
+    "english": "name badge",
+    "group": "Office"
+  },
+  {
+    "german": "Nase",
+    "gender": "die",
+    "english": "nose",
+    "group": "Other"
+  },
+  {
+    "german": "Nebel",
+    "gender": "der",
+    "english": "fog / mist",
+    "group": "Other"
+  },
+  {
+    "german": "Neffe",
+    "gender": "der",
+    "english": "nephew",
+    "group": "Family"
+  },
+  {
+    "german": "Nettolohn",
+    "gender": "der",
+    "english": "net wage",
+    "group": "Work"
+  },
+  {
+    "german": "Netzwerk",
+    "gender": "das",
+    "english": "network",
+    "group": "Office"
+  },
+  {
+    "german": "Nichte",
+    "gender": "die",
+    "english": "niece",
+    "group": "Family"
+  },
+  {
+    "german": "Niederlassung",
+    "gender": "die",
+    "english": "branch / subsidiary",
+    "group": "Work"
+  },
+  {
+    "german": "Notausgang",
+    "gender": "der",
+    "english": "emergency exit",
+    "group": "Office"
+  },
+  {
+    "german": "Note",
+    "gender": "die",
+    "english": "grade / mark",
+    "group": "School"
+  },
+  {
+    "german": "Notizblock",
+    "gender": "der",
+    "english": "notepad",
+    "group": "Office"
+  },
+  {
+    "german": "Notizbuch",
+    "gender": "das",
+    "english": "notebook",
+    "group": "Office"
+  },
+  {
+    "german": "Nudel",
+    "gender": "die",
+    "english": "noodle / pasta",
+    "group": "Food"
+  },
+  {
+    "german": "Nuss",
+    "gender": "die",
+    "english": "nut",
+    "group": "Food"
+  },
+  {
+    "german": "Obergeschoss",
+    "gender": "das",
+    "english": "upper floor / first floor",
+    "group": "House"
+  },
+  {
+    "german": "Ofen",
+    "gender": "der",
+    "english": "stove / oven",
+    "group": "Furniture"
+  },
+  {
+    "german": "Ohr",
+    "gender": "das",
+    "english": "ear",
+    "group": "Other"
+  },
+  {
+    "german": "Öl",
+    "gender": "das",
+    "english": "oil",
+    "group": "Food"
+  },
+  {
+    "german": "Olivenöl",
+    "gender": "das",
+    "english": "olive oil",
+    "group": "Food"
+  },
+  {
+    "german": "Oma",
+    "gender": "die",
+    "english": "grandma / granny",
+    "group": "Family"
+  },
+  {
+    "german": "Onkel",
+    "gender": "der",
+    "english": "uncle",
+    "group": "Family"
+  },
+  {
+    "german": "Opa",
+    "gender": "der",
+    "english": "grandpa / granddad",
+    "group": "Family"
+  },
+  {
+    "german": "Orange",
+    "gender": "die",
+    "english": "orange",
+    "group": "Food"
+  },
+  {
+    "german": "Orangensaft",
+    "gender": "der",
+    "english": "orange juice",
+    "group": "Food"
+  },
+  {
+    "german": "Ordner",
+    "gender": "der",
+    "english": "folder / binder",
+    "group": "Office"
+  },
+  {
+    "german": "Oregano",
+    "gender": "der",
+    "english": "oregano",
+    "group": "Food"
+  },
+  {
+    "german": "Paketlieferung",
+    "gender": "die",
+    "english": "parcel delivery",
+    "group": "Office"
+  },
+  {
+    "german": "Papaya",
+    "gender": "die",
+    "english": "papaya",
+    "group": "Food"
+  },
+  {
+    "german": "Papier",
+    "gender": "das",
+    "english": "paper",
+    "group": "Office"
+  },
+  {
+    "german": "Paprika",
+    "gender": "die",
+    "english": "bell pepper",
+    "group": "Food"
+  },
+  {
+    "german": "Paprikapulver",
+    "gender": "das",
+    "english": "paprika powder",
+    "group": "Food"
+  },
+  {
+    "german": "Paravent",
+    "gender": "der",
+    "english": "room divider / folding screen",
+    "group": "Furniture"
+  },
+  {
+    "german": "Park",
+    "gender": "der",
+    "english": "park",
+    "group": "Other"
+  },
+  {
+    "german": "Parkett",
+    "gender": "das",
+    "english": "parquet / hardwood floor",
+    "group": "House"
+  },
+  {
+    "german": "Parkplatz",
+    "gender": "der",
+    "english": "car park / parking space",
+    "group": "Office"
+  },
+  {
+    "german": "Partner",
+    "gender": "der",
+    "english": "partner",
+    "group": "Work"
+  },
+  {
+    "german": "Partnerin",
+    "gender": "die",
+    "english": "partner (female)",
+    "group": "Family"
+  },
+  {
+    "german": "Passwort",
+    "gender": "das",
+    "english": "password",
+    "group": "Office"
+  },
+  {
+    "german": "Pate",
+    "gender": "der",
+    "english": "godfather",
+    "group": "Family"
+  },
+  {
+    "german": "Patenkind",
+    "gender": "das",
+    "english": "godchild",
+    "group": "Family"
+  },
+  {
+    "german": "Patin",
+    "gender": "die",
+    "english": "godmother",
+    "group": "Family"
+  },
+  {
+    "german": "Pause",
+    "gender": "die",
+    "english": "break",
+    "group": "Work"
+  },
+  {
+    "german": "Pausenraum",
+    "gender": "der",
+    "english": "break room",
+    "group": "Office"
+  },
+  {
+    "german": "Pension",
+    "gender": "die",
+    "english": "guesthouse / bed and breakfast",
+    "group": "Other"
+  },
+  {
+    "german": "Pergola",
+    "gender": "die",
+    "english": "pergola",
+    "group": "House"
+  },
+  {
+    "german": "Petersilie",
+    "gender": "die",
+    "english": "parsley",
+    "group": "Food"
+  },
+  {
+    "german": "Pfand",
+    "gender": "das",
+    "english": "deposit / pledge / security",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Pfannkuchen",
+    "gender": "der",
+    "english": "pancake",
+    "group": "Food"
+  },
+  {
+    "german": "Pfeffer",
+    "gender": "der",
+    "english": "pepper",
+    "group": "Food"
+  },
+  {
+    "german": "Pferd",
+    "gender": "das",
+    "english": "horse",
+    "group": "Other"
+  },
+  {
+    "german": "Pfirsich",
+    "gender": "der",
+    "english": "peach",
+    "group": "Food"
+  },
+  {
+    "german": "Pflanze",
+    "gender": "die",
+    "english": "plant",
+    "group": "Other"
+  },
+  {
+    "german": "Pflanzenmilch",
+    "gender": "die",
+    "english": "plant milk",
+    "group": "Food"
+  },
+  {
+    "german": "Pflaume",
+    "gender": "die",
+    "english": "plum",
+    "group": "Food"
+  },
+  {
+    "german": "Pflicht",
+    "gender": "die",
+    "english": "duty / obligation",
+    "group": "Other"
+  },
+  {
+    "german": "Physik",
+    "gender": "die",
+    "english": "physics",
+    "group": "School"
+  },
+  {
+    "german": "Pilz",
+    "gender": "der",
+    "english": "mushroom",
+    "group": "Food"
+  },
+  {
+    "german": "PIN",
+    "gender": "die",
+    "english": "PIN",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Pinnwand",
+    "gender": "die",
+    "english": "pinboard / bulletin board",
+    "group": "Office"
+  },
+  {
+    "german": "Pinsel",
+    "gender": "der",
+    "english": "paintbrush",
+    "group": "School"
+  },
+  {
+    "german": "Pizza",
+    "gender": "die",
+    "english": "pizza",
+    "group": "Food"
+  },
+  {
+    "german": "Planung",
+    "gender": "die",
+    "english": "planning",
+    "group": "Work"
+  },
+  {
+    "german": "Plätzchen",
+    "gender": "das",
+    "english": "cookie / biscuit",
+    "group": "Food"
+  },
+  {
+    "german": "Politik",
+    "gender": "die",
+    "english": "politics",
+    "group": "Other"
+  },
+  {
+    "german": "Polizei",
+    "gender": "die",
+    "english": "police",
+    "group": "Other"
+  },
+  {
+    "german": "Pommes",
+    "gender": "die",
+    "english": "chips / fries",
+    "group": "Food"
+  },
+  {
+    "german": "Portemonnaie",
+    "gender": "das",
+    "english": "wallet / purse",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Post",
+    "gender": "die",
+    "english": "post office / mail",
+    "group": "Other"
+  },
+  {
+    "german": "Postfach",
+    "gender": "das",
+    "english": "mailbox / pigeonhole",
+    "group": "Office"
+  },
+  {
+    "german": "Praktikum",
+    "gender": "das",
+    "english": "internship",
+    "group": "Work"
+  },
+  {
+    "german": "Prämie",
+    "gender": "die",
+    "english": "bonus / premium",
+    "group": "Work"
+  },
+  {
+    "german": "Präsentation",
+    "gender": "die",
+    "english": "presentation",
+    "group": "Office"
+  },
+  {
+    "german": "Preis",
+    "gender": "der",
+    "english": "price",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Probezeit",
+    "gender": "die",
+    "english": "probationary period",
+    "group": "Work"
+  },
+  {
+    "german": "Professor",
+    "gender": "der",
+    "english": "professor (male)",
+    "group": "School"
+  },
+  {
+    "german": "Professorin",
+    "gender": "die",
+    "english": "professor (female)",
+    "group": "School"
+  },
+  {
+    "german": "Projekt",
+    "gender": "das",
+    "english": "project",
+    "group": "Work"
+  },
+  {
+    "german": "Projektor",
+    "gender": "der",
+    "english": "projector",
+    "group": "Office"
+  },
+  {
+    "german": "Protokoll",
+    "gender": "das",
+    "english": "minutes / protocol",
+    "group": "Office"
+  },
+  {
+    "german": "Prüfung",
+    "gender": "die",
+    "english": "exam / test",
+    "group": "School"
+  },
+  {
+    "german": "Pudding",
+    "gender": "der",
+    "english": "pudding",
+    "group": "Food"
+  },
+  {
+    "german": "Pullover",
+    "gender": "der",
+    "english": "jumper / sweater",
+    "group": "Other"
+  },
+  {
+    "german": "Pute",
+    "gender": "die",
+    "english": "turkey",
+    "group": "Food"
+  },
+  {
+    "german": "Putz",
+    "gender": "der",
+    "english": "plaster / render",
+    "group": "House"
+  },
+  {
+    "german": "Quark",
+    "gender": "der",
+    "english": "quark / curd cheese",
+    "group": "Food"
+  },
+  {
+    "german": "Quittung",
+    "gender": "die",
+    "english": "receipt",
+    "group": "Office"
+  },
+  {
+    "german": "Rabatt",
+    "gender": "der",
+    "english": "discount / rebate",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Radiergummi",
+    "gender": "der",
+    "english": "eraser / rubber",
+    "group": "Office"
+  },
+  {
+    "german": "Radieschen",
+    "gender": "das",
+    "english": "radish",
+    "group": "Food"
+  },
+  {
+    "german": "Radio",
+    "gender": "das",
+    "english": "radio",
+    "group": "Other"
+  },
+  {
+    "german": "Ratte",
+    "gender": "die",
+    "english": "rat",
+    "group": "Other"
+  },
+  {
+    "german": "Realschule",
+    "gender": "die",
+    "english": "secondary school (intermediate)",
+    "group": "School"
+  },
+  {
+    "german": "Rechnung",
+    "gender": "die",
+    "english": "invoice / bill",
+    "group": "Office"
+  },
+  {
+    "german": "Recht",
+    "gender": "das",
+    "english": "right / law",
+    "group": "Other"
+  },
+  {
+    "german": "Referat",
+    "gender": "das",
+    "english": "presentation / paper",
+    "group": "School"
+  },
+  {
+    "german": "Regal",
+    "gender": "das",
+    "english": "shelf",
+    "group": "Office"
+  },
+  {
+    "german": "Regen",
+    "gender": "der",
+    "english": "rain",
+    "group": "Other"
+  },
+  {
+    "german": "Register",
+    "gender": "das",
+    "english": "index / register",
+    "group": "Office"
+  },
+  {
+    "german": "Reichtum",
+    "gender": "der",
+    "english": "wealth / richness",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Reifen",
+    "gender": "der",
+    "english": "tyre / tire",
+    "group": "Other"
+  },
+  {
+    "german": "Reis",
+    "gender": "der",
+    "english": "rice",
+    "group": "Food"
+  },
+  {
+    "german": "Reise",
+    "gender": "die",
+    "english": "journey / trip",
+    "group": "Other"
+  },
+  {
+    "german": "Reisekostenabrechnung",
+    "gender": "die",
+    "english": "travel expense report",
+    "group": "Work"
+  },
+  {
+    "german": "Reißnagel",
+    "gender": "der",
+    "english": "drawing pin / thumbtack",
+    "group": "Office"
+  },
+  {
+    "german": "Reißverschluss",
+    "gender": "der",
+    "english": "zip / zipper",
+    "group": "Other"
+  },
+  {
+    "german": "Religion",
+    "gender": "die",
+    "english": "religious education",
+    "group": "School"
+  },
+  {
+    "german": "Rente",
+    "gender": "die",
+    "english": "pension / retirement",
+    "group": "Work"
+  },
+  {
+    "german": "Rentenversicherung",
+    "gender": "die",
+    "english": "pension insurance",
+    "group": "Work"
+  },
+  {
+    "german": "Restaurant",
+    "gender": "das",
+    "english": "restaurant",
+    "group": "Food"
+  },
+  {
+    "german": "Rindfleisch",
+    "gender": "das",
+    "english": "beef",
+    "group": "Food"
+  },
+  {
+    "german": "Rock",
+    "gender": "der",
+    "english": "skirt",
+    "group": "Other"
+  },
+  {
+    "german": "Rohr",
+    "gender": "das",
+    "english": "pipe / tube",
+    "group": "House"
+  },
+  {
+    "german": "Rollladen",
+    "gender": "der",
+    "english": "roller shutter / roller blind",
+    "group": "House"
+  },
+  {
+    "german": "Roman",
+    "gender": "der",
+    "english": "novel",
+    "group": "Other"
+  },
+  {
+    "german": "Rosine",
+    "gender": "die",
+    "english": "raisin",
+    "group": "Food"
+  },
+  {
+    "german": "Rosmarin",
+    "gender": "der",
+    "english": "rosemary",
+    "group": "Food"
+  },
+  {
+    "german": "Rote Bete",
+    "gender": "die",
+    "english": "beetroot",
+    "group": "Food"
+  },
+  {
+    "german": "Rotwein",
+    "gender": "der",
+    "english": "red wine",
+    "group": "Food"
+  },
+  {
+    "german": "Rübe",
+    "gender": "die",
+    "english": "turnip / beet",
+    "group": "Food"
+  },
+  {
+    "german": "Rucksack",
+    "gender": "der",
+    "english": "backpack / rucksack",
+    "group": "Office"
+  },
+  {
+    "german": "S-Bahn",
+    "gender": "die",
+    "english": "suburban train",
+    "group": "Other"
+  },
+  {
+    "german": "Saft",
+    "gender": "der",
+    "english": "juice",
+    "group": "Food"
+  },
+  {
+    "german": "Sahne",
+    "gender": "die",
+    "english": "cream",
+    "group": "Food"
+  },
+  {
+    "german": "Salami",
+    "gender": "die",
+    "english": "salami",
+    "group": "Food"
+  },
+  {
+    "german": "Salat",
+    "gender": "der",
+    "english": "salad / lettuce",
+    "group": "Food"
+  },
+  {
+    "german": "Salz",
+    "gender": "das",
+    "english": "salt",
+    "group": "Food"
+  },
+  {
+    "german": "Sand",
+    "gender": "der",
+    "english": "sand",
+    "group": "Other"
+  },
+  {
+    "german": "Sandale",
+    "gender": "die",
+    "english": "sandal",
+    "group": "Other"
+  },
+  {
+    "german": "Sandwich",
+    "gender": "das",
+    "english": "sandwich",
+    "group": "Food"
+  },
+  {
+    "german": "Sardine",
+    "gender": "die",
+    "english": "sardine",
+    "group": "Food"
+  },
+  {
+    "german": "Satteldach",
+    "gender": "das",
+    "english": "pitched roof / gable roof",
+    "group": "House"
+  },
+  {
+    "german": "Säugling",
+    "gender": "der",
+    "english": "infant / newborn",
+    "group": "Family"
+  },
+  {
+    "german": "Sauna",
+    "gender": "die",
+    "english": "sauna",
+    "group": "Rooms"
+  },
+  {
+    "german": "Scanner",
+    "gender": "der",
+    "english": "scanner",
+    "group": "Office"
+  },
+  {
+    "german": "Schaf",
+    "gender": "das",
+    "english": "sheep",
+    "group": "Other"
+  },
+  {
+    "german": "Schal",
+    "gender": "der",
+    "english": "scarf",
+    "group": "Other"
+  },
+  {
+    "german": "Schalter",
+    "gender": "der",
+    "english": "counter / teller window",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Schaukelstuhl",
+    "gender": "der",
+    "english": "rocking chair",
+    "group": "Furniture"
+  },
+  {
+    "german": "Scheidung",
+    "gender": "die",
+    "english": "divorce",
+    "group": "Family"
+  },
+  {
+    "german": "Schein",
+    "gender": "der",
+    "english": "banknote / bill",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Schere",
+    "gender": "die",
+    "english": "scissors",
+    "group": "Office"
+  },
+  {
+    "german": "Schicht",
+    "gender": "die",
+    "english": "shift",
+    "group": "Work"
+  },
+  {
+    "german": "Schiff",
+    "gender": "das",
+    "english": "ship",
+    "group": "Other"
+  },
+  {
+    "german": "Schinken",
+    "gender": "der",
+    "english": "ham",
+    "group": "Food"
+  },
+  {
+    "german": "Schlafzimmer",
+    "gender": "das",
+    "english": "bedroom",
+    "group": "Rooms"
+  },
+  {
+    "german": "Schlagsahne",
+    "gender": "die",
+    "english": "whipped cream",
+    "group": "Food"
+  },
+  {
+    "german": "Schlange",
+    "gender": "die",
+    "english": "snake",
+    "group": "Other"
+  },
+  {
+    "german": "Schloss",
+    "gender": "das",
+    "english": "castle / palace",
+    "group": "Other"
+  },
+  {
+    "german": "Schlüssel",
+    "gender": "der",
+    "english": "key",
+    "group": "Office"
+  },
+  {
+    "german": "Schmerz",
+    "gender": "der",
+    "english": "pain",
+    "group": "Other"
+  },
+  {
+    "german": "Schnaps",
+    "gender": "der",
+    "english": "schnapps / spirits",
+    "group": "Food"
+  },
+  {
+    "german": "Schnee",
+    "gender": "der",
+    "english": "snow",
+    "group": "Other"
+  },
+  {
+    "german": "Schnittlauch",
+    "gender": "der",
+    "english": "chives",
+    "group": "Food"
+  },
+  {
+    "german": "Schokolade",
+    "gender": "die",
+    "english": "chocolate",
+    "group": "Food"
+  },
+  {
+    "german": "Schornstein",
+    "gender": "der",
+    "english": "chimney",
+    "group": "House"
+  },
+  {
+    "german": "Schrank",
+    "gender": "der",
+    "english": "cabinet / cupboard",
+    "group": "Office"
+  },
+  {
+    "german": "Schreibmaschine",
+    "gender": "die",
+    "english": "typewriter",
+    "group": "Office"
+  },
+  {
+    "german": "Schreibtisch",
+    "gender": "der",
+    "english": "desk",
+    "group": "Office"
+  },
+  {
+    "german": "Schreibtischlampe",
+    "gender": "die",
+    "english": "desk lamp",
+    "group": "Office"
+  },
+  {
+    "german": "Schreibunterlage",
+    "gender": "die",
+    "english": "desk mat",
+    "group": "Office"
+  },
+  {
+    "german": "Schuh",
+    "gender": "der",
+    "english": "shoe",
+    "group": "Other"
+  },
+  {
+    "german": "Schuhregal",
+    "gender": "das",
+    "english": "shoe rack",
+    "group": "Furniture"
+  },
+  {
+    "german": "Schuhschrank",
+    "gender": "der",
+    "english": "shoe cabinet",
+    "group": "Furniture"
+  },
+  {
+    "german": "Schulbuch",
+    "gender": "das",
+    "english": "textbook",
+    "group": "School"
+  },
+  {
+    "german": "Schulden",
+    "gender": "die",
+    "english": "debt / debts",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Schuldenabbau",
+    "gender": "der",
+    "english": "debt reduction",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Schule",
+    "gender": "die",
+    "english": "school",
+    "group": "School"
+  },
+  {
+    "german": "Schüler",
+    "gender": "der",
+    "english": "pupil / student (male)",
+    "group": "School"
+  },
+  {
+    "german": "Schülerin",
+    "gender": "die",
+    "english": "pupil / student (female)",
+    "group": "School"
+  },
+  {
+    "german": "Schulferien",
+    "gender": "die",
+    "english": "school holidays",
+    "group": "School"
+  },
+  {
+    "german": "Schulhof",
+    "gender": "der",
+    "english": "school yard / playground",
+    "group": "School"
+  },
+  {
+    "german": "Schulleiter",
+    "gender": "der",
+    "english": "headteacher (male)",
+    "group": "School"
+  },
+  {
+    "german": "Schulleiterin",
+    "gender": "die",
+    "english": "headteacher (female)",
+    "group": "School"
+  },
+  {
+    "german": "Schultasche",
+    "gender": "die",
+    "english": "school bag",
+    "group": "School"
+  },
+  {
+    "german": "Schulter",
+    "gender": "die",
+    "english": "shoulder",
+    "group": "Other"
+  },
+  {
+    "german": "Schulung",
+    "gender": "die",
+    "english": "training / course",
+    "group": "Work"
+  },
+  {
+    "german": "Schuppen",
+    "gender": "der",
+    "english": "shed",
+    "group": "House"
+  },
+  {
+    "german": "Schwager",
+    "gender": "der",
+    "english": "brother-in-law",
+    "group": "Family"
+  },
+  {
+    "german": "Schwägerin",
+    "gender": "die",
+    "english": "sister-in-law",
+    "group": "Family"
+  },
+  {
+    "german": "Schwarztee",
+    "gender": "der",
+    "english": "black tea",
+    "group": "Food"
+  },
+  {
+    "german": "Schwein",
+    "gender": "das",
+    "english": "pig",
+    "group": "Other"
+  },
+  {
+    "german": "Schweinefleisch",
+    "gender": "das",
+    "english": "pork",
+    "group": "Food"
+  },
+  {
+    "german": "Schwester",
+    "gender": "die",
+    "english": "sister",
+    "group": "Family"
+  },
+  {
+    "german": "Schwiegermutter",
+    "gender": "die",
+    "english": "mother-in-law",
+    "group": "Family"
+  },
+  {
+    "german": "Schwiegersohn",
+    "gender": "der",
+    "english": "son-in-law",
+    "group": "Family"
+  },
+  {
+    "german": "Schwiegertochter",
+    "gender": "die",
+    "english": "daughter-in-law",
+    "group": "Family"
+  },
+  {
+    "german": "Schwiegervater",
+    "gender": "der",
+    "english": "father-in-law",
+    "group": "Family"
+  },
+  {
+    "german": "Schwimmen",
+    "gender": "das",
+    "english": "swimming",
+    "group": "Other"
+  },
+  {
+    "german": "See",
+    "gender": "der",
+    "english": "lake",
+    "group": "Other"
+  },
+  {
+    "german": "Sehenswürdigkeit",
+    "gender": "die",
+    "english": "sight / tourist attraction",
+    "group": "Other"
+  },
+  {
+    "german": "Sekretariat",
+    "gender": "das",
+    "english": "school office / secretariat",
+    "group": "School"
+  },
+  {
+    "german": "Sekt",
+    "gender": "der",
+    "english": "sparkling wine / prosecco",
+    "group": "Food"
+  },
+  {
+    "german": "Sekunde",
+    "gender": "die",
+    "english": "second",
+    "group": "Other"
+  },
+  {
+    "german": "Sellerie",
+    "gender": "der",
+    "english": "celery / celeriac",
+    "group": "Food"
+  },
+  {
+    "german": "Semester",
+    "gender": "das",
+    "english": "semester / term",
+    "group": "School"
+  },
+  {
+    "german": "Seminar",
+    "gender": "das",
+    "english": "seminar",
+    "group": "Work"
+  },
+  {
+    "german": "Senf",
+    "gender": "der",
+    "english": "mustard",
+    "group": "Food"
+  },
+  {
+    "german": "Senior",
+    "gender": "der",
+    "english": "senior / elderly person",
+    "group": "Family"
+  },
+  {
+    "german": "Seniorin",
+    "gender": "die",
+    "english": "senior woman",
+    "group": "Family"
+  },
+  {
+    "german": "Server",
+    "gender": "der",
+    "english": "server",
+    "group": "Office"
+  },
+  {
+    "german": "Sessel",
+    "gender": "der",
+    "english": "armchair",
+    "group": "Furniture"
+  },
+  {
+    "german": "Sicherungskasten",
+    "gender": "der",
+    "english": "fuse box / breaker box",
+    "group": "House"
+  },
+  {
+    "german": "Sideboard",
+    "gender": "das",
+    "english": "sideboard / credenza",
+    "group": "Furniture"
+  },
+  {
+    "german": "Sitzung",
+    "gender": "die",
+    "english": "session / meeting",
+    "group": "Work"
+  },
+  {
+    "german": "Smartphone",
+    "gender": "das",
+    "english": "smartphone",
+    "group": "Other"
+  },
+  {
+    "german": "Smoothie",
+    "gender": "der",
+    "english": "smoothie",
+    "group": "Food"
+  },
+  {
+    "german": "Snack",
+    "gender": "der",
+    "english": "snack",
+    "group": "Food"
+  },
+  {
+    "german": "Sneaker",
+    "gender": "der",
+    "english": "sneaker",
+    "group": "Other"
+  },
+  {
+    "german": "Socke",
+    "gender": "die",
+    "english": "sock",
+    "group": "Other"
+  },
+  {
+    "german": "Sofa",
+    "gender": "das",
+    "english": "sofa / couch",
+    "group": "Furniture"
+  },
+  {
+    "german": "Software",
+    "gender": "die",
+    "english": "software",
+    "group": "Other"
+  },
+  {
+    "german": "Sohn",
+    "gender": "der",
+    "english": "son",
+    "group": "Family"
+  },
+  {
+    "german": "Sojamilch",
+    "gender": "die",
+    "english": "soy milk",
+    "group": "Food"
+  },
+  {
+    "german": "Sommer",
+    "gender": "der",
+    "english": "summer",
+    "group": "Other"
+  },
+  {
+    "german": "Sonderschule",
+    "gender": "die",
+    "english": "special needs school",
+    "group": "School"
+  },
+  {
+    "german": "Sonne",
+    "gender": "die",
+    "english": "sun",
+    "group": "Other"
+  },
+  {
+    "german": "Sorge",
+    "gender": "die",
+    "english": "worry / concern",
+    "group": "Other"
+  },
+  {
+    "german": "Soße",
+    "gender": "die",
+    "english": "sauce / gravy",
+    "group": "Food"
+  },
+  {
+    "german": "Sozialversicherung",
+    "gender": "die",
+    "english": "social insurance",
+    "group": "Work"
+  },
+  {
+    "german": "Spaghetti",
+    "gender": "die",
+    "english": "spaghetti",
+    "group": "Food"
+  },
+  {
+    "german": "Spargel",
+    "gender": "der",
+    "english": "asparagus",
+    "group": "Food"
+  },
+  {
+    "german": "Sparkonto",
+    "gender": "das",
+    "english": "savings account",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Speck",
+    "gender": "der",
+    "english": "bacon",
+    "group": "Food"
+  },
+  {
+    "german": "Speisekammer",
+    "gender": "die",
+    "english": "pantry / larder",
+    "group": "Rooms"
+  },
+  {
+    "german": "Speisekarte",
+    "gender": "die",
+    "english": "menu",
+    "group": "Food"
+  },
+  {
+    "german": "Spende",
+    "gender": "die",
+    "english": "donation",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Spesenabrechnung",
+    "gender": "die",
+    "english": "expense report",
+    "group": "Work"
+  },
+  {
+    "german": "Spiegel",
+    "gender": "der",
+    "english": "mirror",
+    "group": "Furniture"
+  },
+  {
+    "german": "Spiel",
+    "gender": "das",
+    "english": "game",
+    "group": "Other"
+  },
+  {
+    "german": "Spielzimmer",
+    "gender": "das",
+    "english": "playroom",
+    "group": "Rooms"
+  },
+  {
+    "german": "Spinat",
+    "gender": "der",
+    "english": "spinach",
+    "group": "Food"
+  },
+  {
+    "german": "Spinne",
+    "gender": "die",
+    "english": "spider",
+    "group": "Other"
+  },
+  {
+    "german": "Spitzer",
+    "gender": "der",
+    "english": "pencil sharpener",
+    "group": "School"
+  },
+  {
+    "german": "Sport",
+    "gender": "der",
+    "english": "sport / PE",
+    "group": "School"
+  },
+  {
+    "german": "Sprache",
+    "gender": "die",
+    "english": "language",
+    "group": "Other"
+  },
+  {
+    "german": "Spritze",
+    "gender": "die",
+    "english": "injection / syringe",
+    "group": "Other"
+  },
+  {
+    "german": "Spülmaschine",
+    "gender": "die",
+    "english": "dishwasher",
+    "group": "Furniture"
+  },
+  {
+    "german": "Stachelbeere",
+    "gender": "die",
+    "english": "gooseberry",
+    "group": "Food"
+  },
+  {
+    "german": "Stadt",
+    "gender": "die",
+    "english": "city / town",
+    "group": "Other"
+  },
+  {
+    "german": "Stammbaum",
+    "gender": "der",
+    "english": "family tree",
+    "group": "Family"
+  },
+  {
+    "german": "Stau",
+    "gender": "der",
+    "english": "traffic jam",
+    "group": "Other"
+  },
+  {
+    "german": "Steak",
+    "gender": "das",
+    "english": "steak",
+    "group": "Food"
+  },
+  {
+    "german": "Stechuhr",
+    "gender": "die",
+    "english": "time clock",
+    "group": "Work"
+  },
+  {
+    "german": "Steckdose",
+    "gender": "die",
+    "english": "power socket",
+    "group": "Office"
+  },
+  {
+    "german": "Stehlampe",
+    "gender": "die",
+    "english": "floor lamp / standard lamp",
+    "group": "Furniture"
+  },
+  {
+    "german": "Stein",
+    "gender": "der",
+    "english": "stone / rock",
+    "group": "Other"
+  },
+  {
+    "german": "Stelle",
+    "gender": "die",
+    "english": "position / job",
+    "group": "Work"
+  },
+  {
+    "german": "Stellenanzeige",
+    "gender": "die",
+    "english": "job advertisement",
+    "group": "Work"
+  },
+  {
+    "german": "Stellenbeschreibung",
+    "gender": "die",
+    "english": "job description",
+    "group": "Work"
+  },
+  {
+    "german": "Stellplatz",
+    "gender": "der",
+    "english": "parking space",
+    "group": "House"
+  },
+  {
+    "german": "Stempel",
+    "gender": "der",
+    "english": "stamp / seal",
+    "group": "Office"
+  },
+  {
+    "german": "Stern",
+    "gender": "der",
+    "english": "star",
+    "group": "Other"
+  },
+  {
+    "german": "Steuer",
+    "gender": "die",
+    "english": "tax",
+    "group": "Work"
+  },
+  {
+    "german": "Stiefel",
+    "gender": "der",
+    "english": "boot",
+    "group": "Other"
+  },
+  {
+    "german": "Stiefmutter",
+    "gender": "die",
+    "english": "stepmother",
+    "group": "Family"
+  },
+  {
+    "german": "Stiefsohn",
+    "gender": "der",
+    "english": "stepson",
+    "group": "Family"
+  },
+  {
+    "german": "Stieftochter",
+    "gender": "die",
+    "english": "stepdaughter",
+    "group": "Family"
+  },
+  {
+    "german": "Stiefvater",
+    "gender": "der",
+    "english": "stepfather",
+    "group": "Family"
+  },
+  {
+    "german": "Stift",
+    "gender": "der",
+    "english": "pen / pencil",
+    "group": "Office"
+  },
+  {
+    "german": "Stimme",
+    "gender": "die",
+    "english": "voice / vote",
+    "group": "Other"
+  },
+  {
+    "german": "Stockbett",
+    "gender": "das",
+    "english": "bunk bed",
+    "group": "Furniture"
+  },
+  {
+    "german": "Stockwerk",
+    "gender": "das",
+    "english": "floor / storey",
+    "group": "House"
+  },
+  {
+    "german": "Strand",
+    "gender": "der",
+    "english": "beach",
+    "group": "Other"
+  },
+  {
+    "german": "Straße",
+    "gender": "die",
+    "english": "street / road",
+    "group": "Other"
+  },
+  {
+    "german": "Straßenbahn",
+    "gender": "die",
+    "english": "tram",
+    "group": "Other"
+  },
+  {
+    "german": "Strategie",
+    "gender": "die",
+    "english": "strategy",
+    "group": "Work"
+  },
+  {
+    "german": "Strumpfhose",
+    "gender": "die",
+    "english": "tights / pantyhose",
+    "group": "Other"
+  },
+  {
+    "german": "Student",
+    "gender": "der",
+    "english": "student (male, university)",
+    "group": "School"
+  },
+  {
+    "german": "Studentin",
+    "gender": "die",
+    "english": "student (female, university)",
+    "group": "School"
+  },
+  {
+    "german": "Studium",
+    "gender": "das",
+    "english": "studies / degree course",
+    "group": "School"
+  },
+  {
+    "german": "Stufe",
+    "gender": "die",
+    "english": "step / stair",
+    "group": "House"
+  },
+  {
+    "german": "Stuhl",
+    "gender": "der",
+    "english": "chair",
+    "group": "Office"
+  },
+  {
+    "german": "Stunde",
+    "gender": "die",
+    "english": "lesson / hour",
+    "group": "School"
+  },
+  {
+    "german": "Stundenplan",
+    "gender": "der",
+    "english": "timetable / schedule",
+    "group": "School"
+  },
+  {
+    "german": "Sturm",
+    "gender": "der",
+    "english": "storm",
+    "group": "Other"
+  },
+  {
+    "german": "Supermarkt",
+    "gender": "der",
+    "english": "supermarket",
+    "group": "Other"
+  },
+  {
+    "german": "Suppe",
+    "gender": "die",
+    "english": "soup",
+    "group": "Food"
+  },
+  {
+    "german": "T-Shirt",
+    "gender": "das",
+    "english": "t-shirt",
+    "group": "Other"
+  },
+  {
+    "german": "Tabelle",
+    "gender": "die",
+    "english": "table / spreadsheet",
+    "group": "Office"
+  },
+  {
+    "german": "Tablet",
+    "gender": "das",
+    "english": "tablet",
+    "group": "Other"
+  },
+  {
+    "german": "Tablette",
+    "gender": "die",
+    "english": "tablet / pill",
+    "group": "Other"
+  },
+  {
+    "german": "Tacker",
+    "gender": "der",
+    "english": "stapler",
+    "group": "Office"
+  },
+  {
+    "german": "Tafel",
+    "gender": "die",
+    "english": "blackboard / whiteboard",
+    "group": "School"
+  },
+  {
+    "german": "Tag",
+    "gender": "der",
+    "english": "day",
+    "group": "Other"
+  },
+  {
+    "german": "Tagesordnung",
+    "gender": "die",
+    "english": "agenda / order of business",
+    "group": "Office"
+  },
+  {
+    "german": "Tagesplaner",
+    "gender": "der",
+    "english": "day planner",
+    "group": "Office"
+  },
+  {
+    "german": "Tal",
+    "gender": "das",
+    "english": "valley",
+    "group": "Other"
+  },
+  {
+    "german": "Tankstelle",
+    "gender": "die",
+    "english": "petrol station / gas station",
+    "group": "Other"
+  },
+  {
+    "german": "Tante",
+    "gender": "die",
+    "english": "aunt",
+    "group": "Family"
+  },
+  {
+    "german": "Tanz",
+    "gender": "der",
+    "english": "dance",
+    "group": "Other"
+  },
+  {
+    "german": "Tapete",
+    "gender": "die",
+    "english": "wallpaper",
+    "group": "House"
+  },
+  {
+    "german": "Tarifvertrag",
+    "gender": "der",
+    "english": "collective agreement",
+    "group": "Work"
+  },
+  {
+    "german": "Tasche",
+    "gender": "die",
+    "english": "bag / pocket",
+    "group": "Other"
+  },
+  {
+    "german": "Taschenrechner",
+    "gender": "der",
+    "english": "calculator",
+    "group": "School"
+  },
+  {
+    "german": "Tasse",
+    "gender": "die",
+    "english": "cup",
+    "group": "Food"
+  },
+  {
+    "german": "Tastatur",
+    "gender": "die",
+    "english": "keyboard",
+    "group": "Office"
+  },
+  {
+    "german": "Taxi",
+    "gender": "das",
+    "english": "taxi",
+    "group": "Other"
+  },
+  {
+    "german": "Team",
+    "gender": "das",
+    "english": "team",
+    "group": "Work"
+  },
+  {
+    "german": "Tee",
+    "gender": "der",
+    "english": "tea",
+    "group": "Food"
+  },
+  {
+    "german": "Teilzeit",
+    "gender": "die",
+    "english": "part-time",
+    "group": "Work"
+  },
+  {
+    "german": "Telefonbuch",
+    "gender": "das",
+    "english": "telephone directory",
+    "group": "Office"
+  },
+  {
+    "german": "Telefonkonferenz",
+    "gender": "die",
+    "english": "telephone conference",
+    "group": "Office"
+  },
+  {
+    "german": "Teller",
+    "gender": "der",
+    "english": "plate",
+    "group": "Food"
+  },
+  {
+    "german": "Tennis",
+    "gender": "das",
+    "english": "tennis",
+    "group": "Other"
+  },
+  {
+    "german": "Teppich",
+    "gender": "der",
+    "english": "carpet / rug",
+    "group": "Furniture"
+  },
+  {
+    "german": "Termin",
+    "gender": "der",
+    "english": "appointment",
+    "group": "Office"
+  },
+  {
+    "german": "Terrasse",
+    "gender": "die",
+    "english": "terrace / patio",
+    "group": "House"
+  },
+  {
+    "german": "Test",
+    "gender": "der",
+    "english": "test",
+    "group": "School"
+  },
+  {
+    "german": "Textmarker",
+    "gender": "der",
+    "english": "highlighter pen",
+    "group": "Office"
+  },
+  {
+    "german": "Theater",
+    "gender": "das",
+    "english": "theatre",
+    "group": "Other"
+  },
+  {
+    "german": "Thunfisch",
+    "gender": "der",
+    "english": "tuna",
+    "group": "Food"
+  },
+  {
+    "german": "Thymian",
+    "gender": "der",
+    "english": "thyme",
+    "group": "Food"
+  },
+  {
+    "german": "Tier",
+    "gender": "das",
+    "english": "animal",
+    "group": "Other"
+  },
+  {
+    "german": "Tiger",
+    "gender": "der",
+    "english": "tiger",
+    "group": "Other"
+  },
+  {
+    "german": "Tintenfisch",
+    "gender": "der",
+    "english": "squid / octopus",
+    "group": "Food"
+  },
+  {
+    "german": "Tintenstrahldrucker",
+    "gender": "der",
+    "english": "inkjet printer",
+    "group": "Office"
+  },
+  {
+    "german": "Tisch",
+    "gender": "der",
+    "english": "table",
+    "group": "Furniture"
+  },
+  {
+    "german": "Tischkalender",
+    "gender": "der",
+    "english": "desk calendar",
+    "group": "Office"
+  },
+  {
+    "german": "Tischlampe",
+    "gender": "die",
+    "english": "table lamp",
+    "group": "Office"
+  },
+  {
+    "german": "Toast",
+    "gender": "der",
+    "english": "toast",
+    "group": "Food"
+  },
+  {
+    "german": "Tochter",
+    "gender": "die",
+    "english": "daughter",
+    "group": "Family"
+  },
+  {
+    "german": "Tod",
+    "gender": "der",
+    "english": "death",
+    "group": "Family"
+  },
+  {
+    "german": "Tofu",
+    "gender": "der",
+    "english": "tofu",
+    "group": "Food"
+  },
+  {
+    "german": "Toilette",
+    "gender": "die",
+    "english": "toilet / restroom",
+    "group": "Office"
+  },
+  {
+    "german": "Tomate",
+    "gender": "die",
+    "english": "tomato",
+    "group": "Food"
+  },
+  {
+    "german": "Tor",
+    "gender": "das",
+    "english": "gate",
+    "group": "House"
+  },
+  {
+    "german": "Torte",
+    "gender": "die",
+    "english": "gateau / tart",
+    "group": "Food"
+  },
+  {
+    "german": "Traube",
+    "gender": "die",
+    "english": "grape",
+    "group": "Food"
+  },
+  {
+    "german": "Traum",
+    "gender": "der",
+    "english": "dream",
+    "group": "Other"
+  },
+  {
+    "german": "Trennstreifen",
+    "gender": "der",
+    "english": "divider strip",
+    "group": "Office"
+  },
+  {
+    "german": "Trennung",
+    "gender": "die",
+    "english": "separation",
+    "group": "Family"
+  },
+  {
+    "german": "Trennwand",
+    "gender": "die",
+    "english": "partition wall / room divider",
+    "group": "Furniture"
+  },
+  {
+    "german": "Treppe",
+    "gender": "die",
+    "english": "staircase / stairs",
+    "group": "Office"
+  },
+  {
+    "german": "Treppenflur",
+    "gender": "der",
+    "english": "landing / stair hall",
+    "group": "Rooms"
+  },
+  {
+    "german": "Treppenhaus",
+    "gender": "das",
+    "english": "stairwell",
+    "group": "House"
+  },
+  {
+    "german": "Trinkgeld",
+    "gender": "das",
+    "english": "tip / gratuity",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Trockner",
+    "gender": "der",
+    "english": "tumble dryer",
+    "group": "Furniture"
+  },
+  {
+    "german": "Tunnel",
+    "gender": "der",
+    "english": "tunnel",
+    "group": "Other"
+  },
+  {
+    "german": "Tür",
+    "gender": "die",
+    "english": "door",
+    "group": "Office"
+  },
+  {
+    "german": "Türklinke",
+    "gender": "die",
+    "english": "door handle",
+    "group": "House"
+  },
+  {
+    "german": "Turnhalle",
+    "gender": "die",
+    "english": "gymnasium / sports hall",
+    "group": "School"
+  },
+  {
+    "german": "Türrahmen",
+    "gender": "der",
+    "english": "door frame",
+    "group": "House"
+  },
+  {
+    "german": "Türschloss",
+    "gender": "das",
+    "english": "door lock",
+    "group": "House"
+  },
+  {
+    "german": "TV-Schrank",
+    "gender": "der",
+    "english": "TV cabinet / media unit",
+    "group": "Furniture"
+  },
+  {
+    "german": "U-Bahn",
+    "gender": "die",
+    "english": "subway / underground",
+    "group": "Other"
+  },
+  {
+    "german": "Überschuss",
+    "gender": "der",
+    "english": "surplus / excess",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Überstunde",
+    "gender": "die",
+    "english": "overtime (hour)",
+    "group": "Work"
+  },
+  {
+    "german": "Überweisung",
+    "gender": "die",
+    "english": "bank transfer",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Uhr",
+    "gender": "die",
+    "english": "clock / watch",
+    "group": "Other"
+  },
+  {
+    "german": "Umsatz",
+    "gender": "der",
+    "english": "revenue / turnover",
+    "group": "Work"
+  },
+  {
+    "german": "Unglück",
+    "gender": "das",
+    "english": "misfortune / bad luck",
+    "group": "Other"
+  },
+  {
+    "german": "Universität",
+    "gender": "die",
+    "english": "university",
+    "group": "School"
+  },
+  {
+    "german": "Untergeschoss",
+    "gender": "das",
+    "english": "lower ground floor / basement level",
+    "group": "House"
+  },
+  {
+    "german": "Unterlage",
+    "gender": "die",
+    "english": "document / material",
+    "group": "Office"
+  },
+  {
+    "german": "Unternehmen",
+    "gender": "das",
+    "english": "company / enterprise",
+    "group": "Work"
+  },
+  {
+    "german": "Unterricht",
+    "gender": "der",
+    "english": "lesson / instruction",
+    "group": "School"
+  },
+  {
+    "german": "Unterschrank",
+    "gender": "der",
+    "english": "base cabinet / undercabinet",
+    "group": "Furniture"
+  },
+  {
+    "german": "Unterschrift",
+    "gender": "die",
+    "english": "signature",
+    "group": "Office"
+  },
+  {
+    "german": "Unterwäsche",
+    "gender": "die",
+    "english": "underwear",
+    "group": "Other"
+  },
+  {
+    "german": "Urgroßmutter",
+    "gender": "die",
+    "english": "great-grandmother",
+    "group": "Family"
+  },
+  {
+    "german": "Urgroßvater",
+    "gender": "der",
+    "english": "great-grandfather",
+    "group": "Family"
+  },
+  {
+    "german": "Urlaub",
+    "gender": "der",
+    "english": "holiday / annual leave",
+    "group": "Work"
+  },
+  {
+    "german": "USB-Stick",
+    "gender": "der",
+    "english": "USB stick",
+    "group": "Office"
+  },
+  {
+    "german": "Vanille",
+    "gender": "die",
+    "english": "vanilla",
+    "group": "Food"
+  },
+  {
+    "german": "Vater",
+    "gender": "der",
+    "english": "father",
+    "group": "Family"
+  },
+  {
+    "german": "Veranda",
+    "gender": "die",
+    "english": "veranda / porch",
+    "group": "House"
+  },
+  {
+    "german": "Verlängerungskabel",
+    "gender": "das",
+    "english": "extension cord",
+    "group": "Office"
+  },
+  {
+    "german": "Verlobte",
+    "gender": "der",
+    "english": "fiancé / fiancée",
+    "group": "Family"
+  },
+  {
+    "german": "Verlobung",
+    "gender": "die",
+    "english": "engagement",
+    "group": "Family"
+  },
+  {
+    "german": "Verlust",
+    "gender": "der",
+    "english": "loss",
+    "group": "Work"
+  },
+  {
+    "german": "Vermögen",
+    "gender": "das",
+    "english": "assets / wealth / fortune",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Versicherung",
+    "gender": "die",
+    "english": "insurance",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Vertrag",
+    "gender": "der",
+    "english": "contract",
+    "group": "Work"
+  },
+  {
+    "german": "Verwandte",
+    "gender": "der",
+    "english": "relative",
+    "group": "Family"
+  },
+  {
+    "german": "Videokonferenz",
+    "gender": "die",
+    "english": "video conference",
+    "group": "Office"
+  },
+  {
+    "german": "Visitenkarte",
+    "gender": "die",
+    "english": "business card",
+    "group": "Office"
+  },
+  {
+    "german": "Vitrine",
+    "gender": "die",
+    "english": "display cabinet / glass cabinet",
+    "group": "Furniture"
+  },
+  {
+    "german": "Vogel",
+    "gender": "der",
+    "english": "bird",
+    "group": "Other"
+  },
+  {
+    "german": "Vollzeit",
+    "gender": "die",
+    "english": "full-time",
+    "group": "Work"
+  },
+  {
+    "german": "Vorfahre",
+    "gender": "der",
+    "english": "ancestor",
+    "group": "Family"
+  },
+  {
+    "german": "Vorgesetzter",
+    "gender": "der",
+    "english": "superior / line manager",
+    "group": "Work"
+  },
+  {
+    "german": "Vorhang",
+    "gender": "der",
+    "english": "curtain",
+    "group": "Furniture"
+  },
+  {
+    "german": "Vorlesung",
+    "gender": "die",
+    "english": "lecture",
+    "group": "School"
+  },
+  {
+    "german": "Vorname",
+    "gender": "der",
+    "english": "first name",
+    "group": "Family"
+  },
+  {
+    "german": "Vorratskeller",
+    "gender": "der",
+    "english": "storage cellar",
+    "group": "Rooms"
+  },
+  {
+    "german": "Vorraum",
+    "gender": "der",
+    "english": "anteroom / vestibule",
+    "group": "Rooms"
+  },
+  {
+    "german": "Vorspeise",
+    "gender": "die",
+    "english": "starter / appetizer",
+    "group": "Food"
+  },
+  {
+    "german": "Vorstellungsgespräch",
+    "gender": "das",
+    "english": "job interview",
+    "group": "Work"
+  },
+  {
+    "german": "Waffel",
+    "gender": "die",
+    "english": "waffle",
+    "group": "Food"
+  },
+  {
+    "german": "Wahrheit",
+    "gender": "die",
+    "english": "truth",
+    "group": "Other"
+  },
+  {
+    "german": "Währung",
+    "gender": "die",
+    "english": "currency",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Wald",
+    "gender": "der",
+    "english": "forest",
+    "group": "Other"
+  },
+  {
+    "german": "Walnuss",
+    "gender": "die",
+    "english": "walnut",
+    "group": "Food"
+  },
+  {
+    "german": "Wand",
+    "gender": "die",
+    "english": "wall",
+    "group": "Office"
+  },
+  {
+    "german": "Wanderung",
+    "gender": "die",
+    "english": "hike / hiking trip",
+    "group": "Other"
+  },
+  {
+    "german": "Wandregal",
+    "gender": "das",
+    "english": "wall shelf",
+    "group": "Furniture"
+  },
+  {
+    "german": "Wanduhr",
+    "gender": "die",
+    "english": "wall clock",
+    "group": "Office"
+  },
+  {
+    "german": "Wartezimmer",
+    "gender": "das",
+    "english": "waiting room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Waschbecken",
+    "gender": "das",
+    "english": "sink / washbasin",
+    "group": "Furniture"
+  },
+  {
+    "german": "Wäschekorb",
+    "gender": "der",
+    "english": "laundry basket",
+    "group": "Furniture"
+  },
+  {
+    "german": "Waschküche",
+    "gender": "die",
+    "english": "laundry room / wash room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Waschmaschine",
+    "gender": "die",
+    "english": "washing machine",
+    "group": "Furniture"
+  },
+  {
+    "german": "Wasser",
+    "gender": "das",
+    "english": "water",
+    "group": "Food"
+  },
+  {
+    "german": "Wasserhahn",
+    "gender": "der",
+    "english": "water tap / faucet",
+    "group": "House"
+  },
+  {
+    "german": "Wasserleitung",
+    "gender": "die",
+    "english": "water pipe",
+    "group": "House"
+  },
+  {
+    "german": "Wassermelone",
+    "gender": "die",
+    "english": "watermelon",
+    "group": "Food"
+  },
+  {
+    "german": "Wasserspender",
+    "gender": "der",
+    "english": "water dispenser",
+    "group": "Office"
+  },
+  {
+    "german": "WC",
+    "gender": "das",
+    "english": "toilet / WC",
+    "group": "Rooms"
+  },
+  {
+    "german": "Webcam",
+    "gender": "die",
+    "english": "webcam",
+    "group": "Office"
+  },
+  {
+    "german": "Webseite",
+    "gender": "die",
+    "english": "website",
+    "group": "Other"
+  },
+  {
+    "german": "Wechselkurs",
+    "gender": "der",
+    "english": "exchange rate",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Wecker",
+    "gender": "der",
+    "english": "alarm clock",
+    "group": "Other"
+  },
+  {
+    "german": "Wein",
+    "gender": "der",
+    "english": "wine",
+    "group": "Food"
+  },
+  {
+    "german": "Weinkeller",
+    "gender": "der",
+    "english": "wine cellar",
+    "group": "Rooms"
+  },
+  {
+    "german": "Weintraube",
+    "gender": "die",
+    "english": "grape",
+    "group": "Food"
+  },
+  {
+    "german": "Weißwein",
+    "gender": "der",
+    "english": "white wine",
+    "group": "Food"
+  },
+  {
+    "german": "Weiterbildung",
+    "gender": "die",
+    "english": "further training / professional development",
+    "group": "Work"
+  },
+  {
+    "german": "Welt",
+    "gender": "die",
+    "english": "world",
+    "group": "Other"
+  },
+  {
+    "german": "Wert",
+    "gender": "der",
+    "english": "value / worth",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Wespe",
+    "gender": "die",
+    "english": "wasp",
+    "group": "Other"
+  },
+  {
+    "german": "Wettbewerber",
+    "gender": "der",
+    "english": "competitor",
+    "group": "Work"
+  },
+  {
+    "german": "Wetter",
+    "gender": "das",
+    "english": "weather",
+    "group": "Other"
+  },
+  {
+    "german": "Whisky",
+    "gender": "der",
+    "english": "whisky",
+    "group": "Food"
+  },
+  {
+    "german": "Whiteboard",
+    "gender": "das",
+    "english": "whiteboard",
+    "group": "Office"
+  },
+  {
+    "german": "Wiese",
+    "gender": "die",
+    "english": "meadow",
+    "group": "Other"
+  },
+  {
+    "german": "Wind",
+    "gender": "der",
+    "english": "wind",
+    "group": "Other"
+  },
+  {
+    "german": "Winter",
+    "gender": "der",
+    "english": "winter",
+    "group": "Other"
+  },
+  {
+    "german": "Wintergarten",
+    "gender": "der",
+    "english": "conservatory / sunroom",
+    "group": "Rooms"
+  },
+  {
+    "german": "Wissen",
+    "gender": "das",
+    "english": "knowledge",
+    "group": "Other"
+  },
+  {
+    "german": "Witwe",
+    "gender": "die",
+    "english": "widow",
+    "group": "Family"
+  },
+  {
+    "german": "Witwer",
+    "gender": "der",
+    "english": "widower",
+    "group": "Family"
+  },
+  {
+    "german": "WLAN",
+    "gender": "das",
+    "english": "wi-fi / wireless network",
+    "group": "Other"
+  },
+  {
+    "german": "Woche",
+    "gender": "die",
+    "english": "week",
+    "group": "Other"
+  },
+  {
+    "german": "Wochenende",
+    "gender": "das",
+    "english": "weekend",
+    "group": "Other"
+  },
+  {
+    "german": "Wodka",
+    "gender": "der",
+    "english": "vodka",
+    "group": "Food"
+  },
+  {
+    "german": "Wohnküche",
+    "gender": "die",
+    "english": "kitchen-diner / open-plan kitchen",
+    "group": "Rooms"
+  },
+  {
+    "german": "Wohnzimmer",
+    "gender": "das",
+    "english": "living room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Wolf",
+    "gender": "der",
+    "english": "wolf",
+    "group": "Other"
+  },
+  {
+    "german": "Wolke",
+    "gender": "die",
+    "english": "cloud",
+    "group": "Other"
+  },
+  {
+    "german": "Workshop",
+    "gender": "der",
+    "english": "workshop",
+    "group": "Work"
+  },
+  {
+    "german": "Wörterbuch",
+    "gender": "das",
+    "english": "dictionary",
+    "group": "Office"
+  },
+  {
+    "german": "Wunde",
+    "gender": "die",
+    "english": "wound",
+    "group": "Other"
+  },
+  {
+    "german": "Wunsch",
+    "gender": "der",
+    "english": "wish / desire",
+    "group": "Other"
+  },
+  {
+    "german": "Wurst",
+    "gender": "die",
+    "english": "sausage",
+    "group": "Food"
+  },
+  {
+    "german": "Wüste",
+    "gender": "die",
+    "english": "desert",
+    "group": "Other"
+  },
+  {
+    "german": "Yoga",
+    "gender": "das",
+    "english": "yoga",
+    "group": "Other"
+  },
+  {
+    "german": "Zahn",
+    "gender": "der",
+    "english": "tooth",
+    "group": "Other"
+  },
+  {
+    "german": "Zaun",
+    "gender": "der",
+    "english": "fence",
+    "group": "House"
+  },
+  {
+    "german": "Zeh",
+    "gender": "der",
+    "english": "toe",
+    "group": "Other"
+  },
+  {
+    "german": "Zeiger",
+    "gender": "der",
+    "english": "pointer",
+    "group": "Office"
+  },
+  {
+    "german": "Zeit",
+    "gender": "die",
+    "english": "time",
+    "group": "Other"
+  },
+  {
+    "german": "Zeugnis",
+    "gender": "das",
+    "english": "reference / certificate",
+    "group": "Work"
+  },
+  {
+    "german": "Ziege",
+    "gender": "die",
+    "english": "goat",
+    "group": "Other"
+  },
+  {
+    "german": "Ziegel",
+    "gender": "der",
+    "english": "brick",
+    "group": "House"
+  },
+  {
+    "german": "Ziel",
+    "gender": "das",
+    "english": "goal / target",
+    "group": "Work"
+  },
+  {
+    "german": "Zimmerdecke",
+    "gender": "die",
+    "english": "ceiling",
+    "group": "House"
+  },
+  {
+    "german": "Zimt",
+    "gender": "der",
+    "english": "cinnamon",
+    "group": "Food"
+  },
+  {
+    "german": "Zinsen",
+    "gender": "die",
+    "english": "interest (on money)",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Zinssatz",
+    "gender": "der",
+    "english": "interest rate",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Zirkel",
+    "gender": "der",
+    "english": "compass (drawing)",
+    "group": "School"
+  },
+  {
+    "german": "Zitrone",
+    "gender": "die",
+    "english": "lemon",
+    "group": "Food"
+  },
+  {
+    "german": "Zoo",
+    "gender": "der",
+    "english": "zoo",
+    "group": "Other"
+  },
+  {
+    "german": "Zucchini",
+    "gender": "die",
+    "english": "zucchini / courgette",
+    "group": "Food"
+  },
+  {
+    "german": "Zucker",
+    "gender": "der",
+    "english": "sugar",
+    "group": "Food"
+  },
+  {
+    "german": "Zug",
+    "gender": "der",
+    "english": "train",
+    "group": "Other"
+  },
+  {
+    "german": "Zugangskarte",
+    "gender": "die",
+    "english": "access card",
+    "group": "Office"
+  },
+  {
+    "german": "Zuhause",
+    "gender": "das",
+    "english": "home",
+    "group": "Family"
+  },
+  {
+    "german": "Zwiebel",
+    "gender": "die",
+    "english": "onion",
+    "group": "Food"
+  },
+  {
+    "german": "Zwilling",
+    "gender": "der",
+    "english": "twin",
+    "group": "Family"
+  }
+]
