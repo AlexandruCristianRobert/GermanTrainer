@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import {
-  NRadioGroup, NRadio, NSpace, NButton, NInputNumber, NAlert, NCheckboxGroup, NCheckbox
+  NRadioGroup, NRadio, NSpace, NButton, NInputNumber, NAlert, NCheckboxGroup, NCheckbox,
+  useMessage
 } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { useAdjectives } from '../../composables/useAdjectives'
@@ -13,6 +14,7 @@ const STORAGE_KEY = 'adjectiveQuizGroups'
 const { countsByGroup } = useAdjectives()
 const { hasApiKey, load: loadSettings } = useSettings()
 const router = useRouter()
+const message = useMessage()
 
 const counts = ref<Record<AdjectiveGroup, number>>(
   Object.fromEntries(ADJECTIVE_GROUPS.map(g => [g, 0])) as Record<AdjectiveGroup, number>
@@ -72,6 +74,14 @@ function selectNone() {
 }
 
 function start() {
+  if (selectedGroups.value.length === 0) {
+    message.error('Select at least one group.')
+    return
+  }
+  if (totalAvailable.value === 0) {
+    message.error('No adjectives in the selected groups.')
+    return
+  }
   router.push({
     name: 'adjectives-quiz-run',
     query: {
