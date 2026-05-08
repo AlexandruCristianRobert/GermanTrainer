@@ -12,10 +12,11 @@ import {
 import { useAdjectiveQuiz } from '../../composables/useAdjectiveQuiz'
 import SentenceQuiz from './SentenceQuiz.vue'
 import QuizResult from './QuizResult.vue'
+import { ADJECTIVE_GROUPS, type AdjectiveGroup } from '../../db/types'
 
 const route = useRoute()
 const router = useRouter()
-const { sample } = useAdjectives()
+const { sample, sampleByGroups } = useAdjectives()
 const { settings, load: loadSettings } = useSettings()
 
 const phase = ref<'loading' | 'error' | 'quiz'>('loading')
@@ -23,9 +24,21 @@ const errorMsg = ref('')
 let quiz: ReturnType<typeof useAdjectiveQuiz> | null = null
 const ready = ref(false)
 
+function parseGroupsQuery(raw: unknown): AdjectiveGroup[] {
+  if (typeof raw !== 'string' || raw.length === 0) return []
+  const known = new Set<string>(ADJECTIVE_GROUPS)
+  return raw
+    .split(',')
+    .map(s => decodeURIComponent(s.trim()))
+    .filter((g): g is AdjectiveGroup => known.has(g))
+}
+
 async function generate(): Promise<SentenceItem[]> {
   const c = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
-  const adjectives = await sample(c)
+  const groups = parseGroupsQuery(route.query.groups)
+  const adjectives = groups.length > 0
+    ? await sampleByGroups(groups, c)
+    : await sample(c)
   if (adjectives.length === 0) {
     throw new Error('No adjectives available.')
   }
