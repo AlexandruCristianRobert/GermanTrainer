@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { db } from '../db'
-import type { Noun } from '../db/types'
+import type { Noun, NounGroup } from '../db/types'
+import { NOUN_GROUPS } from '../db/types'
 
 export function useNouns() {
   const items = ref<Noun[]>([])
@@ -39,5 +40,26 @@ export function useNouns() {
     return all.slice(0, k)
   }
 
-  return { items, refresh, create, update, remove, count, sample }
+  async function sampleByGroups(groups: NounGroup[], n: number): Promise<Noun[]> {
+    if (groups.length === 0) return []
+    const set = new Set(groups)
+    const all = (await db.nouns.toArray()).filter(noun => set.has(noun.group))
+    const k = Math.min(n, all.length)
+    for (let i = 0; i < k; i++) {
+      const j = i + Math.floor(Math.random() * (all.length - i))
+      ;[all[i], all[j]] = [all[j], all[i]]
+    }
+    return all.slice(0, k)
+  }
+
+  async function countsByGroup(): Promise<Record<NounGroup, number>> {
+    const counts = Object.fromEntries(NOUN_GROUPS.map(g => [g, 0])) as Record<NounGroup, number>
+    const all = await db.nouns.toArray()
+    for (const noun of all) {
+      counts[noun.group] = (counts[noun.group] ?? 0) + 1
+    }
+    return counts
+  }
+
+  return { items, refresh, create, update, remove, count, sample, sampleByGroups, countsByGroup }
 }

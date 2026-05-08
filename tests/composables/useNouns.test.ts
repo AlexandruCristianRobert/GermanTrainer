@@ -79,4 +79,43 @@ describe('useNouns', () => {
     const { count } = useNouns()
     expect(await count()).toBe(7)
   })
+
+  it('sampleByGroups returns only nouns from the requested groups', async () => {
+    await addNoun({ german: 'Tisch', group: 'Furniture' })
+    await addNoun({ german: 'Stuhl', group: 'Furniture' })
+    await addNoun({ german: 'Apfel', group: 'Food' })
+    await addNoun({ german: 'Bank', group: 'Bank & Money' })
+    const { sampleByGroups } = useNouns()
+    const picked = await sampleByGroups(['Furniture', 'Food'], 10)
+    const groups = new Set(picked.map(n => n.group))
+    expect(picked.length).toBe(3)
+    expect(groups.has('Bank & Money')).toBe(false)
+  })
+
+  it('sampleByGroups caps to available count when N exceeds matches', async () => {
+    await addNoun({ german: 'Apfel', group: 'Food' })
+    await addNoun({ german: 'Brot', group: 'Food' })
+    const { sampleByGroups } = useNouns()
+    const picked = await sampleByGroups(['Food'], 10)
+    expect(picked.length).toBe(2)
+  })
+
+  it('sampleByGroups returns empty array when groups is empty', async () => {
+    await addNoun({ german: 'Apfel', group: 'Food' })
+    const { sampleByGroups } = useNouns()
+    const picked = await sampleByGroups([], 5)
+    expect(picked).toEqual([])
+  })
+
+  it('countsByGroup returns a count for every NOUN_GROUPS entry, zero when none', async () => {
+    await addNoun({ german: 'Apfel', group: 'Food' })
+    await addNoun({ german: 'Brot', group: 'Food' })
+    await addNoun({ german: 'Tisch', group: 'Furniture' })
+    const { countsByGroup } = useNouns()
+    const counts = await countsByGroup()
+    expect(counts['Food']).toBe(2)
+    expect(counts['Furniture']).toBe(1)
+    expect(counts['Office']).toBe(0)
+    expect(counts['Bank & Money']).toBe(0)
+  })
 })
