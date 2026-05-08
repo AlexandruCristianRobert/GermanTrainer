@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { db } from '../db'
-import type { Adjective } from '../db/types'
+import type { Adjective, AdjectiveGroup } from '../db/types'
+import { ADJECTIVE_GROUPS } from '../db/types'
 
 export function useAdjectives() {
   const items = ref<Adjective[]>([])
@@ -39,5 +40,26 @@ export function useAdjectives() {
     return all.slice(0, k)
   }
 
-  return { items, refresh, create, update, remove, count, sample }
+  async function sampleByGroups(groups: AdjectiveGroup[], n: number): Promise<Adjective[]> {
+    if (groups.length === 0) return []
+    const set = new Set(groups)
+    const all = (await db.adjectives.toArray()).filter(a => set.has(a.group))
+    const k = Math.min(n, all.length)
+    for (let i = 0; i < k; i++) {
+      const j = i + Math.floor(Math.random() * (all.length - i))
+      ;[all[i], all[j]] = [all[j], all[i]]
+    }
+    return all.slice(0, k)
+  }
+
+  async function countsByGroup(): Promise<Record<AdjectiveGroup, number>> {
+    const counts = Object.fromEntries(ADJECTIVE_GROUPS.map(g => [g, 0])) as Record<AdjectiveGroup, number>
+    const all = await db.adjectives.toArray()
+    for (const adj of all) {
+      counts[adj.group] = (counts[adj.group] ?? 0) + 1
+    }
+    return counts
+  }
+
+  return { items, refresh, create, update, remove, count, sample, sampleByGroups, countsByGroup }
 }

@@ -49,4 +49,43 @@ describe('useAdjectives', () => {
     const { count } = useAdjectives()
     expect(await count()).toBe(4)
   })
+
+  it('sampleByGroups returns only adjectives from the requested groups', async () => {
+    await addAdj({ german: 'schön', group: 'Quality & Condition' })
+    await addAdj({ german: 'groß', group: 'Size & Quantity' })
+    await addAdj({ german: 'klein', group: 'Size & Quantity' })
+    await addAdj({ german: 'glücklich', group: 'Feelings & Emotions' })
+    const { sampleByGroups } = useAdjectives()
+    const picked = await sampleByGroups(['Size & Quantity', 'Feelings & Emotions'], 10)
+    const groups = new Set(picked.map(a => a.group))
+    expect(picked.length).toBe(3)
+    expect(groups.has('Quality & Condition')).toBe(false)
+  })
+
+  it('sampleByGroups caps to available count when N exceeds matches', async () => {
+    await addAdj({ german: 'schön', group: 'Quality & Condition' })
+    await addAdj({ german: 'gut', group: 'Quality & Condition' })
+    const { sampleByGroups } = useAdjectives()
+    const picked = await sampleByGroups(['Quality & Condition'], 10)
+    expect(picked.length).toBe(2)
+  })
+
+  it('sampleByGroups returns empty array when groups is empty', async () => {
+    await addAdj({ german: 'schön', group: 'Quality & Condition' })
+    const { sampleByGroups } = useAdjectives()
+    const picked = await sampleByGroups([], 5)
+    expect(picked).toEqual([])
+  })
+
+  it('countsByGroup returns a count for every ADJECTIVE_GROUPS entry, zero when none', async () => {
+    await addAdj({ german: 'schön', group: 'Quality & Condition' })
+    await addAdj({ german: 'gut', group: 'Quality & Condition' })
+    await addAdj({ german: 'glücklich', group: 'Feelings & Emotions' })
+    const { countsByGroup } = useAdjectives()
+    const counts = await countsByGroup()
+    expect(counts['Quality & Condition']).toBe(2)
+    expect(counts['Feelings & Emotions']).toBe(1)
+    expect(counts['Time & Sequence']).toBe(0)
+    expect(counts['Other']).toBe(0)
+  })
 })
