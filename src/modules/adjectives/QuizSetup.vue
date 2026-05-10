@@ -114,7 +114,7 @@ function start() {
           />
         </n-space>
       </n-checkbox-group>
-      <n-space style="margin-top: 8px">
+      <n-space :wrap="true" style="margin-top: 8px">
         <n-button size="small" @click="selectAll">All</n-button>
         <n-button size="small" @click="selectNone">None</n-button>
       </n-space>
@@ -139,7 +139,7 @@ function start() {
         v-model:value="customCount"
         :min="1"
         :max="totalAvailable || 1"
-        style="margin-top: 8px"
+        style="margin-top: 8px; width: 100%"
       />
     </div>
     <n-alert v-if="requested > totalAvailable && totalAvailable > 0" type="info">

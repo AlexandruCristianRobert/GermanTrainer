@@ -59,7 +59,7 @@ async function onTest() {
       <n-form-item label="Model">
         <n-select v-model:value="settings.model" :options="modelOptions" />
       </n-form-item>
-      <n-space>
+      <n-space :wrap="true">
         <n-button type="primary" @click="onSave">Save</n-button>
         <n-button :loading="testing" @click="onTest" :disabled="!settings.geminiApiKey">
           Test connection
