@@ -5,6 +5,7 @@ export default defineConfig({
     plugins: [vue()],
     test: {
         globals: true,
+        base: '/GermanTrainer/',
         environment: 'jsdom',
         setupFiles: ['./tests/setup.ts'],
         include: ['tests/**/*.test.ts']
