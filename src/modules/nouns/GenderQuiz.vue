@@ -43,37 +43,43 @@ const feedbackColor = computed(() =>
 </script>
 
 <template>
-  <n-card>
-    <n-space vertical size="large" align="center">
-      <n-text depth="3">Question {{ questionNumber }} of {{ totalQuestions }}</n-text>
-      <div class="word-display">
-        <div class="german-word">{{ noun.german }}</div>
-        <div class="english-translation">{{ noun.english }}</div>
-        <n-tag v-if="noun.group" size="small" :bordered="false" type="info" class="group-tag">
-          {{ noun.group }}
-        </n-tag>
-      </div>
-      <n-space>
-        <n-button
-          v-for="g in buttons"
-          :key="g"
-          size="large"
-          :disabled="submitted"
-          :type="submitted && g === noun.gender ? 'success' : (submitted && g === userAnswer && !isCorrect ? 'error' : 'default')"
-          @click="pick(g)"
-        >
-          {{ g }}
-        </n-button>
+  <div class="quiz-shell">
+    <n-card>
+      <n-space vertical size="large" align="center">
+        <n-text depth="3">Question {{ questionNumber }} of {{ totalQuestions }}</n-text>
+        <div class="word-display">
+          <div class="german-word">{{ noun.german }}</div>
+          <div class="english-translation">{{ noun.english }}</div>
+          <n-tag v-if="noun.group" size="small" :bordered="false" type="info" class="group-tag">
+            {{ noun.group }}
+          </n-tag>
+        </div>
+        <n-space size="medium" :wrap="true" justify="center">
+          <n-button
+            v-for="g in buttons"
+            :key="g"
+            size="large"
+            :disabled="submitted"
+            :type="submitted && g === noun.gender ? 'success' : (submitted && g === userAnswer && !isCorrect ? 'error' : 'default')"
+            @click="pick(g)"
+          >
+            {{ g }}
+          </n-button>
+        </n-space>
+        <n-text v-if="submitted" :style="{ color: feedbackColor }">
+          {{ isCorrect ? '✅ Correct' : `❌ Correct: ${noun.gender}` }}
+        </n-text>
+        <n-button v-if="submitted" ref="nextButtonRef" type="primary" @click="next">Next</n-button>
       </n-space>
-      <n-text v-if="submitted" :style="{ color: feedbackColor }">
-        {{ isCorrect ? '✅ Correct' : `❌ Correct: ${noun.gender}` }}
-      </n-text>
-      <n-button v-if="submitted" ref="nextButtonRef" type="primary" @click="next">Next</n-button>
-    </n-space>
-  </n-card>
+    </n-card>
+  </div>
 </template>
 
 <style scoped>
+.quiz-shell {
+  max-width: 480px;
+  margin: 0 auto;
+}
 .word-display {
   display: flex;
   flex-direction: column;
@@ -97,5 +103,13 @@ const feedbackColor = computed(() =>
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-size: 11px;
+}
+@media (max-width: 480px) {
+  .german-word {
+    font-size: 32px;
+  }
+  .word-display {
+    padding: 12px 8px;
+  }
 }
 </style>

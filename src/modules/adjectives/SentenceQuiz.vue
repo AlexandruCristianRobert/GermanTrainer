@@ -48,27 +48,40 @@ const feedbackColor = computed(() =>
 </script>
 
 <template>
-  <n-card>
-    <n-space vertical size="large">
-      <n-text>Question {{ questionNumber }} of {{ totalQuestions }}</n-text>
-      <n-text style="font-size: 22px">{{ question.blanked }}</n-text>
-      <n-text depth="3" italic>({{ question.item.hint }})</n-text>
-      <n-input
-        ref="inputRef"
-        v-model:value="input"
-        :disabled="submitted"
-        placeholder="adjective"
-        style="width: 280px"
-        @keyup.enter="submit"
-      />
-      <n-button v-if="!submitted" type="primary" :disabled="!input.trim()" @click="submit">Submit</n-button>
-      <n-text v-if="submitted" :style="{ color: feedbackColor }">
-        {{ question.isCorrect
-          ? '✅ Correct'
-          : `❌ Correct: ${question.item.adjective_inflected} (base: ${question.item.adjective_base})` }}
-      </n-text>
-      <n-text v-if="submitted" depth="3">Full sentence: {{ question.item.sentence }}</n-text>
-      <n-button v-if="submitted" ref="nextButtonRef" type="primary" @click="next">Next</n-button>
-    </n-space>
-  </n-card>
+  <div class="quiz-shell">
+    <n-card>
+      <n-space vertical size="large">
+        <n-text>Question {{ questionNumber }} of {{ totalQuestions }}</n-text>
+        <n-text style="font-size: 22px">{{ question.blanked }}</n-text>
+        <n-text depth="3" italic>({{ question.item.hint }})</n-text>
+        <n-input
+          ref="inputRef"
+          v-model:value="input"
+          :disabled="submitted"
+          placeholder="adjective"
+          class="quiz-input"
+          @keyup.enter="submit"
+        />
+        <n-button v-if="!submitted" type="primary" :disabled="!input.trim()" @click="submit">Submit</n-button>
+        <n-text v-if="submitted" :style="{ color: feedbackColor }">
+          {{ question.isCorrect
+            ? '✅ Correct'
+            : `❌ Correct: ${question.item.adjective_inflected} (base: ${question.item.adjective_base})` }}
+        </n-text>
+        <n-text v-if="submitted" depth="3">Full sentence: {{ question.item.sentence }}</n-text>
+        <n-button v-if="submitted" ref="nextButtonRef" type="primary" @click="next">Next</n-button>
+      </n-space>
+    </n-card>
+  </div>
 </template>
+
+<style scoped>
+.quiz-shell {
+  max-width: 480px;
+  margin: 0 auto;
+}
+.quiz-input {
+  width: 100%;
+  max-width: 320px;
+}
+</style>

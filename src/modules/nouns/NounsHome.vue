@@ -7,7 +7,7 @@ const router = useRouter()
 <template>
   <n-space vertical size="large">
     <h2>Nouns</h2>
-    <n-grid :cols="2" :x-gap="16">
+    <n-grid cols="1 768:2" :x-gap="16" :y-gap="16">
       <n-grid-item>
         <n-card title="Manage nouns" hoverable>
           <p>Add, edit, or delete nouns. Reset to defaults from the seed list.</p>
