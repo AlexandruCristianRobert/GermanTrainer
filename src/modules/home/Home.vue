@@ -7,7 +7,7 @@ const router = useRouter()
 <template>
   <n-space vertical size="large">
     <n-text style="font-size: 22px">Practice German vocabulary</n-text>
-    <n-grid :cols="3" :x-gap="16">
+    <n-grid cols="1 768:2 1024:3" :x-gap="16" :y-gap="16">
       <n-grid-item>
         <n-card title="Nouns" hoverable>
           <p>Quiz the gender (der/die/das) or English translation of German nouns.</p>
