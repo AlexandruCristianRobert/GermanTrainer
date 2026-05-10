@@ -11,3 +11,4 @@ coverage
 *.log
 *.tsbuildinfo
 .superpowers/
+.claude/settings.local.json
