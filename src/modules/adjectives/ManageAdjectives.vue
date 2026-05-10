@@ -87,7 +87,7 @@ async function onReset() {
 <template>
   <n-space vertical size="large">
     <h2>Manage adjectives</h2>
-    <n-space>
+    <n-space :wrap="true">
       <n-button type="primary" @click="onAdd">Add adjective</n-button>
       <n-popconfirm @positive-click="onReset">
         <template #trigger>
@@ -96,7 +96,14 @@ async function onReset() {
         This will delete all your custom entries and restore the seed list. Continue?
       </n-popconfirm>
     </n-space>
-    <EntryList :columns="columns" :rows="items" @edit="onEdit" @delete="onDelete" />
+    <EntryList
+      :columns="columns"
+      :rows="items"
+      primary-key="german"
+      secondary-key="english"
+      @edit="onEdit"
+      @delete="onDelete"
+    />
     <EntryEditor
       v-model:show="editorOpen"
       :title="editorTitle"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { NButton, NSpace, NPopconfirm, useMessage } from 'naive-ui'
 import EntryList from '../../components/EntryList.vue'
 import EntryEditor from '../../components/EntryEditor.vue'
@@ -30,6 +30,10 @@ const columns = [
   { key: 'english', title: 'English' },
   { key: 'group', title: 'Group' }
 ]
+
+const displayRows = computed(() =>
+  items.value.map(n => ({ ...n, gendered: `${n.gender} ${n.german}` }))
+)
 
 onMounted(refresh)
 
@@ -91,7 +95,7 @@ async function onReset() {
 <template>
   <n-space vertical size="large">
     <h2>Manage nouns</h2>
-    <n-space>
+    <n-space :wrap="true">
       <n-button type="primary" @click="onAdd">Add noun</n-button>
       <n-popconfirm @positive-click="onReset">
         <template #trigger>
@@ -100,7 +104,14 @@ async function onReset() {
         This will delete all your custom entries and restore the seed list. Continue?
       </n-popconfirm>
     </n-space>
-    <EntryList :columns="columns" :rows="items" @edit="onEdit" @delete="onDelete" />
+    <EntryList
+      :columns="columns"
+      :rows="displayRows"
+      primary-key="gendered"
+      secondary-key="english"
+      @edit="onEdit"
+      @delete="onDelete"
+    />
     <EntryEditor
       v-model:show="editorOpen"
       :title="editorTitle"
