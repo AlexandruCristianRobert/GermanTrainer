@@ -57,23 +57,36 @@ const feedbackColor = computed(() =>
 </script>
 
 <template>
-  <n-card>
-    <n-space vertical size="large" align="center">
-      <n-text>Question {{ questionNumber }} of {{ totalQuestions }}</n-text>
-      <n-text style="font-size: 32px">{{ noun.gender }} {{ noun.german }}</n-text>
-      <n-input
-        ref="inputRef"
-        v-model:value="input"
-        :disabled="submitted"
-        placeholder="English meaning"
-        style="width: 280px"
-        @keyup.enter="submit"
-      />
-      <n-button v-if="!submitted" type="primary" :disabled="!input.trim()" @click="submit">Submit</n-button>
-      <n-text v-if="submitted" :style="{ color: feedbackColor }">
-        {{ isCorrect ? '✅ Correct' : `❌ Correct: ${noun.english}` }}
-      </n-text>
-      <n-button v-if="submitted" ref="nextButtonRef" type="primary" @click="next">Next</n-button>
-    </n-space>
-  </n-card>
+  <div class="quiz-shell">
+    <n-card>
+      <n-space vertical size="large" align="center">
+        <n-text>Question {{ questionNumber }} of {{ totalQuestions }}</n-text>
+        <n-text style="font-size: 32px">{{ noun.gender }} {{ noun.german }}</n-text>
+        <n-input
+          ref="inputRef"
+          v-model:value="input"
+          :disabled="submitted"
+          placeholder="English meaning"
+          class="quiz-input"
+          @keyup.enter="submit"
+        />
+        <n-button v-if="!submitted" type="primary" :disabled="!input.trim()" @click="submit">Submit</n-button>
+        <n-text v-if="submitted" :style="{ color: feedbackColor }">
+          {{ isCorrect ? '✅ Correct' : `❌ Correct: ${noun.english}` }}
+        </n-text>
+        <n-button v-if="submitted" ref="nextButtonRef" type="primary" @click="next">Next</n-button>
+      </n-space>
+    </n-card>
+  </div>
 </template>
+
+<style scoped>
+.quiz-shell {
+  max-width: 480px;
+  margin: 0 auto;
+}
+.quiz-input {
+  width: 100%;
+  max-width: 320px;
+}
+</style>
