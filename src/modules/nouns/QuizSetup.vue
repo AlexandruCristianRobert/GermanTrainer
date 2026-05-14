@@ -19,7 +19,7 @@ const counts = ref<Record<NounGroup, number>>(
 )
 const selectedGroups = ref<NounGroup[]>([])
 const mode = ref<'gender' | 'translation'>('gender')
-const preset = ref<10 | 15 | 20 | 'custom'>(10)
+const preset = ref<10 | 15 | 20 | 'custom' | 'all'>(10)
 const customCount = ref(10)
 
 function loadSelectedGroups(): NounGroup[] | null {
@@ -60,7 +60,11 @@ watch(selectedGroups, value => {
 const totalAvailable = computed(() =>
   selectedGroups.value.reduce((sum, g) => sum + (counts.value[g] ?? 0), 0)
 )
-const requested = computed(() => (preset.value === 'custom' ? customCount.value : preset.value))
+const requested = computed(() => {
+  if (preset.value === 'custom') return customCount.value
+  if (preset.value === 'all') return totalAvailable.value
+  return preset.value
+})
 const effective = computed(() => Math.min(requested.value, totalAvailable.value))
 
 function selectAll() {
@@ -136,6 +140,7 @@ function start() {
         <n-radio :value="15">15</n-radio>
         <n-radio :value="20">20</n-radio>
         <n-radio value="custom">Custom</n-radio>
+        <n-radio value="all">All</n-radio>
       </n-radio-group>
       <n-input-number
         v-if="preset === 'custom'"
