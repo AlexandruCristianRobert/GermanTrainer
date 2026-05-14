@@ -67,3 +67,28 @@ describe('QuizSetup — All preset', () => {
     )
   })
 })
+
+describe('QuizSetup — Gender tips panel', () => {
+  beforeEach(() => {
+    if (typeof localStorage !== 'undefined') localStorage.clear()
+  })
+
+  it('renders the gender tips collapse header', async () => {
+    const { wrapper } = await mountSetup()
+    expect(wrapper.text()).toContain('Gender tips')
+  })
+
+  it('includes sub-sections for endings, semantic categories, compound rule, traps, plural', async () => {
+    const { wrapper } = await mountSetup()
+    // Expand the outer "Gender tips" panel so inner headers are mounted
+    const tipsHeader = wrapper.find('.n-collapse-item__header-main')
+    await tipsHeader.trigger('click')
+    await flushPromises()
+    const html = wrapper.html()
+    expect(html).toContain('Endings')
+    expect(html).toContain('Semantic categories')
+    expect(html).toContain('Compound noun')
+    expect(html).toContain('Traps')
+    expect(html).toContain('Plural')
+  })
+})

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import {
   NRadioGroup, NRadio, NSpace, NButton, NInputNumber, NAlert, NCheckboxGroup, NCheckbox,
+  NCollapse, NCollapseItem,
   useMessage
 } from 'naive-ui'
 import { useRouter } from 'vue-router'
@@ -98,6 +99,41 @@ function start() {
 <template>
   <n-space vertical size="large" style="max-width: 480px">
     <h2>Noun quiz setup</h2>
+    <n-collapse>
+      <n-collapse-item title="Gender tips" name="tips">
+        <n-collapse>
+          <n-collapse-item title="Endings → likely gender" name="endings">
+            <p><strong>die</strong>: -ung, -heit, -keit, -schaft, -tät, -ion, -ik, -ie, -ei, -enz, -anz</p>
+            <p><strong>der</strong>: -er (agent), -ling, -ismus, -ant, -ent, -or, -ist</p>
+            <p><strong>das</strong>: -chen, -lein, -ment, -um, -tum, -nis (often), -sel</p>
+          </n-collapse-item>
+          <n-collapse-item title="Semantic categories" name="semantic">
+            <p><strong>der</strong>: days, months, seasons, compass points, weather (Regen, Schnee, Wind), male persons/professions, alcoholic drinks (except das Bier), car brands.</p>
+            <p><strong>die</strong>: female persons/professions, most trees, most flowers, most fruits, cardinal numbers as nouns (die Eins), motorcycles, ships.</p>
+            <p><strong>das</strong>: metals &amp; chemical elements, most countries &amp; cities, infinitives as nouns (das Essen), diminutives, colours as nouns (das Rot), young living things (das Baby, das Kind).</p>
+          </n-collapse-item>
+          <n-collapse-item title="Compound noun rule" name="compound">
+            <p>The gender of a compound noun follows its <em>last</em> component.</p>
+            <p>das Haus + die Tür → <strong>die</strong> Haustür</p>
+            <p>die Sonne + der Schein → <strong>der</strong> Sonnenschein</p>
+          </n-collapse-item>
+          <n-collapse-item title="Traps &amp; exceptions" name="traps">
+            <p><strong>das Mädchen</strong>, <strong>das Fräulein</strong> — diminutive -chen/-lein overrides natural gender.</p>
+            <p><strong>der Junge</strong> — masculine despite -e ending.</p>
+            <p><strong>die Person</strong> — feminine regardless of the person's sex.</p>
+            <p><strong>das Baby</strong>, <strong>das Kind</strong> — neuter regardless of sex.</p>
+            <p><strong>die Zeit, die Arbeit, die Antwort</strong> — common -t feminines.</p>
+          </n-collapse-item>
+          <n-collapse-item title="Plural quick reference" name="plural">
+            <p>Most <strong>die</strong> feminines: plural in -(e)n (die Frau → die Frauen).</p>
+            <p>Many <strong>der</strong>/<strong>das</strong> words: plural in -e (der Tisch → die Tische).</p>
+            <p>Many neuters: -er + umlaut (das Haus → die Häuser).</p>
+            <p>-chen / -lein diminutives: unchanged in the plural.</p>
+            <p>Foreign / loanwords: often -s (das Auto → die Autos).</p>
+          </n-collapse-item>
+        </n-collapse>
+      </n-collapse-item>
+    </n-collapse>
     <n-alert v-if="totalAvailable === 0 && selectedGroups.length > 0" type="warning">
       No nouns in the selected groups. Pick a different group or add nouns in Manage nouns.
     </n-alert>
