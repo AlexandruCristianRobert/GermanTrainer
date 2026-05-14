@@ -1,16 +1,17 @@
-# Noun Quiz: "All" preset + Gender Tips Panel
+# Noun Quiz: "All" preset, Gender Tips Panel, Keyboard Shortcuts
 
 Date: 2026-05-14
 Status: Design approved
 
 ## Goal
 
-Two small additions to the Noun quiz setup page (`src/modules/nouns/QuizSetup.vue`):
+Three small additions to the Noun quiz flow:
 
-1. Let the user quiz on *every* noun in the currently selected groups via a new "All" preset in the question-count radio group.
-2. Add a collapsible "Gender tips" panel on the setup page with static, curated patterns that help the user guess the gender of a German noun.
+1. (Setup) Let the user quiz on *every* noun in the currently selected groups via a new "All" preset in the question-count radio group.
+2. (Setup) Add a collapsible "Gender tips" panel on the setup page with static, curated patterns that help the user guess the gender of a German noun.
+3. (Gender quiz) Add keyboard shortcuts so a full session can be played without the mouse: `1` → der, `2` → die, `3` → das, `Enter` advances to the next question.
 
-Both changes are scoped to the setup screen. The quiz runner, gender quiz, translation quiz, data model, and persistence layer are unchanged.
+Items 1 and 2 are scoped to `QuizSetup.vue`. Item 3 is scoped to `GenderQuiz.vue`. The translation quiz, data model, and persistence layer are unchanged.
 
 ## 1. "All" preset
 
@@ -85,9 +86,36 @@ Gender of a compound noun is the gender of its **last** component:
 ### Content source
 Hard-coded in the component template. No store, no editing UI, no localization, no fetching. Adding/changing tips requires editing the Vue file.
 
+## 3. Keyboard shortcuts in the gender quiz
+
+### Bindings
+While `GenderQuiz.vue` is mounted:
+
+| Key | Action |
+|---|---|
+| `1` | Pick **der** (same as clicking the der button) |
+| `2` | Pick **die** |
+| `3` | Pick **das** |
+| `Enter` | After answering, advance to the next question |
+
+Already in place: after `pick()` submits, `nextButtonRef.$el.focus()` runs in `nextTick`, so the browser's default Enter-activates-focused-button behaviour already covers the `Enter → Next` requirement. The spec keeps this rather than adding a separate listener — verify it during implementation; if focus is lost for any reason, add an explicit Enter handler.
+
+### Implementation
+- Add a `window` `keydown` listener registered in `onMounted` and removed in `onBeforeUnmount`.
+- Ignore the event when:
+  - `event.repeat` is true (avoid auto-repeat firing pick repeatedly — single-fire only),
+  - `event.ctrlKey`, `event.metaKey`, `event.altKey` are set (don't hijack browser shortcuts),
+  - The component is already in the submitted state (1/2/3 are no-ops once an answer is locked, matching the disabled buttons).
+- Map `event.key` `'1' | '2' | '3'` to `'der' | 'die' | 'das'` and call `pick(g)`. Use `event.preventDefault()` only on a successful map.
+- No listener for Enter is added; the focused Next button handles it natively.
+
+### Scope note
+Only the **gender** quiz gets shortcuts. The translation quiz uses free-text input, where number keys are literal input.
+
 ## Out of scope
 
-- Quiz runner changes (`QuizRunner.vue`, `GenderQuiz.vue`, `TranslationQuiz.vue`).
+- `QuizRunner.vue` and `TranslationQuiz.vue` changes.
+- Keyboard shortcuts in the translation quiz or the adjective quizzes.
 - Per-noun gender hints shown during a quiz.
 - AI-generated or dynamic tips.
 - Adjective quiz parity (only nouns for now).
@@ -96,5 +124,6 @@ Hard-coded in the component template. No store, no editing UI, no localization, 
 ## Files touched
 
 - `src/modules/nouns/QuizSetup.vue` — preset type widening, new radio, `requested` update, new collapse block in template.
+- `src/modules/nouns/GenderQuiz.vue` — global `keydown` listener mapping `1/2/3` to `pick()`, registered in `onMounted` and torn down in `onBeforeUnmount`.
 
 No new files, no new dependencies (`NCollapse` / `NCollapseItem` are part of naive-ui already in use).
