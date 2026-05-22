@@ -58,3 +58,50 @@ describe('conjugate — Perfekt', () => {
     expect(rows[0].expected).toBe('bin aufgestanden')
   })
 })
+
+describe('conjugate — Präteritum', () => {
+  it('regular verb: stem already includes -te ending', () => {
+    const rows = conjugate(find('spielen'), 'praeteritum')
+    expect(rows.map(r => r.expected)).toEqual([
+      'spielte', 'spieltest', 'spielte', 'spielten', 'spieltet', 'spielten'
+    ])
+  })
+
+  it('strong verb: ich/er have no ending', () => {
+    const rows = conjugate(find('gehen'), 'praeteritum')
+    expect(rows[0].expected).toBe('ging')
+    expect(rows[1].expected).toBe('gingst')
+    expect(rows[2].expected).toBe('ging')
+    expect(rows[3].expected).toBe('gingen')
+    expect(rows[4].expected).toBe('gingt')
+    expect(rows[5].expected).toBe('gingen')
+  })
+
+  it('separable Präteritum splits prefix to end', () => {
+    const rows = conjugate(find('aufstehen'), 'praeteritum')
+    expect(rows[0].expected).toBe('stand auf')
+    expect(rows[2].expected).toBe('stand auf')
+    expect(rows[3].expected).toBe('standen auf')
+  })
+})
+
+describe('conjugate — Plusquamperfekt', () => {
+  it('uses aux Präteritum + Partizip II', () => {
+    expect(conjugate(find('spielen'), 'plusquamperfekt')[0].expected).toBe('hatte gespielt')
+    expect(conjugate(find('gehen'), 'plusquamperfekt')[0].expected).toBe('war gegangen')
+  })
+})
+
+describe('conjugate — Futur I', () => {
+  it('uses werden + Infinitiv', () => {
+    expect(conjugate(find('spielen'), 'futur1')[0].expected).toBe('werde spielen')
+    expect(conjugate(find('aufstehen'), 'futur1')[0].expected).toBe('werde aufstehen')
+  })
+})
+
+describe('conjugate — Futur II', () => {
+  it('uses werden + Partizip II + Auxiliary infinitive', () => {
+    expect(conjugate(find('spielen'), 'futur2')[0].expected).toBe('werde gespielt haben')
+    expect(conjugate(find('gehen'), 'futur2')[0].expected).toBe('werde gegangen sein')
+  })
+})

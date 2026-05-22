@@ -26,6 +26,50 @@ function compoundWithAux(aux: SixForms, tail: string): SixForms {
   return aux.map(a => `${a} ${tail}`) as unknown as SixForms
 }
 
+const STRONG_PRAET_ENDINGS: SixForms = ['', 'st', '', 'en', 't', 'en']
+const WEAK_PRAET_ENDINGS:   SixForms = ['',   'st', '', 'n',  't', 'n']
+
+function endsWithTteDe(stem: string): boolean {
+  return /[td]$/.test(stem) && !stem.endsWith('te')
+}
+
+function praeteritum(verb: Verb): SixForms {
+  if (verb.praeteritum) {
+    if (verb.separablePrefix) {
+      return verb.praeteritum.map(f => `${f} ${verb.separablePrefix}`) as unknown as SixForms
+    }
+    return verb.praeteritum
+  }
+  const stem = verb.praeteritumStem
+  const isWeak = stem.endsWith('te')
+  const endings = isWeak ? WEAK_PRAET_ENDINGS : STRONG_PRAET_ENDINGS
+  const needsBindeE = !isWeak && endsWithTteDe(stem)
+  let forms = endings.map((end, i) => {
+    if (i === 0 || i === 2) return stem
+    let suffix = end
+    if (needsBindeE && (suffix === 'st' || suffix === 't')) suffix = 'e' + suffix
+    return stem + suffix
+  }) as unknown as SixForms
+
+  if (verb.separablePrefix) {
+    forms = forms.map(f => `${f} ${verb.separablePrefix}`) as unknown as SixForms
+  }
+  return forms
+}
+
+function futur1Forms(verb: Verb): SixForms {
+  return compoundWithAux(WERDEN_PRES, verb.german)
+}
+
+function futur2Forms(verb: Verb): SixForms {
+  const tail = `${verb.partizip2} ${verb.auxiliary}`
+  return compoundWithAux(WERDEN_PRES, tail)
+}
+
+function auxPraet(aux: 'haben' | 'sein'): SixForms {
+  return aux === 'haben' ? HABEN_PRAET : SEIN_PRAET
+}
+
 function stripSuffixPrefix(form: string, prefix: string): string {
   const suffix = ` ${prefix}`
   return form.endsWith(suffix) ? form.slice(0, -suffix.length) : form
@@ -71,6 +115,14 @@ export function conjugate(verb: Verb, tense: VerbTense): ConjugationRow[] {
       return imperativ(verb)
     case 'perfekt':
       return sixRows(compoundWithAux(auxPresent(verb.auxiliary), verb.partizip2))
+    case 'praeteritum':
+      return sixRows(praeteritum(verb))
+    case 'plusquamperfekt':
+      return sixRows(compoundWithAux(auxPraet(verb.auxiliary), verb.partizip2))
+    case 'futur1':
+      return sixRows(futur1Forms(verb))
+    case 'futur2':
+      return sixRows(futur2Forms(verb))
     default:
       throw new Error(`tense ${tense} not yet implemented`)
   }
