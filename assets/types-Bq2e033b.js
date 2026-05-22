@@ -1,0 +1,1 @@
+const o=["Office","Work","Furniture","House","Rooms","Family","School","Bank & Money","Food","Other"],e=["People & Character","Feelings & Emotions","Size & Quantity","Quality & Condition","Time & Sequence","Position & Direction","Health & Body","Food & Taste","Social & Abstract","Actions & Verbs","Other"],t="gemini-2.5-flash";export{e as A,t as D,o as N};
