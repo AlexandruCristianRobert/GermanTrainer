@@ -1,0 +1,113 @@
+import { describe, it, expect } from 'vitest'
+import {
+  useTranslationQuiz,
+  useConjugationQuiz,
+  checkConjugation
+} from '../../src/composables/useVerbQuiz'
+import type { Verb } from '../../src/data/verbs'
+
+const fixture: Verb[] = [
+  {
+    german: 'aufstehen', english: 'get up / stand up',
+    level: 'A1', type: 'separable', case: 'none', auxiliary: 'sein',
+    separablePrefix: 'auf',
+    praesens: ['stehe auf', 'stehst auf', 'steht auf', 'stehen auf', 'steht auf', 'stehen auf'],
+    praeteritumStem: 'stand', partizip2: 'aufgestanden'
+  }
+]
+
+describe('useTranslationQuiz', () => {
+  it('accepts answer without "to"', () => {
+    const q = useTranslationQuiz(fixture)
+    q.submit('get up')
+    expect(q.questions.value[0].isCorrect).toBe(true)
+  })
+
+  it('accepts answer with leading "to"', () => {
+    const q = useTranslationQuiz(fixture)
+    q.submit('to stand up')
+    expect(q.questions.value[0].isCorrect).toBe(true)
+  })
+
+  it('accepts case-insensitive and trimmed', () => {
+    const q = useTranslationQuiz(fixture)
+    q.submit('  GET UP  ')
+    expect(q.questions.value[0].isCorrect).toBe(true)
+  })
+
+  it('rejects incorrect form', () => {
+    const q = useTranslationQuiz(fixture)
+    q.submit('getting up')
+    expect(q.questions.value[0].isCorrect).toBe(false)
+  })
+
+  it('rejects empty', () => {
+    const q = useTranslationQuiz(fixture)
+    q.submit('')
+    expect(q.questions.value[0].isCorrect).toBe(false)
+  })
+})
+
+describe('checkConjugation — normalization', () => {
+  it('accepts exact', () => {
+    expect(checkConjugation('habe gespielt', 'habe gespielt')).toBe(true)
+  })
+  it('accepts whitespace and case differences', () => {
+    expect(checkConjugation('  HABE   gespielt ', 'habe gespielt')).toBe(true)
+  })
+  it('accepts user-typed pronoun prefix', () => {
+    expect(checkConjugation('ich habe gespielt', 'habe gespielt', 'ich')).toBe(true)
+    expect(checkConjugation('er ist gegangen', 'ist gegangen', 'er/sie/es')).toBe(true)
+  })
+  it('rejects umlaut substitutions', () => {
+    expect(checkConjugation('laufst', 'läufst')).toBe(false)
+    expect(checkConjugation('laeufst', 'läufst')).toBe(false)
+  })
+  it('rejects wrong form', () => {
+    expect(checkConjugation('habe spielen', 'habe gespielt')).toBe(false)
+  })
+})
+
+describe('useConjugationQuiz', () => {
+  const spielen: Verb[] = [
+    {
+      german: 'spielen', english: 'play',
+      level: 'A1', type: 'regular', case: 'accusative', auxiliary: 'haben',
+      praesens: ['spiele','spielst','spielt','spielen','spielt','spielen'],
+      praeteritumStem: 'spielte', partizip2: 'gespielt'
+    }
+  ]
+
+  it('builds questions as verb×tense cross-product', () => {
+    const q = useConjugationQuiz(spielen, ['praesens', 'perfekt'])
+    expect(q.questions.value.length).toBe(2)
+    expect(q.questions.value[0].rows.length).toBe(6)
+  })
+
+  it('imperativ produces 3 rows', () => {
+    const q = useConjugationQuiz(spielen, ['imperativ'])
+    expect(q.questions.value[0].rows.length).toBe(3)
+  })
+
+  it('submit grades each row', () => {
+    const q = useConjugationQuiz(spielen, ['praesens'])
+    q.submit(['spiele', 'spielst', 'spielt', 'spielen', 'spielt', 'WRONG'])
+    expect(q.questions.value[0].rowCorrect).toEqual([true, true, true, true, true, false])
+    expect(q.questions.value[0].correctCount).toBe(5)
+  })
+
+  it('skip marks all rows incorrect and advances', () => {
+    const q = useConjugationQuiz(spielen, ['praesens'])
+    q.skip()
+    expect(q.questions.value[0].rowCorrect.every(c => c === false)).toBe(true)
+    expect(q.currentIndex.value).toBe(1)
+  })
+
+  it('aggregate score across rows', () => {
+    const q = useConjugationQuiz(spielen, ['praesens', 'perfekt'])
+    q.submit(['spiele', 'spielst', 'spielt', 'spielen', 'spielt', 'spielen']); q.advance()
+    q.submit(['habe gespielt', 'hast gespielt', 'hat gespielt', 'haben gespielt', 'habt gespielt', 'haben gespielt']); q.advance()
+    expect(q.totalRows.value).toBe(12)
+    expect(q.correctRows.value).toBe(12)
+  })
+})
