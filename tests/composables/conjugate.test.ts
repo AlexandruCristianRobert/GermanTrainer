@@ -105,3 +105,26 @@ describe('conjugate — Futur II', () => {
     expect(conjugate(find('gehen'), 'futur2')[0].expected).toBe('werde gegangen sein')
   })
 })
+
+describe('conjugate — Konjunktiv II', () => {
+  it('falls back to würde + Infinitiv when no explicit forms', () => {
+    expect(conjugate(find('spielen'), 'konjunktiv2')[0].expected).toBe('würde spielen')
+  })
+
+  it('uses explicit forms when present (gehen → ginge)', () => {
+    expect(conjugate(find('gehen'), 'konjunktiv2')[0].expected).toBe('ginge')
+    expect(conjugate(find('gehen'), 'konjunktiv2')[2].expected).toBe('ginge')
+  })
+
+  it('modal uses explicit könnte forms', () => {
+    expect(conjugate(find('können'), 'konjunktiv2')[0].expected).toBe('könnte')
+  })
+})
+
+describe('conjugate — Konjunktiv I', () => {
+  it('regular: infinitive stem + K1 endings', () => {
+    expect(conjugate(find('spielen'), 'konjunktiv1').map(r => r.expected)).toEqual([
+      'spiele', 'spielest', 'spiele', 'spielen', 'spielet', 'spielen'
+    ])
+  })
+})

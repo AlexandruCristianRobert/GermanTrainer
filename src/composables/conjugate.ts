@@ -13,6 +13,9 @@ const HABEN_PRAET: SixForms = ['hatte', 'hattest', 'hatte', 'hatten', 'hattet', 
 const SEIN_PRES: SixForms = ['bin', 'bist', 'ist', 'sind', 'seid', 'sind']
 const SEIN_PRAET: SixForms = ['war', 'warst', 'war', 'waren', 'wart', 'waren']
 const WERDEN_PRES: SixForms = ['werde', 'wirst', 'wird', 'werden', 'werdet', 'werden']
+const WUERDE: SixForms = ['würde', 'würdest', 'würde', 'würden', 'würdet', 'würden']
+
+const K1_ENDINGS: SixForms = ['e', 'est', 'e', 'en', 'et', 'en']
 
 function auxPresent(aux: 'haben' | 'sein'): SixForms {
   return aux === 'haben' ? HABEN_PRES : SEIN_PRES
@@ -70,6 +73,38 @@ function auxPraet(aux: 'haben' | 'sein'): SixForms {
   return aux === 'haben' ? HABEN_PRAET : SEIN_PRAET
 }
 
+function infinitiveStem(verb: Verb): string {
+  let inf = verb.german
+  if (inf.startsWith('sich ')) inf = inf.slice(5)
+  if (verb.separablePrefix) inf = inf.slice(verb.separablePrefix.length)
+  return inf.endsWith('en') ? inf.slice(0, -2) : inf.slice(0, -1)
+}
+
+function konjunktiv1(verb: Verb): SixForms {
+  if (verb.konjunktiv1) {
+    if (verb.separablePrefix) {
+      return verb.konjunktiv1.map(f => `${f} ${verb.separablePrefix}`) as unknown as SixForms
+    }
+    return verb.konjunktiv1
+  }
+  const stem = infinitiveStem(verb)
+  let forms = K1_ENDINGS.map(e => stem + e) as unknown as SixForms
+  if (verb.separablePrefix) {
+    forms = forms.map(f => `${f} ${verb.separablePrefix}`) as unknown as SixForms
+  }
+  return forms
+}
+
+function konjunktiv2(verb: Verb): SixForms {
+  if (verb.konjunktiv2) {
+    if (verb.separablePrefix) {
+      return verb.konjunktiv2.map(f => `${f} ${verb.separablePrefix}`) as unknown as SixForms
+    }
+    return verb.konjunktiv2
+  }
+  return compoundWithAux(WUERDE, verb.german)
+}
+
 function stripSuffixPrefix(form: string, prefix: string): string {
   const suffix = ` ${prefix}`
   return form.endsWith(suffix) ? form.slice(0, -suffix.length) : form
@@ -123,6 +158,10 @@ export function conjugate(verb: Verb, tense: VerbTense): ConjugationRow[] {
       return sixRows(futur1Forms(verb))
     case 'futur2':
       return sixRows(futur2Forms(verb))
+    case 'konjunktiv1':
+      return sixRows(konjunktiv1(verb))
+    case 'konjunktiv2':
+      return sixRows(konjunktiv2(verb))
     default:
       throw new Error(`tense ${tense} not yet implemented`)
   }
