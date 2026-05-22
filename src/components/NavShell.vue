@@ -14,6 +14,7 @@ const items = [
   { label: 'Home', key: 'home' },
   { label: 'Nouns', key: 'nouns' },
   { label: 'Adjectives', key: 'adjectives' },
+  { label: 'Verbs', key: 'verbs' },
   { label: 'Settings', key: 'settings' }
 ]
 

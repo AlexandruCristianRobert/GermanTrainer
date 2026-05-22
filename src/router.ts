@@ -10,7 +10,14 @@ const routes: RouteRecordRaw[] = [
   { path: '/adjectives', name: 'adjectives', component: () => import('./modules/adjectives/AdjectivesHome.vue') },
   { path: '/adjectives/manage', name: 'adjectives-manage', component: () => import('./modules/adjectives/ManageAdjectives.vue') },
   { path: '/adjectives/quiz', name: 'adjectives-quiz', component: () => import('./modules/adjectives/QuizSetup.vue') },
-  { path: '/adjectives/quiz/run', name: 'adjectives-quiz-run', component: () => import('./modules/adjectives/QuizRunner.vue') }
+  { path: '/adjectives/quiz/run', name: 'adjectives-quiz-run', component: () => import('./modules/adjectives/QuizRunner.vue') },
+  { path: '/verbs', name: 'verbs', component: () => import('./modules/verbs/VerbsHome.vue') },
+  { path: '/verbs/list', name: 'verbs-list', component: () => import('./modules/verbs/ListVerbs.vue') },
+  { path: '/verbs/translation', name: 'verbs-translation', component: () => import('./modules/verbs/TranslationQuizSetup.vue') },
+  { path: '/verbs/translation/run', name: 'verbs-translation-run', component: () => import('./modules/verbs/TranslationQuizRunner.vue') },
+  { path: '/verbs/conjugation', name: 'verbs-conjugation', component: () => import('./modules/verbs/ConjugationQuizSetup.vue') },
+  { path: '/verbs/conjugation/run', name: 'verbs-conjugation-run', component: () => import('./modules/verbs/ConjugationQuizRunner.vue') },
+  { path: '/verbs/cheatsheet', name: 'verbs-cheatsheet', component: () => import('./modules/verbs/CheatSheet.vue') }
 ]
 
 export const router = createRouter({

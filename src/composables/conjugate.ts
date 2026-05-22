@@ -117,12 +117,14 @@ function imperativDu(verb: Verb): string {
       ? `${verb.imperativDu} ${verb.separablePrefix}`
       : verb.imperativDu
   }
-  let core = verb.praesens[1]
+  // Derive from er-form (praesens[2]) by stripping the trailing -t.
+  // er-form is always stem+t (or stem+et with Bindevokal), so a single slice(0,-1) yields the correct stem.
+  // Verbs with a→ä / au→äu vowel change must supply imperativDu explicitly (e.g. fahren → "fahr").
+  let core = verb.praesens[2]
   if (verb.separablePrefix) {
     core = stripSuffixPrefix(core, verb.separablePrefix)
   }
-  if (core.endsWith('est')) core = core.slice(0, -2)
-  else if (core.endsWith('st')) core = core.slice(0, -2)
+  if (core.endsWith('t')) core = core.slice(0, -1)
   return verb.separablePrefix ? `${core} ${verb.separablePrefix}` : core
 }
 

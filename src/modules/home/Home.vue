@@ -21,6 +21,12 @@ const router = useRouter()
         </n-card>
       </n-grid-item>
       <n-grid-item>
+        <n-card title="Verbs" hoverable>
+          <p>Translate verbs and practice conjugating across all German tenses, with a cheatsheet of rules.</p>
+          <n-button type="primary" @click="router.push('/verbs')">Open</n-button>
+        </n-card>
+      </n-grid-item>
+      <n-grid-item>
         <n-card title="Settings" hoverable>
           <p>Set your Gemini API key and pick a model.</p>
           <n-button @click="router.push('/settings')">Open</n-button>
