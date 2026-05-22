@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { NSpace, NButton, NText, NCard, NTag } from 'naive-ui'
 import type { Noun } from '../../db/types'
 
@@ -40,6 +40,25 @@ function next() {
 const feedbackColor = computed(() =>
   isCorrect.value === null ? '' : isCorrect.value ? '#18a058' : '#d03050'
 )
+
+const keyToGender: Record<string, 'der' | 'die' | 'das'> = {
+  '1': 'der',
+  '2': 'die',
+  '3': 'das'
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.repeat) return
+  if (e.ctrlKey || e.metaKey || e.altKey) return
+  if (submitted.value) return
+  const g = keyToGender[e.key]
+  if (!g) return
+  e.preventDefault()
+  pick(g)
+}
+
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
