@@ -109,6 +109,17 @@ export interface Verb {
 
 export const VERBS: readonly Verb[] = [
   {
+    german: 'fragen',
+    english: 'ask',
+    level: 'A1',
+    type: 'regular',
+    case: 'accusative',
+    auxiliary: 'haben',
+    praesens: ['frage', 'fragst', 'fragt', 'fragen', 'fragt', 'fragen'],
+    praeteritumStem: 'fragte',
+    partizip2: 'gefragt'
+  },
+  {
     german: 'spielen',
     english: 'play',
     level: 'A1',

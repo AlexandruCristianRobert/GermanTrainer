@@ -13,6 +13,7 @@ const HABEN_PRAET: SixForms = ['hatte', 'hattest', 'hatte', 'hatten', 'hattet', 
 const SEIN_PRES: SixForms = ['bin', 'bist', 'ist', 'sind', 'seid', 'sind']
 const SEIN_PRAET: SixForms = ['war', 'warst', 'war', 'waren', 'wart', 'waren']
 const WERDEN_PRES: SixForms = ['werde', 'wirst', 'wird', 'werden', 'werdet', 'werden']
+const WERDEN_PRAET: SixForms = ['wurde', 'wurdest', 'wurde', 'wurden', 'wurdet', 'wurden']
 const WUERDE: SixForms = ['würde', 'würdest', 'würde', 'würden', 'würdet', 'würden']
 
 const K1_ENDINGS: SixForms = ['e', 'est', 'e', 'en', 'et', 'en']
@@ -162,10 +163,27 @@ export function conjugate(verb: Verb, tense: VerbTense): ConjugationRow[] {
       return sixRows(konjunktiv1(verb))
     case 'konjunktiv2':
       return sixRows(konjunktiv2(verb))
-    default:
-      throw new Error(`tense ${tense} not yet implemented`)
+    case 'passivPraesens':
+      return sixRows(compoundWithAux(WERDEN_PRES, verb.partizip2))
+    case 'passivPraeteritum':
+      return sixRows(compoundWithAux(WERDEN_PRAET, verb.partizip2))
+    case 'passivPerfekt':
+      return sixRows(compoundWithAux(SEIN_PRES, `${verb.partizip2} worden`))
+    case 'passivPlusquamperfekt':
+      return sixRows(compoundWithAux(SEIN_PRAET, `${verb.partizip2} worden`))
+    case 'passivFutur1':
+      return sixRows(compoundWithAux(WERDEN_PRES, `${verb.partizip2} werden`))
+    case 'passivKonjunktiv2':
+      return sixRows(compoundWithAux(WUERDE, `${verb.partizip2} werden`))
+    default: {
+      const _exhaustive: never = tense
+      throw new Error(`unhandled tense: ${String(_exhaustive)}`)
+    }
   }
 }
 
-// Re-exports used in later tasks
+export function passiveAvailable(verb: Verb): boolean {
+  return verb.case === 'accusative' || verb.case === 'dative+accusative'
+}
+
 export { HABEN_PRES, HABEN_PRAET, SEIN_PRES, SEIN_PRAET, WERDEN_PRES }

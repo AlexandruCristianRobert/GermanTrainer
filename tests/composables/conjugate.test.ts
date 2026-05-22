@@ -128,3 +128,32 @@ describe('conjugate — Konjunktiv I', () => {
     ])
   })
 })
+
+describe('conjugate — Vorgangspassiv', () => {
+  it('Passiv Präsens = werden + Partizip II', () => {
+    const rows = conjugate(find('fragen'), 'passivPraesens')
+    expect(rows[0].expected).toBe('werde gefragt')
+    expect(rows[2].expected).toBe('wird gefragt')
+  })
+
+  it('Passiv Präteritum = wurde + Partizip II', () => {
+    expect(conjugate(find('fragen'), 'passivPraeteritum')[0].expected).toBe('wurde gefragt')
+  })
+
+  it('Passiv Perfekt uses sein + Partizip II + worden', () => {
+    expect(conjugate(find('fragen'), 'passivPerfekt')[0].expected).toBe('bin gefragt worden')
+    expect(conjugate(find('fragen'), 'passivPerfekt')[2].expected).toBe('ist gefragt worden')
+  })
+
+  it('Passiv Plusquamperfekt uses war + Partizip II + worden', () => {
+    expect(conjugate(find('fragen'), 'passivPlusquamperfekt')[0].expected).toBe('war gefragt worden')
+  })
+
+  it('Passiv Futur I = werden + Partizip II + werden', () => {
+    expect(conjugate(find('fragen'), 'passivFutur1')[0].expected).toBe('werde gefragt werden')
+  })
+
+  it('Passiv Konjunktiv II = würde + Partizip II + werden', () => {
+    expect(conjugate(find('fragen'), 'passivKonjunktiv2')[0].expected).toBe('würde gefragt werden')
+  })
+})
