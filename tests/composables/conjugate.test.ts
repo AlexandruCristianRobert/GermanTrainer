@@ -157,3 +157,32 @@ describe('conjugate — Vorgangspassiv', () => {
     expect(conjugate(find('fragen'), 'passivKonjunktiv2')[0].expected).toBe('würde gefragt werden')
   })
 })
+
+describe('conjugate — coverage on full dataset', () => {
+  it('runs all active tenses on every verb without throwing', () => {
+    for (const v of VERBS) {
+      for (const t of ['praesens','imperativ','perfekt','praeteritum','plusquamperfekt','futur1','konjunktiv2','konjunktiv1','futur2'] as const) {
+        const rows = conjugate(v, t)
+        expect(rows.length).toBeGreaterThan(0)
+        rows.forEach(r => expect(r.expected.length).toBeGreaterThan(0))
+      }
+    }
+  })
+
+  it('runs passive tenses on accusative verbs without throwing', () => {
+    const passiveTargets = VERBS.filter(v => v.case === 'accusative' || v.case === 'dative+accusative')
+    for (const v of passiveTargets) {
+      for (const t of ['passivPraesens','passivPraeteritum','passivPerfekt','passivPlusquamperfekt','passivFutur1','passivKonjunktiv2'] as const) {
+        const rows = conjugate(v, t)
+        expect(rows.length).toBe(6)
+        rows.forEach(r => expect(r.expected.length).toBeGreaterThan(0))
+      }
+    }
+  })
+
+  it('dataset has ~150 verbs split between A1 and A2', () => {
+    expect(VERBS.length).toBeGreaterThanOrEqual(100)
+    expect(VERBS.some(v => v.level === 'A1')).toBe(true)
+    expect(VERBS.some(v => v.level === 'A2')).toBe(true)
+  })
+})
