@@ -475,6 +475,234 @@ function onSelect(id: string) {
             </p>
           </Callout>
         </section>
+
+        <!-- ───────── IX. Konjunktiv II ───────── -->
+        <section id="ch-9" class="chapter">
+          <div class="chapter-numeral">IX</div>
+          <h2 class="chapter-title">Konjunktiv II</h2>
+          <p class="chapter-subtitle">Subjunctive II — the conditional / polite mood</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            Two forms are in active competition: the proper Konjunktiv II built on the Präteritum stem
+            (<em>wäre</em>, <em>hätte</em>, <em>käme</em>, <em>ginge</em>) and the analytic
+            <code>würde + Infinitiv</code>. For most verbs, native speakers use the würde-form. For a
+            small set of common verbs, the proper K2 is preferred.
+          </p>
+
+          <h3 class="pattern-heading">Use real K2 forms for these</h3>
+          <ConjugationTable
+            verb="Common real-K2 forms"
+            caption="KONJUNKTIV II — ich-form"
+            :rows="[
+              { person: 'sein',    form: 'wäre' },
+              { person: 'haben',   form: 'hätte' },
+              { person: 'werden',  form: 'würde' },
+              { person: 'können',  form: 'könnte' },
+              { person: 'müssen',  form: 'müsste' },
+              { person: 'dürfen',  form: 'dürfte' },
+              { person: 'sollen',  form: 'sollte' },
+              { person: 'wollen',  form: 'wollte' },
+              { person: 'mögen',   form: 'möchte' },
+              { person: 'wissen',  form: 'wüsste' },
+              { person: 'gehen',   form: 'ginge' },
+              { person: 'kommen',  form: 'käme' },
+              { person: 'geben',   form: 'gäbe' },
+              { person: 'finden',  form: 'fände' },
+              { person: 'lassen',  form: 'ließe' },
+              { person: 'bleiben', form: 'bliebe' },
+              { person: 'tun',     form: 'täte' }
+            ]"
+          />
+
+          <Callout kind="note">
+            <p><strong>For everything else, use <code>würde + Infinitiv</code>.</strong>
+              <em>"Ich würde das nie machen"</em> sounds natural;
+              <em>"Ich machte das nie"</em> reads as Präteritum, not as conditional. The würde-form
+              eliminates the ambiguity.</p>
+          </Callout>
+
+          <Callout kind="example">
+            <p>
+              "Wenn ich mehr Zeit <strong>hätte</strong>, würde ich Spanisch lernen."<br />
+              "<strong>Könntest</strong> du das Fenster schließen?"<br />
+              "Ich <strong>würde</strong> gern Kaffee trinken."
+            </p>
+          </Callout>
+        </section>
+
+        <!-- ───────── X. Vorgangspassiv ───────── -->
+        <section id="ch-10" class="chapter">
+          <div class="chapter-numeral">X</div>
+          <h2 class="chapter-title">Vorgangspassiv</h2>
+          <p class="chapter-subtitle">The process passive — werden + Partizip II</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            German has two passive constructions. The <em>Vorgangspassiv</em> describes a process
+            (something is being done) and is built with <code>werden</code> + Partizip II. The
+            <em>Zustandspassiv</em> describes a state (it is already done) and uses
+            <code>sein</code> + Partizip II — that's a stylistic distinction we'll skip here.
+          </p>
+
+          <ConjugationTable
+            verb="fragen"
+            caption="VORGANGSPASSIV — er-form across tenses"
+            :rows="[
+              { person: 'Präsens',          form: 'wird gefragt' },
+              { person: 'Präteritum',       form: 'wurde gefragt' },
+              { person: 'Perfekt',          form: 'ist gefragt <span class=&quot;vh&quot;>worden</span>' },
+              { person: 'Plusquamperfekt',  form: 'war gefragt <span class=&quot;vh&quot;>worden</span>' },
+              { person: 'Futur I',          form: 'wird gefragt werden' },
+              { person: 'Konjunktiv II',    form: 'würde gefragt werden' }
+            ]"
+          />
+
+          <Callout kind="exception">
+            <p><strong>worden, not geworden.</strong> When <em>werden</em> is the auxiliary of the
+              passive, its Partizip II contracts to <code>worden</code> — not <code>geworden</code>.
+              <code>geworden</code> is reserved for <em>werden</em> used as a main verb ("to become").
+              Compare: <em>"Er ist Arzt geworden"</em> (became a doctor) vs <em>"Er ist gefragt worden"</em>
+              (was asked).</p>
+          </Callout>
+
+          <Callout kind="note">
+            <p><strong>Only transitive verbs.</strong> A normal passive needs an accusative object to
+              promote to subject. Intransitive verbs (<em>gehen</em>, <em>schlafen</em>) can't form a
+              normal passive — German allows an "impersonal passive" for some of these
+              (<em>"Hier wird getanzt"</em>), but it's a marked construction.</p>
+          </Callout>
+
+          <Callout kind="example">
+            <p>
+              "Das Haus <strong>wird</strong> gebaut." (Präsens passive)<br />
+              "Der Brief <strong>wurde</strong> gestern geschrieben." (Präteritum passive)<br />
+              "Das Buch <strong>ist</strong> übersetzt <strong>worden</strong>." (Perfekt passive)
+            </p>
+          </Callout>
+        </section>
+
+        <!-- ───────── XI. Reflexive Verben ───────── -->
+        <section id="ch-11" class="chapter">
+          <div class="chapter-numeral">XI</div>
+          <h2 class="chapter-title">Reflexive Verben</h2>
+          <p class="chapter-subtitle">Reflexive verbs — accusative and dative pronouns</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            Many German verbs require a reflexive pronoun where English wouldn't use one. The pronoun
+            agrees with the subject and is accusative by default — but a small set of verbs take a
+            dative reflexive pronoun instead, especially when there's already an accusative object.
+          </p>
+
+          <div class="two-col">
+            <ConjugationTable
+              verb="Akkusativ"
+              caption="REFLEXIV (acc)"
+              :rows="[
+                { person: 'ich', form: 'mich' },
+                { person: 'du',  form: 'dich' },
+                { person: 'er',  form: 'sich' },
+                { person: 'wir', form: 'uns' },
+                { person: 'ihr', form: 'euch' },
+                { person: 'sie', form: 'sich' }
+              ]"
+            />
+            <ConjugationTable
+              verb="Dativ"
+              caption="REFLEXIV (dat)"
+              :rows="[
+                { person: 'ich', form: '<span class=&quot;vh&quot;>mir</span>' },
+                { person: 'du',  form: '<span class=&quot;vh&quot;>dir</span>' },
+                { person: 'er',  form: 'sich' },
+                { person: 'wir', form: 'uns' },
+                { person: 'ihr', form: 'euch' },
+                { person: 'sie', form: 'sich' }
+              ]"
+            />
+          </div>
+
+          <Callout kind="note">
+            <p><strong>Accusative reflexive verbs:</strong> sich freuen, sich erinnern, sich entscheiden,
+              sich beeilen, sich treffen, sich setzen, sich ärgern, sich entschuldigen, sich beschweren,
+              sich kümmern, sich gewöhnen, sich verlieben, sich interessieren, sich bewerben,
+              sich anmelden.</p>
+          </Callout>
+
+          <Callout kind="note">
+            <p><strong>Dative reflexive — when there's already an acc object:</strong>
+              <em>"Ich putze <strong>mir</strong> die Zähne"</em> (the teeth = acc, so the pronoun is dat).
+              Also: <em>sich (etwas) vorstellen</em> (imagine), <em>sich (etwas) merken</em> (remember),
+              <em>sich (etwas) leisten</em> (afford), <em>sich (etwas) überlegen</em> (consider).</p>
+          </Callout>
+
+          <Callout kind="note">
+            <p><strong>Verb + sich + preposition</strong> patterns memorise the case the preposition
+              triggers:<br />
+              <em>sich freuen <strong>auf</strong></em> + acc (look forward to) ·
+              <em>sich freuen <strong>über</strong></em> + acc (be happy about) ·
+              <em>sich erinnern <strong>an</strong></em> + acc ·
+              <em>sich interessieren <strong>für</strong></em> + acc ·
+              <em>sich kümmern <strong>um</strong></em> + acc ·
+              <em>sich entscheiden <strong>für/gegen</strong></em> + acc.</p>
+          </Callout>
+        </section>
+
+        <!-- ───────── XII. Verben mit Dativ ───────── -->
+        <section id="ch-12" class="chapter">
+          <div class="chapter-numeral">XII</div>
+          <h2 class="chapter-title">Verben mit Dativ</h2>
+          <p class="chapter-subtitle">Verbs whose object is in the dative case</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            Most transitive verbs take an accusative object — but a tight list of common verbs demand
+            <em>dative</em> instead. There's no pattern to it; you simply have to memorise the list.
+            Get it wrong (<em>"Ich helfe dich"</em>) and you'll sound foreign immediately.
+          </p>
+
+          <h3 class="pattern-heading">Pure-dative verbs</h3>
+          <p>
+            <code>helfen</code> · <code>danken</code> · <code>gefallen</code> · <code>gehören</code> ·
+            <code>passieren</code> · <code>schmecken</code> · <code>antworten</code> ·
+            <code>gratulieren</code> · <code>folgen</code> · <code>vertrauen</code> ·
+            <code>widersprechen</code> · <code>zuhören</code>.
+          </p>
+          <p>
+            <em>"Ich helfe <strong>dir</strong>."</em>
+            (not <em>dich</em>) ·
+            <em>"Das gefällt <strong>mir</strong>."</em>
+            (literally "that pleases me") ·
+            <em>"Folge <strong>mir</strong>!"</em>
+          </p>
+
+          <h3 class="pattern-heading">Ditransitive — both dative and accusative</h3>
+          <p>
+            <code>geben</code> · <code>bringen</code> · <code>schenken</code> · <code>schicken</code> ·
+            <code>schreiben</code> · <code>zeigen</code> · <code>erklären</code> · <code>sagen</code> ·
+            <code>empfehlen</code> · <code>kaufen</code>.
+          </p>
+          <p>
+            The recipient is dative, the thing is accusative:<br />
+            <em>"Ich gebe <strong>dem Kind</strong> (dat) <strong>einen Apfel</strong> (acc)."</em><br />
+            <em>"Sie schenkt <strong>ihrem Freund</strong> (dat) <strong>eine Uhr</strong> (acc)."</em>
+          </p>
+
+          <Callout kind="exception">
+            <p><strong>Common mistake:</strong> English speakers say <em>"I helped him"</em> with
+              accusative-shaped intuition. In German, helfen takes dative — <em>"Ich habe <strong>ihm</strong>
+              geholfen"</em>, not <em>"ihn"</em>. Same trap with <code>danken</code>, <code>folgen</code>,
+              <code>gehören</code>.</p>
+          </Callout>
+
+          <Callout kind="example">
+            <p>
+              "Das Buch <strong>gehört mir</strong>."<br />
+              "Sie hat <strong>ihrer Mutter</strong> ein schönes Geschenk gekauft."<br />
+              "Folgen Sie <strong>dem Schild</strong>!"
+            </p>
+          </Callout>
+        </section>
       </main>
     </div>
   </div>
