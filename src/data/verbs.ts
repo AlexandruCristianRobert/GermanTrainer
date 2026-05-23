@@ -1904,5 +1904,702 @@ export const VERBS: readonly Verb[] = [
     separablePrefix: 'zu',
     praesens: ['stimme zu', 'stimmst zu', 'stimmt zu', 'stimmen zu', 'stimmt zu', 'stimmen zu'],
     praeteritumStem: 'stimmte', partizip2: 'zugestimmt'
+  },
+
+  // ─── B2 verbs (expansion from Goethe top-500 list) ───────────────────
+  {
+    german: 'abgeben', english: 'hand over / deliver',
+    level: 'B2', type: 'separable', case: 'dative+accusative', auxiliary: 'haben',
+    separablePrefix: 'ab',
+    praesens: ['gebe ab', 'gibst ab', 'gibt ab', 'geben ab', 'gebt ab', 'geben ab'],
+    praeteritumStem: 'gab', partizip2: 'abgegeben',
+    imperativDu: 'gib'
+  },
+  {
+    german: 'abrufen', english: 'retrieve / call up',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'ab',
+    praesens: ['rufe ab', 'rufst ab', 'ruft ab', 'rufen ab', 'ruft ab', 'rufen ab'],
+    praeteritumStem: 'rief', partizip2: 'abgerufen'
+  },
+  {
+    german: 'akzeptieren', english: 'accept',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['akzeptiere', 'akzeptierst', 'akzeptiert', 'akzeptieren', 'akzeptiert', 'akzeptieren'],
+    praeteritumStem: 'akzeptierte', partizip2: 'akzeptiert'
+  },
+  {
+    german: 'ändern', english: 'change / alter',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['ändere', 'änderst', 'ändert', 'ändern', 'ändert', 'ändern'],
+    praeteritumStem: 'änderte', partizip2: 'geändert'
+  },
+  {
+    german: 'angeben', english: 'state / specify',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'an',
+    praesens: ['gebe an', 'gibst an', 'gibt an', 'geben an', 'gebt an', 'geben an'],
+    praeteritumStem: 'gab', partizip2: 'angegeben',
+    imperativDu: 'gib'
+  },
+  {
+    german: 'anlegen', english: 'invest / lay out',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'an',
+    praesens: ['lege an', 'legst an', 'legt an', 'legen an', 'legt an', 'legen an'],
+    praeteritumStem: 'legte', partizip2: 'angelegt'
+  },
+  {
+    german: 'annehmen', english: 'accept / assume',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'an',
+    praesens: ['nehme an', 'nimmst an', 'nimmt an', 'nehmen an', 'nehmt an', 'nehmen an'],
+    praeteritumStem: 'nahm', partizip2: 'angenommen',
+    imperativDu: 'nimm'
+  },
+  {
+    german: 'anpassen', english: 'adapt / adjust',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'an',
+    praesens: ['passe an', 'passt an', 'passt an', 'passen an', 'passt an', 'passen an'],
+    praeteritumStem: 'passte', partizip2: 'angepasst'
+  },
+  {
+    german: 'anschließen', english: 'connect / join',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'an',
+    praesens: ['schließe an', 'schließt an', 'schließt an', 'schließen an', 'schließt an', 'schließen an'],
+    praeteritumStem: 'schloss', partizip2: 'angeschlossen'
+  },
+  {
+    german: 'ansehen', english: 'look at / regard',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'an',
+    praesens: ['sehe an', 'siehst an', 'sieht an', 'sehen an', 'seht an', 'sehen an'],
+    praeteritumStem: 'sah', partizip2: 'angesehen',
+    imperativDu: 'sieh'
+  },
+  {
+    german: 'anwenden', english: 'apply / use',
+    level: 'B2', type: 'mixed', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'an',
+    praesens: ['wende an', 'wendest an', 'wendet an', 'wenden an', 'wendet an', 'wenden an'],
+    praeteritumStem: 'wandte', partizip2: 'angewandt'
+  },
+  {
+    german: 'anzeigen', english: 'display / report',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'an',
+    praesens: ['zeige an', 'zeigst an', 'zeigt an', 'zeigen an', 'zeigt an', 'zeigen an'],
+    praeteritumStem: 'zeigte', partizip2: 'angezeigt'
+  },
+  {
+    german: 'aufweisen', english: 'exhibit / show',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'auf',
+    praesens: ['weise auf', 'weist auf', 'weist auf', 'weisen auf', 'weist auf', 'weisen auf'],
+    praeteritumStem: 'wies', partizip2: 'aufgewiesen'
+  },
+  {
+    german: 'ausführen', english: 'carry out / execute',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'aus',
+    praesens: ['führe aus', 'führst aus', 'führt aus', 'führen aus', 'führt aus', 'führen aus'],
+    praeteritumStem: 'führte', partizip2: 'ausgeführt'
+  },
+  {
+    german: 'auswählen', english: 'select / choose',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'aus',
+    praesens: ['wähle aus', 'wählst aus', 'wählt aus', 'wählen aus', 'wählt aus', 'wählen aus'],
+    praeteritumStem: 'wählte', partizip2: 'ausgewählt'
+  },
+  {
+    german: 'sich auswirken', english: 'have an effect',
+    level: 'B2', type: 'separable', case: 'reflexive', auxiliary: 'haben',
+    separablePrefix: 'aus',
+    praesens: ['wirke aus', 'wirkst aus', 'wirkt aus', 'wirken aus', 'wirkt aus', 'wirken aus'],
+    praeteritumStem: 'wirkte', partizip2: 'ausgewirkt',
+    notes: 'reflexive (acc) + auf + accusative'
+  },
+  {
+    german: 'äußern', english: 'express / utter',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['äußere', 'äußerst', 'äußert', 'äußern', 'äußert', 'äußern'],
+    praeteritumStem: 'äußerte', partizip2: 'geäußert'
+  },
+  {
+    german: 'beachten', english: 'observe / pay attention to',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['beachte', 'beachtest', 'beachtet', 'beachten', 'beachtet', 'beachten'],
+    praeteritumStem: 'beachtete', partizip2: 'beachtet'
+  },
+  {
+    german: 'bearbeiten', english: 'process / edit',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['bearbeite', 'bearbeitest', 'bearbeitet', 'bearbeiten', 'bearbeitet', 'bearbeiten'],
+    praeteritumStem: 'bearbeitete', partizip2: 'bearbeitet'
+  },
+  {
+    german: 'bedenken', english: 'consider / bear in mind',
+    level: 'B2', type: 'mixed', case: 'accusative', auxiliary: 'haben',
+    praesens: ['bedenke', 'bedenkst', 'bedenkt', 'bedenken', 'bedenkt', 'bedenken'],
+    praeteritumStem: 'bedachte', partizip2: 'bedacht'
+  },
+  {
+    german: 'beeinflussen', english: 'influence',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['beeinflusse', 'beeinflusst', 'beeinflusst', 'beeinflussen', 'beeinflusst', 'beeinflussen'],
+    praeteritumStem: 'beeinflusste', partizip2: 'beeinflusst'
+  },
+  {
+    german: 'beenden', english: 'end / finish',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['beende', 'beendest', 'beendet', 'beenden', 'beendet', 'beenden'],
+    praeteritumStem: 'beendete', partizip2: 'beendet'
+  },
+  {
+    german: 'beibehalten', english: 'maintain / keep',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'bei',
+    praesens: ['behalte bei', 'behältst bei', 'behält bei', 'behalten bei', 'behaltet bei', 'behalten bei'],
+    praeteritumStem: 'behielt', partizip2: 'beibehalten',
+    imperativDu: 'behalt'
+  },
+  {
+    german: 'beinhalten', english: 'contain / include',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['beinhalte', 'beinhaltest', 'beinhaltet', 'beinhalten', 'beinhaltet', 'beinhalten'],
+    praeteritumStem: 'beinhaltete', partizip2: 'beinhaltet'
+  },
+  {
+    german: 'beitragen', english: 'contribute',
+    level: 'B2', type: 'separable', case: 'none', auxiliary: 'haben',
+    separablePrefix: 'bei',
+    praesens: ['trage bei', 'trägst bei', 'trägt bei', 'tragen bei', 'tragt bei', 'tragen bei'],
+    praeteritumStem: 'trug', partizip2: 'beigetragen',
+    imperativDu: 'trag',
+    notes: 'zu + dative'
+  },
+  {
+    german: 'bekämpfen', english: 'combat / fight against',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['bekämpfe', 'bekämpfst', 'bekämpft', 'bekämpfen', 'bekämpft', 'bekämpfen'],
+    praeteritumStem: 'bekämpfte', partizip2: 'bekämpft'
+  },
+  {
+    german: 'benötigen', english: 'need / require',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['benötige', 'benötigst', 'benötigt', 'benötigen', 'benötigt', 'benötigen'],
+    praeteritumStem: 'benötigte', partizip2: 'benötigt'
+  },
+  {
+    german: 'bereitstellen', english: 'provide / make available',
+    level: 'B2', type: 'separable', case: 'dative+accusative', auxiliary: 'haben',
+    separablePrefix: 'bereit',
+    praesens: ['stelle bereit', 'stellst bereit', 'stellt bereit', 'stellen bereit', 'stellt bereit', 'stellen bereit'],
+    praeteritumStem: 'stellte', partizip2: 'bereitgestellt'
+  },
+  {
+    german: 'berichten', english: 'report',
+    level: 'B2', type: 'regular', case: 'none', auxiliary: 'haben',
+    praesens: ['berichte', 'berichtest', 'berichtet', 'berichten', 'berichtet', 'berichten'],
+    praeteritumStem: 'berichtete', partizip2: 'berichtet',
+    notes: 'über + accusative'
+  },
+  {
+    german: 'berücksichtigen', english: 'take into account',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['berücksichtige', 'berücksichtigst', 'berücksichtigt', 'berücksichtigen', 'berücksichtigt', 'berücksichtigen'],
+    praeteritumStem: 'berücksichtigte', partizip2: 'berücksichtigt'
+  },
+  {
+    german: 'beschleunigen', english: 'accelerate',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['beschleunige', 'beschleunigst', 'beschleunigt', 'beschleunigen', 'beschleunigt', 'beschleunigen'],
+    praeteritumStem: 'beschleunigte', partizip2: 'beschleunigt'
+  },
+  {
+    german: 'beschränken', english: 'limit / restrict',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['beschränke', 'beschränkst', 'beschränkt', 'beschränken', 'beschränkt', 'beschränken'],
+    praeteritumStem: 'beschränkte', partizip2: 'beschränkt',
+    notes: 'auf + accusative'
+  },
+  {
+    german: 'besitzen', english: 'own / possess',
+    level: 'B2', type: 'irregular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['besitze', 'besitzt', 'besitzt', 'besitzen', 'besitzt', 'besitzen'],
+    praeteritumStem: 'besaß', partizip2: 'besessen'
+  },
+  {
+    german: 'betonen', english: 'emphasize / stress',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['betone', 'betonst', 'betont', 'betonen', 'betont', 'betonen'],
+    praeteritumStem: 'betonte', partizip2: 'betont'
+  },
+  {
+    german: 'betrachten', english: 'observe / contemplate',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['betrachte', 'betrachtest', 'betrachtet', 'betrachten', 'betrachtet', 'betrachten'],
+    praeteritumStem: 'betrachtete', partizip2: 'betrachtet'
+  },
+  {
+    german: 'betreiben', english: 'operate / run',
+    level: 'B2', type: 'irregular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['betreibe', 'betreibst', 'betreibt', 'betreiben', 'betreibt', 'betreiben'],
+    praeteritumStem: 'betrieb', partizip2: 'betrieben'
+  },
+  {
+    german: 'bewerten', english: 'evaluate / rate',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['bewerte', 'bewertest', 'bewertet', 'bewerten', 'bewertet', 'bewerten'],
+    praeteritumStem: 'bewertete', partizip2: 'bewertet'
+  },
+  {
+    german: 'bewirken', english: 'cause / bring about',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['bewirke', 'bewirkst', 'bewirkt', 'bewirken', 'bewirkt', 'bewirken'],
+    praeteritumStem: 'bewirkte', partizip2: 'bewirkt'
+  },
+  {
+    german: 'bieten', english: 'offer / provide',
+    level: 'B2', type: 'irregular', case: 'dative+accusative', auxiliary: 'haben',
+    praesens: ['biete', 'bietest', 'bietet', 'bieten', 'bietet', 'bieten'],
+    praeteritumStem: 'bot', partizip2: 'geboten'
+  },
+  {
+    german: 'darstellen', english: 'depict / represent',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'dar',
+    praesens: ['stelle dar', 'stellst dar', 'stellt dar', 'stellen dar', 'stellt dar', 'stellen dar'],
+    praeteritumStem: 'stellte', partizip2: 'dargestellt'
+  },
+  {
+    german: 'dienen', english: 'serve',
+    level: 'B2', type: 'regular', case: 'dative', auxiliary: 'haben',
+    praesens: ['diene', 'dienst', 'dient', 'dienen', 'dient', 'dienen'],
+    praeteritumStem: 'diente', partizip2: 'gedient'
+  },
+  {
+    german: 'diskutieren', english: 'discuss',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['diskutiere', 'diskutierst', 'diskutiert', 'diskutieren', 'diskutiert', 'diskutieren'],
+    praeteritumStem: 'diskutierte', partizip2: 'diskutiert',
+    notes: 'über + accusative'
+  },
+  {
+    german: 'durchführen', english: 'carry out / conduct',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'durch',
+    praesens: ['führe durch', 'führst durch', 'führt durch', 'führen durch', 'führt durch', 'führen durch'],
+    praeteritumStem: 'führte', partizip2: 'durchgeführt'
+  },
+  {
+    german: 'einsetzen', english: 'deploy / use / employ',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'ein',
+    praesens: ['setze ein', 'setzt ein', 'setzt ein', 'setzen ein', 'setzt ein', 'setzen ein'],
+    praeteritumStem: 'setzte', partizip2: 'eingesetzt'
+  },
+  {
+    german: 'entstehen', english: 'arise / emerge',
+    level: 'B2', type: 'irregular', case: 'none', auxiliary: 'sein',
+    praesens: ['entstehe', 'entstehst', 'entsteht', 'entstehen', 'entsteht', 'entstehen'],
+    praeteritumStem: 'entstand', partizip2: 'entstanden'
+  },
+  {
+    german: 'erfahren', english: 'experience / learn about',
+    level: 'B2', type: 'irregular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erfahre', 'erfährst', 'erfährt', 'erfahren', 'erfahrt', 'erfahren'],
+    praeteritumStem: 'erfuhr', partizip2: 'erfahren',
+    imperativDu: 'erfahr'
+  },
+  {
+    german: 'erfassen', english: 'capture / grasp',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erfasse', 'erfasst', 'erfasst', 'erfassen', 'erfasst', 'erfassen'],
+    praeteritumStem: 'erfasste', partizip2: 'erfasst'
+  },
+  {
+    german: 'erfolgen', english: 'take place / occur',
+    level: 'B2', type: 'regular', case: 'none', auxiliary: 'sein',
+    praesens: ['erfolge', 'erfolgst', 'erfolgt', 'erfolgen', 'erfolgt', 'erfolgen'],
+    praeteritumStem: 'erfolgte', partizip2: 'erfolgt'
+  },
+  {
+    german: 'erfordern', english: 'require / demand',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erfordere', 'erforderst', 'erfordert', 'erfordern', 'erfordert', 'erfordern'],
+    praeteritumStem: 'erforderte', partizip2: 'erfordert'
+  },
+  {
+    german: 'erfüllen', english: 'fulfill / satisfy',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erfülle', 'erfüllst', 'erfüllt', 'erfüllen', 'erfüllt', 'erfüllen'],
+    praeteritumStem: 'erfüllte', partizip2: 'erfüllt'
+  },
+  {
+    german: 'ergreifen', english: 'seize / grasp',
+    level: 'B2', type: 'irregular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['ergreife', 'ergreifst', 'ergreift', 'ergreifen', 'ergreift', 'ergreifen'],
+    praeteritumStem: 'ergriff', partizip2: 'ergriffen'
+  },
+  {
+    german: 'erhalten', english: 'receive / preserve',
+    level: 'B2', type: 'irregular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erhalte', 'erhältst', 'erhält', 'erhalten', 'erhaltet', 'erhalten'],
+    praeteritumStem: 'erhielt', partizip2: 'erhalten',
+    imperativDu: 'erhalt'
+  },
+  {
+    german: 'erheben', english: 'raise / levy',
+    level: 'B2', type: 'irregular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erhebe', 'erhebst', 'erhebt', 'erheben', 'erhebt', 'erheben'],
+    praeteritumStem: 'erhob', partizip2: 'erhoben'
+  },
+  {
+    german: 'erhöhen', english: 'raise / increase',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erhöhe', 'erhöhst', 'erhöht', 'erhöhen', 'erhöht', 'erhöhen'],
+    praeteritumStem: 'erhöhte', partizip2: 'erhöht'
+  },
+  {
+    german: 'erleben', english: 'experience',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erlebe', 'erlebst', 'erlebt', 'erleben', 'erlebt', 'erleben'],
+    praeteritumStem: 'erlebte', partizip2: 'erlebt'
+  },
+  {
+    german: 'erleichtern', english: 'facilitate / ease',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erleichtere', 'erleichterst', 'erleichtert', 'erleichtern', 'erleichtert', 'erleichtern'],
+    praeteritumStem: 'erleichterte', partizip2: 'erleichtert'
+  },
+  {
+    german: 'ermitteln', english: 'determine / investigate',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['ermittle', 'ermittelst', 'ermittelt', 'ermitteln', 'ermittelt', 'ermitteln'],
+    praeteritumStem: 'ermittelte', partizip2: 'ermittelt'
+  },
+  {
+    german: 'erreichen', english: 'reach / achieve',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erreiche', 'erreichst', 'erreicht', 'erreichen', 'erreicht', 'erreichen'],
+    praeteritumStem: 'erreichte', partizip2: 'erreicht'
+  },
+  {
+    german: 'erscheinen', english: 'appear',
+    level: 'B2', type: 'irregular', case: 'none', auxiliary: 'sein',
+    praesens: ['erscheine', 'erscheinst', 'erscheint', 'erscheinen', 'erscheint', 'erscheinen'],
+    praeteritumStem: 'erschien', partizip2: 'erschienen'
+  },
+  {
+    german: 'ersetzen', english: 'replace / substitute',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['ersetze', 'ersetzt', 'ersetzt', 'ersetzen', 'ersetzt', 'ersetzen'],
+    praeteritumStem: 'ersetzte', partizip2: 'ersetzt'
+  },
+  {
+    german: 'sich erstrecken', english: 'extend / stretch',
+    level: 'B2', type: 'regular', case: 'reflexive', auxiliary: 'haben',
+    praesens: ['erstrecke', 'erstreckst', 'erstreckt', 'erstrecken', 'erstreckt', 'erstrecken'],
+    praeteritumStem: 'erstreckte', partizip2: 'erstreckt',
+    notes: 'reflexive (acc) + über/von ... bis'
+  },
+  {
+    german: 'erteilen', english: 'grant / issue',
+    level: 'B2', type: 'regular', case: 'dative+accusative', auxiliary: 'haben',
+    praesens: ['erteile', 'erteilst', 'erteilt', 'erteilen', 'erteilt', 'erteilen'],
+    praeteritumStem: 'erteilte', partizip2: 'erteilt'
+  },
+  {
+    german: 'erzielen', english: 'achieve / attain',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['erziele', 'erzielst', 'erzielt', 'erzielen', 'erzielt', 'erzielen'],
+    praeteritumStem: 'erzielte', partizip2: 'erzielt'
+  },
+  {
+    german: 'festlegen', english: 'establish / determine',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'fest',
+    praesens: ['lege fest', 'legst fest', 'legt fest', 'legen fest', 'legt fest', 'legen fest'],
+    praeteritumStem: 'legte', partizip2: 'festgelegt'
+  },
+  {
+    german: 'feststellen', english: 'realize / establish',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'fest',
+    praesens: ['stelle fest', 'stellst fest', 'stellt fest', 'stellen fest', 'stellt fest', 'stellen fest'],
+    praeteritumStem: 'stellte', partizip2: 'festgestellt'
+  },
+  {
+    german: 'fordern', english: 'demand / require',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['fordere', 'forderst', 'fordert', 'fordern', 'fordert', 'fordern'],
+    praeteritumStem: 'forderte', partizip2: 'gefordert'
+  },
+  {
+    german: 'fortsetzen', english: 'continue',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'fort',
+    praesens: ['setze fort', 'setzt fort', 'setzt fort', 'setzen fort', 'setzt fort', 'setzen fort'],
+    praeteritumStem: 'setzte', partizip2: 'fortgesetzt'
+  },
+  {
+    german: 'funktionieren', english: 'function / work',
+    level: 'B2', type: 'regular', case: 'none', auxiliary: 'haben',
+    praesens: ['funktioniere', 'funktionierst', 'funktioniert', 'funktionieren', 'funktioniert', 'funktionieren'],
+    praeteritumStem: 'funktionierte', partizip2: 'funktioniert'
+  },
+  {
+    german: 'gelangen', english: 'reach / arrive at',
+    level: 'B2', type: 'regular', case: 'none', auxiliary: 'sein',
+    praesens: ['gelange', 'gelangst', 'gelangt', 'gelangen', 'gelangt', 'gelangen'],
+    praeteritumStem: 'gelangte', partizip2: 'gelangt'
+  },
+  {
+    german: 'gelten', english: 'be valid / apply',
+    level: 'B2', type: 'irregular', case: 'none', auxiliary: 'haben',
+    praesens: ['gelte', 'giltst', 'gilt', 'gelten', 'geltet', 'gelten'],
+    praeteritumStem: 'galt', partizip2: 'gegolten',
+    imperativDu: 'gilt'
+  },
+  {
+    german: 'geraten', english: 'get into (a situation)',
+    level: 'B2', type: 'irregular', case: 'none', auxiliary: 'sein',
+    praesens: ['gerate', 'gerätst', 'gerät', 'geraten', 'geratet', 'geraten'],
+    praeteritumStem: 'geriet', partizip2: 'geraten',
+    imperativDu: 'gerat'
+  },
+  {
+    german: 'gewährleisten', english: 'ensure / guarantee',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['gewährleiste', 'gewährleistest', 'gewährleistet', 'gewährleisten', 'gewährleistet', 'gewährleisten'],
+    praeteritumStem: 'gewährleistete', partizip2: 'gewährleistet'
+  },
+  {
+    german: 'handeln', english: 'act / trade',
+    level: 'B2', type: 'regular', case: 'none', auxiliary: 'haben',
+    praesens: ['handle', 'handelst', 'handelt', 'handeln', 'handelt', 'handeln'],
+    praeteritumStem: 'handelte', partizip2: 'gehandelt',
+    notes: 'es handelt sich um ... = it is about ...'
+  },
+  {
+    german: 'identifizieren', english: 'identify',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['identifiziere', 'identifizierst', 'identifiziert', 'identifizieren', 'identifiziert', 'identifizieren'],
+    praeteritumStem: 'identifizierte', partizip2: 'identifiziert'
+  },
+  {
+    german: 'informieren', english: 'inform',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['informiere', 'informierst', 'informiert', 'informieren', 'informiert', 'informieren'],
+    praeteritumStem: 'informierte', partizip2: 'informiert',
+    notes: 'über + accusative'
+  },
+  {
+    german: 'sich konzentrieren', english: 'concentrate',
+    level: 'B2', type: 'regular', case: 'reflexive', auxiliary: 'haben',
+    praesens: ['konzentriere', 'konzentrierst', 'konzentriert', 'konzentrieren', 'konzentriert', 'konzentrieren'],
+    praeteritumStem: 'konzentrierte', partizip2: 'konzentriert',
+    notes: 'reflexive (acc) + auf + accusative'
+  },
+  {
+    german: 'kontrollieren', english: 'check / control',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['kontrolliere', 'kontrollierst', 'kontrolliert', 'kontrollieren', 'kontrolliert', 'kontrollieren'],
+    praeteritumStem: 'kontrollierte', partizip2: 'kontrolliert'
+  },
+  {
+    german: 'liefern', english: 'deliver / supply',
+    level: 'B2', type: 'regular', case: 'dative+accusative', auxiliary: 'haben',
+    praesens: ['liefere', 'lieferst', 'liefert', 'liefern', 'liefert', 'liefern'],
+    praeteritumStem: 'lieferte', partizip2: 'geliefert'
+  },
+  {
+    german: 'mitteilen', english: 'communicate / inform',
+    level: 'B2', type: 'separable', case: 'dative+accusative', auxiliary: 'haben',
+    separablePrefix: 'mit',
+    praesens: ['teile mit', 'teilst mit', 'teilt mit', 'teilen mit', 'teilt mit', 'teilen mit'],
+    praeteritumStem: 'teilte', partizip2: 'mitgeteilt'
+  },
+  {
+    german: 'prüfen', english: 'examine / test',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['prüfe', 'prüfst', 'prüft', 'prüfen', 'prüft', 'prüfen'],
+    praeteritumStem: 'prüfte', partizip2: 'geprüft'
+  },
+  {
+    german: 'reagieren', english: 'react',
+    level: 'B2', type: 'regular', case: 'none', auxiliary: 'haben',
+    praesens: ['reagiere', 'reagierst', 'reagiert', 'reagieren', 'reagiert', 'reagieren'],
+    praeteritumStem: 'reagierte', partizip2: 'reagiert',
+    notes: 'auf + accusative'
+  },
+  {
+    german: 'rechnen', english: 'calculate / count on',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['rechne', 'rechnest', 'rechnet', 'rechnen', 'rechnet', 'rechnen'],
+    praeteritumStem: 'rechnete', partizip2: 'gerechnet',
+    notes: 'mit + dative = count on / expect'
+  },
+  {
+    german: 'reduzieren', english: 'reduce',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['reduziere', 'reduzierst', 'reduziert', 'reduzieren', 'reduziert', 'reduzieren'],
+    praeteritumStem: 'reduzierte', partizip2: 'reduziert'
+  },
+  {
+    german: 'schaffen', english: 'manage / accomplish',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['schaffe', 'schaffst', 'schafft', 'schaffen', 'schafft', 'schaffen'],
+    praeteritumStem: 'schaffte', partizip2: 'geschafft',
+    notes: 'strong form schuf/geschaffen = "create" (different meaning)'
+  },
+  {
+    german: 'schützen', english: 'protect',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['schütze', 'schützt', 'schützt', 'schützen', 'schützt', 'schützen'],
+    praeteritumStem: 'schützte', partizip2: 'geschützt',
+    notes: 'vor + dative'
+  },
+  {
+    german: 'sicherstellen', english: 'ensure',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'sicher',
+    praesens: ['stelle sicher', 'stellst sicher', 'stellt sicher', 'stellen sicher', 'stellt sicher', 'stellen sicher'],
+    praeteritumStem: 'stellte', partizip2: 'sichergestellt'
+  },
+  {
+    german: 'speichern', english: 'save / store',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['speichere', 'speicherst', 'speichert', 'speichern', 'speichert', 'speichern'],
+    praeteritumStem: 'speicherte', partizip2: 'gespeichert'
+  },
+  {
+    german: 'stammen', english: 'originate / come from',
+    level: 'B2', type: 'regular', case: 'none', auxiliary: 'haben',
+    praesens: ['stamme', 'stammst', 'stammt', 'stammen', 'stammt', 'stammen'],
+    praeteritumStem: 'stammte', partizip2: 'gestammt',
+    notes: 'aus + dative'
+  },
+  {
+    german: 'stattfinden', english: 'take place',
+    level: 'B2', type: 'separable', case: 'none', auxiliary: 'haben',
+    separablePrefix: 'statt',
+    praesens: ['finde statt', 'findest statt', 'findet statt', 'finden statt', 'findet statt', 'finden statt'],
+    praeteritumStem: 'fand', partizip2: 'stattgefunden'
+  },
+  {
+    german: 'steigern', english: 'increase / raise',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['steigere', 'steigerst', 'steigert', 'steigern', 'steigert', 'steigern'],
+    praeteritumStem: 'steigerte', partizip2: 'gesteigert'
+  },
+  {
+    german: 'steuern', english: 'steer / control',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['steuere', 'steuerst', 'steuert', 'steuern', 'steuert', 'steuern'],
+    praeteritumStem: 'steuerte', partizip2: 'gesteuert'
+  },
+  {
+    german: 'teilnehmen', english: 'participate / take part',
+    level: 'B2', type: 'separable', case: 'none', auxiliary: 'haben',
+    separablePrefix: 'teil',
+    praesens: ['nehme teil', 'nimmst teil', 'nimmt teil', 'nehmen teil', 'nehmt teil', 'nehmen teil'],
+    praeteritumStem: 'nahm', partizip2: 'teilgenommen',
+    imperativDu: 'nimm',
+    notes: 'an + dative'
+  },
+  {
+    german: 'übermitteln', english: 'transmit / convey',
+    level: 'B2', type: 'regular', case: 'dative+accusative', auxiliary: 'haben',
+    praesens: ['übermittle', 'übermittelst', 'übermittelt', 'übermitteln', 'übermittelt', 'übermitteln'],
+    praeteritumStem: 'übermittelte', partizip2: 'übermittelt'
+  },
+  {
+    german: 'übertragen', english: 'transfer / transmit',
+    level: 'B2', type: 'irregular', case: 'dative+accusative', auxiliary: 'haben',
+    praesens: ['übertrage', 'überträgst', 'überträgt', 'übertragen', 'übertragt', 'übertragen'],
+    praeteritumStem: 'übertrug', partizip2: 'übertragen',
+    imperativDu: 'übertrag'
+  },
+  {
+    german: 'überwachen', english: 'monitor / supervise',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['überwache', 'überwachst', 'überwacht', 'überwachen', 'überwacht', 'überwachen'],
+    praeteritumStem: 'überwachte', partizip2: 'überwacht'
+  },
+  {
+    german: 'umfassen', english: 'comprise / encompass',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['umfasse', 'umfasst', 'umfasst', 'umfassen', 'umfasst', 'umfassen'],
+    praeteritumStem: 'umfasste', partizip2: 'umfasst'
+  },
+  {
+    german: 'umsetzen', english: 'implement',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'um',
+    praesens: ['setze um', 'setzt um', 'setzt um', 'setzen um', 'setzt um', 'setzen um'],
+    praeteritumStem: 'setzte', partizip2: 'umgesetzt'
+  },
+  {
+    german: 'verfolgen', english: 'pursue / follow',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['verfolge', 'verfolgst', 'verfolgt', 'verfolgen', 'verfolgt', 'verfolgen'],
+    praeteritumStem: 'verfolgte', partizip2: 'verfolgt'
+  },
+  {
+    german: 'verringern', english: 'reduce / lessen',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['verringere', 'verringerst', 'verringert', 'verringern', 'verringert', 'verringern'],
+    praeteritumStem: 'verringerte', partizip2: 'verringert'
+  },
+  {
+    german: 'verstärken', english: 'reinforce / strengthen',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['verstärke', 'verstärkst', 'verstärkt', 'verstärken', 'verstärkt', 'verstärken'],
+    praeteritumStem: 'verstärkte', partizip2: 'verstärkt'
+  },
+  {
+    german: 'vertreten', english: 'represent / substitute',
+    level: 'B2', type: 'irregular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['vertrete', 'vertrittst', 'vertritt', 'vertreten', 'vertretet', 'vertreten'],
+    praeteritumStem: 'vertrat', partizip2: 'vertreten',
+    imperativDu: 'vertritt'
+  },
+  {
+    german: 'verwalten', english: 'administer / manage',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['verwalte', 'verwaltest', 'verwaltet', 'verwalten', 'verwaltet', 'verwalten'],
+    praeteritumStem: 'verwaltete', partizip2: 'verwaltet'
+  },
+  {
+    german: 'vorlegen', english: 'present / submit',
+    level: 'B2', type: 'separable', case: 'dative+accusative', auxiliary: 'haben',
+    separablePrefix: 'vor',
+    praesens: ['lege vor', 'legst vor', 'legt vor', 'legen vor', 'legt vor', 'legen vor'],
+    praeteritumStem: 'legte', partizip2: 'vorgelegt'
+  },
+  {
+    german: 'vornehmen', english: 'undertake / carry out',
+    level: 'B2', type: 'separable', case: 'accusative', auxiliary: 'haben',
+    separablePrefix: 'vor',
+    praesens: ['nehme vor', 'nimmst vor', 'nimmt vor', 'nehmen vor', 'nehmt vor', 'nehmen vor'],
+    praeteritumStem: 'nahm', partizip2: 'vorgenommen',
+    imperativDu: 'nimm'
+  },
+  {
+    german: 'wagen', english: 'dare / venture',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['wage', 'wagst', 'wagt', 'wagen', 'wagt', 'wagen'],
+    praeteritumStem: 'wagte', partizip2: 'gewagt'
+  },
+  {
+    german: 'werten', english: 'rate / evaluate',
+    level: 'B2', type: 'regular', case: 'accusative', auxiliary: 'haben',
+    praesens: ['werte', 'wertest', 'wertet', 'werten', 'wertet', 'werten'],
+    praeteritumStem: 'wertete', partizip2: 'gewertet'
   }
 ]
