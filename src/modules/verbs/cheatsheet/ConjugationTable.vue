@@ -56,29 +56,37 @@ defineProps<{
   color: var(--ink);
 }
 
-.conj-rows { padding: 10px 16px 14px; }
+.conj-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  column-gap: 32px;
+  row-gap: 2px;
+  padding: 10px 18px 14px;
+}
 
 .conj-row {
   display: grid;
-  grid-template-columns: 60px 1fr;
+  grid-template-columns: 72px 1fr;
   align-items: baseline;
-  padding: 4px 0;
+  padding: 5px 4px;
+  border-bottom: 1px dotted color-mix(in srgb, var(--mute) 25%, transparent);
   transition: background-color 150ms ease;
-  border-radius: 1px;
 }
 
 .conj-row:hover { background: var(--paper-deep); }
+
+.conj-row:last-child { border-bottom: 0; }
 
 .conj-person {
   font-family: var(--font-body);
   font-style: italic;
   color: var(--ink-soft);
-  font-size: 14px;
+  font-size: 14.5px;
 }
 
 .conj-form {
   font-family: var(--font-mono);
-  font-size: 14.5px;
+  font-size: 16px;
   color: var(--ink);
   line-height: 1.55;
 }
