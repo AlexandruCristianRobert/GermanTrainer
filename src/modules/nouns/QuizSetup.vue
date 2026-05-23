@@ -1,10 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import {
-  NRadioGroup, NRadio, NSpace, NButton, NInputNumber, NAlert, NCheckboxGroup, NCheckbox,
-  NCollapse, NCollapseItem,
-  useMessage
-} from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { useNouns } from '../../composables/useNouns'
 import { NOUN_GROUPS, type NounGroup } from '../../db/types'
@@ -13,17 +8,17 @@ const STORAGE_KEY = 'nounQuizGroups'
 
 const { countsByGroup } = useNouns()
 const router = useRouter()
-const message = useMessage()
 
 const counts = ref<Record<NounGroup, number>>(
   Object.fromEntries(NOUN_GROUPS.map(g => [g, 0])) as Record<NounGroup, number>
 )
-const selectedGroups = ref<NounGroup[]>([])
+const selected = ref<NounGroup[]>([])
 const mode = ref<'gender' | 'translation'>('gender')
-const preset = ref<10 | 15 | 20 | 'custom' | 'all'>(10)
-const customCount = ref(10)
+type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
+const count = ref<CountPreset>(10)
+const customCount = ref(15)
 
-function loadSelectedGroups(): NounGroup[] | null {
+function loadStored(): NounGroup[] | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
@@ -31,170 +26,179 @@ function loadSelectedGroups(): NounGroup[] | null {
     if (!Array.isArray(parsed)) return null
     const known = new Set<string>(NOUN_GROUPS)
     return parsed.filter((g): g is NounGroup => typeof g === 'string' && known.has(g))
-  } catch {
-    return null
-  }
+  } catch { return null }
 }
-
-function saveSelectedGroups(groups: NounGroup[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(groups))
-  } catch {
-    // ignore quota / disabled storage
-  }
+function saveStored(groups: NounGroup[]): void {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(groups)) } catch { /* ignore */ }
 }
 
 onMounted(async () => {
   counts.value = await countsByGroup()
-  const stored = loadSelectedGroups()
-  if (stored && stored.length > 0) {
-    selectedGroups.value = stored
-  } else {
-    selectedGroups.value = NOUN_GROUPS.filter(g => counts.value[g] > 0)
-  }
+  const stored = loadStored()
+  selected.value = stored && stored.length > 0
+    ? stored
+    : NOUN_GROUPS.filter(g => counts.value[g] > 0)
 })
 
-watch(selectedGroups, value => {
-  saveSelectedGroups([...value])
-}, { deep: true })
+watch(selected, v => saveStored([...v]), { deep: true })
+
+const selectedSet = computed(() => new Set(selected.value))
+
+function toggleGroup(g: NounGroup) {
+  if ((counts.value[g] ?? 0) === 0) return
+  const i = selected.value.indexOf(g)
+  if (i >= 0) selected.value.splice(i, 1)
+  else selected.value.push(g)
+}
+function selectAll() {
+  selected.value = NOUN_GROUPS.filter(g => counts.value[g] > 0)
+}
+function selectNone() { selected.value = [] }
 
 const totalAvailable = computed(() =>
-  selectedGroups.value.reduce((sum, g) => sum + (counts.value[g] ?? 0), 0)
+  selected.value.reduce((sum, g) => sum + (counts.value[g] ?? 0), 0)
 )
-const requested = computed(() => {
-  if (preset.value === 'custom') return customCount.value
-  if (preset.value === 'all') return totalAvailable.value
-  return preset.value
+
+const effectiveCount = computed(() => {
+  if (count.value === 'all') return totalAvailable.value
+  if (count.value === 'custom') return Math.min(customCount.value, totalAvailable.value)
+  return Math.min(count.value, totalAvailable.value)
 })
-const effective = computed(() => Math.min(requested.value, totalAvailable.value))
 
-function selectAll() {
-  selectedGroups.value = NOUN_GROUPS.filter(g => counts.value[g] > 0)
-}
-
-function selectNone() {
-  selectedGroups.value = []
-}
+const numericPresetExceeds = computed(() =>
+  typeof count.value === 'number' && count.value > totalAvailable.value && totalAvailable.value > 0
+)
 
 function start() {
-  if (selectedGroups.value.length === 0) {
-    message.error('Select at least one group.')
-    return
-  }
-  if (totalAvailable.value === 0) {
-    message.error('No nouns in the selected groups.')
-    return
-  }
+  if (selected.value.length === 0 || totalAvailable.value === 0) return
   router.push({
     name: 'nouns-quiz-run',
     query: {
       mode: mode.value,
-      count: String(effective.value),
-      groups: selectedGroups.value.join(',')
+      count: String(effectiveCount.value),
+      groups: selected.value.join(',')
     }
   })
 }
+
+function backToLanding() { router.push({ name: 'nouns' }) }
 </script>
 
 <template>
-  <n-space vertical size="large" style="max-width: 480px">
-    <h2>Noun quiz setup</h2>
-    <n-collapse>
-      <n-collapse-item title="Gender tips" name="tips">
-        <n-collapse>
-          <n-collapse-item title="Endings → likely gender" name="endings">
-            <p><strong>die</strong>: -ung, -heit, -keit, -schaft, -tät, -ion, -ik, -ie, -ei, -enz, -anz</p>
-            <p><strong>der</strong>: -er (agent), -ling, -ismus, -ant, -ent, -or, -ist</p>
-            <p><strong>das</strong>: -chen, -lein, -ment, -um, -tum, -nis (often), -sel</p>
-          </n-collapse-item>
-          <n-collapse-item title="Semantic categories" name="semantic">
-            <p><strong>der</strong>: days, months, seasons, compass points, weather (Regen, Schnee, Wind), male persons/professions, alcoholic drinks (except das Bier), car brands.</p>
-            <p><strong>die</strong>: female persons/professions, most trees, most flowers, most fruits, cardinal numbers as nouns (die Eins), motorcycles, ships.</p>
-            <p><strong>das</strong>: metals &amp; chemical elements, most countries &amp; cities, infinitives as nouns (das Essen), diminutives, colours as nouns (das Rot), young living things (das Baby, das Kind).</p>
-          </n-collapse-item>
-          <n-collapse-item title="Compound noun rule" name="compound">
-            <p>The gender of a compound noun follows its <em>last</em> component.</p>
-            <p>das Haus + die Tür → <strong>die</strong> Haustür</p>
-            <p>die Sonne + der Schein → <strong>der</strong> Sonnenschein</p>
-          </n-collapse-item>
-          <n-collapse-item title="Traps &amp; exceptions" name="traps">
-            <p><strong>das Mädchen</strong>, <strong>das Fräulein</strong> — diminutive -chen/-lein overrides natural gender.</p>
-            <p><strong>der Junge</strong> — masculine despite -e ending.</p>
-            <p><strong>die Person</strong> — feminine regardless of the person's sex.</p>
-            <p><strong>das Baby</strong>, <strong>das Kind</strong> — neuter regardless of sex.</p>
-            <p><strong>die Zeit, die Arbeit, die Antwort</strong> — common -t feminines.</p>
-          </n-collapse-item>
-          <n-collapse-item title="Plural quick reference" name="plural">
-            <p>Most <strong>die</strong> feminines: plural in -(e)n (die Frau → die Frauen).</p>
-            <p>Many <strong>der</strong>/<strong>das</strong> words: plural in -e (der Tisch → die Tische).</p>
-            <p>Many neuters: -er + umlaut (das Haus → die Häuser).</p>
-            <p>-chen / -lein diminutives: unchanged in the plural.</p>
-            <p>Foreign / loanwords: often -s (das Auto → die Autos).</p>
-          </n-collapse-item>
-        </n-collapse>
-      </n-collapse-item>
-    </n-collapse>
-    <n-alert v-if="totalAvailable === 0 && selectedGroups.length > 0" type="warning">
-      No nouns in the selected groups. Pick a different group or add nouns in Manage nouns.
-    </n-alert>
-    <div>
-      <p>Groups</p>
-      <n-checkbox-group v-model:value="selectedGroups">
-        <n-space vertical size="small">
-          <n-checkbox
-            v-for="g in NOUN_GROUPS"
-            :key="g"
-            :value="g"
-            :label="`${g} (${counts[g] ?? 0})`"
-            :disabled="(counts[g] ?? 0) === 0"
-          />
-        </n-space>
-      </n-checkbox-group>
-      <n-space :wrap="true" style="margin-top: 8px">
-        <n-button size="small" @click="selectAll">All</n-button>
-        <n-button size="small" @click="selectNone">None</n-button>
-      </n-space>
-      <n-alert
-        v-if="selectedGroups.length === 0"
-        type="warning"
-        style="margin-top: 8px"
-      >
-        Select at least one group.
-      </n-alert>
+  <div class="page setup-page">
+    <header class="section-header">
+      <div>
+        <div class="breadcrumb">Kapitel I · Übung · Einrichtung</div>
+        <h1 class="section-title">Setup<em>.</em></h1>
+        <p class="section-subtitle">
+          Pick the groups, the mode, and how many questions. Your choices are remembered.
+        </p>
+      </div>
+    </header>
+
+    <div class="field">
+      <div class="field-row">
+        <div class="field-label">Groups · {{ selected.length }} of {{ NOUN_GROUPS.length }}</div>
+        <div class="field-actions">
+          <button class="btn btn-quiet" type="button" @click="selectAll">All</button>
+          <button class="btn btn-quiet" type="button" @click="selectNone">None</button>
+        </div>
+      </div>
+      <div class="chip-row">
+        <button
+          v-for="g in NOUN_GROUPS"
+          :key="g"
+          class="chip"
+          :class="{ selected: selectedSet.has(g) }"
+          :disabled="(counts[g] ?? 0) === 0"
+          @click="toggleGroup(g)"
+        >
+          <span>{{ g }}</span>
+          <span class="chip-count">{{ counts[g] ?? 0 }}</span>
+        </button>
+      </div>
     </div>
-    <div>
-      <p>Mode</p>
-      <n-radio-group v-model:value="mode">
-        <n-radio value="gender">Gender (der/die/das)</n-radio>
-        <n-radio value="translation">English translation</n-radio>
-      </n-radio-group>
+
+    <div class="field">
+      <div class="field-label">Mode</div>
+      <div class="segmented">
+        <button :class="{ active: mode === 'gender' }" @click="mode = 'gender'">Gender · der/die/das</button>
+        <button :class="{ active: mode === 'translation' }" @click="mode = 'translation'">English translation</button>
+      </div>
     </div>
-    <div>
-      <p>Number of questions</p>
-      <n-radio-group v-model:value="preset">
-        <n-radio :value="10">10</n-radio>
-        <n-radio :value="15">15</n-radio>
-        <n-radio :value="20">20</n-radio>
-        <n-radio value="custom">Custom</n-radio>
-        <n-radio value="all">All</n-radio>
-      </n-radio-group>
-      <n-input-number
-        v-if="preset === 'custom'"
-        v-model:value="customCount"
-        :min="1"
-        :max="totalAvailable || 1"
-        style="margin-top: 8px; width: 100%"
-      />
+
+    <div class="field">
+      <div class="field-label">Number of questions</div>
+      <div class="field-row count-row">
+        <div class="segmented">
+          <button :class="{ active: count === 10 }" @click="count = 10">10</button>
+          <button :class="{ active: count === 15 }" @click="count = 15">15</button>
+          <button :class="{ active: count === 20 }" @click="count = 20">20</button>
+          <button :class="{ active: count === 'all' }" @click="count = 'all'">All · {{ totalAvailable }}</button>
+          <button :class="{ active: count === 'custom' }" @click="count = 'custom'">Custom</button>
+        </div>
+        <input
+          v-if="count === 'custom'"
+          class="input custom-count"
+          type="number"
+          :min="1"
+          :max="totalAvailable || 1"
+          v-model.number="customCount"
+        />
+        <span class="micro-mark count-avail">{{ totalAvailable }} available</span>
+      </div>
     </div>
-    <n-alert v-if="requested > totalAvailable && totalAvailable > 0" type="info">
+
+    <div v-if="numericPresetExceeds" class="alert alert-info">
+      <span class="alert-label">Info</span>
       Only {{ totalAvailable }} nouns available in selected groups — quizzing all of them.
-    </n-alert>
-    <n-button
-      type="primary"
-      :disabled="selectedGroups.length === 0 || totalAvailable === 0"
-      @click="start"
-    >
-      Start quiz
-    </n-button>
-  </n-space>
+    </div>
+    <div v-if="selected.length === 0" class="alert alert-warning">
+      <span class="alert-label">Warning</span>
+      Pick at least one group to begin.
+    </div>
+
+    <div class="setup-actions">
+      <button class="btn btn-ghost" type="button" @click="backToLanding">← Back</button>
+      <button
+        class="btn btn-accent"
+        type="button"
+        :disabled="selected.length === 0 || totalAvailable === 0"
+        @click="start"
+      >
+        Start quiz · {{ effectiveCount }} questions <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.setup-page { max-width: 720px; }
+
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.field-actions { display: flex; gap: 4px; }
+
+.count-row { align-items: center; gap: 12px; }
+.custom-count { width: 80px; font-size: 17px; padding: 4px 0; }
+.count-avail { margin-left: auto; }
+
+.setup-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .setup-actions { flex-direction: column-reverse; align-items: stretch; }
+  .setup-actions .btn { justify-content: center; }
+}
+</style>

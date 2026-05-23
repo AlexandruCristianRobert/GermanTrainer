@@ -19,7 +19,8 @@ function makeRouter() {
     history: createMemoryHistory(),
     routes: [
       { path: '/', component: { template: '<div />' } },
-      { path: '/quiz', name: 'nouns-quiz-run', component: { template: '<div />' } }
+      { path: '/quiz', name: 'nouns-quiz-run', component: { template: '<div />' } },
+      { path: '/nouns', name: 'nouns', component: { template: '<div />' } }
     ]
   })
 }
@@ -42,21 +43,21 @@ describe('QuizSetup — All preset', () => {
     if (typeof localStorage !== 'undefined') localStorage.clear()
   })
 
-  it('renders an "All" radio in the question-count group', async () => {
+  it('renders an "All" segmented button in the question-count group', async () => {
     const { wrapper } = await mountSetup()
-    const labels = wrapper.findAll('label').map(l => l.text())
-    expect(labels).toContain('All')
+    // The segmented count buttons include one labeled "All · N"
+    const allBtn = wrapper.findAll('button').find(b => b.text().startsWith('All ·'))
+    expect(allBtn).toBeTruthy()
   })
 
   it('routes with count equal to total available nouns when All is selected', async () => {
     const { wrapper, router } = await mountSetup()
     const push = vi.spyOn(router, 'push')
 
-    const allRadio = wrapper.findAll('label').find(l => l.text() === 'All')
-    expect(allRadio).toBeTruthy()
-    await allRadio!.find('input[type="radio"]').setValue()
+    const allBtn = wrapper.findAll('button').find(b => b.text().startsWith('All ·'))!
+    await allBtn.trigger('click')
 
-    const startBtn = wrapper.findAll('button').find(b => b.text() === 'Start quiz')!
+    const startBtn = wrapper.findAll('button').find(b => b.text().startsWith('Start quiz'))!
     await startBtn.trigger('click')
 
     expect(push).toHaveBeenCalledWith(
@@ -65,30 +66,5 @@ describe('QuizSetup — All preset', () => {
         query: expect.objectContaining({ count: '7' })
       })
     )
-  })
-})
-
-describe('QuizSetup — Gender tips panel', () => {
-  beforeEach(() => {
-    if (typeof localStorage !== 'undefined') localStorage.clear()
-  })
-
-  it('renders the gender tips collapse header', async () => {
-    const { wrapper } = await mountSetup()
-    expect(wrapper.text()).toContain('Gender tips')
-  })
-
-  it('includes sub-sections for endings, semantic categories, compound rule, traps, plural', async () => {
-    const { wrapper } = await mountSetup()
-    // Expand the outer "Gender tips" panel so inner headers are mounted
-    const tipsHeader = wrapper.find('.n-collapse-item__header-main')
-    await tipsHeader.trigger('click')
-    await flushPromises()
-    const html = wrapper.html()
-    expect(html).toContain('Endings')
-    expect(html).toContain('Semantic categories')
-    expect(html).toContain('Compound noun')
-    expect(html).toContain('Traps')
-    expect(html).toContain('Plural')
   })
 })

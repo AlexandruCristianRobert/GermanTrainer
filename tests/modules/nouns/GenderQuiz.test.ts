@@ -11,7 +11,7 @@ const noun: Noun = {
 function mountQuiz() {
   return mount(GenderQuiz, {
     attachTo: document.body,
-    props: { noun, questionNumber: 1, totalQuestions: 5 }
+    props: { noun, questionNumber: 1, totalQuestions: 5, history: [] }
   })
 }
 

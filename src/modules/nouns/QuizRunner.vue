@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NSpin, NAlert } from 'naive-ui'
 import { useNouns } from '../../composables/useNouns'
 import { useNounQuiz, type NounQuizMode } from '../../composables/useNounQuiz'
 import GenderQuiz from './GenderQuiz.vue'
 import TranslationQuiz from './TranslationQuiz.vue'
 import QuizResult from './QuizResult.vue'
-import type { Noun, NounGroup } from '../../db/types'
-import { NOUN_GROUPS } from '../../db/types'
+import { NOUN_GROUPS, type Noun, type NounGroup } from '../../db/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -53,54 +51,69 @@ onMounted(async () => {
   }
 })
 
-const current = computed(() => quiz?.current.value ?? null)
-const finished = computed(() => quiz?.finished.value ?? false)
+const current = computed(() => (ready.value, quiz?.current.value ?? null))
+const finished = computed(() => (ready.value, quiz?.finished.value ?? false))
+const questions = computed(() => (ready.value, quiz?.questions.value ?? []))
+const score = computed(() => (ready.value, quiz?.score.value ?? 0))
+const total = computed(() => (ready.value, quiz?.total.value ?? 0))
+const currentIndex = computed(() => (ready.value, quiz?.currentIndex.value ?? 0))
 
 function onAnswered(_correct: boolean, answer: string) {
   if (!quiz) return
   quiz.submit(answer)
 }
 
-function onNext() {
-  quiz?.advance()
-}
+function onNext() { quiz?.advance() }
 
-function restart() {
-  router.push('/nouns/quiz')
-}
+function restart() { router.push({ name: 'nouns-quiz' }) }
 </script>
 
 <template>
-  <div>
-    <n-spin v-if="loading" />
-    <n-alert v-else-if="error" type="error">{{ error }}</n-alert>
-    <template v-else-if="ready && quiz">
-      <QuizResult
-        v-if="finished"
-        :questions="quiz.questions.value"
-        :score="quiz.score.value"
-        :total="quiz.total.value"
-        :mode="mode"
-        @restart="restart"
-      />
-      <template v-else-if="current">
-        <GenderQuiz
-          v-if="mode === 'gender'"
-          :noun="current.noun"
-          :question-number="quiz.currentIndex.value + 1"
-          :total-questions="quiz.total.value"
-          @answered="onAnswered"
-          @next="onNext"
-        />
-        <TranslationQuiz
-          v-else
-          :noun="current.noun"
-          :question-number="quiz.currentIndex.value + 1"
-          :total-questions="quiz.total.value"
-          @answered="onAnswered"
-          @next="onNext"
-        />
-      </template>
-    </template>
+  <div v-if="loading" class="page loading-state">
+    <div class="micro-mark">Loading…</div>
   </div>
+  <div v-else-if="error" class="page">
+    <div class="alert alert-danger">
+      <span class="alert-label">Error</span>
+      {{ error }}
+    </div>
+    <button class="btn btn-ghost" @click="restart">← Back to setup</button>
+  </div>
+  <QuizResult
+    v-else-if="finished && quiz"
+    :questions="questions"
+    :score="score"
+    :total="total"
+    :mode="mode"
+    @restart="restart"
+  />
+  <template v-else-if="current">
+    <div class="page">
+      <GenderQuiz
+        v-if="mode === 'gender'"
+        :noun="current.noun"
+        :question-number="currentIndex + 1"
+        :total-questions="total"
+        :history="questions.slice(0, currentIndex)"
+        @answered="onAnswered"
+        @next="onNext"
+        @end-quiz="restart"
+      />
+      <TranslationQuiz
+        v-else
+        :noun="current.noun"
+        :question-number="currentIndex + 1"
+        :total-questions="total"
+        @answered="onAnswered"
+        @next="onNext"
+      />
+    </div>
+  </template>
 </template>
+
+<style scoped>
+.loading-state {
+  text-align: center;
+  padding-top: 120px;
+}
+</style>
