@@ -46,6 +46,29 @@ describe('useTranslationQuiz', () => {
     q.submit('')
     expect(q.questions.value[0].isCorrect).toBe(false)
   })
+
+  it('accepts any one of a slash-separated alternative list', () => {
+    const multi: Verb[] = [{
+      german: 'fahren', english: 'drive / go / travel',
+      level: 'A1', type: 'irregular', case: 'varies', auxiliary: 'sein',
+      praesens: ['fahre','fährst','fährt','fahren','fahrt','fahren'],
+      praeteritumStem: 'fuhr', partizip2: 'gefahren'
+    }]
+    // Each alternative independently
+    for (const ans of ['drive', 'go', 'travel', 'to drive', 'to go', 'to travel']) {
+      const q = useTranslationQuiz(multi)
+      q.submit(ans)
+      expect(q.questions.value[0].isCorrect, `"${ans}" should match`).toBe(true)
+    }
+  })
+})
+
+describe('verb dataset — parenthetical hygiene', () => {
+  it('no english field contains "(...)" — typing one word is enough to match', async () => {
+    const { VERBS } = await import('../../src/data/verbs')
+    const offenders = VERBS.filter(v => /\([^)]*\)/.test(v.english))
+    expect(offenders).toEqual([])
+  })
 })
 
 describe('checkConjugation — normalization', () => {
