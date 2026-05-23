@@ -61,8 +61,15 @@ function praeteritum(verb: Verb): SixForms {
   return forms
 }
 
+// For compound tenses, reflexive verbs are stored with a leading "sich " in `german`,
+// but the engine produces verb forms WITHOUT the reflexive pronoun — the UI surfaces
+// the pronoun separately.
+function infinitiveForCompound(verb: Verb): string {
+  return verb.german.startsWith('sich ') ? verb.german.slice(5) : verb.german
+}
+
 function futur1Forms(verb: Verb): SixForms {
-  return compoundWithAux(WERDEN_PRES, verb.german)
+  return compoundWithAux(WERDEN_PRES, infinitiveForCompound(verb))
 }
 
 function futur2Forms(verb: Verb): SixForms {
@@ -103,7 +110,7 @@ function konjunktiv2(verb: Verb): SixForms {
     }
     return verb.konjunktiv2
   }
-  return compoundWithAux(WUERDE, verb.german)
+  return compoundWithAux(WUERDE, infinitiveForCompound(verb))
 }
 
 function stripSuffixPrefix(form: string, prefix: string): string {

@@ -186,3 +186,18 @@ describe('conjugate — coverage on full dataset', () => {
     expect(VERBS.some(v => v.level === 'A2')).toBe(true)
   })
 })
+
+describe('conjugate — reflexive verbs strip "sich" from compound tenses', () => {
+  it('Futur I drops the sich prefix', () => {
+    expect(conjugate(find('sich freuen'), 'futur1')[0].expected).toBe('werde freuen')
+  })
+
+  it('Futur II drops the sich prefix', () => {
+    expect(conjugate(find('sich freuen'), 'futur2')[0].expected).toBe('werde gefreut haben')
+  })
+
+  it('Konjunktiv II würde-fallback drops the sich prefix', () => {
+    // sich kümmern has no explicit konjunktiv2, so it falls back to würde + infinitive
+    expect(conjugate(find('sich kümmern'), 'konjunktiv2')[0].expected).toBe('würde kümmern')
+  })
+})
