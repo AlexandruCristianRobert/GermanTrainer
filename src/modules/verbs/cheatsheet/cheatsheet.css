@@ -8,16 +8,17 @@
   --font-body: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
-  --paper: #F7F2E8;
-  --paper-deep: #EFE8D8;
-  --ink: #1A1814;
-  --ink-soft: #3D3A33;
-  --mute: #8C8576;
-  --rule: #2A2620;
+  --paper: #FAF7F0;
+  --paper-deep: #F1ECDE;
+  --ink: #15130E;
+  --ink-soft: #3A372F;
+  --mute: #948C7C;
+  --rule: #1E1B14;
 
   --sage: #5C7A52;
+  --sage-tint: rgba(92, 122, 82, 0.18);
   --clay: #A03B2B;
-  --ochre: #C29242;
+  --ochre: #B8852F;
   --cobalt: #2C5282;
 
   position: relative;
@@ -25,7 +26,7 @@
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 17px;
-  line-height: 1.72;
+  line-height: 1.6;
   min-height: 100vh;
   padding: 32px;
 }
@@ -77,11 +78,22 @@
   font-family: var(--font-display);
   font-weight: 300;
   font-style: italic;
-  font-size: 4.5em;
-  line-height: 0.85;
+  font-size: 3em;
+  line-height: 0.9;
   float: left;
-  margin: 6px 8px 0 0;
+  margin: 4px 10px -2px 0;
+  padding-top: 2px;
+  shape-outside: margin-box;
   color: var(--sage);
+}
+
+@media (max-width: 480px) {
+  .grammatik .dropcap-p::first-letter {
+    float: none;
+    font-size: 1.4em;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 /* Horizontal rule */
@@ -120,4 +132,24 @@
   .grammatik .chapter { page-break-before: always; }
   .grammatik .chapter:first-of-type { page-break-before: auto; }
   .grammatik * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+
+/* ─── Dark mode overrides ─── */
+[data-theme="dark"] .grammatik {
+  --paper:        #15130E;
+  --paper-deep:   #1E1B14;
+  --ink:          #EDE7D6;
+  --ink-soft:     #B8B0A0;
+  --mute:         #6A6557;
+  --rule:         #3A372F;
+  --sage:         #8FAE82;
+  --sage-tint:    rgba(143, 174, 130, 0.22);
+  --clay:         #D4604E;
+  --ochre:        #E2B158;
+  --cobalt:       #6090C2;
+}
+
+[data-theme="dark"] .grammatik::before {
+  opacity: 0.05;
+  filter: invert(1);
 }
