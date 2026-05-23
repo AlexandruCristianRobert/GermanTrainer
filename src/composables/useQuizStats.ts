@@ -89,7 +89,10 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'noun-translation': 0,
     adjective: 0,
     'verb-translation': 0,
-    'verb-conjugation': 0
+    'verb-conjugation': 0,
+    'prep-case': 0,
+    'prep-article': 0,
+    'prep-two-way': 0
   }
 }
 
@@ -99,7 +102,10 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'noun-translation': emptyBucket(),
     adjective: emptyBucket(),
     'verb-translation': emptyBucket(),
-    'verb-conjugation': emptyBucket()
+    'verb-conjugation': emptyBucket(),
+    'prep-case': emptyBucket(),
+    'prep-article': emptyBucket(),
+    'prep-two-way': emptyBucket()
   }
 }
 
