@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { db, seedIfEmpty, resetTableToSeed } from '../../src/db'
+import { db, seedIfEmpty, resetTableToSeed, dedupeNouns } from '../../src/db'
 
 describe('db', () => {
   beforeEach(async () => {
@@ -70,6 +70,42 @@ describe('seedIfEmpty', () => {
     await db.nouns.add({ german: 'CustomNoun', gender: 'der', english: 'custom', group: 'Other', createdAt: 0 })
     await seedIfEmpty()
     expect(await db.nouns.count()).toBe(1)
+  })
+})
+
+describe('dedupeNouns', () => {
+  it('keeps the first occurrence and drops later duplicates by german key', () => {
+    const out = dedupeNouns([
+      { german: 'Tisch', gender: 'der' },
+      { german: 'Stuhl', gender: 'der' },
+      { german: 'Tisch', gender: 'das' }
+    ])
+    expect(out).toEqual([
+      { german: 'Tisch', gender: 'der' },
+      { german: 'Stuhl', gender: 'der' }
+    ])
+  })
+
+  it('trims the german key when comparing', () => {
+    const out = dedupeNouns([
+      { german: 'Tisch' },
+      { german: ' Tisch ' }
+    ])
+    expect(out).toHaveLength(1)
+  })
+
+  it('returns empty for empty input', () => {
+    expect(dedupeNouns([])).toEqual([])
+  })
+
+  it('is idempotent on the bundled noun seed', async () => {
+    const seedModule = await import('../../src/data/nouns.seed.json')
+    const raw = (seedModule.default ?? seedModule) as Array<{ german: string }>
+    const once = dedupeNouns(raw)
+    const twice = dedupeNouns(once)
+    expect(twice.length).toBe(once.length)
+    // sanity: the deduped list is at least as long as can be expected
+    expect(once.length).toBeGreaterThan(1000)
   })
 })
 

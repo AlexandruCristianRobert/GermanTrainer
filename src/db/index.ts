@@ -38,12 +38,30 @@ export class GermanTrainerDb extends Dexie {
 
 export const db = new GermanTrainerDb()
 
+type NounSeedEntry = Omit<Noun, 'id' | 'createdAt'>
+
+/**
+ * Remove entries that share the same `german` key with an earlier entry.
+ * The first occurrence wins. Used to keep the seed safe against accidental
+ * duplicates introduced by hand-editing the JSON.
+ */
+export function dedupeNouns<T extends { german: string }>(entries: readonly T[]): T[] {
+  const seen = new Set<string>()
+  const out: T[] = []
+  for (const e of entries) {
+    const key = e.german.trim()
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push(e)
+  }
+  return out
+}
+
 export async function seedIfEmpty(): Promise<void> {
   const now = Date.now()
   if ((await db.nouns.count()) === 0) {
-    await db.nouns.bulkAdd(
-      (nounsSeed as Array<Omit<Noun, 'id' | 'createdAt'>>).map(n => ({ ...n, createdAt: now }))
-    )
+    const fresh = dedupeNouns(nounsSeed as NounSeedEntry[])
+    await db.nouns.bulkAdd(fresh.map(n => ({ ...n, createdAt: now })))
   }
   if ((await db.adjectives.count()) === 0) {
     await db.adjectives.bulkAdd(
@@ -59,9 +77,8 @@ export async function resetTableToSeed(table: 'nouns' | 'adjectives'): Promise<v
   const now = Date.now()
   if (table === 'nouns') {
     await db.nouns.clear()
-    await db.nouns.bulkAdd(
-      (nounsSeed as Array<Omit<Noun, 'id' | 'createdAt'>>).map(n => ({ ...n, createdAt: now }))
-    )
+    const fresh = dedupeNouns(nounsSeed as NounSeedEntry[])
+    await db.nouns.bulkAdd(fresh.map(n => ({ ...n, createdAt: now })))
   } else {
     await db.adjectives.clear()
     await db.adjectives.bulkAdd(
