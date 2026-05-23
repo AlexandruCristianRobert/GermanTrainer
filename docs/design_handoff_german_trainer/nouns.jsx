@@ -261,164 +261,224 @@ function buildDeck(config) {
   return shuffled.slice(0, Math.min(config.count, pool.length));
 }
 
-/* ────── Noun quiz runner (test-sheet for both gender and translation modes) ────── */
+/* ────── Noun quiz runner (one-at-a-time, both gender and translation modes) ────── */
 
 function NounQuizRunner({ navigate, config }) {
   const cfg = config || { groups: ['Food', 'Family', 'Animals', 'Nature & Weather', 'Furniture', 'House'], mode: 'gender', count: 10 };
   const [deck] = React.useState(() => buildDeck(cfg));
-  const [answers, setAnswers] = React.useState(() => deck.map(() => null));
+  const [idx, setIdx] = React.useState(0);
+  const [picked, setPicked] = React.useState(null);
+  const [input, setInput] = React.useState('');
+  const [submitted, setSubmitted] = React.useState(false);
+  const [history, setHistory] = React.useState([]);
+  const [margIdx, setMargIdx] = React.useState(() => Math.floor(Math.random() * GENDER_MARGINALIA.length));
   const [startedAt] = React.useState(() => Date.now());
-  const refs = React.useRef([]);
+  const savedRef = React.useRef(false);
 
   const total = deck.length;
   const mode = cfg.mode;
   const isGender = mode === 'gender';
+  const noun = deck[idx];
+  const inputRef = React.useRef(null);
+  const nextBtnRef = React.useRef(null);
 
-  const setAnswer = (i, v) => {
-    const next = [...answers];
-    next[i] = v;
-    setAnswers(next);
-  };
-
-  const isFilled = (a) => isGender ? !!a : (a && a.trim().length > 0);
-  const filledCount = answers.filter(isFilled).length;
-
-  const onSubmitAll = () => {
-    const graded = deck.map((noun, i) => {
-      const a = answers[i];
-      const correct = isGender
-        ? a === noun.gender
-        : !!(a && checkNounTranslation(a, noun.english));
-      return { noun, picked: isGender ? a : null, input: !isGender ? a : null, correct };
-    });
-    const finishedAt = Date.now();
-    const correctCount = graded.filter(g => g.correct).length;
-    saveQuizRun({
-      type: isGender ? 'noun-gender' : 'noun-translation',
-      startedAt: new Date(startedAt).toISOString(),
-      finishedAt: new Date(finishedAt).toISOString(),
-      durationMs: finishedAt - startedAt,
-      count: total,
-      correct: correctCount,
-      meta: {
-        mode,
-        groups: cfg.groups || [],
-      },
-    });
-    window.__lastNounQuiz = { history: graded, total, mode };
-    navigate('nouns/quiz/result');
-  };
-
-  // Auto-focus first translation input on mount
   React.useEffect(() => {
-    if (!isGender && refs.current[0]) refs.current[0].focus();
-  }, [isGender]);
+    if (!isGender && !submitted && inputRef.current) inputRef.current.focus();
+  }, [idx, submitted, isGender]);
 
-  const onKeyDown = (e, i) => {
-    if (isGender) return;
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (i + 1 < total && refs.current[i + 1]) refs.current[i + 1].focus();
-      else if (i + 1 === total) document.getElementById('submit-all-noun')?.focus();
+  React.useEffect(() => {
+    if ((isGender ? picked : submitted) && nextBtnRef.current) nextBtnRef.current.focus();
+  }, [picked, submitted, isGender]);
+
+  if (!noun) {
+    if (!savedRef.current && history.length > 0) {
+      savedRef.current = true;
+      const correctCount = history.filter(h => h.correct).length;
+      const finishedAt = Date.now();
+      saveQuizRun({
+        type: isGender ? 'noun-gender' : 'noun-translation',
+        startedAt: new Date(startedAt).toISOString(),
+        finishedAt: new Date(finishedAt).toISOString(),
+        durationMs: finishedAt - startedAt,
+        count: total,
+        correct: correctCount,
+        meta: { mode, groups: cfg.groups || [] },
+      });
     }
+    return <ResultScreen navigate={navigate} history={history} total={total} mode={mode} />;
+  }
+
+  const isCorrect = isGender
+    ? picked === noun.gender
+    : submitted && checkNounTranslation(input, noun.english);
+
+  const onPick = (g) => {
+    if (picked) return;
+    setPicked(g);
   };
 
-  const headerTitle = isGender ? 'Genus' : 'Übersetzung';
-  const headerSub = isGender
-    ? 'Pick the article for each noun. der · die · das.'
-    : 'Type the English meaning of each noun. Multiple meanings can be separated by "/".';
+  const onSubmit = (e) => {
+    e?.preventDefault?.();
+    if (submitted || !input.trim()) return;
+    setSubmitted(true);
+  };
+
+  const onNext = () => {
+    const entry = isGender
+      ? { noun, picked, correct: picked === noun.gender }
+      : { noun, input, correct: checkNounTranslation(input, noun.english) };
+    setHistory([...history, entry]);
+    setMargIdx((margIdx + 1) % GENDER_MARGINALIA.length);
+    setPicked(null);
+    setInput('');
+    setSubmitted(false);
+    setIdx(idx + 1);
+  };
+
+  const advance = isGender ? !!picked : submitted;
+
+  // Progress pips
+  const pips = [];
+  for (let i = 0; i < total; i++) {
+    let cls = '';
+    if (i < history.length) cls = history[i].correct ? 'done' : 'wrong';
+    else if (i === idx && advance) cls = isCorrect ? 'done' : 'wrong';
+    else if (i === idx) cls = 'current';
+    pips.push(cls);
+  }
+
+  const marg = GENDER_MARGINALIA[margIdx];
 
   return (
-    <div className="page" data-screen-label={isGender ? '13 Noun gender test-sheet' : '13b Noun translation test-sheet'}>
-      <div className="test-sheet">
-        <div className="section-header" style={{marginBottom: 0}}>
-          <div>
-            <div className="breadcrumb">Kapitel I · {isGender ? 'Genus' : 'Übersetzen'} · {total} Substantive</div>
-            <h1 className="section-title">{headerTitle}<em>.</em></h1>
-            <p className="section-subtitle">{headerSub}</p>
+    <div className="page" data-screen-label={isGender ? '13 Noun gender runner' : '13b Noun translation runner'}>
+      <div className="quiz-stage">
+        <div>
+          <div className="quiz-meta">
+            <span className="quiz-counter">Frage {idx + 1} · von {total}</span>
+            <button className="btn btn-quiet" onClick={() => navigate('nouns/quiz')}>End quiz</button>
           </div>
-          <button className="btn btn-quiet" onClick={() => navigate('nouns/quiz')}>End quiz</button>
-        </div>
 
-        <div className="test-sheet-header">
-          <span className="filled-count">
-            <strong>{filledCount}</strong> · von {total} ausgefüllt
-          </span>
-          <div className="quiz-progress-bar" style={{flex: 1, maxWidth: 280, marginBottom: 0, marginLeft: 24}}>
-            {deck.map((_, i) => (
-              <div key={i} className={'pip ' + (isFilled(answers[i]) ? 'current' : '')}></div>
-            ))}
+          <div className="quiz-progress-bar">
+            {pips.map((cls, i) => <div key={i} className={'pip ' + cls}></div>)}
           </div>
-        </div>
 
-        <div style={{marginTop: 16}}>
-          {deck.map((noun, i) => {
-            return (
-              <div key={i} className={'test-row' + (isFilled(answers[i]) ? ' is-filled' : '')}>
-                <div className="test-num">
-                  <strong>{String(i + 1).padStart(2, '0')}.</strong>
-                </div>
-                <div className="test-content">
-                  <div className="test-prompt-row">
-                    <span className="test-verb">{noun.german}</span>
-                    <span className="test-chips">
-                      <span className="tag">{noun.group}</span>
-                      {!isGender && (
-                        <span style={{
-                          fontFamily: 'var(--font-display)', fontStyle: 'italic',
-                          fontSize: 13, color: 'var(--mute)'
-                        }}>
-                          {noun.gender}
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                  {isGender ? (
-                    <div className="inline-gender-row">
-                      {['der', 'die', 'das'].map((g) => (
-                        <button
-                          key={g}
-                          type="button"
-                          className={'inline-gender-btn' + (answers[i] === g ? ' selected' : '')}
-                          onClick={() => setAnswer(i, g)}
-                        >
-                          {g}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <input
-                      ref={(el) => { refs.current[i] = el; }}
-                      className="test-input"
-                      type="text"
-                      placeholder="English meaning…"
-                      value={answers[i] || ''}
-                      onChange={(e) => setAnswer(i, e.target.value)}
-                      onKeyDown={(e) => onKeyDown(e, i)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                    />
-                  )}
-                </div>
+          <div className="prompt-card">
+            <span className="tag" style={{ position: 'absolute', top: 16, left: 0, fontSize: 10 }}>{noun.group}</span>
+            <div className="prompt-german" style={{fontSize: 'var(--noun-prompt-size, 92px)'}}>
+              {isGender ? noun.german : <><span style={{color: 'var(--mute)', fontStyle: 'italic', fontWeight: 400}}>{noun.gender}</span> {noun.german}</>}
+            </div>
+            {isGender && <div className="prompt-english">{noun.english}</div>}
+          </div>
+
+          {isGender ? (
+            <>
+              <div className="gender-row">
+                {['der', 'die', 'das'].map((g) => {
+                  let cls = '';
+                  let dim = false;
+                  if (picked) {
+                    if (g === noun.gender) cls = ' correct';
+                    else if (g === picked) cls = ' wrong';
+                    else dim = true;
+                  }
+                  const style = picked
+                    ? { pointerEvents: 'none', ...(dim ? { opacity: 0.35 } : {}) }
+                    : undefined;
+                  return (
+                    <button
+                      key={g}
+                      className={'gender-btn' + cls}
+                      style={style}
+                      onClick={() => onPick(g)}
+                      aria-disabled={!!picked}
+                    >
+                      {g}
+                      <span className="sub">{g === 'der' ? 'masculine' : g === 'die' ? 'feminine' : 'neuter'}</span>
+                    </button>
+                  );
+                })}
               </div>
-            );
-          })}
+
+              <div className={'feedback-line' + (picked ? (isCorrect ? ' correct' : ' wrong') : '')}>
+                {!picked && <span style={{ color: 'var(--mute)', fontStyle: 'italic' }}>Pick an article.</span>}
+                {picked && isCorrect && '✓ Richtig.'}
+                {picked && !isCorrect && <>✗ Richtig wäre — <strong>{noun.gender}</strong> {noun.german}.</>}
+              </div>
+            </>
+          ) : (
+            <>
+              <form onSubmit={onSubmit} className="translation-input-wrap">
+                <input
+                  ref={inputRef}
+                  className="input"
+                  type="text"
+                  placeholder="English meaning"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  readOnly={submitted}
+                  style={submitted ? {
+                    color: isCorrect ? 'var(--success)' : 'var(--danger)',
+                    borderBottomColor: isCorrect ? 'var(--success)' : 'var(--danger)',
+                  } : undefined}
+                />
+                {!submitted && (
+                  <button className="btn btn-accent" type="submit" disabled={!input.trim()}>Submit →</button>
+                )}
+              </form>
+
+              <div className={'feedback-line' + (submitted ? (isCorrect ? ' correct' : ' wrong') : '')}>
+                {!submitted && <span style={{color: 'var(--mute)', fontStyle: 'italic'}}>Type the English meaning. Press Enter to submit.</span>}
+                {submitted && isCorrect && '✓ Richtig.'}
+                {submitted && !isCorrect && <>✗ Korrekt — <strong>{noun.english}</strong></>}
+              </div>
+            </>
+          )}
+
+          <div className="quiz-actions">
+            <span className="micro-mark">Press <span className="kbd">Enter</span> to {advance ? 'advance' : (isGender ? 'pick first' : 'submit')}</span>
+            <button
+              ref={nextBtnRef}
+              className="btn btn-accent"
+              disabled={!advance}
+              onClick={onNext}
+            >
+              {idx + 1 === total ? 'Finish quiz' : 'Next'} →
+            </button>
+          </div>
         </div>
 
-        <div className="test-sheet-footer">
-          <span className="filled-count">
-            <strong>{filledCount}</strong> filled · {total - filledCount} remaining
-          </span>
-          <button
-            id="submit-all-noun"
-            className="btn btn-accent"
-            onClick={onSubmitAll}
-            disabled={filledCount === 0}
-          >
-            Submit all · {total} {isGender ? 'nouns' : 'translations'} →
-          </button>
-        </div>
+        <aside className="marginalia">
+          <div className="marg-section">
+            <div className="marg-label">{marg.label}</div>
+            <p className="marg-quote">{marg.quote}</p>
+            <p style={{ margin: 0 }}>{marg.body}</p>
+          </div>
+
+          <div className="marg-section">
+            <div className="marg-label">Score so far</div>
+            <p style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em' }}>
+              {history.filter((h) => h.correct).length}
+              <span style={{ color: 'var(--mute)' }}> / {history.length || '0'}</span>
+            </p>
+            <p style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--mute)', margin: 0, marginTop: 4, letterSpacing: '0.06em' }}>
+              answered · {total - idx - (advance ? 1 : 0)} remaining
+            </p>
+          </div>
+
+          {isGender && (
+            <div className="marg-section">
+              <div className="marg-label">Legend</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 }}>
+                <div><span className="tag tag-cobalt">der</span> <em>masculine</em></div>
+                <div><span className="tag tag-clay">die</span> <em>feminine</em></div>
+                <div><span className="tag tag-ochre">das</span> <em>neuter</em></div>
+              </div>
+            </div>
+          )}
+        </aside>
       </div>
     </div>
   );

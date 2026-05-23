@@ -20,6 +20,9 @@ import MetaAccuracyBar from '../../components/charts/MetaAccuracyBar.vue'
 import StudyHeatmap from '../../components/charts/StudyHeatmap.vue'
 import DurationHistogram from '../../components/charts/DurationHistogram.vue'
 import CountVsAccuracyScatter from '../../components/charts/CountVsAccuracyScatter.vue'
+import ScoreTrendChart from '../../components/charts/ScoreTrendChart.vue'
+import ActivityHeatmap30 from '../../components/charts/ActivityHeatmap30.vue'
+import RunCountByType from '../../components/charts/RunCountByType.vue'
 
 const router = useRouter()
 
@@ -51,6 +54,53 @@ const totalCorrect = computed(() => items.value.reduce((s, it) => s + (it.correc
 const overallPct = computed(() =>
   totalQuestions.value > 0 ? Math.round(100 * totalCorrect.value / totalQuestions.value) : 0
 )
+
+// ── Secondary stat row (Update 4) ────────────────────────────────
+const perRunScores = computed(() =>
+  items.value.map(it => (it.count > 0 ? Math.round((100 * it.correct) / it.count) : 0))
+)
+const avgPct = computed(() => {
+  const arr = perRunScores.value
+  if (arr.length === 0) return 0
+  return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length)
+})
+const bestPct = computed(() =>
+  perRunScores.value.length === 0 ? 0 : Math.max(...perRunScores.value)
+)
+const totalDurMs = computed(() =>
+  items.value.reduce((s, it) => s + (it.durationMs || 0), 0)
+)
+const avgDurMs = computed(() =>
+  items.value.length === 0 ? 0 : totalDurMs.value / items.value.length
+)
+const streakDays = computed(() => stats.value.currentStreakDays)
+const days30Active = computed(() => {
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000
+  const set = new Set<string>()
+  for (const it of items.value) {
+    const ts = Date.parse(it.startedAt)
+    if (Number.isFinite(ts) && ts >= cutoff) {
+      const d = new Date(ts)
+      set.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`)
+    }
+  }
+  return set.size
+})
+const topTypeLabel = computed(() => {
+  const counts = new Map<QuizHistoryType, number>()
+  for (const it of items.value) {
+    counts.set(it.type, (counts.get(it.type) ?? 0) + 1)
+  }
+  let best: QuizHistoryType | null = null
+  let bestCount = 0
+  for (const [t, c] of counts.entries()) {
+    if (c > bestCount) {
+      best = t
+      bestCount = c
+    }
+  }
+  return best ? QUIZ_TYPES[best].label : '—'
+})
 
 function typeCounts(t: QuizHistoryType): number {
   return items.value.filter(it => it.type === t).length
@@ -155,7 +205,70 @@ function summariseMeta(it: QuizHistoryEntry): string {
       </div>
     </div>
 
+    <!-- ── Update 4: secondary aggregate strip + editorial chart row ── -->
     <template v-if="items.length > 0">
+      <div class="stat-strip stat-strip-secondary">
+        <div class="stat">
+          <div class="stat-num">{{ avgPct }}<span class="stat-num-suffix">%</span></div>
+          <div class="stat-label">avg score</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">{{ bestPct }}<span class="stat-num-suffix">%</span></div>
+          <div class="stat-label">best run</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">{{ streakDays }}</div>
+          <div class="stat-label">day streak</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">{{ days30Active }}<span class="stat-num-suffix">/30</span></div>
+          <div class="stat-label">days active</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">{{ fmtDuration(avgDurMs) }}</div>
+          <div class="stat-label">avg duration</div>
+        </div>
+        <div class="stat stat-wide">
+          <div class="stat-num">{{ topTypeLabel }}</div>
+          <div class="stat-label">most practiced</div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-panel">
+          <div class="chart-panel-title">
+            <span class="chart-numeral">I</span>
+            <div>
+              <div class="chart-panel-de">Fortschritt</div>
+              <div class="chart-panel-en">Score over time</div>
+            </div>
+          </div>
+          <ScoreTrendChart :items="items" />
+        </div>
+
+        <div class="chart-panel">
+          <div class="chart-panel-title">
+            <span class="chart-numeral">II</span>
+            <div>
+              <div class="chart-panel-de">Aktivität</div>
+              <div class="chart-panel-en">Last 30 days</div>
+            </div>
+          </div>
+          <ActivityHeatmap30 :items="items" />
+        </div>
+
+        <div class="chart-panel">
+          <div class="chart-panel-title">
+            <span class="chart-numeral">III</span>
+            <div>
+              <div class="chart-panel-de">Verteilung</div>
+              <div class="chart-panel-en">By quiz type</div>
+            </div>
+          </div>
+          <RunCountByType :items="items" />
+        </div>
+      </div>
+
       <div class="charts-section-mark">Statistiken · Charts</div>
 
       <MotivationStrip :stats="stats" />

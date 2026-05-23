@@ -559,6 +559,168 @@ The Vue port should put this in a `usePrefs.ts` composable that:
 
 ---
 
+## Update 4 — Revert noun/adj quizzes · Palette · Tabbed Settings · History charts
+
+A few significant changes since Update 3. Implement to **this** spec; treat Update 3 sections about the noun/adjective test-sheets as obsolete.
+
+### Reverted: Noun & Adjective quizzes are one-at-a-time again
+
+The test-sheet layout proved to feel right for verb translation (where the user wants to skim a whole worksheet) but **wrong for gender and adjective drills** where the question-by-question pacing supports memory. Both runners are back to the original single-card-with-marginalia pattern.
+
+- `NounQuizRunner` (handles both gender and translation modes inside one component):
+  - Gender mode: the big prompt-card, three `.gender-btn` der/die/das tiles, instant feedback after pick, Next button advances.
+  - Translation mode: same prompt-card with `*gender* word` (italic mute gender + Fraunces word), text input below, Submit reveals correct/wrong + the canonical answer.
+- `AdjectiveQuizRunner`: single card per sentence. The blanked sentence is shown centered; after Submit, the original sentence renders with the inflected adjective in a strong colored span (success or danger). Marginalia sidebar with grammar tips ("`würde + Infinitiv`", "der/die/das endings collapse to -e/-en after definite articles", etc).
+
+The test-sheet remains **only** for the verb translation runner (`/verbs/translation/run`).
+
+### Per-quiz prompt-size sliders
+
+Update 3 added a single `--test-verb-size` that scaled all three quizzes. With the noun/adj runners back to one-at-a-time, three independent CSS variables now control each quiz's prompt size separately:
+
+| Quiz | CSS variable | localStorage key | Default | Range |
+|---|---|---|---|---|
+| Verb translation (test-sheet) | `--test-verb-size` | `gt:testVerbSize` | 26 | 18–44 |
+| Noun runner (one-at-a-time) | `--noun-prompt-size` | `gt:nounPromptSize` | 92 | 48–140 |
+| Adjective runner (one-at-a-time) | `--adjective-prompt-size` | `gt:adjectivePromptSize` | 36 | 22–64 |
+
+Each is exposed in **Settings → Display** as its own slider plus a live preview card that shows the actual component (test-row for verb, prompt-card with "Wasser" / "water" for noun, blanked-sentence prompt for adjective) at the current size. Each slider has 3 preset chip-buttons (Compact / Default / Large) below it for one-tap presets.
+
+The runners read directly from the CSS var:
+```jsx
+<div className="prompt-german" style={{fontSize: 'var(--noun-prompt-size, 92px)'}}>
+```
+
+Apply the persisted sizes once at app mount (`useEffect` in `App`):
+```js
+const v = localStorage.getItem('gt:testVerbSize');
+if (v) document.documentElement.style.setProperty('--test-verb-size', v + 'px');
+// ...same for noun + adjective
+```
+
+### Palette section in Settings — per-mode token overrides
+
+A new third settings group lets the user override any of the 12 design tokens, **independently per theme (Light / Dark)**.
+
+**Keys exposed** (matches `PALETTE_KEYS` in `app.jsx`):
+```
+paper · paper-deep · paper-card · ink · ink-soft · mute · rule · hairline
+sage · clay · ochre · cobalt
+```
+
+**Storage**: `localStorage.getItem('gt:palette')` → `{ light: {...}, dark: {...} }`. Empty mode object = no overrides for that theme.
+
+**Application**: A `<style id="palette-overrides">` block is injected into `<head>` containing one rule per mode that has overrides:
+```css
+[data-theme="light"] {
+  --paper: #FAF7F0;
+  --ink: #15130E;
+  /* ...only overridden tokens listed */
+}
+[data-theme="dark"] {
+  --paper: #15130E;
+  /* ... */
+}
+```
+
+Since these inject under the same `[data-theme="…"]` selectors as the base CSS but come **later** in the cascade, they win on equal specificity. Helpers `loadPalette() / savePalette() / applyPalette() / PALETTE_KEYS / PALETTE_DEFAULTS` are exported from `app.jsx` to `window` so the Settings component can use them.
+
+**UI**:
+- A light/dark segmented switch labelled "Apply to theme · editing **{mode}**" (the mode label colored `--accent`).
+- A 2-column grid of 12 rows. Each row shows: a 20×20 swatch chip rendering the current value, the CSS custom property name in mono code, a "edited" mono micro-mark if the user has overridden the default for this mode, an `<input type="color">` native picker (only shown for hex tokens — rgba ones like `hairline` skip the picker), a monospace text input for the value, and an "↺" reset arrow that clears the override for that one token.
+- A live preview card (`.palette-preview`) showing the current palette in context: a big "Aa" in accent color, a sample paragraph with strong + italic, four colored tags (cobalt/clay/ochre/accent), and a sample accent CTA button. Surrounded by a dashed hairline border with a "Live preview" mono notch label.
+- Actions row: **Import JSON…** (toggles a textarea — accepts either the full `{light:{},dark:{}}` shape OR a flat object that gets applied to the currently-edited mode), **Copy current as JSON** (writes via `navigator.clipboard`), **Reset {mode}** (clears just the current mode), **Reset all** (confirms then clears both modes).
+- The JSON textarea is monospace 13px on a `--paper-card` bg with `--hairline` border and accent focus.
+
+The Vue port should put the palette helpers in a composable (e.g. `usePalette.ts`) — same load/save/apply pattern. Inject the style element once at app boot from `main.ts` before mounting, and re-write its `textContent` whenever the palette changes.
+
+### Tabbed Settings layout
+
+The Settings page got long enough (API + Display + Palette) that the user shouldn't have to scroll through all three. It's now a **two-column page** matching the cheatsheet's rail aesthetic:
+
+- **Page wrapper**: `.settings-page` with `max-width: 1080px` and the standard section header.
+- **Layout**: `.settings-layout` is `grid-template-columns: 220px 1fr; gap: 56px;`. At `< 900px` it collapses to single column.
+- **Left rail** (`.settings-rail`): sticky `top: 96px` (under the nav). Mono uppercase "Inhalt" label, then an ordered list of 3 tabs:
+  - I · Schlüssel / API · Gemini
+  - II · Anzeige / Display · Sizes
+  - III · Farben / Palette · Colors
+
+  Each list item is a button: 12px vertical padding, 14px left padding, 2px transparent left border that turns `--accent` when active. The "num" cell is mono 12px / `--mute`. Item below: German title in body font, English subtitle italic 12px in `--mute`. Dotted hairline between items.
+- **Mobile (`< 900px`)**: the rail's `<ol>` becomes a horizontally-scrolling row bracketed by solid `--rule` lines (top + bottom). Each item is a chip with `2px solid transparent` bottom border that turns `--accent` when active. The left-border treatment swaps out completely.
+- **Right column** (`.settings-main`): each tab opens with a `.settings-tab-header` block:
+  - "Kapitel I/II/III" mono micro-mark
+  - 40px Fraunces title with the italic accent period (`Schlüssel<em>.</em>` etc)
+  - Italic 17px blurb in `--ink-soft`, max-width 560px
+  - Short 80px solid rule
+
+  Then the tab content. Hairlines between sub-sections inside a tab use `hr.settings-divider` — dotted, 36px top margin.
+
+The tab content is unchanged from Update 3 (API key + model; three TypeSize sliders + previews; PaletteSection). Just isolated into its own tab so users land in one of three views instead of scrolling a tall stack.
+
+### History page — statistics + three editorial charts
+
+Honest assessment of the original History page: stat strip + table answered "what" but not "trend". The history page now layers richer aggregate stats with editorial chart panels that surface the *direction* of progress.
+
+**Two stat strips** (one primary, one secondary) sit between the section header and the chart row:
+
+- **Primary** (`.stat-strip`, 4 cells, large) — kept verbatim: total runs · questions answered · correct · overall %
+- **Secondary** (`.stat-strip.stat-strip-secondary`, 6 cells, smaller, no top border, snug against the primary):
+  - **avg score** (mean of per-quiz %)
+  - **best run** (highest single quiz %)
+  - **day streak** (consecutive days ending today/yesterday with at least one quiz)
+  - **days active** (distinct days in the last 30 with a quiz, displayed as `n/30`)
+  - **avg duration** (formatted like `2m 14s` or `45s`)
+  - **most practiced** (italic accent label of the most-frequent quiz type)
+
+Numbers in the secondary strip use 32px Fraunces (vs 48px primary) and 10px labels (vs 11px). The "most practiced" cell renders in italic Fraunces 18px in accent color to give it a different visual rhythm — it's text, not a number, so it earns the variant. At `<1000px` the secondary strip drops to 3 columns and adds horizontal hairlines between rows; at `<600px` it's 2 columns with vertical hairlines preserved between pairs.
+
+The aggregate stats are derived live from `loadHistory()` on every render — no separate storage. Implementation reference in `history.jsx` (computation block before the JSX return).
+
+Below the secondary strip, the chart row appears (only when there's at least one quiz in history). Sits in a 3-column grid (`grid-template-columns: 2fr 1.4fr 2fr`) that collapses to 2-then-1 columns at narrower widths. Each panel:
+
+- `.chart-panel` — `var(--paper-card)` bg, hairline border, 4px radius, 22×24 padding, min-height 220px, flex column.
+- `.chart-panel-title` — italic Fraunces roman numeral (I/II/III) in accent on the left, then the title block: bold Fraunces 18px German label + mono micro-mark English subtitle. Dotted hairline under the title.
+
+**I. Score over time** (`<ScoreTrendChart>`):
+- Inline SVG sparkline, 560×140 viewBox, oldest → newest left to right.
+- Y-axis ticks at 0% / 50% / 100% with thin dashed gridlines (`--hairline`) and mono `--mute` labels.
+- A dashed accent line at the running-average score with a "avg 67%" mono callout at the right end.
+- An area fill under the line in `--accent-tint`, the line itself stroked at 1.6px in `--accent`, dots at each quiz: 1.6px for old, 2.5px for the last three, a solid 4px filled dot for the most recent.
+- "X days ago" / "latest" mono labels at the X-axis bookends.
+- Falls back to a `.chart-empty` placeholder ("Finish 2+ quizzes to see a trend.") when there's only one entry.
+
+**II. Activity — Last 30 days** (`<ActivityHeatmap>`):
+- 10-column grid of 30 cells, one per day. Last 30 days ending today.
+- Each cell is a 1:1 aspect-ratio square, 2px radius, hairline border.
+- Empty days = `--hairline` bg. Days with activity = `color-mix(in oklab, var(--accent) {intensity}%, transparent)` where intensity scales from 18% (one quiz on the least-active day) up to 100% (the busiest day).
+- On hover, the cell scales 1.08× with a `title` attribute giving the date + quiz count for that day.
+- Footer row beneath the grid: date label on the left (oldest day), a "less ▢▢▢▢▢ more" legend in the middle with 5 small swatches showing the intensity scale, "today" label on the right.
+
+**III. By quiz type** (`<TypeBreakdown>`):
+- Horizontal bar list grouped by quiz type, sorted descending by run count.
+- Each row: `grid-template-columns: 130px 1fr; gap: 14px`. Left col is the type label (body font 14/500) + German subtitle (italic Fraunces / mute / 12px). Right col is a 22px-tall bar wrap containing:
+  - The bar itself: 8px tall, `--accent-tint` background with a 2px solid `--accent` left border. Width is `(runs / maxRuns) * 100%`.
+  - A right-aligned absolute label: bold Fraunces run count + italic "runs · 73%" in mute.
+
+All three charts read straight from the `loadHistory()` array — no extra storage. Re-renders whenever the history state updates. Empty state (no history at all) — the chart row is hidden and the existing empty-state card takes over.
+
+### Routes & navigation
+
+No new routes in Update 4. The Settings page now uses internal tab state (`useState('api' | 'display' | 'palette')`) rather than separate routes. If you want shareable links per tab, hash the tab id or split into sub-routes — the prototype stays in-component for simplicity.
+
+### Files added/changed in Update 4
+
+| File | Status |
+|---|---|
+| `nouns.jsx` | Restored `NounQuizRunner` to one-at-a-time, handles both gender and translation modes. `prompt-german` now reads `--noun-prompt-size`. |
+| `adjectives.jsx` | Restored `AdjectiveQuizRunner` to one-at-a-time with marginalia. `prompt-german` now reads `--adjective-prompt-size`. |
+| `other-pages.jsx` | `Settings` rewritten with tab state + `.settings-layout`. Split into `<SettingsApi>`, `<SettingsDisplay>`, `<PaletteSection>`. Added `TypeSizeField` helper component. |
+| `app.jsx` | New palette helpers (`loadPalette`, `savePalette`, `applyPalette`, `paletteToCss`, `PALETTE_KEYS`, `PALETTE_DEFAULTS`), exposed on `window`. Apply persisted noun + adjective sizes on mount. Removed unused `/nouns/quiz/result` route. |
+| `history.jsx` | Added `<ScoreTrendChart>`, `<ActivityHeatmap>`, `<TypeBreakdown>` chart components. Rendered as a 3-column `.chart-row` between stat-strip and filter. **Secondary 6-cell stat strip** (avg / best / streak / days active / avg duration / most practiced) sits between the primary stat strip and the chart row, derived live from `loadHistory()`. |
+| `styles.css` | `.settings-page`, `.settings-layout`, `.settings-rail`, `.settings-tab-header`, `.settings-divider`. `.palette-grid`, `.palette-row`, `.palette-color-picker`, `.palette-hex-input`, `.palette-preview`, `.palette-json-input`. `.chart-row`, `.chart-panel`, `.chart-svg`, `.chart-axis-label`, `.chart-callout`, `.chart-empty`. `.heatmap`, `.heatmap-grid`, `.heatmap-cell`, `.heatmap-scale`, `.heatmap-legend`. `.type-breakdown`, `.type-breakdown-row`, `.type-breakdown-bar`, `.type-breakdown-num`. **`.stat-strip-secondary`** for the 6-cell aggregate strip with its responsive 6→3→2 col fallbacks. |
+
+---
+
 ## Screenshots
 
 The `screenshots/` folder in this bundle contains HQ captures of every key screen in the prototype:
@@ -575,8 +737,10 @@ The `screenshots/` folder in this bundle contains HQ captures of every key scree
 | `08-verb-translation-setup.png` | Verb translation setup — Level / Type / Case chip filters + count |
 | `09-verb-translation-runner.png` | ⚠️ Old: single-card runner. **Has been replaced** by the test-sheet layout described in *Update 2*. Capture not yet refreshed — see the description there for the current layout. |
 | `10-cheatsheet.png` | Cheatsheet — sticky rail nav + chapter I header |
-| `11-settings.png` | ⚠️ Old: pre-Update-3 Settings. The Display section + slider is **not shown** — see Update 3 for the current layout. |
+| `11-settings.png` | ⚠️ Old: pre-Update-4 Settings (no tabs, no palette). The current Settings is a **tabbed three-column page** — see Update 4 for the current spec. |
 | `12-home-dark.png` | Home in dark mode — same layout, dark theme tokens |
+| *(missing)* | **History page with charts** — not captured in this bundle. See *Update 4 / History charts* for the spec. The page shows the stat strip + chart row (3 panels) + filter + table. |
+| *(missing)* | **Tabbed Settings** — not captured. See *Update 4 / Tabbed Settings layout* and the *Update 4 / Palette section* spec. |
 
 Note on the feedback screenshot (#6): the **correct** button gets a sage-tinted background + sage text, the **wrong** button gets a clay-tinted background + clay text, the third unpicked button is dimmed to opacity 0.35. The captures don't pop the bg tints as strongly as the live app does at full saturation — implement to the **token spec** (`--success-tint` / `--danger-tint` on bg, `--success` / `--danger` on border + text) rather than pixel-matching the screenshot.
 

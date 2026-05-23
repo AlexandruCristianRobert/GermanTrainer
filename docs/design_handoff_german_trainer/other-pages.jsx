@@ -1,19 +1,242 @@
 // ─── Settings, plus stubs for Adjectives / Verbs landings ───
 
-function Settings({ navigate }) {
+function TypeSizeField({ label, blurb, min, max, value, setValue, storageKey, cssVar, presets }) {
+  React.useEffect(() => {
+    document.documentElement.style.setProperty(cssVar, value + 'px');
+    localStorage.setItem(storageKey, String(value));
+  }, [value]);
+
+  return (
+    <div className="field">
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
+        <div className="field-label">{label}</div>
+        <span className="micro-mark" style={{color: 'var(--ink-soft)'}}>{value}<span style={{color: 'var(--mute)'}}>px</span></span>
+      </div>
+      {blurb && (
+        <p style={{fontSize: 14, color: 'var(--ink-soft)', fontStyle: 'italic', margin: '0 0 12px 0'}}>
+          {blurb}
+        </p>
+      )}
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step="1"
+        value={value}
+        onChange={(e) => setValue(parseInt(e.target.value, 10))}
+        className="range-slider"
+      />
+      {presets && (
+        <div style={{marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap'}}>
+          {presets.map(p => (
+            <button key={p.value} className="btn btn-quiet" onClick={() => setValue(p.value)}>
+              {p.label} · {p.value}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PaletteSection() {
+  const [mode, setMode] = React.useState('light');
+  const [palette, setPaletteState] = React.useState(() => loadPalette());
+  const [importing, setImporting] = React.useState(false);
+  const [importText, setImportText] = React.useState('');
+  const [importError, setImportError] = React.useState(null);
+
+  const update = (next) => {
+    setPaletteState(next);
+    savePalette(next);
+    applyPalette(next);
+  };
+
+  const setColor = (key, value) => {
+    const m = palette[mode] || {};
+    update({
+      ...palette,
+      [mode]: { ...m, [key]: value },
+    });
+  };
+
+  const resetMode = () => {
+    update({ ...palette, [mode]: {} });
+  };
+
+  const resetAll = () => {
+    if (confirm('Reset both light and dark palettes to defaults?')) {
+      update({ light: {}, dark: {} });
+    }
+  };
+
+  const exportJson = () => {
+    return JSON.stringify(palette, null, 2);
+  };
+
+  const tryImport = () => {
+    try {
+      const parsed = JSON.parse(importText);
+      if (typeof parsed !== 'object' || !parsed) throw new Error('Expected an object');
+      // Accept either { light: {}, dark: {} } shape OR a flat shape applied to current mode
+      let next;
+      if (parsed.light || parsed.dark) {
+        next = {
+          light: { ...(palette.light || {}), ...(parsed.light || {}) },
+          dark:  { ...(palette.dark  || {}), ...(parsed.dark  || {}) },
+        };
+      } else {
+        next = {
+          ...palette,
+          [mode]: { ...(palette[mode] || {}), ...parsed },
+        };
+      }
+      update(next);
+      setImporting(false);
+      setImportText('');
+      setImportError(null);
+    } catch (e) {
+      setImportError(e.message || 'Invalid JSON');
+    }
+  };
+
+  const tokenVal = (key) => (palette[mode] && palette[mode][key]) || PALETTE_DEFAULTS[mode][key] || '';
+  const isOverridden = (key) => !!(palette[mode] && palette[mode][key]);
+
+  return (
+    <>
+      <div className="field">
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
+          <div className="field-label">Apply to theme</div>
+          <span style={{fontSize: 12, color: 'var(--mute)', fontStyle: 'italic'}}>
+            editing <strong style={{color: 'var(--accent)'}}>{mode}</strong>
+          </span>
+        </div>
+        <div className="segmented">
+          <button className={mode === 'light' ? 'active' : ''} onClick={() => setMode('light')}>Light</button>
+          <button className={mode === 'dark' ? 'active' : ''} onClick={() => setMode('dark')}>Dark</button>
+        </div>
+      </div>
+
+      <div className="palette-grid">
+        {PALETTE_KEYS.map(k => {
+          const v = tokenVal(k);
+          const overridden = isOverridden(k);
+          // For colors without alpha, native color picker works. For rgba values, skip the picker.
+          const isHex = /^#[0-9a-fA-F]{6}$/.test(v);
+          return (
+            <div key={k} className="palette-row">
+              <div className="palette-key">
+                <span style={{
+                  display: 'inline-block', width: 20, height: 20, borderRadius: 3,
+                  background: v, border: '1px solid var(--hairline)', verticalAlign: 'middle',
+                  marginRight: 10,
+                }} />
+                <code style={{fontSize: 12, color: 'var(--ink)'}}>--{k}</code>
+                {overridden && (
+                  <span className="micro-mark" style={{marginLeft: 8, color: 'var(--accent)'}}>edited</span>
+                )}
+              </div>
+              <div className="palette-controls">
+                {isHex && (
+                  <input
+                    type="color"
+                    value={v}
+                    onChange={(e) => setColor(k, e.target.value)}
+                    className="palette-color-picker"
+                    aria-label={`Pick ${k} color`}
+                  />
+                )}
+                <input
+                  type="text"
+                  className="input palette-hex-input"
+                  value={v}
+                  onChange={(e) => setColor(k, e.target.value)}
+                  placeholder={PALETTE_DEFAULTS[mode][k]}
+                />
+                {overridden && (
+                  <button
+                    className="btn btn-quiet"
+                    onClick={() => {
+                      const m = { ...(palette[mode] || {}) };
+                      delete m[k];
+                      update({ ...palette, [mode]: m });
+                    }}
+                    title="Reset to default"
+                  >
+                    ↺
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Preview strip */}
+      <div className="palette-preview">
+        <div className="palette-preview-label">Live preview</div>
+        <div className="palette-preview-card">
+          <div className="palette-preview-title">Aa</div>
+          <div className="palette-preview-body">
+            <p style={{margin: 0}}><strong>Editorial sample.</strong> Paper bg, ink text. <em>Italic for soft.</em></p>
+            <div style={{display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap'}}>
+              <span className="tag tag-cobalt">der</span>
+              <span className="tag tag-clay">die</span>
+              <span className="tag tag-ochre">das</span>
+              <span className="tag tag-accent">accent</span>
+            </div>
+            <button className="btn btn-accent" style={{marginTop: 12}}>Sample CTA →</button>
+          </div>
+        </div>
+      </div>
+
+      <div style={{display: 'flex', gap: 10, marginTop: 24, flexWrap: 'wrap'}}>
+        <button className="btn btn-quiet" onClick={() => setImporting(!importing)}>
+          {importing ? 'Close import' : 'Import JSON…'}
+        </button>
+        <button className="btn btn-quiet" onClick={() => {
+          navigator.clipboard?.writeText(exportJson());
+        }}>
+          Copy current as JSON
+        </button>
+        <span style={{flex: 1}} />
+        <button className="btn btn-ghost" onClick={resetMode}>Reset {mode}</button>
+        <button className="btn btn-ghost btn-danger" onClick={resetAll}>Reset all</button>
+      </div>
+
+      {importing && (
+        <div style={{marginTop: 18}}>
+          <div className="field-label" style={{marginBottom: 8}}>Paste palette JSON</div>
+          <p style={{fontSize: 13, color: 'var(--ink-soft)', fontStyle: 'italic', margin: '0 0 10px 0'}}>
+            Accepts either the full shape <code>{'{ "light": {…}, "dark": {…} }'}</code> or a flat object of
+            token overrides for the currently-edited mode.
+          </p>
+          <textarea
+            value={importText}
+            onChange={(e) => { setImportText(e.target.value); setImportError(null); }}
+            className="palette-json-input"
+            rows={8}
+            placeholder={'{\n  "paper": "#FAF7F0",\n  "ink": "#15130E",\n  "sage": "#5C7A52"\n}'}
+          />
+          {importError && (
+            <div className="alert alert-danger" style={{marginTop: 10}}>
+              <span className="alert-label">Parse error</span>
+              {importError}
+            </div>
+          )}
+          <button className="btn btn-accent" onClick={tryImport} style={{marginTop: 12}}>Apply import</button>
+        </div>
+      )}
+    </>
+  );
+}
+
+function SettingsApi() {
   const [showKey, setShowKey] = React.useState(false);
   const [key, setKey] = React.useState('');
   const [model, setModel] = React.useState('gemini-2.5-flash');
   const [testState, setTestState] = React.useState(null);
-  const [verbSize, setVerbSize] = React.useState(() => {
-    const stored = localStorage.getItem('gt:testVerbSize');
-    return stored ? parseInt(stored, 10) : 26;
-  });
-
-  React.useEffect(() => {
-    document.documentElement.style.setProperty('--test-verb-size', verbSize + 'px');
-    localStorage.setItem('gt:testVerbSize', String(verbSize));
-  }, [verbSize]);
 
   const doTest = () => {
     if (!key) return;
@@ -22,21 +245,7 @@ function Settings({ navigate }) {
   };
 
   return (
-    <div className="page" style={{maxWidth: 720, margin: '0 auto'}} data-screen-label="50 Settings">
-      <div className="section-header">
-        <div>
-          <div className="breadcrumb">Konfiguration · Schlüssel & Anzeige</div>
-          <h1 className="section-title">Settings<em>.</em></h1>
-          <p className="section-subtitle">
-            API access for the Adjectives quiz, plus display preferences.
-            Everything is stored on this device only.
-          </p>
-        </div>
-      </div>
-
-      {/* ────── API section ────── */}
-      <div className="settings-group-label">API · Gemini</div>
-
+    <>
       <div className="alert alert-warning">
         <span className="alert-label">Privacy</span>
         Your API key is stored only in this browser. It is sent directly to Google's Gemini API and to nobody else.
@@ -87,37 +296,32 @@ function Settings({ navigate }) {
           The free tier covers light Adjectives-quiz use comfortably.
         </p>
       </div>
+    </>
+  );
+}
 
-      {/* ────── Display section ────── */}
-      <div className="settings-group-label" style={{marginTop: 64}}>Anzeige · Display</div>
+function SettingsDisplay() {
+  const [verbSize, setVerbSize] = React.useState(() => parseInt(localStorage.getItem('gt:testVerbSize') || '26', 10));
+  const [nounSize, setNounSize] = React.useState(() => parseInt(localStorage.getItem('gt:nounPromptSize') || '92', 10));
+  const [adjSize, setAdjSize] = React.useState(() => parseInt(localStorage.getItem('gt:adjectivePromptSize') || '36', 10));
 
-      <div className="field">
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
-          <div className="field-label">Verb test-sheet · type size</div>
-          <span className="micro-mark" style={{color: 'var(--ink-soft)'}}>{verbSize}<span style={{color: 'var(--mute)'}}>px</span></span>
-        </div>
-        <p style={{fontSize: 14, color: 'var(--ink-soft)', fontStyle: 'italic', margin: '0 0 12px 0'}}>
-          Controls the size of each verb in the Translation quiz worksheet. Smaller = more verbs visible without scrolling.
-        </p>
-        <input
-          type="range"
-          min="18"
-          max="44"
-          step="1"
-          value={verbSize}
-          onChange={(e) => setVerbSize(parseInt(e.target.value, 10))}
-          className="range-slider"
-        />
-        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 4}}>
-          <span className="micro-mark">18 · compact</span>
-          <span className="micro-mark">26 · default</span>
-          <span className="micro-mark">44 · large</span>
-        </div>
-      </div>
+  return (
+    <>
+      <TypeSizeField
+        label="Verb test-sheet · type size"
+        blurb="Controls verb size in the Translation worksheet. Smaller = more verbs visible without scrolling."
+        min={18} max={44}
+        value={verbSize} setValue={setVerbSize}
+        storageKey="gt:testVerbSize" cssVar="--test-verb-size"
+        presets={[
+          {label: 'Compact', value: 20},
+          {label: 'Default', value: 26},
+          {label: 'Large', value: 36},
+        ]}
+      />
 
-      {/* Live preview */}
       <div className="settings-preview">
-        <div className="settings-preview-label">Preview</div>
+        <div className="settings-preview-label">Verb worksheet · preview</div>
         <div className="test-row" style={{borderBottom: 'none', paddingBottom: 0}}>
           <div className="test-num"><strong>03.</strong></div>
           <div className="test-content">
@@ -139,10 +343,115 @@ function Settings({ navigate }) {
         </div>
       </div>
 
-      <div style={{marginTop: 20, display: 'flex', gap: 8}}>
-        <button className="btn btn-quiet" onClick={() => setVerbSize(20)}>Compact · 20</button>
-        <button className="btn btn-quiet" onClick={() => setVerbSize(26)}>Default · 26</button>
-        <button className="btn btn-quiet" onClick={() => setVerbSize(36)}>Large · 36</button>
+      <hr className="settings-divider" />
+
+      <TypeSizeField
+        label="Noun quiz · prompt size"
+        blurb="Controls the big German word shown in the single-card noun runner (e.g. Wasser, Mutter)."
+        min={48} max={140}
+        value={nounSize} setValue={setNounSize}
+        storageKey="gt:nounPromptSize" cssVar="--noun-prompt-size"
+        presets={[
+          {label: 'Compact', value: 64},
+          {label: 'Default', value: 92},
+          {label: 'Large', value: 120},
+        ]}
+      />
+
+      <div className="settings-preview">
+        <div className="settings-preview-label">Noun runner · preview</div>
+        <div className="prompt-card" style={{padding: '24px 0 16px', borderTop: 0, borderBottom: 0}}>
+          <div className="prompt-german" style={{fontSize: 'var(--noun-prompt-size, 92px)'}}>Wasser</div>
+          <div className="prompt-english">water</div>
+        </div>
+      </div>
+
+      <hr className="settings-divider" />
+
+      <TypeSizeField
+        label="Adjective quiz · sentence size"
+        blurb="Controls the blanked sentence shown in the single-card adjective runner."
+        min={22} max={64}
+        value={adjSize} setValue={setAdjSize}
+        storageKey="gt:adjectivePromptSize" cssVar="--adjective-prompt-size"
+        presets={[
+          {label: 'Compact', value: 26},
+          {label: 'Default', value: 36},
+          {label: 'Large', value: 52},
+        ]}
+      />
+
+      <div className="settings-preview">
+        <div className="settings-preview-label">Adjective runner · preview</div>
+        <div className="prompt-card" style={{padding: '24px 0 16px', borderTop: 0, borderBottom: 0, textAlign: 'center'}}>
+          <div className="prompt-german" style={{
+            fontSize: 'var(--adjective-prompt-size, 36px)',
+            lineHeight: 1.3,
+          }}>
+            Ich sehe den ____ Park.
+          </div>
+          <div className="prompt-english" style={{marginTop: 12}}>the beautiful park (acc.)</div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+const SETTINGS_TABS = [
+  { id: 'api',     numeral: 'I',   titleDe: 'Schlüssel',  titleEn: 'API · Gemini',     blurb: 'Set your Gemini API key and pick a model. Required only for the Adjectives quiz.' },
+  { id: 'display', numeral: 'II',  titleDe: 'Anzeige',    titleEn: 'Display · Sizes',  blurb: 'Type sizes for each quiz prompt. Each setting has its own live preview.' },
+  { id: 'palette', numeral: 'III', titleDe: 'Farben',     titleEn: 'Palette · Colors', blurb: 'Override design tokens per theme. Edit Light and Dark independently. Import and export as JSON.' },
+];
+
+function Settings({ navigate }) {
+  const [tab, setTab] = React.useState('api');
+  const active = SETTINGS_TABS.find(t => t.id === tab) || SETTINGS_TABS[0];
+
+  return (
+    <div className="page settings-page" data-screen-label="50 Settings">
+      <div className="section-header" style={{marginBottom: 32}}>
+        <div>
+          <div className="breadcrumb">Konfiguration · Einstellungen</div>
+          <h1 className="section-title">Settings<em>.</em></h1>
+          <p className="section-subtitle">
+            API access, display sizes, and a custom palette. All stored on this device only.
+          </p>
+        </div>
+      </div>
+
+      <div className="settings-layout">
+        <aside className="settings-rail">
+          <div className="rail-label">Inhalt</div>
+          <ol>
+            {SETTINGS_TABS.map(t => (
+              <li key={t.id}>
+                <button
+                  className={tab === t.id ? 'active' : ''}
+                  onClick={() => setTab(t.id)}
+                >
+                  <span className="num">{t.numeral}.</span>
+                  <span>
+                    {t.titleDe}
+                    <div style={{fontStyle: 'italic', fontSize: 12, color: 'var(--mute)', marginTop: 1}}>{t.titleEn}</div>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </aside>
+
+        <main className="settings-main">
+          <div className="settings-tab-header">
+            <span className="micro-mark">Kapitel {active.numeral}</span>
+            <h2 className="settings-tab-title">{active.titleDe}<em>.</em></h2>
+            <p className="settings-tab-blurb">{active.blurb}</p>
+            <hr className="rule" />
+          </div>
+
+          {tab === 'api' && <SettingsApi />}
+          {tab === 'display' && <SettingsDisplay />}
+          {tab === 'palette' && <PaletteSection />}
+        </main>
       </div>
     </div>
   );

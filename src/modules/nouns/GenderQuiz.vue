@@ -130,7 +130,7 @@ function btnClass(g: Gender): string {
 
       <div class="prompt-card">
         <span class="tag prompt-group">{{ noun.group }}</span>
-        <div class="prompt-german">{{ noun.german }}</div>
+        <div class="prompt-german" :style="{ fontSize: 'var(--noun-prompt-size, 92px)' }">{{ noun.german }}</div>
         <div class="prompt-english">{{ noun.english }}</div>
       </div>
 

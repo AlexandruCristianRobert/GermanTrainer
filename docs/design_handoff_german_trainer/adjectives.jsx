@@ -154,56 +154,49 @@ function AdjectiveQuizSetup({ navigate, startQuiz }) {
   );
 }
 
-/* ────── Test-sheet runner ────── */
+/* ────── One-at-a-time runner ────── */
+
+const ADJ_MARGINALIA = [
+  {
+    label: 'REGEL',
+    quote: 'Adjective endings depend on case, gender, and the article.',
+    body: 'After der/die/das (definite), endings collapse to -e or -en. After ein/eine (indefinite), endings carry more weight. After no article, they do all the work.'
+  },
+  {
+    label: 'TIPP',
+    quote: 'Look at the article first, then the case.',
+    body: 'The article tells you what the adjective ending has to be. If the article carries the case marker, the adjective relaxes to -e/-en. If not, the adjective tightens.'
+  },
+  {
+    label: 'BEACHTE',
+    quote: 'The base form ends in nothing — the inflection is added.',
+    body: 'In dictionaries, you see "schön". In a sentence, you see schöner, schöne, schönes, schönen, schönem — the ending tells you everything about case + gender + number.'
+  },
+];
 
 function AdjectiveQuizRunner({ navigate, config }) {
   const cfg = config || { groups: ADJECTIVE_GROUPS, count: 8 };
   const [deck] = React.useState(() => buildAdjectiveDeck(cfg));
-  const [answers, setAnswers] = React.useState(() => deck.map(() => ''));
+  const [idx, setIdx] = React.useState(0);
+  const [input, setInput] = React.useState('');
+  const [submitted, setSubmitted] = React.useState(false);
+  const [history, setHistory] = React.useState([]);
+  const [margIdx, setMargIdx] = React.useState(() => Math.floor(Math.random() * ADJ_MARGINALIA.length));
   const [startedAt] = React.useState(() => Date.now());
-  const refs = React.useRef([]);
+  const savedRef = React.useRef(false);
+  const inputRef = React.useRef(null);
+  const nextBtnRef = React.useRef(null);
 
   const total = deck.length;
-  const filled = answers.filter(a => a.trim()).length;
-
-  const setAnswer = (i, v) => {
-    const next = [...answers];
-    next[i] = v;
-    setAnswers(next);
-  };
-
-  const onSubmitAll = () => {
-    const graded = deck.map((s, i) => ({
-      sentence: s,
-      input: answers[i],
-      correct: checkAdjective(answers[i], s.inflected),
-    }));
-    const finishedAt = Date.now();
-    const correctCount = graded.filter(g => g.correct).length;
-    saveQuizRun({
-      type: 'adjective',
-      startedAt: new Date(startedAt).toISOString(),
-      finishedAt: new Date(finishedAt).toISOString(),
-      durationMs: finishedAt - startedAt,
-      count: total,
-      correct: correctCount,
-      meta: { groups: cfg.groups || [] },
-    });
-    window.__lastAdjectiveQuiz = { history: graded, total };
-    navigate('adjectives/quiz/result');
-  };
+  const sentence = deck[idx];
 
   React.useEffect(() => {
-    if (refs.current[0]) refs.current[0].focus();
-  }, []);
+    if (!submitted && inputRef.current) inputRef.current.focus();
+  }, [idx, submitted]);
 
-  const onKeyDown = (e, i) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (i + 1 < total && refs.current[i + 1]) refs.current[i + 1].focus();
-      else if (i + 1 === total) document.getElementById('submit-all-adj')?.focus();
-    }
-  };
+  React.useEffect(() => {
+    if (submitted && nextBtnRef.current) nextBtnRef.current.focus();
+  }, [submitted]);
 
   if (deck.length === 0) {
     return (
@@ -217,85 +210,158 @@ function AdjectiveQuizRunner({ navigate, config }) {
     );
   }
 
+  if (!sentence) {
+    if (!savedRef.current && history.length > 0) {
+      savedRef.current = true;
+      const correctCount = history.filter(h => h.correct).length;
+      const finishedAt = Date.now();
+      saveQuizRun({
+        type: 'adjective',
+        startedAt: new Date(startedAt).toISOString(),
+        finishedAt: new Date(finishedAt).toISOString(),
+        durationMs: finishedAt - startedAt,
+        count: total,
+        correct: correctCount,
+        meta: { groups: cfg.groups || [] },
+      });
+    }
+    window.__lastAdjectiveQuiz = { history, total };
+    return <AdjectiveQuizResult navigate={navigate} />;
+  }
+
+  const isCorrect = submitted && checkAdjective(input, sentence.inflected);
+
+  const onSubmit = (e) => {
+    e?.preventDefault?.();
+    if (submitted || !input.trim()) return;
+    setSubmitted(true);
+  };
+
+  const onNext = () => {
+    setHistory([...history, { sentence, input, correct: checkAdjective(input, sentence.inflected) }]);
+    setMargIdx((margIdx + 1) % ADJ_MARGINALIA.length);
+    setInput('');
+    setSubmitted(false);
+    setIdx(idx + 1);
+  };
+
+  // Progress pips
+  const pips = [];
+  for (let i = 0; i < total; i++) {
+    let cls = '';
+    if (i < history.length) cls = history[i].correct ? 'done' : 'wrong';
+    else if (i === idx && submitted) cls = isCorrect ? 'done' : 'wrong';
+    else if (i === idx) cls = 'current';
+    pips.push(cls);
+  }
+
+  const marg = ADJ_MARGINALIA[margIdx];
+
   return (
     <div className="page" data-screen-label="23 Adjective quiz runner">
-      <div className="test-sheet">
-        <div className="section-header" style={{marginBottom: 0}}>
-          <div>
-            <div className="breadcrumb">Kapitel II · Lückentext · {total} Sätze</div>
-            <h1 className="section-title">Adjektive<em>.</em></h1>
-            <p className="section-subtitle">
-              Fill in the missing adjective with the correct inflection. The dictionary form is shown in italic — type the inflected form that fits the sentence.
+      <div className="quiz-stage">
+        <div>
+          <div className="quiz-meta">
+            <span className="quiz-counter">Frage {idx + 1} · von {total}</span>
+            <button className="btn btn-quiet" onClick={() => navigate('adjectives/quiz')}>End quiz</button>
+          </div>
+
+          <div className="quiz-progress-bar">
+            {pips.map((cls, i) => <div key={i} className={'pip ' + cls}></div>)}
+          </div>
+
+          <div className="prompt-card" style={{textAlign: 'left', padding: '40px 32px'}}>
+            <div style={{position: 'absolute', top: 16, left: 0, display: 'flex', gap: 6}}>
+              <span className="tag">{sentence.group}</span>
+              <span style={{fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--mute)'}}>
+                {sentence.base}
+              </span>
+            </div>
+            <div
+              className="prompt-german"
+              style={{
+                fontSize: 'var(--adjective-prompt-size, 36px)',
+                textAlign: 'center',
+                lineHeight: 1.3,
+              }}
+            >
+              {submitted
+                ? sentence.sentence.split(sentence.inflected).map((part, j, arr) => (
+                    <React.Fragment key={j}>
+                      {part}
+                      {j < arr.length - 1 && (
+                        <strong style={{color: isCorrect ? 'var(--success)' : 'var(--danger)'}}>
+                          {sentence.inflected}
+                        </strong>
+                      )}
+                    </React.Fragment>
+                  ))
+                : sentence.blanked}
+            </div>
+            <div className="prompt-english" style={{textAlign: 'center', marginTop: 16}}>
+              {sentence.hint}
+            </div>
+          </div>
+
+          <form onSubmit={onSubmit} className="translation-input-wrap">
+            <input
+              ref={inputRef}
+              className="input"
+              type="text"
+              placeholder="inflected adjective"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck="false"
+              readOnly={submitted}
+              style={submitted ? {
+                color: isCorrect ? 'var(--success)' : 'var(--danger)',
+                borderBottomColor: isCorrect ? 'var(--success)' : 'var(--danger)',
+              } : undefined}
+            />
+            {!submitted && (
+              <button className="btn btn-accent" type="submit" disabled={!input.trim()}>Submit →</button>
+            )}
+          </form>
+
+          <div className={'feedback-line' + (submitted ? (isCorrect ? ' correct' : ' wrong') : '')}>
+            {!submitted && <span style={{color: 'var(--mute)', fontStyle: 'italic'}}>Type the inflected form. Press Enter to submit.</span>}
+            {submitted && isCorrect && '✓ Richtig.'}
+            {submitted && !isCorrect && <>✗ Korrekt — <strong>{sentence.inflected}</strong> (base: <em>{sentence.base}</em>)</>}
+          </div>
+
+          <div className="quiz-actions">
+            <span className="micro-mark">Press <span className="kbd">Enter</span> to {submitted ? 'advance' : 'submit'}</span>
+            <button
+              ref={nextBtnRef}
+              className="btn btn-accent"
+              disabled={!submitted}
+              onClick={onNext}
+            >
+              {idx + 1 === total ? 'Finish quiz' : 'Next'} →
+            </button>
+          </div>
+        </div>
+
+        <aside className="marginalia">
+          <div className="marg-section">
+            <div className="marg-label">{marg.label}</div>
+            <p className="marg-quote">{marg.quote}</p>
+            <p style={{margin: 0}}>{marg.body}</p>
+          </div>
+
+          <div className="marg-section">
+            <div className="marg-label">Score so far</div>
+            <p style={{margin: 0, fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em'}}>
+              {history.filter(h => h.correct).length}
+              <span style={{color: 'var(--mute)'}}> / {history.length || '0'}</span>
+            </p>
+            <p style={{fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--mute)', margin: 0, marginTop: 4, letterSpacing: '0.06em'}}>
+              answered · {total - idx - (submitted ? 1 : 0)} remaining
             </p>
           </div>
-          <button className="btn btn-quiet" onClick={() => navigate('adjectives/quiz')}>End quiz</button>
-        </div>
-
-        <div className="test-sheet-header">
-          <span className="filled-count">
-            <strong>{filled}</strong> · von {total} ausgefüllt
-          </span>
-          <div className="quiz-progress-bar" style={{flex: 1, maxWidth: 280, marginBottom: 0, marginLeft: 24}}>
-            {deck.map((_, i) => (
-              <div key={i} className={'pip ' + (answers[i]?.trim() ? 'current' : '')}></div>
-            ))}
-          </div>
-        </div>
-
-        <div style={{marginTop: 16}}>
-          {deck.map((s, i) => (
-            <div key={i} className={'test-row' + (answers[i]?.trim() ? ' is-filled' : '')}>
-              <div className="test-num">
-                <strong>{String(i + 1).padStart(2, '0')}.</strong>
-              </div>
-              <div className="test-content">
-                <div className="test-prompt-row">
-                  <span className="test-verb" style={{fontSize: 'calc(var(--test-verb-size, 26px) * 0.85)', lineHeight: 1.3}}>
-                    {s.blanked}
-                  </span>
-                  <span className="test-chips">
-                    <span style={{
-                      fontFamily: 'var(--font-display)', fontStyle: 'italic',
-                      color: 'var(--mute)', fontSize: 14, marginRight: 6
-                    }}>
-                      {s.base}
-                    </span>
-                    <span className="tag">{s.group}</span>
-                  </span>
-                </div>
-                <p style={{margin: '4px 0 0 0', fontFamily: 'var(--font-body)', fontStyle: 'italic', color: 'var(--ink-soft)', fontSize: 13}}>
-                  {s.hint}
-                </p>
-                <input
-                  ref={(el) => { refs.current[i] = el; }}
-                  className="test-input"
-                  type="text"
-                  placeholder="inflected form…"
-                  value={answers[i]}
-                  onChange={(e) => setAnswer(i, e.target.value)}
-                  onKeyDown={(e) => onKeyDown(e, i)}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  spellCheck="false"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="test-sheet-footer">
-          <span className="filled-count">
-            <strong>{filled}</strong> filled · {total - filled} remaining
-          </span>
-          <button
-            id="submit-all-adj"
-            className="btn btn-accent"
-            onClick={onSubmitAll}
-            disabled={filled === 0}
-          >
-            Submit all · {total} sentences →
-          </button>
-        </div>
+        </aside>
       </div>
     </div>
   );

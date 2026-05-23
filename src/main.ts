@@ -30,6 +30,13 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { router } from './router'
 import { db, seedIfEmpty } from './db'
+import { initPromptSizes } from './composables/usePromptSizes'
+import { initPalette } from './composables/usePalette'
+
+// Apply persisted display preferences before mount so first paint
+// already has the right CSS variables.
+initPromptSizes()
+initPalette()
 
 async function bootstrap() {
   try {

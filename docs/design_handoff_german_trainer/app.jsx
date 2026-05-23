@@ -11,6 +11,94 @@ const ACCENT_PALETTE = {
   cobalt: { light: '#2C5282', dark: '#6090C2', tint: 'rgba(44, 82, 130, 0.18)',  darkTint: 'rgba(96, 144, 194, 0.22)', wash: 'rgba(44,82,130,0.06)',  darkWash: 'rgba(96,144,194,0.08)' },
 };
 
+// ─── Palette overrides ───
+// Custom theme palette applied as a <style id="palette-overrides"> block
+// that contains :root[data-theme="..."] { --paper: ...; etc } rules.
+
+const PALETTE_KEYS = [
+  'paper', 'paper-deep', 'paper-card',
+  'ink', 'ink-soft', 'mute', 'rule', 'hairline',
+  'sage', 'clay', 'ochre', 'cobalt',
+];
+
+const PALETTE_DEFAULTS = {
+  light: {
+    'paper':       '#FAF7F0',
+    'paper-deep':  '#F1ECDE',
+    'paper-card':  '#FCFAF3',
+    'ink':         '#15130E',
+    'ink-soft':    '#3A372F',
+    'mute':        '#948C7C',
+    'rule':        '#1E1B14',
+    'hairline':    'rgba(30, 27, 20, 0.14)',
+    'sage':        '#5C7A52',
+    'clay':        '#A03B2B',
+    'ochre':       '#B8852F',
+    'cobalt':      '#2C5282',
+  },
+  dark: {
+    'paper':       '#15130E',
+    'paper-deep':  '#1E1B14',
+    'paper-card':  '#1B1812',
+    'ink':         '#EDE7D6',
+    'ink-soft':    '#B8B0A0',
+    'mute':        '#6A6557',
+    'rule':        '#3A372F',
+    'hairline':    'rgba(237, 231, 214, 0.14)',
+    'sage':        '#8FAE82',
+    'clay':        '#D4604E',
+    'ochre':       '#E2B158',
+    'cobalt':      '#6090C2',
+  },
+};
+
+function loadPalette() {
+  try {
+    const raw = localStorage.getItem('gt:palette');
+    if (!raw) return { light: {}, dark: {} };
+    const parsed = JSON.parse(raw);
+    return { light: parsed.light || {}, dark: parsed.dark || {} };
+  } catch (e) {
+    return { light: {}, dark: {} };
+  }
+}
+
+function savePalette(palette) {
+  try { localStorage.setItem('gt:palette', JSON.stringify(palette)); } catch (e) {}
+}
+
+function paletteToCss(palette) {
+  // Generate one rule per non-empty mode
+  let css = '';
+  for (const mode of ['light', 'dark']) {
+    const overrides = palette[mode] || {};
+    const decls = Object.entries(overrides)
+      .filter(([k, v]) => v && PALETTE_KEYS.includes(k))
+      .map(([k, v]) => `  --${k}: ${v};`)
+      .join('\n');
+    if (decls) {
+      css += `[data-theme="${mode}"] {\n${decls}\n}\n`;
+    }
+  }
+  return css;
+}
+
+function applyPalette(palette) {
+  let el = document.getElementById('palette-overrides');
+  if (!el) {
+    el = document.createElement('style');
+    el.id = 'palette-overrides';
+    document.head.appendChild(el);
+  }
+  el.textContent = paletteToCss(palette);
+}
+
+// Boot — apply on initial load before React mounts
+applyPalette(loadPalette());
+
+// Expose for Settings to use
+Object.assign(window, { loadPalette, savePalette, applyPalette, PALETTE_KEYS, PALETTE_DEFAULTS });
+
 function App() {
   // Route is "home", "nouns", "nouns/manage", "nouns/quiz", "nouns/quiz/run", "verbs/cheatsheet", "settings", etc.
   const [route, setRoute] = React.useState('home');
@@ -45,8 +133,12 @@ function App() {
 
   // Apply persisted display settings on mount
   React.useEffect(() => {
-    const stored = localStorage.getItem('gt:testVerbSize');
-    if (stored) document.documentElement.style.setProperty('--test-verb-size', stored + 'px');
+    const verbSize = localStorage.getItem('gt:testVerbSize');
+    if (verbSize) document.documentElement.style.setProperty('--test-verb-size', verbSize + 'px');
+    const nounSize = localStorage.getItem('gt:nounPromptSize');
+    if (nounSize) document.documentElement.style.setProperty('--noun-prompt-size', nounSize + 'px');
+    const adjSize = localStorage.getItem('gt:adjectivePromptSize');
+    if (adjSize) document.documentElement.style.setProperty('--adjective-prompt-size', adjSize + 'px');
   }, []);
 
   const setTweak = (key, value) => {
@@ -74,7 +166,6 @@ function App() {
   else if (route === 'nouns/manage') body = <ManageNouns navigate={navigate} />;
   else if (route === 'nouns/quiz') body = <NounQuizSetup navigate={navigate} startQuiz={setQuizConfig} />;
   else if (route === 'nouns/quiz/run') body = <NounQuizRunner navigate={navigate} config={quizConfig} />;
-  else if (route === 'nouns/quiz/result') body = <NounQuizResult navigate={navigate} />;
   else if (route === 'adjectives') body = <AdjectivesLanding navigate={navigate} />;
   else if (route === 'adjectives/quiz') body = <AdjectiveQuizSetup navigate={navigate} startQuiz={setQuizConfig} />;
   else if (route === 'adjectives/quiz/run') body = <AdjectiveQuizRunner navigate={navigate} config={quizConfig} />;

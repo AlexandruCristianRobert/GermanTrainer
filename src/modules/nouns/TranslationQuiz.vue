@@ -84,7 +84,7 @@ const marg = computed(() => TRANSLATION_MARGINALIA[margIdx.value])
 
       <div class="prompt-card">
         <span class="tag prompt-group">{{ noun.group }}</span>
-        <div class="prompt-german">
+        <div class="prompt-german" :style="{ fontSize: 'var(--noun-prompt-size, 92px)' }">
           <span class="prompt-gender">{{ noun.gender }}</span> {{ noun.german }}
         </div>
       </div>

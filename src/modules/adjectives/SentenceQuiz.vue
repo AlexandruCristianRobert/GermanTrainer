@@ -116,7 +116,7 @@ const isCorrect = computed(() => props.question.isCorrect === true)
 .sentence {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: 28px;
+  font-size: var(--adjective-prompt-size, 28px);
   letter-spacing: -0.005em;
   line-height: 1.3;
   color: var(--ink);
@@ -129,7 +129,7 @@ const isCorrect = computed(() => props.question.isCorrect === true)
   margin-top: 14px;
 }
 @media (max-width: 720px) {
-  .sentence { font-size: 22px; }
+  .sentence { font-size: calc(var(--adjective-prompt-size, 28px) * 0.82); }
   .sentence-hint { font-size: 16px; }
 }
 
