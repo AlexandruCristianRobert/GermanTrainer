@@ -7,11 +7,26 @@ import {
   type QuizHistoryEntry,
   type QuizHistoryType
 } from '../../composables/useQuizHistory'
+import { computeStats } from '../../composables/useQuizStats'
+import MotivationStrip from '../../components/charts/MotivationStrip.vue'
+import ActivityCalendar from '../../components/charts/ActivityCalendar.vue'
+import AccuracyTrend from '../../components/charts/AccuracyTrend.vue'
+import CumulativeProgress from '../../components/charts/CumulativeProgress.vue'
+import SpeedTrend from '../../components/charts/SpeedTrend.vue'
+import TypeDistribution from '../../components/charts/TypeDistribution.vue'
+import TypeAccuracyRadar from '../../components/charts/TypeAccuracyRadar.vue'
+import TypeBreakdown from '../../components/charts/TypeBreakdown.vue'
+import MetaAccuracyBar from '../../components/charts/MetaAccuracyBar.vue'
+import StudyHeatmap from '../../components/charts/StudyHeatmap.vue'
+import DurationHistogram from '../../components/charts/DurationHistogram.vue'
+import CountVsAccuracyScatter from '../../components/charts/CountVsAccuracyScatter.vue'
 
 const router = useRouter()
 
 const items = ref<QuizHistoryEntry[]>(loadHistory())
 const filter = ref<QuizHistoryType | 'all'>('all')
+
+const stats = computed(() => computeStats(items.value))
 
 interface TypeMeta { label: string; de: string; module: string }
 const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
@@ -139,6 +154,80 @@ function summariseMeta(it: QuizHistoryEntry): string {
         <div class="stat-label">overall</div>
       </div>
     </div>
+
+    <template v-if="items.length > 0">
+      <div class="charts-section-mark">Statistiken · Charts</div>
+
+      <MotivationStrip :stats="stats" />
+
+      <ActivityCalendar :stats="stats" />
+
+      <div class="chart-grid-2">
+        <AccuracyTrend :stats="stats" />
+        <CumulativeProgress :stats="stats" />
+      </div>
+
+      <div class="chart-grid-2">
+        <TypeDistribution :stats="stats" />
+        <TypeAccuracyRadar :stats="stats" />
+      </div>
+
+      <TypeBreakdown :stats="stats" />
+
+      <div class="chart-grid-2">
+        <MetaAccuracyBar
+          mark="Niveau"
+          title="Accuracy by CEFR level"
+          subtitle="Verb runs grouped by level. Sage ≥80%, ochre 50–79%, clay below."
+          :data="stats.accuracyByLevel"
+          empty-message="No verb runs with level filters yet."
+        />
+        <MetaAccuracyBar
+          mark="Verbtyp"
+          title="Accuracy by verb type"
+          subtitle="Regular vs irregular vs separable vs modal vs mixed."
+          :data="stats.accuracyByVerbType"
+          empty-message="No verb runs with type filters yet."
+        />
+      </div>
+
+      <div class="chart-grid-2">
+        <MetaAccuracyBar
+          mark="Kasus"
+          title="Accuracy by case"
+          subtitle="Nominative / accusative / dative / genitive."
+          :data="stats.accuracyByCase"
+          empty-message="No verb runs with case filters yet."
+        />
+        <MetaAccuracyBar
+          mark="Tempus"
+          title="Accuracy by tense"
+          subtitle="Across the conjugation quizzes."
+          :data="stats.accuracyByTense"
+          empty-message="No conjugation runs yet."
+        />
+      </div>
+
+      <MetaAccuracyBar
+        mark="Gruppe"
+        title="Accuracy by group"
+        subtitle="Noun and adjective groups, sorted by accuracy. Top 8 best + bottom 8 worst when you have many."
+        :data="stats.accuracyByGroup"
+        empty-message="No runs with group filters yet."
+        :top-n="8"
+      />
+
+      <StudyHeatmap :stats="stats" />
+
+      <div class="chart-grid-2">
+        <DurationHistogram :stats="stats" />
+        <SpeedTrend :stats="stats" />
+      </div>
+
+      <CountVsAccuracyScatter :stats="stats" />
+
+      <div class="charts-section-mark">Verlauf · Sessions</div>
+    </template>
 
     <div v-if="items.length > 0" class="toolbar history-toolbar">
       <div class="segmented">

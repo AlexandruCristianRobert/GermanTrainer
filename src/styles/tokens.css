@@ -996,3 +996,159 @@ code, .mono {
   .test-row { grid-template-columns: 36px 1fr; gap: 12px; }
   .test-row .test-verb { font-size: 26px; }
 }
+
+/* ───── Charts & stats dashboard ───── */
+.charts-section-mark {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding-bottom: 10px;
+  margin: 40px 0 22px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.chart-card {
+  background: var(--paper-card);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+.chart-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.chart-card-mark {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: 4px;
+}
+.chart-card-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.005em;
+  margin: 0;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.chart-card-sub {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 6px 0 0 0;
+  max-width: 540px;
+}
+
+.chart-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.chart-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.chart-grid-2 .chart-card,
+.chart-grid-3 .chart-card {
+  margin-bottom: 0;
+}
+@media (max-width: 900px) {
+  .chart-grid-2,
+  .chart-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-empty {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--mute);
+  text-align: center;
+  padding: 36px 16px;
+}
+
+.stat-card-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--paper-card);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  padding: 18px 20px;
+}
+.stat-card-num {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 32px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--ink);
+}
+.stat-card-suffix {
+  font-size: 18px;
+  color: var(--mute);
+  margin-left: 4px;
+}
+.stat-card-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-top: 10px;
+}
+.stat-card-foot {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .stat-card-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .stat-card-row { grid-template-columns: 1fr; }
+}
+
+/* vue3-calendar-heatmap themed to our editorial palette. */
+.activity-calendar :deep(.vch__container) {
+  --vch-color-empty: var(--paper-deep);
+  --vch-month-label-color: var(--mute);
+  --vch-day-label-color: var(--mute);
+  font-family: var(--font-mono);
+}
+.activity-calendar :deep(.vch__legend) {
+  font-family: var(--font-mono);
+  color: var(--mute);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.activity-calendar :deep(.vch__month__label),
+.activity-calendar :deep(.vch__day__label) {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  fill: var(--mute);
+}
+.activity-calendar :deep(.vch__day__square) {
+  rx: 1.5;
+  ry: 1.5;
+}

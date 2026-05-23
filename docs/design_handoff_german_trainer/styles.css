@@ -1249,7 +1249,7 @@ code, .mono {
 .test-row .test-verb {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: 32px;
+  font-size: var(--test-verb-size, 26px);
   letter-spacing: -0.01em;
   line-height: 1.05;
 }
@@ -1294,5 +1294,100 @@ code, .mono {
 
 @media (max-width: 600px) {
   .test-row { grid-template-columns: 36px 1fr; gap: 12px; }
-  .test-row .test-verb { font-size: 26px; }
+  .test-row .test-verb { font-size: calc(var(--test-verb-size, 26px) * 0.85); }
+}
+
+/* Inline gender picker — used inside test-row for noun gender mode */
+.inline-gender-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.inline-gender-btn {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  padding: 8px 18px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  cursor: pointer;
+  min-width: 64px;
+  transition: all .15s;
+  text-align: center;
+}
+.inline-gender-btn:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+}
+.inline-gender-btn.selected {
+  background: var(--accent-tint);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ───── Settings ───── */
+.settings-group-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.settings-preview {
+  margin-top: 28px;
+  border: 1px dashed var(--hairline);
+  border-radius: 4px;
+  padding: 20px 24px;
+  background: var(--paper-card);
+  position: relative;
+}
+.settings-preview-label {
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  background: var(--paper);
+  padding: 0 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+/* Range slider — editorial treatment */
+.range-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 2px;
+  background: var(--hairline);
+  outline: none;
+  margin: 16px 0 8px 0;
+}
+.range-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.range-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--accent);
 }

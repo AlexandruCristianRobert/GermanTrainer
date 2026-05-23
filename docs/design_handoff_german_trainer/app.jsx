@@ -43,6 +43,12 @@ function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // Apply persisted display settings on mount
+  React.useEffect(() => {
+    const stored = localStorage.getItem('gt:testVerbSize');
+    if (stored) document.documentElement.style.setProperty('--test-verb-size', stored + 'px');
+  }, []);
+
   const setTweak = (key, value) => {
     let next;
     if (typeof key === 'object') next = { ...tweaks, ...key };
@@ -67,8 +73,12 @@ function App() {
   else if (route === 'nouns') body = <NounsLanding navigate={navigate} />;
   else if (route === 'nouns/manage') body = <ManageNouns navigate={navigate} />;
   else if (route === 'nouns/quiz') body = <NounQuizSetup navigate={navigate} startQuiz={setQuizConfig} />;
-  else if (route === 'nouns/quiz/run') body = <GenderQuizRunner navigate={navigate} config={quizConfig} />;
+  else if (route === 'nouns/quiz/run') body = <NounQuizRunner navigate={navigate} config={quizConfig} />;
+  else if (route === 'nouns/quiz/result') body = <NounQuizResult navigate={navigate} />;
   else if (route === 'adjectives') body = <AdjectivesLanding navigate={navigate} />;
+  else if (route === 'adjectives/quiz') body = <AdjectiveQuizSetup navigate={navigate} startQuiz={setQuizConfig} />;
+  else if (route === 'adjectives/quiz/run') body = <AdjectiveQuizRunner navigate={navigate} config={quizConfig} />;
+  else if (route === 'adjectives/quiz/result') body = <AdjectiveQuizResult navigate={navigate} />;
   else if (route === 'verbs') body = <VerbsLanding navigate={navigate} />;
   else if (route === 'verbs/translation') body = <VerbTranslationSetup navigate={navigate} startQuiz={setQuizConfig} />;
   else if (route === 'verbs/translation/run') body = <VerbTranslationRunner navigate={navigate} config={quizConfig} />;

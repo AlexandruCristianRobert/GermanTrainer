@@ -5,6 +5,15 @@ function Settings({ navigate }) {
   const [key, setKey] = React.useState('');
   const [model, setModel] = React.useState('gemini-2.5-flash');
   const [testState, setTestState] = React.useState(null);
+  const [verbSize, setVerbSize] = React.useState(() => {
+    const stored = localStorage.getItem('gt:testVerbSize');
+    return stored ? parseInt(stored, 10) : 26;
+  });
+
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--test-verb-size', verbSize + 'px');
+    localStorage.setItem('gt:testVerbSize', String(verbSize));
+  }, [verbSize]);
 
   const doTest = () => {
     if (!key) return;
@@ -16,13 +25,17 @@ function Settings({ navigate }) {
     <div className="page" style={{maxWidth: 720, margin: '0 auto'}} data-screen-label="50 Settings">
       <div className="section-header">
         <div>
-          <div className="breadcrumb">Konfiguration · Schlüssel & Modell</div>
+          <div className="breadcrumb">Konfiguration · Schlüssel & Anzeige</div>
           <h1 className="section-title">Settings<em>.</em></h1>
           <p className="section-subtitle">
-            Required only for the Adjectives quiz. Everything else runs entirely offline.
+            API access for the Adjectives quiz, plus display preferences.
+            Everything is stored on this device only.
           </p>
         </div>
       </div>
+
+      {/* ────── API section ────── */}
+      <div className="settings-group-label">API · Gemini</div>
 
       <div className="alert alert-warning">
         <span className="alert-label">Privacy</span>
@@ -67,12 +80,69 @@ function Settings({ navigate }) {
         )}
       </div>
 
-      <div className="alert alert-info" style={{marginTop: 48}}>
+      <div className="alert alert-info" style={{marginTop: 32}}>
         <span className="alert-label">How to get a key</span>
         <p style={{margin: 0}}>
           Sign in at <code>aistudio.google.com/apikey</code> and click <em>Create API key</em>.
           The free tier covers light Adjectives-quiz use comfortably.
         </p>
+      </div>
+
+      {/* ────── Display section ────── */}
+      <div className="settings-group-label" style={{marginTop: 64}}>Anzeige · Display</div>
+
+      <div className="field">
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
+          <div className="field-label">Verb test-sheet · type size</div>
+          <span className="micro-mark" style={{color: 'var(--ink-soft)'}}>{verbSize}<span style={{color: 'var(--mute)'}}>px</span></span>
+        </div>
+        <p style={{fontSize: 14, color: 'var(--ink-soft)', fontStyle: 'italic', margin: '0 0 12px 0'}}>
+          Controls the size of each verb in the Translation quiz worksheet. Smaller = more verbs visible without scrolling.
+        </p>
+        <input
+          type="range"
+          min="18"
+          max="44"
+          step="1"
+          value={verbSize}
+          onChange={(e) => setVerbSize(parseInt(e.target.value, 10))}
+          className="range-slider"
+        />
+        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 4}}>
+          <span className="micro-mark">18 · compact</span>
+          <span className="micro-mark">26 · default</span>
+          <span className="micro-mark">44 · large</span>
+        </div>
+      </div>
+
+      {/* Live preview */}
+      <div className="settings-preview">
+        <div className="settings-preview-label">Preview</div>
+        <div className="test-row" style={{borderBottom: 'none', paddingBottom: 0}}>
+          <div className="test-num"><strong>03.</strong></div>
+          <div className="test-content">
+            <div className="test-prompt-row">
+              <span className="test-verb">aufstehen</span>
+              <span className="test-chips">
+                <span className="tag">A1</span>
+                <span className="tag tag-cobalt">separable</span>
+                <span className="tag">none</span>
+              </span>
+            </div>
+            <input
+              className="test-input"
+              type="text"
+              placeholder="English (to is optional)…"
+              defaultValue="to get up"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div style={{marginTop: 20, display: 'flex', gap: 8}}>
+        <button className="btn btn-quiet" onClick={() => setVerbSize(20)}>Compact · 20</button>
+        <button className="btn btn-quiet" onClick={() => setVerbSize(26)}>Default · 26</button>
+        <button className="btn btn-quiet" onClick={() => setVerbSize(36)}>Large · 36</button>
       </div>
     </div>
   );
@@ -98,7 +168,17 @@ function AdjectivesLanding({ navigate }) {
           { numeral: 'A', title: 'Manage adjectives', de: 'Verwalten', desc: 'Add, edit, or delete adjectives. Reset to the curated seed of ~250 entries.', route: 'adjectives/manage' },
           { numeral: 'B', title: 'Quiz', de: 'Übung', desc: 'Pick groups, generate sentences with Gemini, type the inflected form. Requires an API key.', route: 'adjectives/quiz' },
         ].map((c) => (
-          <article key={c.route} className="card module-card interactive" onClick={() => alert('Stubbed in this prototype — focus is Nouns + Cheatsheet')}>
+          <article
+            key={c.route}
+            className="card module-card interactive"
+            onClick={() => {
+              if (c.route === 'adjectives/quiz') navigate(c.route);
+              else alert('Manage adjectives — stubbed in this prototype (same UX as Manage Nouns minus the gender field).');
+            }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter') { if (c.route === 'adjectives/quiz') navigate(c.route); } }}
+          >
             <div className="module-numeral">{c.numeral}</div>
             <h2>{c.title}</h2>
             <div className="module-de">{c.de}</div>
@@ -106,10 +186,6 @@ function AdjectivesLanding({ navigate }) {
             <div className="module-cta">Open <span>→</span></div>
           </article>
         ))}
-      </div>
-      <div className="alert alert-info" style={{marginTop: 32}}>
-        <span className="alert-label">Prototype</span>
-        The Adjectives flow follows the same shape as Nouns (setup → runner → result). In this prototype we focused depth on Nouns.
       </div>
     </div>
   );

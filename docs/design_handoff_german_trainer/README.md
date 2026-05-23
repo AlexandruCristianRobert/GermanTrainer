@@ -459,6 +459,106 @@ The top-nav `NAV_ITEMS` array now includes a 5th entry **History** between Verbs
 
 ---
 
+## Update 3 — Test-sheet across all quizzes + Display setting
+
+The test-sheet layout pattern has been extended to the **Noun** and **Adjective** quizzes, and a user-controlled **type-size setting** has been added.
+
+### Noun quiz runner — both modes now use the test-sheet
+
+The single-card runner (one noun + 3 large gender buttons) has been replaced by a test-sheet that works in both modes the setup form exposes:
+
+- **Gender mode** — each row shows the German noun + a `.tag` for the group, then below it an **inline gender picker** (`.inline-gender-row`): three small italic Fraunces buttons labeled `der · die · das`. Click one to select it. Selected button: accent-tinted background + accent border + accent text. (No grading until Submit-all.)
+- **Translation mode** — each row shows the German noun + a small italic gender hint (the article, in `--mute`) + a text input for the English meaning.
+
+Both modes share the same `.test-sheet` shell (sticky header with filled count + progress bar, sticky footer with Submit-all). On submit, navigate to `/nouns/quiz/result`, which uses the existing `ResultScreen` component — now mode-aware: it shows "your answer" as `picked` for gender mode and as the typed `input` for translation mode, and labels the expected answer as "correct" or "expected" accordingly. The recap row still shows article + noun together (`*der* Tisch`) and the English meaning below.
+
+New helper: `checkNounTranslation(input, expectedEnglish)` — case + whitespace ignored, slash-separated alternatives all match (same rules as verb translation).
+
+### Adjective quiz — newly built
+
+Previously the Adjectives flow was a stub. Now:
+
+- **Adjectives landing** (`/adjectives`) — same 2-card module layout, but the Quiz card now actually navigates instead of alerting. Manage card still alerts (the manage UX is the same as Manage Nouns minus the gender field — port that directly).
+- **Adjective quiz setup** (`/adjectives/quiz`) — group picker (11 categories from the spec), count picker (10/15/20/All/Custom), API-key warning when missing, a prototype-note callout about Gemini, and Start CTA.
+- **Adjective quiz runner** (`/adjectives/quiz/run`) — test-sheet pattern. Each row:
+  - Number on the left
+  - The blanked sentence in Fraunces — *sized at 85% of the verb size setting* so longer sentences don't overflow ("Ich sehe den ____ Park." renders at ~22px when the verb-size is 26)
+  - On the right of the prompt line: the dictionary base form in italic muted Fraunces, then a `.tag` with the group
+  - English hint in italic small body text directly under the sentence
+  - Borderless text input below it with placeholder "inflected form…"
+- **Adjective result** (`/adjectives/quiz/result`) — same `result-list` pattern but the german column is the full sentence with the **inflected form** rendered inline as a strong colored span (success or danger). Answer row shows: your answer, the dictionary base form in italic muted, and (if wrong) the expected inflected form.
+
+Acceptance: case + whitespace ignored, the answer must exactly match `inflected` — typing the base form (e.g. `schön` when the expected is `schönen`) is **rejected by design** because the point of the drill is the case+gender ending.
+
+In production, `ADJECTIVE_SENTENCES` should be replaced with a call to Gemini at quiz start. The shape of each sentence object is the contract:
+
+```ts
+{
+  base: string,        // dictionary form, e.g. 'schön'
+  inflected: string,   // inflected form in the sentence, e.g. 'schönen'
+  blanked: string,     // sentence with the inflected adjective replaced by '____'
+  sentence: string,    // full sentence (shown after submit)
+  hint: string,        // short English clue, italic under the prompt
+  group: string,       // adjective category
+}
+```
+
+### Settings — Display section
+
+Added a second block to the Settings page (label "Anzeige · Display") underneath the API one (relabelled "API · Gemini"). Group labels use the new `.settings-group-label` class — mono 11px / 0.22em tracking / uppercase, accent-colored, with a 1px solid `--rule` bottom border + 10px padding-bottom.
+
+The display block contains:
+
+- A **range slider** (`.range-slider`, custom-styled — 2px hairline track, 18×18px accent-colored circle thumb with paper-colored 2px border + 1px accent ring). Range **18–44**, step 1, default **26**. Label "Verb test-sheet · type size" with current value mono-formatted on the right of the field-label row.
+- A `<p>` under the label briefly explaining the setting (italic, --ink-soft, 14px).
+- Min/default/max scale labels under the slider: "18 · compact", "26 · default", "44 · large" (`.micro-mark`).
+- A **live preview card** (`.settings-preview`) — dashed-hairline border, 4px radius, paper-card bg, 20×24 padding. Top-edge mono-uppercase notch label "Preview". Inside, a real `.test-row` rendered the same way the actual test sheet renders it, with a sample verb "aufstehen" + chips + a pre-filled input. As the slider moves, the verb size updates instantly (the CSS variable applies everywhere).
+- Three **preset buttons** below the preview: "Compact · 20", "Default · 26", "Large · 36" (`.btn-quiet`). One-tap shortcuts.
+
+### Persistence — display preferences
+
+Stored in **localStorage** under key `gt:testVerbSize` as a stringified pixel integer. App applies it on mount by setting `--test-verb-size: {value}px` on `document.documentElement`. The CSS rule that consumes it:
+
+```css
+.test-row .test-verb {
+  font-size: var(--test-verb-size, 26px);
+  /* ...other styles unchanged */
+}
+@media (max-width: 600px) {
+  .test-row .test-verb {
+    font-size: calc(var(--test-verb-size, 26px) * 0.85);
+  }
+}
+```
+
+The adjective runner deliberately scales its prompt to 85% of the verb-size since sentences are longer than single words; everything else uses the var directly. That single line of CSS scaling means **the slider in Settings controls type across all three test-sheet quizzes (Verb / Noun / Adjective) uniformly**.
+
+The Vue port should put this in a `usePrefs.ts` composable that:
+1. Reads from localStorage on mount
+2. Applies as a CSS variable on `:root`
+3. Exposes a reactive setter that updates both the DOM and storage
+
+### Routes added in Update 3
+
+```
+/nouns/quiz/result          Noun quiz result (works for both gender + translation modes)
+/adjectives/quiz            Adjective quiz setup
+/adjectives/quiz/run        Adjective quiz runner (test-sheet)
+/adjectives/quiz/result     Adjective quiz result
+```
+
+### Files added/changed in Update 3
+
+| File | Status |
+|---|---|
+| `adjectives.jsx` | **new** — setup, test-sheet runner, result, sample sentence data, validation helper |
+| `nouns.jsx` | Rewrote `GenderQuizRunner` → `NounQuizRunner` (test-sheet, both modes). Added `NounQuizResult`, `checkNounTranslation`. `ResultScreen` is now mode-aware. |
+| `other-pages.jsx` | `Settings` got the new Display section with slider + preview + presets. `AdjectivesLanding` now navigates instead of alerting. |
+| `app.jsx` | New routes: `nouns/quiz/result`, `adjectives/quiz*`. Renamed component import. Display setting mount effect added. |
+| `styles.css` | `.inline-gender-row`, `.inline-gender-btn`, `.settings-group-label`, `.settings-preview`, `.range-slider`, and the `--test-verb-size` consumer on `.test-row .test-verb`. |
+
+---
+
 ## Screenshots
 
 The `screenshots/` folder in this bundle contains HQ captures of every key screen in the prototype:
@@ -469,13 +569,13 @@ The `screenshots/` folder in this bundle contains HQ captures of every key scree
 | `02-nouns-landing.png` | Nouns landing — 2-card layout (Manage / Quiz) |
 | `03-manage-nouns.png` | Manage Nouns — search + data table with der/die/das gender tags |
 | `04-noun-quiz-setup.png` | Noun quiz setup — group chips, mode segmented, count picker |
-| `05-noun-quiz-runner.png` | Noun gender quiz runner — clean state, with marginalia sidebar |
-| `06-noun-quiz-feedback.png` | Noun gender quiz runner — post-pick (dark mode) |
+| `05-noun-quiz-runner.png` | ⚠️ Old: single-card gender runner. **Replaced** by test-sheet — see Update 3. |
+| `06-noun-quiz-feedback.png` | ⚠️ Old: post-pick feedback on the single-card gender quiz. **Obsolete** — the test-sheet doesn't reveal per-row until Submit-all. |
 | `07-verbs-landing.png` | Verbs landing — 4-card layout (Browse / Translation / Conjugation / Cheatsheet) |
 | `08-verb-translation-setup.png` | Verb translation setup — Level / Type / Case chip filters + count |
 | `09-verb-translation-runner.png` | ⚠️ Old: single-card runner. **Has been replaced** by the test-sheet layout described in *Update 2*. Capture not yet refreshed — see the description there for the current layout. |
 | `10-cheatsheet.png` | Cheatsheet — sticky rail nav + chapter I header |
-| `11-settings.png` | Settings — Gemini API key + model picker + test connection |
+| `11-settings.png` | ⚠️ Old: pre-Update-3 Settings. The Display section + slider is **not shown** — see Update 3 for the current layout. |
 | `12-home-dark.png` | Home in dark mode — same layout, dark theme tokens |
 
 Note on the feedback screenshot (#6): the **correct** button gets a sage-tinted background + sage text, the **wrong** button gets a clay-tinted background + clay text, the third unpicked button is dimmed to opacity 0.35. The captures don't pop the bg tints as strongly as the live app does at full saturation — implement to the **token spec** (`--success-tint` / `--danger-tint` on bg, `--success` / `--danger` on border + text) rather than pixel-matching the screenshot.
@@ -489,8 +589,9 @@ Note on the feedback screenshot (#6): the **correct** button gets a sage-tinted 
 | `app.jsx` | App root: theme/accent/route state, route dispatch, mounts Tweaks panel |
 | `nav.jsx` | NavShell — sticky header, links, theme toggle, mobile drawer |
 | `home.jsx` | Home page — 4-card module grid + footer marks |
-| `nouns.jsx` | Nouns landing + Manage table + Quiz setup + Gender quiz runner + Result |
+| `nouns.jsx` | Nouns landing + Manage table + Quiz setup + **NounQuizRunner (test-sheet, both modes)** + Result |
 | `verbs.jsx` | Verb data, Translation quiz setup + **test-sheet runner** + result, tag-class helpers |
+| `adjectives.jsx` | **Adjectives setup + test-sheet runner + result + sample sentence data** |
 | `cheatsheet.jsx` | Cheatsheet shell + 2 sample chapters showing the full layout vocabulary |
 | `history.jsx` | **Quiz history** — save/load/clear helpers + HistoryPage component |
 | `other-pages.jsx` | Settings page + Adjectives/Verbs landing stubs |
