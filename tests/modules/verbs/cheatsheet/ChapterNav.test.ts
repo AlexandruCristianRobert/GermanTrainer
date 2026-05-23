@@ -42,4 +42,16 @@ describe('ChapterNav', () => {
     expect(items[0].classes()).not.toContain('dim')
     expect(items[1].classes()).toContain('dim')
   })
+
+  it('emits select when an item is activated via keyboard (Enter)', async () => {
+    const wrapper = mount(ChapterNav, { props: { chapters, searchQuery: '' } })
+    await wrapper.findAll('.chapter-nav-item')[0].trigger('keydown', { key: 'Enter' })
+    expect(wrapper.emitted('select')?.[0]).toEqual(['ch-1'])
+  })
+
+  it('emits select when an item is activated via keyboard (Space)', async () => {
+    const wrapper = mount(ChapterNav, { props: { chapters, searchQuery: '' } })
+    await wrapper.findAll('.chapter-nav-item')[1].trigger('keydown', { key: ' ' })
+    expect(wrapper.emitted('select')?.[0]).toEqual(['ch-2'])
+  })
 })

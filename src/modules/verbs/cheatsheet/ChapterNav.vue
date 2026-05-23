@@ -85,7 +85,11 @@ onUnmounted(() => observer?.disconnect())
         class="chapter-nav-item"
         :class="{ active: c.id === activeId, dim: c.dim }"
         :aria-current="c.id === activeId ? 'location' : undefined"
+        tabindex="0"
+        role="link"
         @click="onSelect(c.id)"
+        @keydown.enter.prevent="onSelect(c.id)"
+        @keydown.space.prevent="onSelect(c.id)"
       >
         <span class="chapter-nav-numeral">{{ c.numeral }}</span>
         <span class="chapter-nav-title">{{ c.titleDe }}</span>
@@ -146,6 +150,12 @@ onUnmounted(() => observer?.disconnect())
 }
 
 .chapter-nav-item:hover { color: var(--ink); }
+
+.chapter-nav-item:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+  color: var(--ink);
+}
 
 .chapter-nav-item.active {
   border-left-color: var(--sage);
