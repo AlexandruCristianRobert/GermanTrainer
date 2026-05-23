@@ -30,6 +30,16 @@ describe('buildExport', () => {
     expect(out.data['theme']).toBeUndefined()
     expect(out.data['gt:quizHistory']).toBeUndefined()
   })
+
+  test('preposition setup keys are recognized', () => {
+    localStorage.setItem('prepCaseSetup', JSON.stringify({ levels: ['A1'], count: 10 }))
+    localStorage.setItem('prepArticleSetup', JSON.stringify({ levels: ['A1'], count: 10 }))
+    localStorage.setItem('prepTwoWaySetup', JSON.stringify({ count: 5 }))
+    const out = buildExport()
+    expect(out.data['prepCaseSetup']).toEqual({ levels: ['A1'], count: 10 })
+    expect(out.data['prepArticleSetup']).toEqual({ levels: ['A1'], count: 10 })
+    expect(out.data['prepTwoWaySetup']).toEqual({ count: 5 })
+  })
 })
 
 describe('applyImport', () => {

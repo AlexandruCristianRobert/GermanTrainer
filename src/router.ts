@@ -19,7 +19,16 @@ const routes: RouteRecordRaw[] = [
   { path: '/verbs/translation/result', name: 'verbs-translation-result', component: () => import('./modules/verbs/TranslationQuizResult.vue') },
   { path: '/verbs/conjugation', name: 'verbs-conjugation', component: () => import('./modules/verbs/ConjugationQuizSetup.vue') },
   { path: '/verbs/conjugation/run', name: 'verbs-conjugation-run', component: () => import('./modules/verbs/ConjugationQuizRunner.vue') },
-  { path: '/verbs/cheatsheet', name: 'verbs-cheatsheet', component: () => import('./modules/verbs/CheatSheet.vue') }
+  { path: '/verbs/cheatsheet', name: 'verbs-cheatsheet', component: () => import('./modules/verbs/CheatSheet.vue') },
+  { path: '/prepositions', name: 'prepositions', component: () => import('./modules/prepositions/PrepositionsHome.vue') },
+  { path: '/prepositions/list', name: 'prepositions-list', component: () => import('./modules/prepositions/ListPrepositions.vue') },
+  { path: '/prepositions/case-quiz', name: 'prepositions-case', component: () => import('./modules/prepositions/CaseQuizSetup.vue') },
+  { path: '/prepositions/case-quiz/run', name: 'prepositions-case-run', component: () => import('./modules/prepositions/CaseQuizRunner.vue') },
+  { path: '/prepositions/case-quiz/result', name: 'prepositions-case-result', component: () => import('./modules/prepositions/CaseQuizResult.vue') },
+  { path: '/prepositions/article-quiz', name: 'prepositions-article', component: () => import('./modules/prepositions/ArticleQuizSetup.vue') },
+  { path: '/prepositions/article-quiz/run', name: 'prepositions-article-run', component: () => import('./modules/prepositions/ArticleQuizRunner.vue') },
+  { path: '/prepositions/two-way-quiz', name: 'prepositions-twoway', component: () => import('./modules/prepositions/TwoWayQuizSetup.vue') },
+  { path: '/prepositions/two-way-quiz/run', name: 'prepositions-twoway-run', component: () => import('./modules/prepositions/TwoWayQuizRunner.vue') }
 ]
 
 export const router = createRouter({

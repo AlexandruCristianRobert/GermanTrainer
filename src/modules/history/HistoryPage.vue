@@ -37,11 +37,16 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'noun-translation': { label: 'Noun translation',   de: 'Substantiv · Übersetzung', module: 'Nouns' },
   'adjective':        { label: 'Adjective sentence', de: 'Adjektiv · Lückentext',    module: 'Adjectives' },
   'verb-translation': { label: 'Verb translation',   de: 'Verb · Übersetzung',       module: 'Verbs' },
-  'verb-conjugation': { label: 'Verb conjugation',   de: 'Verb · Konjugation',       module: 'Verbs' }
+  'verb-conjugation': { label: 'Verb conjugation',   de: 'Verb · Konjugation',       module: 'Verbs' },
+  'prep-case':        { label: 'Preposition · case', de: 'Präposition · Kasus',      module: 'Prepositions' },
+  'prep-article':     { label: 'Preposition · article', de: 'Präposition · Artikel', module: 'Prepositions' },
+  'prep-two-way':     { label: 'Preposition · two-way', de: 'Präposition · Wechsel', module: 'Prepositions' }
 }
 
 const typeOrder: QuizHistoryType[] = [
-  'noun-gender', 'noun-translation', 'adjective', 'verb-translation', 'verb-conjugation'
+  'noun-gender', 'noun-translation', 'adjective',
+  'verb-translation', 'verb-conjugation',
+  'prep-case', 'prep-article', 'prep-two-way'
 ]
 
 const filtered = computed(() =>

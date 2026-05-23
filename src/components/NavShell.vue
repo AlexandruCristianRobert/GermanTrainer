@@ -20,6 +20,7 @@ const items: NavItem[] = [
   { route: 'nouns', label: 'Nouns', de: 'Substantive' },
   { route: 'adjectives', label: 'Adjectives', de: 'Adjektive' },
   { route: 'verbs', label: 'Verbs', de: 'Verben' },
+  { route: 'prepositions', label: 'Prepositions', de: 'Präpositionen' },
   { route: 'history', label: 'History', de: 'Verlauf' },
   { route: 'settings', label: 'Settings', de: 'Einstellungen' }
 ]

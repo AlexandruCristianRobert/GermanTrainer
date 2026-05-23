@@ -5,7 +5,10 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'noun-translation': 'Noun translation',
   adjective: 'Adjective',
   'verb-translation': 'Verb translation',
-  'verb-conjugation': 'Verb conjugation'
+  'verb-conjugation': 'Verb conjugation',
+  'prep-case': 'Preposition · case',
+  'prep-article': 'Preposition · article',
+  'prep-two-way': 'Preposition · two-way'
 }
 
 export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
@@ -13,7 +16,10 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'noun-translation': 'Substantive',
   adjective: 'Adjektive',
   'verb-translation': 'Übersetzen',
-  'verb-conjugation': 'Konjugation'
+  'verb-conjugation': 'Konjugation',
+  'prep-case': 'Präposition · Kasus',
+  'prep-article': 'Präposition · Artikel',
+  'prep-two-way': 'Präposition · Wechsel'
 }
 
 export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
@@ -21,5 +27,8 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'noun-translation',
   'adjective',
   'verb-translation',
-  'verb-conjugation'
+  'verb-conjugation',
+  'prep-case',
+  'prep-article',
+  'prep-two-way'
 ]

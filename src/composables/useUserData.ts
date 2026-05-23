@@ -33,6 +33,9 @@ export const USER_DATA_KEYS = [
   'adjectiveQuizSetup',
   'verbTransSetup',
   'verbConjQuiz',
+  'prepCaseSetup',
+  'prepArticleSetup',
+  'prepTwoWaySetup',
   // legacy keys — still readable for migration during import
   'nounQuizGroups',
   'adjectiveQuizGroups',
@@ -52,6 +55,9 @@ const KEY_LABELS: Record<UserDataKey, { label: string; group: string }> = {
   adjectiveQuizSetup: { label: 'Adjective quiz setup', group: 'Quiz setup' },
   verbTransSetup: { label: 'Verb translation setup', group: 'Quiz setup' },
   verbConjQuiz: { label: 'Verb conjugation setup', group: 'Quiz setup' },
+  prepCaseSetup: { label: 'Preposition case quiz setup', group: 'Quiz setup' },
+  prepArticleSetup: { label: 'Preposition article quiz setup', group: 'Quiz setup' },
+  prepTwoWaySetup: { label: 'Preposition two-way quiz setup', group: 'Quiz setup' },
   nounQuizGroups: { label: 'Noun groups (legacy)', group: 'Quiz setup' },
   adjectiveQuizGroups: { label: 'Adjective groups (legacy)', group: 'Quiz setup' },
   'gt:quizHistory': { label: 'Quiz history', group: 'History' }

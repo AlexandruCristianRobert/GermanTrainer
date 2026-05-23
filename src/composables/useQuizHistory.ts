@@ -7,6 +7,9 @@ export type QuizHistoryType =
   | 'adjective'
   | 'verb-translation'
   | 'verb-conjugation'
+  | 'prep-case'
+  | 'prep-article'
+  | 'prep-two-way'
 
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation'
@@ -15,6 +18,8 @@ export interface QuizHistoryMeta {
   types?: string[]
   cases?: string[]
   tenses?: string[]
+  prepLevels?: string[]
+  prepCases?: string[]
 }
 
 export interface QuizHistoryEntry {
