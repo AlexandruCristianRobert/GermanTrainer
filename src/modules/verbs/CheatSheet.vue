@@ -264,6 +264,217 @@ function onSelect(id: string) {
               equivalent of <em>"Ich will"</em>.</p>
           </Callout>
         </section>
+
+        <!-- ───────── V. Trennbar / Untrennbar ───────── -->
+        <section id="ch-5" class="chapter">
+          <div class="chapter-numeral">V</div>
+          <h2 class="chapter-title">Trennbar &amp; untrennbar</h2>
+          <p class="chapter-subtitle">Separable vs. inseparable prefixes</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            Many German verbs come with a prefix glued to the infinitive. Some of them <em>split off</em>
+            in main clauses and migrate to the end of the sentence; others stay locked to the stem
+            forever. The rule is mechanical once you know the lists.
+          </p>
+
+          <div class="prefix-split">
+            <div>
+              <h3 class="pattern-heading">Trennbar — they split</h3>
+              <p class="mono-block">
+                ab- · an- · auf- · aus- · ein- · mit- · nach- · vor- · zu- · fern- · weg- · zurück- ·
+                hin- · her- · fest-
+              </p>
+              <p>
+                Stressed on the prefix. In main clauses, the prefix flies to the end:<br />
+                <em>Ich <strong>stehe</strong> um 7 Uhr <strong>auf</strong>.</em><br />
+                Partizip II inserts <code>ge-</code> between prefix and stem:
+                <code>aufgestanden</code>, <code>angerufen</code>, <code>eingekauft</code>.
+              </p>
+            </div>
+            <div>
+              <h3 class="pattern-heading">Untrennbar — they don't</h3>
+              <p class="mono-block">
+                be- · emp- · ent- · er- · ge- · ver- · zer- · miss-
+              </p>
+              <p>
+                Unstressed prefix. Stays attached forever:<br />
+                <em>Ich <strong>verkaufe</strong> das Auto.</em><br />
+                Partizip II drops <code>ge-</code>: <code>verkauft</code>, <code>besucht</code>,
+                <code>begonnen</code>, <code>empfohlen</code>.
+              </p>
+            </div>
+          </div>
+
+          <Callout kind="exception">
+            <p><strong>Both, depending on stress:</strong> <code>durch-</code>, <code>über-</code>,
+              <code>um-</code>, <code>unter-</code>, <code>voll-</code>, <code>wieder-</code>.
+              The meaning shifts with the stress. Compare
+              <em>umfahren</em> (run over — separable, stress on um-) vs
+              <em>umfahren</em> (drive around — inseparable, stress on the stem).</p>
+          </Callout>
+
+          <Callout kind="example">
+            <p>
+              "Wann <strong>fängt</strong> der Film <strong>an</strong>?" (separable)<br />
+              "Ich <strong>verstehe</strong> die Frage nicht." (inseparable)<br />
+              "Sie hat mich gestern <strong>angerufen</strong>." (separable Partizip II)
+            </p>
+          </Callout>
+        </section>
+
+        <!-- ───────── VI. Partizip II ───────── -->
+        <section id="ch-6" class="chapter">
+          <div class="chapter-numeral">VI</div>
+          <h2 class="chapter-title">Partizip II</h2>
+          <p class="chapter-subtitle">How the past participle is built, branch by branch</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            Almost every verb falls into one of five branches. Pick the right branch, apply the
+            template, and you're done. The hard part — strong-verb stems — has to be memorised, but the
+            shape of the participle is rule-based.
+          </p>
+
+          <h3 class="pattern-heading">Weak (regular)</h3>
+          <p>
+            Template: <code>ge- + stem + -t</code>.
+            <code>spielen → gespielt</code> ·
+            <code>kaufen → gekauft</code> ·
+            <code>arbeiten → gearbeitet</code> (Bindevokal -e-) ·
+            <code>fragen → gefragt</code> ·
+            <code>lieben → geliebt</code> ·
+            <code>tanzen → getanzt</code>.
+          </p>
+
+          <h3 class="pattern-heading">Strong</h3>
+          <p>
+            Template: <code>ge- + (often vowel-changed) stem + -en</code>.
+            <code>gehen → gegangen</code> ·
+            <code>sehen → gesehen</code> ·
+            <code>schreiben → geschrieben</code> ·
+            <code>finden → gefunden</code> ·
+            <code>nehmen → genommen</code> ·
+            <code>sprechen → gesprochen</code>.
+          </p>
+
+          <h3 class="pattern-heading">Separable</h3>
+          <p>
+            Template: <code>prefix + ge + stem + ending</code> — <code>ge</code> goes <em>inside</em>
+            the verb. <code>aufstehen → aufgestanden</code> · <code>einkaufen → eingekauft</code> ·
+            <code>anrufen → angerufen</code>.
+          </p>
+
+          <h3 class="pattern-heading">Inseparable</h3>
+          <p>
+            Template: <code>stem + ending</code> — <strong>no</strong> <code>ge-</code>.
+            <code>verkaufen → verkauft</code> · <code>besuchen → besucht</code> ·
+            <code>vergessen → vergessen</code> · <code>gewinnen → gewonnen</code>.
+          </p>
+
+          <h3 class="pattern-heading">-ieren verbs</h3>
+          <p>
+            Template: <code>stem + -t</code>, no <code>ge-</code>.
+            <code>studieren → studiert</code> · <code>fotografieren → fotografiert</code> ·
+            <code>passieren → passiert</code> · <code>diskutieren → diskutiert</code>.
+          </p>
+        </section>
+
+        <!-- ───────── VII. Haben oder Sein ───────── -->
+        <section id="ch-7" class="chapter">
+          <div class="chapter-numeral">VII</div>
+          <h2 class="chapter-title">Haben oder Sein</h2>
+          <p class="chapter-subtitle">Picking the auxiliary in Perfekt and Plusquamperfekt</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            Two-thirds of all German verbs take <code>haben</code>. The remaining third — verbs of
+            motion and change-of-state, plus a handful of stubborn irregulars — take <code>sein</code>.
+            Get this wrong and natives will notice immediately.
+          </p>
+
+          <h3 class="pattern-heading">Sein — verbs of motion (where to/from?)</h3>
+          <p>
+            <code>gehen → ist gegangen</code> · <code>kommen → ist gekommen</code> ·
+            <code>fahren → ist gefahren</code> · <code>fliegen → ist geflogen</code> ·
+            <code>laufen → ist gelaufen</code> · <code>schwimmen → ist geschwommen</code> ·
+            <code>steigen → ist gestiegen</code> · <code>reisen → ist gereist</code>.
+          </p>
+
+          <h3 class="pattern-heading">Sein — verbs of state change</h3>
+          <p>
+            <code>aufstehen → ist aufgestanden</code> · <code>einschlafen → ist eingeschlafen</code> ·
+            <code>sterben → ist gestorben</code> · <code>werden → ist geworden</code> ·
+            <code>wachsen → ist gewachsen</code>.
+          </p>
+
+          <h3 class="pattern-heading">Sein — always-sein irregulars</h3>
+          <p>
+            <code>sein → ist gewesen</code> · <code>bleiben → ist geblieben</code> ·
+            <code>passieren → ist passiert</code> · <code>geschehen → ist geschehen</code>.
+          </p>
+
+          <Callout kind="exception">
+            <p><strong>Tricky cases.</strong> <code>schwimmen</code> takes <em>sein</em> for movement
+              (<em>"Ich bin durch den See geschwommen"</em>) but <em>haben</em> for the activity itself
+              in some regional usage (<em>"Ich habe geschwommen"</em>). When in doubt, use <em>sein</em>.</p>
+          </Callout>
+        </section>
+
+        <!-- ───────── VIII. Imperativ ───────── -->
+        <section id="ch-8" class="chapter">
+          <div class="chapter-numeral">VIII</div>
+          <h2 class="chapter-title">Imperativ</h2>
+          <p class="chapter-subtitle">Commands — du, ihr, Sie</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            German has three command forms, each derived from a different person of the Präsens. The du
+            form drops its <code>-st</code>, the ihr form is identical to its Präsens, and the Sie form
+            simply inverts subject and verb.
+          </p>
+
+          <ConjugationTable
+            verb="spielen"
+            caption="IMPERATIV"
+            :rows="[
+              { person: 'du',  form: 'spiel<span class=&quot;ending&quot;>!</span>' },
+              { person: 'ihr', form: 'spielt!' },
+              { person: 'Sie', form: 'spielen Sie!' }
+            ]"
+          />
+
+          <Callout kind="note">
+            <p><strong>e → i / ie carries through</strong> into the du-imperativ for strong verbs:
+              <code>geben → g<VowelShift>i</VowelShift>b!</code> ·
+              <code>nehmen → n<VowelShift>i</VowelShift>mm!</code> ·
+              <code>sehen → s<VowelShift>ie</VowelShift>h!</code> ·
+              <code>lesen → l<VowelShift>ie</VowelShift>s!</code> ·
+              <code>essen → <VowelShift>i</VowelShift>ss!</code>.</p>
+          </Callout>
+
+          <Callout kind="exception">
+            <p><strong>a → ä does NOT carry through.</strong> The du-imperativ drops the umlaut:
+              <code>fahren → fahr!</code> (not <em>fähr!</em>) ·
+              <code>schlafen → schlaf!</code> ·
+              <code>laufen → lauf!</code> ·
+              <code>tragen → trag!</code>.</p>
+          </Callout>
+
+          <Callout kind="note">
+            <p><strong>Bindevokal verbs</strong> keep their -e in the du-imperativ:
+              <code>arbeiten → arbeite!</code> · <code>warten → warte!</code> ·
+              <code>antworten → antworte!</code>.</p>
+          </Callout>
+
+          <Callout kind="example">
+            <p>
+              "Komm her!" (du)<br />
+              "Geht nach Hause!" (ihr)<br />
+              "Setzen Sie sich, bitte!" (Sie)
+            </p>
+          </Callout>
+        </section>
       </main>
     </div>
   </div>
@@ -397,6 +608,23 @@ function onSelect(id: string) {
   font-weight: 600;
 }
 
+.prefix-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 22px 0;
+}
+
+.mono-block {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  padding: 10px 14px;
+  background: var(--paper-deep);
+  border-radius: 2px;
+}
+
 @media (max-width: 959px) {
   .grammatik-layout {
     grid-template-columns: 1fr;
@@ -409,5 +637,6 @@ function onSelect(id: string) {
   }
   .chapter-title { font-size: 32px; }
   .two-col { grid-template-columns: 1fr; }
+  .prefix-split { grid-template-columns: 1fr; }
 }
 </style>
