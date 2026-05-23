@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import type { Adjective, Noun, Settings } from './types'
+import type { Adjective, Noun, NounGroup, Settings } from './types'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
 
@@ -33,6 +33,37 @@ export class GermanTrainerDb extends Dexie {
         if (!n.group) n.group = 'Other'
       })
     })
+    this.version(4).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id'
+    }).upgrade(async tx => {
+      // Top up + re-categorize. Existing users have nouns, so seedIfEmpty()
+      // never re-runs for them — we have to migrate explicitly when new
+      // categories ship. For each seed entry:
+      //   - If the german key is missing → add it.
+      //   - If it exists but the seed now puts it in a different group → update group.
+      // User-added nouns (not in the seed) are left untouched.
+      const table = tx.table<Noun>('nouns')
+      const existing = await table.toArray()
+      const byGerman = new Map<string, Noun>()
+      for (const n of existing) byGerman.set(n.german, n)
+
+      const now = Date.now()
+      const seedDeduped = dedupeNouns(nounsSeed as NounSeedEntry[])
+      const toAdd: Array<Omit<Noun, 'id'>> = []
+      const toUpdate: Array<{ id: number; group: NounGroup }> = []
+      for (const seed of seedDeduped) {
+        const current = byGerman.get(seed.german)
+        if (!current) {
+          toAdd.push({ ...seed, createdAt: now })
+        } else if (current.group !== seed.group && current.id != null) {
+          toUpdate.push({ id: current.id, group: seed.group })
+        }
+      }
+      if (toAdd.length > 0) await table.bulkAdd(toAdd)
+      for (const u of toUpdate) await table.update(u.id, { group: u.group })
+    })
   }
 }
 
@@ -41,20 +72,18 @@ export const db = new GermanTrainerDb()
 type NounSeedEntry = Omit<Noun, 'id' | 'createdAt'>
 
 /**
- * Remove entries that share the same `german` key with an earlier entry.
- * The first occurrence wins. Used to keep the seed safe against accidental
- * duplicates introduced by hand-editing the JSON.
+ * Remove entries that share the same `german` key.
+ * Last-wins: when the key appears multiple times, the LAST entry replaces
+ * earlier ones. This lets new seed entries supersede older ones (e.g. a
+ * more specific category assignment overwrites a previous "Other").
+ * Trimmed comparison so " Tisch " and "Tisch" collide.
  */
 export function dedupeNouns<T extends { german: string }>(entries: readonly T[]): T[] {
-  const seen = new Set<string>()
-  const out: T[] = []
+  const byKey = new Map<string, T>()
   for (const e of entries) {
-    const key = e.german.trim()
-    if (seen.has(key)) continue
-    seen.add(key)
-    out.push(e)
+    byKey.set(e.german.trim(), e)
   }
-  return out
+  return Array.from(byKey.values())
 }
 
 export async function seedIfEmpty(): Promise<void> {

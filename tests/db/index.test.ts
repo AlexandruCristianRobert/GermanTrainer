@@ -74,16 +74,16 @@ describe('seedIfEmpty', () => {
 })
 
 describe('dedupeNouns', () => {
-  it('keeps the first occurrence and drops later duplicates by german key', () => {
+  it('keeps the LAST occurrence and drops earlier duplicates by german key', () => {
     const out = dedupeNouns([
       { german: 'Tisch', gender: 'der' },
       { german: 'Stuhl', gender: 'der' },
       { german: 'Tisch', gender: 'das' }
     ])
-    expect(out).toEqual([
-      { german: 'Tisch', gender: 'der' },
-      { german: 'Stuhl', gender: 'der' }
-    ])
+    // Tisch:das (last) supersedes Tisch:der; Stuhl preserved
+    expect(out.find(e => e.german === 'Tisch')).toEqual({ german: 'Tisch', gender: 'das' })
+    expect(out.find(e => e.german === 'Stuhl')).toEqual({ german: 'Stuhl', gender: 'der' })
+    expect(out).toHaveLength(2)
   })
 
   it('trims the german key when comparing', () => {
@@ -123,5 +123,15 @@ describe('resetTableToSeed', () => {
     expect(count).toBeGreaterThan(1)
     const custom = await db.nouns.where('german').equals('CustomNoun').first()
     expect(custom).toBeUndefined()
+  })
+
+  it('after seeding, the new categories have entries', async () => {
+    await resetTableToSeed('nouns')
+    const bodyHealth = await db.nouns.where('group').equals('Body & Health').count()
+    const animals = await db.nouns.where('group').equals('Animals').count()
+    const tech = await db.nouns.where('group').equals('Technology').count()
+    expect(bodyHealth).toBeGreaterThan(40)
+    expect(animals).toBeGreaterThan(40)
+    expect(tech).toBeGreaterThan(30)
   })
 })
