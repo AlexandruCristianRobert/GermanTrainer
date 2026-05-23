@@ -95,8 +95,8 @@ export const PREPOSITIONS: Preposition[] = [
     examples: [
       { sentence: 'Er bleibt bis nächsten Montag.', blanked: 'Er bleibt bis ___ Montag.',
         expectedAnswer: 'nächsten', usedCase: 'accusative', gloss: 'He stays until next Monday.' },
-      { sentence: 'Ich warte bis den Abend.', blanked: 'Ich warte bis ___ Abend.',
-        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'I wait until evening.' }
+      { sentence: 'Ich warte bis nächsten Freitag.', blanked: 'Ich warte bis ___ Freitag.',
+        expectedAnswer: 'nächsten', usedCase: 'accusative', gloss: 'I wait until next Friday.' }
     ]
   },
   {
@@ -217,8 +217,8 @@ export const PREPOSITIONS: Preposition[] = [
   {
     id: 'ab', german: 'ab', english: 'from [a time]', case: 'dative', level: 'B1',
     examples: [
-      { sentence: 'Ab dem Montag arbeite ich wieder.', blanked: 'Ab ___ Montag arbeite ich wieder.',
-        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'From Monday on I work again.' },
+      { sentence: 'Ab dem nächsten Schuljahr lernt sie Deutsch.', blanked: 'Ab ___ nächsten Schuljahr lernt sie Deutsch.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'From next school year on, she\'s learning German.' },
       { sentence: 'Ab der nächsten Woche bin ich frei.', blanked: 'Ab ___ nächsten Woche bin ich frei.',
         expectedAnswer: 'der', usedCase: 'dative', gloss: 'From next week I am free.' }
     ]
@@ -252,10 +252,10 @@ export const PREPOSITIONS: Preposition[] = [
     examples: [
       { sentence: 'Der Garten liegt hinter dem Haus.', blanked: 'Der Garten liegt hinter ___ Haus.',
         expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The garden is behind the house.' },
-      { sentence: 'Er stellt das Fahrrad hinter das Haus.', blanked: 'Er stellt das Fahrrad hinter ___ Haus.',
-        expectedAnswer: 'das', usedCase: 'accusative', gloss: 'He puts the bike behind the house.' },
-      { sentence: 'Die Kinder spielen hinter der Schule.', blanked: 'Die Kinder spielen hinter ___ Schule.',
-        expectedAnswer: 'der', usedCase: 'dative', gloss: 'The children play behind the school.' }
+      { sentence: 'Sie stellt die Lampe hinter den Schrank.', blanked: 'Sie stellt die Lampe hinter ___ Schrank.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'She puts the lamp behind the cupboard.' },
+      { sentence: 'Wir warten hinter der Tür.', blanked: 'Wir warten hinter ___ Tür.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'We wait behind the door.' }
     ]
   },
   {
@@ -274,8 +274,8 @@ export const PREPOSITIONS: Preposition[] = [
     examples: [
       { sentence: 'Die Lampe steht neben dem Bett.', blanked: 'Die Lampe steht neben ___ Bett.',
         expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The lamp is next to the bed.' },
-      { sentence: 'Er stellt den Stuhl neben den Tisch.', blanked: 'Er stellt den Stuhl neben ___ Tisch.',
-        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'He places the chair next to the table.' },
+      { sentence: 'Ich lege das Buch neben den Stuhl.', blanked: 'Ich lege das Buch neben ___ Stuhl.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'I put the book next to the chair.' },
       { sentence: 'Sie sitzt neben der Lehrerin.', blanked: 'Sie sitzt neben ___ Lehrerin.',
         expectedAnswer: 'der', usedCase: 'dative', gloss: 'She sits next to the teacher.' }
     ]
@@ -307,8 +307,8 @@ export const PREPOSITIONS: Preposition[] = [
     examples: [
       { sentence: 'Das Auto steht vor dem Haus.', blanked: 'Das Auto steht vor ___ Haus.',
         expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The car is in front of the house.' },
-      { sentence: 'Er stellt das Auto vor das Haus.', blanked: 'Er stellt das Auto vor ___ Haus.',
-        expectedAnswer: 'das', usedCase: 'accusative', gloss: 'He parks the car in front of the house.' },
+      { sentence: 'Sie stellt die Blumen vor das Fenster.', blanked: 'Sie stellt die Blumen vor ___ Fenster.',
+        expectedAnswer: 'das', usedCase: 'accusative', gloss: 'She puts the flowers in front of the window.' },
       { sentence: 'Sie wartet vor der Tür.', blanked: 'Sie wartet vor ___ Tür.',
         expectedAnswer: 'der', usedCase: 'dative', gloss: 'She waits in front of the door.' }
     ]
