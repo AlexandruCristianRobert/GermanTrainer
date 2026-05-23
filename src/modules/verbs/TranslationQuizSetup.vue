@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import { VERB_LEVELS, VERB_TYPES, VERB_CASES, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
+
+const STORAGE_KEY = 'verbTransSetup'
 
 const router = useRouter()
 const { filter } = useVerbs()
@@ -13,6 +15,48 @@ const cases = ref<VerbCase[]>([...VERB_CASES])
 type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
 const count = ref<CountPreset>(10)
 const customCount = ref(15)
+
+interface Stored {
+  levels?: VerbLevel[]
+  types?: VerbType[]
+  cases?: VerbCase[]
+  count?: CountPreset
+  customCount?: number
+}
+
+function loadStored(): Stored | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') return null
+    return parsed as Stored
+  } catch { return null }
+}
+function saveStored(): void {
+  try {
+    const payload: Stored = {
+      levels: [...levels.value],
+      types: [...types.value],
+      cases: [...cases.value],
+      count: count.value,
+      customCount: customCount.value
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+  } catch { /* ignore */ }
+}
+
+onMounted(() => {
+  const s = loadStored()
+  if (!s) return
+  if (Array.isArray(s.levels)) levels.value = s.levels.filter(l => (VERB_LEVELS as readonly string[]).includes(l))
+  if (Array.isArray(s.types)) types.value = s.types.filter(t => (VERB_TYPES as readonly string[]).includes(t))
+  if (Array.isArray(s.cases)) cases.value = s.cases.filter(c => (VERB_CASES as readonly string[]).includes(c))
+  if (s.count !== undefined) count.value = s.count
+  if (typeof s.customCount === 'number' && s.customCount > 0) customCount.value = s.customCount
+})
+
+watch([levels, types, cases, count, customCount], saveStored, { deep: true })
 
 const available = computed(() => filter({ levels: levels.value, types: types.value, cases: cases.value }).length)
 const effective = computed(() => {

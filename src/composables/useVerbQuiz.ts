@@ -10,15 +10,25 @@ export interface TranslationQuestion {
   isCorrect: boolean | null
 }
 
+function stripParens(s: string): string {
+  // Drop any "(…)" hint segments from the canonical English so e.g.
+  // "know (a fact)" compares equal to "know". Handles nested-free
+  // input — sufficient for our verb data.
+  return s.replace(/\([^)]*\)/g, '')
+}
+
 function normalizeTranslation(s: string): string {
-  let n = s.trim().replace(/\s+/g, ' ').toLowerCase()
-  if (n.startsWith('to ')) n = n.slice(3)
+  let n = stripParens(s).trim().replace(/\s+/g, ' ').toLowerCase()
+  if (n.startsWith('to ')) n = n.slice(3).trim()
   return n
 }
 
 export function checkTranslation(input: string, english: string): boolean {
   const a = normalizeTranslation(input)
   if (a.length === 0) return false
+  // Each slash-separated alternative is graded independently — typing
+  // any one of them accepts. Parentheticals are stripped from both
+  // sides so optional disambiguation hints don't reject correct words.
   return english.split('/').some(seg => normalizeTranslation(seg) === a)
 }
 

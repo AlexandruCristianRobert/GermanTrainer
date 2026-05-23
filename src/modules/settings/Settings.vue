@@ -3,8 +3,9 @@ import { ref, computed } from 'vue'
 import SettingsApi from './SettingsApi.vue'
 import SettingsDisplay from './SettingsDisplay.vue'
 import SettingsPalette from './SettingsPalette.vue'
+import SettingsData from './SettingsData.vue'
 
-type TabId = 'api' | 'display' | 'palette'
+type TabId = 'api' | 'display' | 'palette' | 'data'
 
 interface TabSpec {
   id: TabId
@@ -35,6 +36,13 @@ const TABS: TabSpec[] = [
     titleDe: 'Farben',
     titleEn: 'Palette · Colors',
     blurb: 'Override design tokens per theme. Edit Light and Dark independently. Import and export as JSON.'
+  },
+  {
+    id: 'data',
+    numeral: 'IV',
+    titleDe: 'Daten',
+    titleEn: 'Data · Backup',
+    blurb: 'Export every preference, quiz-setup choice, palette override, and the full quiz history as a single JSON file. Import that file on another device to bring it all back.'
   }
 ]
 
@@ -85,6 +93,7 @@ const active = computed(() => TABS.find(t => t.id === activeTab.value) ?? TABS[0
         <SettingsApi v-if="activeTab === 'api'" />
         <SettingsDisplay v-else-if="activeTab === 'display'" />
         <SettingsPalette v-else-if="activeTab === 'palette'" />
+        <SettingsData v-else-if="activeTab === 'data'" />
       </main>
     </div>
   </div>

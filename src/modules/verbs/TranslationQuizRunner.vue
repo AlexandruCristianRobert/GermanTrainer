@@ -85,6 +85,22 @@ function onEnter(e: KeyboardEvent, i: number) {
   }
 }
 
+// Center the focused row in the viewport. Fires for Tab navigation and
+// for the manual Enter-driven focus moves above.
+function onRowFocus(e: FocusEvent) {
+  const input = e.target as HTMLInputElement | null
+  if (!input) return
+  const row = input.closest('.test-row')
+  if (!row) return
+  const reduce = typeof window !== 'undefined'
+    && window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ;(row as HTMLElement).scrollIntoView({
+    block: 'center',
+    behavior: reduce ? 'auto' : 'smooth'
+  })
+}
+
 function submitAll() {
   if (filledCount.value === 0) return
   const graded = deck.value.map((verb, i) => ({
@@ -188,6 +204,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
               :value="answers[i]"
               @input="setAnswer(i, ($event.target as HTMLInputElement).value)"
               @keydown.enter="onEnter($event, i)"
+              @focus="onRowFocus($event)"
               autocomplete="off"
               spellcheck="false"
             />

@@ -5,7 +5,8 @@ import { useAdjectives } from '../../composables/useAdjectives'
 import { useSettings } from '../../composables/useSettings'
 import { ADJECTIVE_GROUPS, type AdjectiveGroup } from '../../db/types'
 
-const STORAGE_KEY = 'adjectiveQuizGroups'
+const STORAGE_KEY = 'adjectiveQuizSetup'
+const LEGACY_GROUPS_KEY = 'adjectiveQuizGroups'
 
 const { countsByGroup } = useAdjectives()
 const { hasApiKey, load: loadSettings } = useSettings()
@@ -19,30 +20,55 @@ type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
 const count = ref<CountPreset>(10)
 const customCount = ref(15)
 
-function loadStored(): AdjectiveGroup[] | null {
+interface Stored {
+  groups?: AdjectiveGroup[]
+  count?: CountPreset
+  customCount?: number
+}
+
+function loadStored(): Stored | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
+    if (!raw) {
+      const legacy = localStorage.getItem(LEGACY_GROUPS_KEY)
+      if (legacy) {
+        const arr = JSON.parse(legacy)
+        if (Array.isArray(arr)) return { groups: arr as AdjectiveGroup[] }
+      }
+      return null
+    }
     const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return null
-    const known = new Set<string>(ADJECTIVE_GROUPS)
-    return parsed.filter((g): g is AdjectiveGroup => typeof g === 'string' && known.has(g))
+    if (!parsed || typeof parsed !== 'object') return null
+    return parsed as Stored
   } catch { return null }
 }
-function saveStored(groups: AdjectiveGroup[]) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(groups)) } catch { /* ignore */ }
+function saveStored(): void {
+  try {
+    const payload: Stored = {
+      groups: [...selected.value],
+      count: count.value,
+      customCount: customCount.value
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+  } catch { /* ignore */ }
 }
 
 onMounted(async () => {
   counts.value = await countsByGroup()
   await loadSettings()
   const stored = loadStored()
-  selected.value = stored && stored.length > 0
-    ? stored
-    : ADJECTIVE_GROUPS.filter(g => counts.value[g] > 0)
+  const known = new Set<string>(ADJECTIVE_GROUPS)
+  if (stored?.groups && Array.isArray(stored.groups)) {
+    const filtered = stored.groups.filter((g): g is AdjectiveGroup => typeof g === 'string' && known.has(g))
+    selected.value = filtered.length > 0 ? filtered : ADJECTIVE_GROUPS.filter(g => counts.value[g] > 0)
+  } else {
+    selected.value = ADJECTIVE_GROUPS.filter(g => counts.value[g] > 0)
+  }
+  if (stored?.count !== undefined) count.value = stored.count
+  if (typeof stored?.customCount === 'number' && stored.customCount > 0) customCount.value = stored.customCount
 })
 
-watch(selected, v => saveStored([...v]), { deep: true })
+watch([selected, count, customCount], saveStored, { deep: true })
 
 const selectedSet = computed(() => new Set(selected.value))
 

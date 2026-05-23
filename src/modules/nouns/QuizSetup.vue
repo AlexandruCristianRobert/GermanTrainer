@@ -4,7 +4,11 @@ import { useRouter } from 'vue-router'
 import { useNouns } from '../../composables/useNouns'
 import { NOUN_GROUPS, type NounGroup } from '../../db/types'
 
-const STORAGE_KEY = 'nounQuizGroups'
+// Setup memory key. Stores groups, mode, count preset, and custom count
+// so a returning user lands on the same setup screen they last used.
+const STORAGE_KEY = 'nounQuizSetup'
+// Legacy key — only used to seed when no new payload exists yet.
+const LEGACY_GROUPS_KEY = 'nounQuizGroups'
 
 const { countsByGroup } = useNouns()
 const router = useRouter()
@@ -18,29 +22,58 @@ type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
 const count = ref<CountPreset>(10)
 const customCount = ref(15)
 
-function loadStored(): NounGroup[] | null {
+interface Stored {
+  groups?: NounGroup[]
+  mode?: 'gender' | 'translation'
+  count?: CountPreset
+  customCount?: number
+}
+
+function loadStored(): Stored | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
+    if (!raw) {
+      // First-time migration from the legacy groups-only key.
+      const legacy = localStorage.getItem(LEGACY_GROUPS_KEY)
+      if (legacy) {
+        const arr = JSON.parse(legacy)
+        if (Array.isArray(arr)) return { groups: arr as NounGroup[] }
+      }
+      return null
+    }
     const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return null
-    const known = new Set<string>(NOUN_GROUPS)
-    return parsed.filter((g): g is NounGroup => typeof g === 'string' && known.has(g))
+    if (!parsed || typeof parsed !== 'object') return null
+    return parsed as Stored
   } catch { return null }
 }
-function saveStored(groups: NounGroup[]): void {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(groups)) } catch { /* ignore */ }
+function saveStored(): void {
+  try {
+    const payload: Stored = {
+      groups: [...selected.value],
+      mode: mode.value,
+      count: count.value,
+      customCount: customCount.value
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+  } catch { /* ignore */ }
 }
 
 onMounted(async () => {
   counts.value = await countsByGroup()
   const stored = loadStored()
-  selected.value = stored && stored.length > 0
-    ? stored
-    : NOUN_GROUPS.filter(g => counts.value[g] > 0)
+  const known = new Set<string>(NOUN_GROUPS)
+  if (stored?.groups && Array.isArray(stored.groups)) {
+    const filtered = stored.groups.filter((g): g is NounGroup => typeof g === 'string' && known.has(g))
+    selected.value = filtered.length > 0 ? filtered : NOUN_GROUPS.filter(g => counts.value[g] > 0)
+  } else {
+    selected.value = NOUN_GROUPS.filter(g => counts.value[g] > 0)
+  }
+  if (stored?.mode === 'gender' || stored?.mode === 'translation') mode.value = stored.mode
+  if (stored?.count !== undefined) count.value = stored.count
+  if (typeof stored?.customCount === 'number' && stored.customCount > 0) customCount.value = stored.customCount
 })
 
-watch(selected, v => saveStored([...v]), { deep: true })
+watch([selected, mode, count, customCount], saveStored, { deep: true })
 
 const selectedSet = computed(() => new Set(selected.value))
 

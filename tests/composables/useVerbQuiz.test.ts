@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   useTranslationQuiz,
   useConjugationQuiz,
+  checkTranslation,
   checkConjugation
 } from '../../src/composables/useVerbQuiz'
 import type { Verb } from '../../src/data/verbs'
@@ -60,6 +61,31 @@ describe('useTranslationQuiz', () => {
       q.submit(ans)
       expect(q.questions.value[0].isCorrect, `"${ans}" should match`).toBe(true)
     }
+  })
+})
+
+describe('checkTranslation — parentheticals', () => {
+  it('matches the bare word even when canonical has a "(…)" disambiguator', () => {
+    expect(checkTranslation('know', 'know (a fact)')).toBe(true)
+    expect(checkTranslation('to know', 'know (a fact)')).toBe(true)
+    expect(checkTranslation('KNOW', 'know (a fact)')).toBe(true)
+  })
+
+  it('accepts the user typing their own "(…)" disambiguator', () => {
+    expect(checkTranslation('know (something)', 'know (a fact)')).toBe(true)
+  })
+
+  it('still rejects an unrelated answer', () => {
+    expect(checkTranslation('forget', 'know (a fact)')).toBe(false)
+  })
+
+  it('strips parens before splitting on / so each alternative matches its bare word', () => {
+    const canonical = 'know (a fact) / know (a person)'
+    expect(checkTranslation('know', canonical)).toBe(true)
+  })
+
+  it('handles trailing whitespace left after stripping parens', () => {
+    expect(checkTranslation('see', '  see (someone)  ')).toBe(true)
   })
 })
 
