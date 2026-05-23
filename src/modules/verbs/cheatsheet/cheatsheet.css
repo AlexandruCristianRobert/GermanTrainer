@@ -1,6 +1,9 @@
 /* ─── Grammatik-Atelier — shared variables, base typography, utilities ─── */
 
-:root {
+/* Scoped to the cheatsheet page — apply via .grammatik root class.
+   Variables live here, not on :root, so the page's design tokens don't pollute
+   the global namespace where naive-ui or other modules might collide. */
+.grammatik {
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
@@ -16,10 +19,7 @@
   --clay: #A03B2B;
   --ochre: #C29242;
   --cobalt: #2C5282;
-}
 
-/* Scoped to the cheatsheet page — apply via .grammatik root class */
-.grammatik {
   position: relative;
   background: var(--paper);
   color: var(--ink);
@@ -119,5 +119,5 @@
   .grammatik [data-print-hide] { display: none !important; }
   .grammatik .chapter { page-break-before: always; }
   .grammatik .chapter:first-of-type { page-break-before: auto; }
-  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .grammatik * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
