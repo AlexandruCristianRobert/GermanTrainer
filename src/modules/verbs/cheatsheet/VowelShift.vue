@@ -23,4 +23,8 @@ defineProps<{ from?: string }>()
   50% { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .vowel-shift { animation: none; }
+}
 </style>
