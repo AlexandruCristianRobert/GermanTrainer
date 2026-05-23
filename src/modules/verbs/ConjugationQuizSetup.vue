@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { NSpace, NCheckboxGroup, NCheckbox, NRadioGroup, NRadio, NButton, NInputNumber, NAlert, NTag, NDivider } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import {
@@ -17,12 +16,14 @@ const levels = ref<VerbLevel[]>([...VERB_LEVELS])
 const types  = ref<VerbType[]>([...VERB_TYPES])
 const cases  = ref<VerbCase[]>([...VERB_CASES])
 const tenses = ref<VerbTense[]>(['praesens'])
-const preset = ref<10 | 15 | 20 | 'all' | 'custom'>(10)
+
+type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
+const preset = ref<CountPreset>(10)
 const customCount = ref(10)
 
 interface Stored {
   levels?: VerbLevel[]; types?: VerbType[]; cases?: VerbCase[]; tenses?: VerbTense[]
-  preset?: 10 | 15 | 20 | 'all' | 'custom'; customCount?: number
+  preset?: CountPreset; customCount?: number
 }
 function load() {
   try {
@@ -39,7 +40,10 @@ function load() {
 }
 function save() {
   try {
-    const payload: Stored = { levels: levels.value, types: types.value, cases: cases.value, tenses: tenses.value, preset: preset.value, customCount: customCount.value }
+    const payload: Stored = {
+      levels: levels.value, types: types.value, cases: cases.value, tenses: tenses.value,
+      preset: preset.value, customCount: customCount.value
+    }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   } catch { /* ignore */ }
 }
@@ -48,7 +52,9 @@ watch([levels, types, cases, tenses, preset, customCount], save, { deep: true })
 
 const filteredVerbs = computed(() => filter({ levels: levels.value, types: types.value, cases: cases.value }))
 const availableVerbs = computed(() => filteredVerbs.value.length)
-const passiveSupported = computed(() => filteredVerbs.value.some(v => v.case === 'accusative' || v.case === 'dative+accusative'))
+const passiveSupported = computed(() =>
+  filteredVerbs.value.some(v => v.case === 'accusative' || v.case === 'dative+accusative')
+)
 
 const requested = computed<number>(() => {
   if (preset.value === 'all') return availableVerbs.value
@@ -67,12 +73,16 @@ const tensesByLevel = computed(() => {
 function tenseDisabled(t: VerbTense): boolean {
   return PASSIVE_TENSE_SET.has(t) && !passiveSupported.value
 }
-
 function toggleTense(t: VerbTense) {
   if (tenseDisabled(t)) return
   const i = tenses.value.indexOf(t)
   if (i >= 0) tenses.value.splice(i, 1)
   else tenses.value.push(t)
+}
+function toggle<T>(set: T[], v: T): T[] {
+  const i = set.indexOf(v)
+  if (i >= 0) return set.filter((_, j) => j !== i)
+  return [...set, v]
 }
 
 function start() {
@@ -87,99 +97,194 @@ function start() {
     }
   })
 }
+
+const CEFR_ORDER: TenseCEFR[] = ['A1', 'A2', 'B1', 'B2', 'C1']
 </script>
 
 <template>
-  <n-space vertical size="large" style="max-width: 720px">
-    <n-space justify="space-between" align="center">
-      <h2 style="margin: 0">Conjugation quiz setup</h2>
-      <n-button @click="router.push('/verbs/cheatsheet')">Open cheatsheet</n-button>
-    </n-space>
+  <div class="page setup-page">
+    <header class="section-header">
+      <div>
+        <div class="breadcrumb">Kapitel III · Konjugation · Einrichtung</div>
+        <h1 class="section-title">Setup<em>.</em></h1>
+        <p class="section-subtitle">
+          Filter the verb pool, pick which tenses to drill, and how many verbs.
+          Each verb you pick is asked once per selected tense.
+        </p>
+      </div>
+      <button class="btn btn-ghost" type="button" @click="router.push({ name: 'verbs-cheatsheet' })">Open cheatsheet</button>
+    </header>
 
-    <div>
-      <p><strong>Verb filters</strong></p>
-      <n-space :wrap="true" size="large">
-        <div>
-          <p>Level</p>
-          <n-checkbox-group v-model:value="levels"><n-space><n-checkbox v-for="l in VERB_LEVELS" :key="l" :value="l" :label="l" /></n-space></n-checkbox-group>
+    <div class="field">
+      <div class="field-row">
+        <div class="field-label">Verb level · {{ levels.length }} of {{ VERB_LEVELS.length }}</div>
+        <div class="field-actions">
+          <button class="btn btn-quiet" type="button" @click="levels = [...VERB_LEVELS]">All</button>
+          <button class="btn btn-quiet" type="button" @click="levels = []">None</button>
         </div>
-        <div>
-          <p>Type</p>
-          <n-checkbox-group v-model:value="types"><n-space :wrap="true"><n-checkbox v-for="t in VERB_TYPES" :key="t" :value="t" :label="t" /></n-space></n-checkbox-group>
-        </div>
-        <div>
-          <p>Case</p>
-          <n-checkbox-group v-model:value="cases"><n-space :wrap="true"><n-checkbox v-for="c in VERB_CASES" :key="c" :value="c" :label="c" /></n-space></n-checkbox-group>
-        </div>
-      </n-space>
-    </div>
-
-    <n-divider />
-
-    <div>
-      <p><strong>Tenses</strong></p>
-      <n-alert v-if="!passiveSupported" type="info" style="margin-bottom: 8px">
-        Passive tenses are disabled — your verb filter has no transitive (accusative) verbs.
-      </n-alert>
-      <div v-for="level in (['A1','A2','B1','B2','C1'] as const)" :key="level" style="margin-bottom: 12px">
-        <p style="font-weight: 600; margin: 6px 0">{{ level }}</p>
-        <n-space :wrap="true">
-          <label
-            v-for="t in tensesByLevel[level]" :key="t"
-            class="tense-chip"
-            :class="{ disabled: tenseDisabled(t), selected: tenses.includes(t) }"
-            @click="toggleTense(t)"
-          >
-            <input type="checkbox" :checked="tenses.includes(t)" :disabled="tenseDisabled(t)" style="margin-right: 6px" />
-            {{ TENSE_LABELS[t] }}
-            <n-tag size="small" :bordered="false" style="margin-left: 6px">{{ level }}</n-tag>
-          </label>
-        </n-space>
+      </div>
+      <div class="chip-row">
+        <button v-for="l in VERB_LEVELS" :key="l"
+          class="chip" :class="{ selected: levels.includes(l) }"
+          @click="levels = toggle(levels, l)"
+        >{{ l }}</button>
       </div>
     </div>
 
-    <n-divider />
+    <div class="field">
+      <div class="field-row">
+        <div class="field-label">Verb type · {{ types.length }} of {{ VERB_TYPES.length }}</div>
+        <div class="field-actions">
+          <button class="btn btn-quiet" type="button" @click="types = [...VERB_TYPES]">All</button>
+          <button class="btn btn-quiet" type="button" @click="types = []">None</button>
+        </div>
+      </div>
+      <div class="chip-row">
+        <button v-for="t in VERB_TYPES" :key="t"
+          class="chip" :class="{ selected: types.includes(t) }"
+          @click="types = toggle(types, t)"
+        >{{ t }}</button>
+      </div>
+    </div>
 
-    <div>
-      <p><strong>Number of verbs</strong></p>
-      <n-radio-group v-model:value="preset">
-        <n-radio :value="10">10</n-radio>
-        <n-radio :value="15">15</n-radio>
-        <n-radio :value="20">20</n-radio>
-        <n-radio value="all">All ({{ availableVerbs }})</n-radio>
-        <n-radio value="custom">Custom</n-radio>
-      </n-radio-group>
-      <n-input-number
-        v-if="preset === 'custom'"
-        v-model:value="customCount"
-        :min="1" :max="availableVerbs || 1"
-        style="margin-top: 8px; width: 100%"
-      />
-      <p v-if="tenses.length > 0" style="opacity: 0.7; margin-top: 8px">
+    <div class="field">
+      <div class="field-row">
+        <div class="field-label">Verb case · {{ cases.length }} of {{ VERB_CASES.length }}</div>
+        <div class="field-actions">
+          <button class="btn btn-quiet" type="button" @click="cases = [...VERB_CASES]">All</button>
+          <button class="btn btn-quiet" type="button" @click="cases = []">None</button>
+        </div>
+      </div>
+      <div class="chip-row">
+        <button v-for="c in VERB_CASES" :key="c"
+          class="chip" :class="{ selected: cases.includes(c) }"
+          @click="cases = toggle(cases, c)"
+        >{{ c }}</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Tenses · {{ tenses.length }} selected</div>
+      <div v-if="!passiveSupported" class="alert alert-info passive-hint">
+        <span class="alert-label">Info</span>
+        Passive tenses are disabled — your verb filter has no transitive (accusative) verbs.
+      </div>
+      <div v-for="level in CEFR_ORDER" :key="level" class="tense-group">
+        <div class="tense-group-label">{{ level }}</div>
+        <div class="chip-row">
+          <button
+            v-for="t in tensesByLevel[level]" :key="t"
+            class="chip tense-chip"
+            :class="{ selected: tenses.includes(t) }"
+            :disabled="tenseDisabled(t)"
+            @click="toggleTense(t)"
+          >
+            <span>{{ TENSE_LABELS[t] }}</span>
+            <span class="chip-count">{{ TENSE_LEVEL[t] }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Number of verbs</div>
+      <div class="field-row count-row">
+        <div class="segmented">
+          <button :class="{ active: preset === 10 }" @click="preset = 10">10</button>
+          <button :class="{ active: preset === 15 }" @click="preset = 15">15</button>
+          <button :class="{ active: preset === 20 }" @click="preset = 20">20</button>
+          <button :class="{ active: preset === 'all' }" @click="preset = 'all'">All · {{ availableVerbs }}</button>
+          <button :class="{ active: preset === 'custom' }" @click="preset = 'custom'">Custom</button>
+        </div>
+        <input
+          v-if="preset === 'custom'"
+          class="input custom-count"
+          type="number"
+          :min="1"
+          :max="availableVerbs || 1"
+          v-model.number="customCount"
+        />
+        <span class="micro-mark count-avail">{{ availableVerbs }} verbs match</span>
+      </div>
+      <p v-if="tenses.length > 0" class="total-q-line">
         ≈ {{ totalQuestions }} questions ({{ effectiveVerbs }} verbs × {{ tenses.length }} tenses)
       </p>
     </div>
 
-    <n-alert v-if="availableVerbs === 0" type="warning">No verbs match the selected filters.</n-alert>
-    <n-alert v-else-if="tenses.length === 0" type="warning">Pick at least one tense.</n-alert>
+    <div v-if="availableVerbs === 0" class="alert alert-warning">
+      <span class="alert-label">Warning</span>
+      No verbs match the selected filters.
+    </div>
+    <div v-else-if="tenses.length === 0" class="alert alert-warning">
+      <span class="alert-label">Warning</span>
+      Pick at least one tense.
+    </div>
 
-    <n-button
-      type="primary"
-      :disabled="availableVerbs === 0 || tenses.length === 0"
-      @click="start"
-    >
-      Start quiz
-    </n-button>
-  </n-space>
+    <div class="setup-actions">
+      <button class="btn btn-ghost" type="button" @click="router.push({ name: 'verbs' })">← Back</button>
+      <button
+        class="btn btn-accent"
+        type="button"
+        :disabled="availableVerbs === 0 || tenses.length === 0"
+        @click="start"
+      >
+        Start quiz · {{ totalQuestions }} questions <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.tense-chip {
-  display: inline-flex; align-items: center;
-  padding: 6px 12px; border-radius: 999px;
-  border: 1px solid var(--n-divider-color, #d0d0d6);
-  cursor: pointer; user-select: none;
+.setup-page { max-width: 720px; }
+
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
-.tense-chip.selected { border-color: #2080f0; background: rgba(32, 128, 240, 0.08); }
-.tense-chip.disabled { opacity: 0.4; cursor: not-allowed; }
+.field-actions { display: flex; gap: 4px; }
+.count-row { align-items: center; gap: 12px; }
+.custom-count { width: 80px; font-size: 17px; padding: 4px 0; }
+.count-avail { margin-left: auto; }
+
+.passive-hint { margin-top: 0; margin-bottom: 16px; }
+.tense-group {
+  margin-bottom: 12px;
+}
+.tense-group-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: 6px;
+}
+.tense-chip { gap: 8px; }
+.tense-chip .chip-count {
+  border-left: 1px solid var(--hairline);
+  padding-left: 6px;
+}
+
+.total-q-line {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--mute);
+}
+
+.setup-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .setup-actions { flex-direction: column-reverse; align-items: stretch; }
+  .setup-actions .btn { justify-content: center; }
+}
 </style>

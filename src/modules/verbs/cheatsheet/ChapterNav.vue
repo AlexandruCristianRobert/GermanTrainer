@@ -91,8 +91,11 @@ onUnmounted(() => observer?.disconnect())
         @keydown.enter.prevent="onSelect(c.id)"
         @keydown.space.prevent="onSelect(c.id)"
       >
-        <span class="chapter-nav-numeral">{{ c.numeral }}</span>
-        <span class="chapter-nav-title">{{ c.titleDe }}</span>
+        <span class="chapter-nav-numeral">{{ c.numeral.toLowerCase() }}.</span>
+        <span class="chapter-nav-title-block">
+          <span class="chapter-nav-title">{{ c.titleDe }}</span>
+          <span class="chapter-nav-sub">{{ c.titleEn }}</span>
+        </span>
       </li>
     </ol>
   </nav>
@@ -137,7 +140,7 @@ onUnmounted(() => observer?.disconnect())
   font-size: 14px;
 }
 
-.chapter-nav-search:focus { border-bottom-color: var(--sage); }
+.chapter-nav-search:focus { border-bottom-color: var(--accent); }
 .chapter-nav-search::placeholder { color: var(--mute); font-style: italic; }
 
 .chapter-nav-list {
@@ -151,8 +154,9 @@ onUnmounted(() => observer?.disconnect())
   grid-template-columns: 32px 1fr;
   gap: 8px;
   align-items: baseline;
-  padding: 8px 12px;
+  padding: 10px 0 10px 14px;
   border-left: 2px solid transparent;
+  border-bottom: 1px dotted var(--hairline);
   cursor: pointer;
   color: var(--ink-soft);
   transition: opacity 200ms ease, border-color 280ms ease-out, color 200ms ease;
@@ -161,30 +165,48 @@ onUnmounted(() => observer?.disconnect())
 .chapter-nav-item:hover { color: var(--ink); }
 
 .chapter-nav-item:focus-visible {
-  outline: 2px solid var(--sage);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   color: var(--ink);
 }
 
 .chapter-nav-item.active {
-  border-left-color: var(--sage);
+  border-left-color: var(--accent);
   color: var(--ink);
 }
 
-.chapter-nav-item.dim { opacity: 0.3; }
+.chapter-nav-item.dim { opacity: 0.32; }
 
-.chapter-nav-numeral {
-  font-family: var(--font-display);
+.chapter-nav-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.25;
+}
+.chapter-nav-sub {
+  font-family: var(--font-body);
   font-style: italic;
-  font-size: 16px;
-  color: var(--ink-soft);
+  font-size: 12.5px;
+  color: var(--mute);
 }
 
-.chapter-nav-item.active .chapter-nav-numeral { color: var(--sage); }
+.chapter-nav-numeral {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 12px;
+  color: var(--mute);
+  flex: 0 0 28px;
+  letter-spacing: 0.04em;
+}
+
+.chapter-nav-item.active .chapter-nav-numeral { color: var(--accent); }
 
 .chapter-nav-title {
-  font-family: var(--font-body);
-  line-height: 1.3;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.25;
+  color: var(--ink);
 }
 
 /* Tablet — compact pill bar (640–1023px) */

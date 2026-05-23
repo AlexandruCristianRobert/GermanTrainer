@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NSpin, NAlert, NCard, NSpace, NText, NInput, NButton, NTag, NList, NListItem } from 'naive-ui'
 import { useVerbs } from '../../composables/useVerbs'
 import { useConjugationQuiz } from '../../composables/useVerbQuiz'
 import {
@@ -9,6 +8,21 @@ import {
   TENSE_LABELS, TENSE_LEVEL,
   type Verb, type VerbLevel, type VerbType, type VerbCase, type VerbTense
 } from '../../data/verbs'
+
+function typeTagClass(t: string): string {
+  if (t === 'irregular') return 'tag-clay'
+  if (t === 'separable') return 'tag-cobalt'
+  if (t === 'modal') return 'tag-ochre'
+  if (t === 'mixed') return 'tag-accent'
+  return ''
+}
+function caseTagClass(c: string): string {
+  if (c === 'dative' || c === 'dative+accusative') return 'tag-clay'
+  if (c === 'accusative') return 'tag-cobalt'
+  if (c === 'reflexive') return 'tag-accent'
+  if (c === 'genitive') return 'tag-ochre'
+  return ''
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -67,11 +81,29 @@ function resetInputs() {
   submitted.value = false
 }
 
-// Touching `ready` makes these re-evaluate when the quiz is constructed.
 const current = computed(() => (ready.value, quiz?.current.value ?? null))
 const finished = computed(() => (ready.value, quiz?.finished.value ?? false))
 const total = computed(() => (ready.value, quiz?.total.value ?? 0))
 const questionIndex = computed(() => (ready.value, quiz?.currentIndex.value ?? 0))
+const questions = computed(() => (ready.value, quiz?.questions.value ?? []))
+
+const pips = computed(() => {
+  const out: string[] = []
+  for (let n = 0; n < total.value; n++) {
+    if (n < questionIndex.value) {
+      const q = questions.value[n]
+      out.push(q && q.correctCount === q.totalCount ? 'done' : 'wrong')
+    } else if (n === questionIndex.value && submitted.value) {
+      const q = questions.value[n]
+      out.push(q && q.correctCount === q.totalCount ? 'done' : 'wrong')
+    } else if (n === questionIndex.value) {
+      out.push('current')
+    } else {
+      out.push('')
+    }
+  }
+  return out
+})
 
 function submit() {
   if (!quiz || submitted.value) return
@@ -84,7 +116,7 @@ function next() {
   quiz.advance()
   resetInputs()
   nextTick(() => {
-    const first = document.querySelector<HTMLInputElement>('.conj-input input')
+    const first = document.querySelector<HTMLInputElement>('.conj-input')
     first?.focus()
   })
 }
@@ -95,96 +127,235 @@ function skip() {
   resetInputs()
 }
 
-function restart() { router.push('/verbs/conjugation') }
-
-const recap = computed(() => {
-  if (!ready.value || !quiz) return []
-  return quiz.questions.value.map(q => ({
-    german: `${q.verb.german} — ${TENSE_LABELS[q.tense]}`,
-    expected: q.rows.map(r => `${r.person}: ${r.expected}`).join(' • '),
-    userAnswer: q.rows.map(r => r.userAnswer || '–').join(' • '),
-    isCorrect: q.correctCount === q.totalCount
-  }))
-})
+function restart() { router.push({ name: 'verbs-conjugation' }) }
 
 const aggregateLabel = computed(() => {
   if (!ready.value || !quiz) return ''
   const fullyCorrect = quiz.questions.value.filter(q => q.correctCount === q.totalCount).length
-  return `Score: ${quiz.correctRows.value} / ${quiz.totalRows.value} forms (${fullyCorrect}/${quiz.total.value} fully correct)`
+  return `${quiz.correctRows.value} / ${quiz.totalRows.value} forms · ${fullyCorrect}/${quiz.total.value} fully correct`
 })
 </script>
 
 <template>
-  <div>
-    <n-spin v-if="loading" />
-    <n-alert v-else-if="error" type="error">{{ error }}</n-alert>
+  <div v-if="loading" class="page loading-state"><div class="micro-mark">Loading…</div></div>
+  <div v-else-if="error" class="page">
+    <div class="alert alert-danger">
+      <span class="alert-label">Error</span>{{ error }}
+    </div>
+    <button class="btn btn-ghost" @click="restart">← Back to setup</button>
+  </div>
 
-    <template v-else-if="finished && ready">
-      <n-card>
-        <n-space vertical size="large">
-          <n-text style="font-size: 22px">{{ aggregateLabel }}</n-text>
-          <n-list bordered>
-            <n-list-item v-for="(r, i) in recap" :key="i">
-              <n-space justify="space-between" align="center" style="width: 100%">
-                <span><strong>{{ r.german }}</strong> — {{ r.expected }} — your: {{ r.userAnswer }}</span>
-                <n-tag :type="r.isCorrect ? 'success' : 'error'">{{ r.isCorrect ? '✓' : '×' }}</n-tag>
-              </n-space>
-            </n-list-item>
-          </n-list>
-          <n-button type="primary" @click="restart">Start another quiz</n-button>
-        </n-space>
-      </n-card>
-    </template>
-
-    <template v-else-if="current">
-      <div class="shell">
-        <n-card>
-          <n-space vertical size="large">
-            <n-space justify="space-between" align="center">
-              <n-text depth="3">Question {{ questionIndex + 1 }} of {{ total }}</n-text>
-              <n-button size="small" quaternary @click="router.push('/verbs/cheatsheet')">Cheatsheet</n-button>
-            </n-space>
-            <n-text style="font-size: 28px">{{ current.verb.german }}</n-text>
-            <n-space>
-              <n-tag size="small">{{ TENSE_LABELS[current.tense] }} <span style="opacity:.6">({{ TENSE_LEVEL[current.tense] }})</span></n-tag>
-              <n-tag size="small" type="info">{{ current.verb.type }}</n-tag>
-              <n-tag size="small" type="warning">{{ current.verb.case }}</n-tag>
-              <n-tag size="small">aux: {{ current.verb.auxiliary }}</n-tag>
-            </n-space>
-
-            <div v-for="(row, i) in current.rows" :key="i" class="conj-row">
-              <div class="pronoun">{{ row.person }}</div>
-              <n-input
-                v-model:value="inputs[i]"
-                :disabled="submitted"
-                class="conj-input"
-                @keyup.enter="submit"
-              />
-              <div v-if="submitted" class="feedback">
-                <span v-if="row.isCorrect" style="color: #18a058">✅</span>
-                <span v-else style="color: #d03050">❌ {{ row.expected }}</span>
-              </div>
-            </div>
-
-            <n-space>
-              <n-button v-if="!submitted" type="primary" @click="submit">Submit</n-button>
-              <n-button v-if="!submitted" @click="skip">Skip</n-button>
-              <n-button v-if="submitted" type="primary" @click="next">Next</n-button>
-            </n-space>
-          </n-space>
-        </n-card>
+  <div v-else-if="finished && ready" class="page result-page">
+    <header class="section-header">
+      <div>
+        <div class="breadcrumb">Auswertung · Konjugation</div>
+        <div class="result-score">{{ aggregateLabel }}</div>
+        <p class="section-subtitle">
+          Per-row scoring across {{ total }} verb–tense pairs.
+        </p>
       </div>
-    </template>
+      <div class="result-actions">
+        <button class="btn btn-ghost" @click="router.push({ name: 'verbs' })">← Verben</button>
+        <button class="btn btn-accent" @click="restart">Start another quiz <span aria-hidden="true">→</span></button>
+      </div>
+    </header>
+
+    <div class="result-list">
+      <div v-for="(q, i) in questions" :key="i" class="result-row conj-result-row">
+        <div class="german">
+          {{ q.verb.german }}
+          <div class="german-meta">{{ TENSE_LABELS[q.tense] }} · {{ TENSE_LEVEL[q.tense] }}</div>
+        </div>
+        <div class="answers">
+          <span v-for="(r, ri) in q.rows" :key="ri" class="row-mini">
+            <span class="row-person">{{ r.person }}</span>
+            <strong :style="r.isCorrect ? 'color: var(--success)' : 'color: var(--danger)'">{{ r.userAnswer || '—' }}</strong>
+            <span v-if="!r.isCorrect" class="row-expected">→ {{ r.expected }}</span>
+          </span>
+        </div>
+        <div>
+          <span class="tag" :class="q.correctCount === q.totalCount ? 'tag-success' : 'tag-danger'">
+            {{ q.correctCount }} / {{ q.totalCount }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-else-if="current" class="page">
+    <div class="conj-quiz-stage">
+      <div class="quiz-meta">
+        <span class="quiz-counter">Frage {{ questionIndex + 1 }} · von {{ total }}</span>
+        <button class="btn btn-quiet" type="button" @click="router.push({ name: 'verbs-cheatsheet' })">Cheatsheet</button>
+      </div>
+
+      <div class="quiz-progress-bar">
+        <div v-for="(cls, i) in pips" :key="i" class="pip" :class="cls" />
+      </div>
+
+      <div class="prompt-card conj-prompt">
+        <div class="prompt-chips">
+          <span class="tag">{{ TENSE_LABELS[current.tense] }} · {{ TENSE_LEVEL[current.tense] }}</span>
+          <span class="tag" :class="typeTagClass(current.verb.type)">{{ current.verb.type }}</span>
+          <span class="tag" :class="caseTagClass(current.verb.case)">{{ current.verb.case }}</span>
+          <span class="tag">aux {{ current.verb.auxiliary }}</span>
+        </div>
+        <div class="prompt-german conj-prompt-german">{{ current.verb.german }}</div>
+      </div>
+
+      <div class="conj-table" :class="{ submitted }">
+        <div class="conj-rows-grid">
+          <div v-for="(row, i) in current.rows" :key="i" class="conj-row-input">
+            <span class="conj-person">{{ row.person }}</span>
+            <input
+              v-model="inputs[i]"
+              class="input conj-input"
+              type="text"
+              :readonly="submitted"
+              autocomplete="off"
+              spellcheck="false"
+              :style="submitted ? {
+                color: row.isCorrect ? 'var(--success)' : 'var(--danger)',
+                borderBottomColor: row.isCorrect ? 'var(--success)' : 'var(--danger)'
+              } : undefined"
+              @keyup.enter="submitted ? next() : submit()"
+            />
+            <div v-if="submitted" class="conj-feedback">
+              <span v-if="row.isCorrect" class="ok-mark">✓</span>
+              <span v-else class="row-expected">→ <strong>{{ row.expected }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-actions conj-actions">
+        <span class="micro-mark">Press <span class="kbd">Enter</span> in any field to {{ submitted ? 'advance' : 'submit' }}</span>
+        <div class="action-buttons">
+          <button v-if="!submitted" class="btn btn-ghost" type="button" @click="skip">Skip</button>
+          <button v-if="!submitted" class="btn btn-accent" type="button" @click="submit">
+            Submit <span aria-hidden="true">→</span>
+          </button>
+          <button v-else class="btn btn-accent" type="button" @click="next">
+            {{ questionIndex + 1 === total ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.shell { max-width: 560px; margin: 0 auto; }
-.conj-row { display: grid; grid-template-columns: 80px 1fr auto; gap: 8px; align-items: center; }
-.pronoun { font-weight: 600; opacity: 0.8; }
-.feedback { font-size: 13px; }
-@media (max-width: 480px) {
-  .conj-row { grid-template-columns: 64px 1fr; }
-  .feedback { grid-column: 1 / -1; padding-left: 64px; }
+.loading-state { text-align: center; padding-top: 120px; }
+.result-page { max-width: 880px; }
+.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.conj-quiz-stage {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.prompt-chips {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.conj-prompt {
+  padding: 56px 0 36px;
+}
+.conj-prompt-german {
+  font-size: 72px;
+  font-style: italic;
+}
+@media (max-width: 720px) {
+  .conj-prompt-german { font-size: 44px; }
+}
+
+.conj-table {
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  margin: 28px 0 16px;
+  padding: 18px 22px;
+  background: var(--paper-card);
+}
+
+.conj-rows-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 6px 36px;
+}
+
+.conj-row-input {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px dotted var(--hairline);
+}
+
+.conj-person {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.conj-input {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  padding: 4px 0;
+  border-bottom-width: 1px;
+}
+
+.conj-feedback {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.ok-mark { color: var(--success); font-weight: 600; }
+.row-expected { color: var(--danger); }
+
+.conj-actions {
+  margin-top: 24px;
+}
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.conj-result-row {
+  grid-template-columns: 180px 1fr auto;
+}
+.german-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--mute);
+  margin-top: 2px;
+  font-weight: 400;
+}
+.row-mini {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-right: 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.row-person {
+  color: var(--ink-soft);
+  font-style: italic;
+  font-family: var(--font-body);
+}
+.tag-success { background: var(--success-tint); color: var(--success); }
+.tag-danger { background: var(--danger-tint); color: var(--danger); }
+
+@media (max-width: 720px) {
+  .conj-result-row { grid-template-columns: 1fr; gap: 4px; }
+  .result-actions { flex-direction: column; align-items: stretch; }
+  .result-actions .btn { justify-content: center; }
 }
 </style>

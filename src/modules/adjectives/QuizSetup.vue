@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import {
-  NRadioGroup, NRadio, NSpace, NButton, NInputNumber, NAlert, NCheckboxGroup, NCheckbox,
-  useMessage
-} from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { useAdjectives } from '../../composables/useAdjectives'
 import { useSettings } from '../../composables/useSettings'
@@ -14,16 +10,16 @@ const STORAGE_KEY = 'adjectiveQuizGroups'
 const { countsByGroup } = useAdjectives()
 const { hasApiKey, load: loadSettings } = useSettings()
 const router = useRouter()
-const message = useMessage()
 
 const counts = ref<Record<AdjectiveGroup, number>>(
   Object.fromEntries(ADJECTIVE_GROUPS.map(g => [g, 0])) as Record<AdjectiveGroup, number>
 )
-const selectedGroups = ref<AdjectiveGroup[]>([])
-const preset = ref<10 | 15 | 20 | 'custom'>(10)
-const customCount = ref(10)
+const selected = ref<AdjectiveGroup[]>([])
+type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
+const count = ref<CountPreset>(10)
+const customCount = ref(15)
 
-function loadSelectedGroups(): AdjectiveGroup[] | null {
+function loadStored(): AdjectiveGroup[] | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
@@ -31,126 +27,166 @@ function loadSelectedGroups(): AdjectiveGroup[] | null {
     if (!Array.isArray(parsed)) return null
     const known = new Set<string>(ADJECTIVE_GROUPS)
     return parsed.filter((g): g is AdjectiveGroup => typeof g === 'string' && known.has(g))
-  } catch {
-    return null
-  }
+  } catch { return null }
 }
-
-function saveSelectedGroups(groups: AdjectiveGroup[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(groups))
-  } catch {
-    // ignore
-  }
+function saveStored(groups: AdjectiveGroup[]) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(groups)) } catch { /* ignore */ }
 }
 
 onMounted(async () => {
   counts.value = await countsByGroup()
   await loadSettings()
-  const stored = loadSelectedGroups()
-  if (stored && stored.length > 0) {
-    selectedGroups.value = stored
-  } else {
-    selectedGroups.value = ADJECTIVE_GROUPS.filter(g => counts.value[g] > 0)
-  }
+  const stored = loadStored()
+  selected.value = stored && stored.length > 0
+    ? stored
+    : ADJECTIVE_GROUPS.filter(g => counts.value[g] > 0)
 })
 
-watch(selectedGroups, value => {
-  saveSelectedGroups([...value])
-}, { deep: true })
+watch(selected, v => saveStored([...v]), { deep: true })
+
+const selectedSet = computed(() => new Set(selected.value))
+
+function toggleGroup(g: AdjectiveGroup) {
+  if ((counts.value[g] ?? 0) === 0) return
+  const i = selected.value.indexOf(g)
+  if (i >= 0) selected.value.splice(i, 1)
+  else selected.value.push(g)
+}
+function selectAll() { selected.value = ADJECTIVE_GROUPS.filter(g => counts.value[g] > 0) }
+function selectNone() { selected.value = [] }
 
 const totalAvailable = computed(() =>
-  selectedGroups.value.reduce((sum, g) => sum + (counts.value[g] ?? 0), 0)
+  selected.value.reduce((sum, g) => sum + (counts.value[g] ?? 0), 0)
 )
-const requested = computed(() => (preset.value === 'custom' ? customCount.value : preset.value))
-const effective = computed(() => Math.min(requested.value, totalAvailable.value))
-
-function selectAll() {
-  selectedGroups.value = ADJECTIVE_GROUPS.filter(g => counts.value[g] > 0)
-}
-
-function selectNone() {
-  selectedGroups.value = []
-}
+const effective = computed(() => {
+  if (count.value === 'all') return totalAvailable.value
+  if (count.value === 'custom') return Math.min(customCount.value, totalAvailable.value)
+  return Math.min(count.value, totalAvailable.value)
+})
 
 function start() {
-  if (selectedGroups.value.length === 0) {
-    message.error('Select at least one group.')
-    return
-  }
-  if (totalAvailable.value === 0) {
-    message.error('No adjectives in the selected groups.')
-    return
-  }
+  if (selected.value.length === 0 || totalAvailable.value === 0 || !hasApiKey.value) return
   router.push({
     name: 'adjectives-quiz-run',
     query: {
       count: String(effective.value),
-      groups: selectedGroups.value.join(',')
+      groups: selected.value.join(',')
     }
   })
 }
 </script>
 
 <template>
-  <n-space vertical size="large" style="max-width: 480px">
-    <h2>Adjective quiz setup</h2>
-    <n-alert v-if="totalAvailable === 0 && selectedGroups.length > 0" type="warning">
-      No adjectives in the selected groups. Pick a different group or add adjectives in Manage adjectives.
-    </n-alert>
-    <n-alert v-if="!hasApiKey" type="warning">
-      Set your Anthropic API key in <router-link to="/settings">Settings</router-link> first.
-    </n-alert>
-    <div>
-      <p>Groups</p>
-      <n-checkbox-group v-model:value="selectedGroups">
-        <n-space vertical size="small">
-          <n-checkbox
-            v-for="g in ADJECTIVE_GROUPS"
-            :key="g"
-            :value="g"
-            :label="`${g} (${counts[g] ?? 0})`"
-            :disabled="(counts[g] ?? 0) === 0"
-          />
-        </n-space>
-      </n-checkbox-group>
-      <n-space :wrap="true" style="margin-top: 8px">
-        <n-button size="small" @click="selectAll">All</n-button>
-        <n-button size="small" @click="selectNone">None</n-button>
-      </n-space>
-      <n-alert
-        v-if="selectedGroups.length === 0"
-        type="warning"
-        style="margin-top: 8px"
+  <div class="page setup-page">
+    <header class="section-header">
+      <div>
+        <div class="breadcrumb">Kapitel II · Übung · Einrichtung</div>
+        <h1 class="section-title">Setup<em>.</em></h1>
+        <p class="section-subtitle">
+          Pick groups of adjectives. Gemini generates an example sentence per adjective with one inflected form blanked out — you type the missing word.
+        </p>
+      </div>
+    </header>
+
+    <div v-if="!hasApiKey" class="alert alert-warning">
+      <span class="alert-label">API key required</span>
+      Set your Gemini API key in <router-link :to="{ name: 'settings' }">Settings</router-link> first. Everything else runs offline.
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <div class="field-label">Groups · {{ selected.length }} of {{ ADJECTIVE_GROUPS.length }}</div>
+        <div class="field-actions">
+          <button class="btn btn-quiet" type="button" @click="selectAll">All</button>
+          <button class="btn btn-quiet" type="button" @click="selectNone">None</button>
+        </div>
+      </div>
+      <div class="chip-row">
+        <button
+          v-for="g in ADJECTIVE_GROUPS"
+          :key="g"
+          class="chip"
+          :class="{ selected: selectedSet.has(g) }"
+          :disabled="(counts[g] ?? 0) === 0"
+          @click="toggleGroup(g)"
+        >
+          <span>{{ g }}</span>
+          <span class="chip-count">{{ counts[g] ?? 0 }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Number of sentences</div>
+      <div class="field-row count-row">
+        <div class="segmented">
+          <button :class="{ active: count === 10 }" @click="count = 10">10</button>
+          <button :class="{ active: count === 15 }" @click="count = 15">15</button>
+          <button :class="{ active: count === 20 }" @click="count = 20">20</button>
+          <button :class="{ active: count === 'all' }" @click="count = 'all'">All · {{ totalAvailable }}</button>
+          <button :class="{ active: count === 'custom' }" @click="count = 'custom'">Custom</button>
+        </div>
+        <input
+          v-if="count === 'custom'"
+          class="input custom-count"
+          type="number"
+          :min="1"
+          :max="totalAvailable || 1"
+          v-model.number="customCount"
+        />
+        <span class="micro-mark count-avail">{{ totalAvailable }} available</span>
+      </div>
+    </div>
+
+    <div v-if="selected.length === 0" class="alert alert-warning">
+      <span class="alert-label">Warning</span>
+      Pick at least one group to begin.
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-label">Acceptance</span>
+      You type the <em>inflected</em> form (e.g. "schönen", not "schön"). Whitespace and case are ignored.
+    </div>
+
+    <div class="setup-actions">
+      <button class="btn btn-ghost" type="button" @click="router.push({ name: 'adjectives' })">← Back</button>
+      <button
+        class="btn btn-accent"
+        type="button"
+        :disabled="selected.length === 0 || totalAvailable === 0 || !hasApiKey"
+        @click="start"
       >
-        Select at least one group.
-      </n-alert>
+        Generate sentences · {{ effective }} questions <span aria-hidden="true">→</span>
+      </button>
     </div>
-    <div>
-      <p>Number of sentences</p>
-      <n-radio-group v-model:value="preset">
-        <n-radio :value="10">10</n-radio>
-        <n-radio :value="15">15</n-radio>
-        <n-radio :value="20">20</n-radio>
-        <n-radio value="custom">Custom</n-radio>
-      </n-radio-group>
-      <n-input-number
-        v-if="preset === 'custom'"
-        v-model:value="customCount"
-        :min="1"
-        :max="totalAvailable || 1"
-        style="margin-top: 8px; width: 100%"
-      />
-    </div>
-    <n-alert v-if="requested > totalAvailable && totalAvailable > 0" type="info">
-      Only {{ totalAvailable }} adjectives available in selected groups — quizzing all of them.
-    </n-alert>
-    <n-button
-      type="primary"
-      :disabled="selectedGroups.length === 0 || totalAvailable === 0 || !hasApiKey"
-      @click="start"
-    >
-      Generate sentences and start
-    </n-button>
-  </n-space>
+  </div>
 </template>
+
+<style scoped>
+.setup-page { max-width: 720px; }
+
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.field-actions { display: flex; gap: 4px; }
+.count-row { align-items: center; gap: 12px; }
+.custom-count { width: 80px; font-size: 17px; padding: 4px 0; }
+.count-avail { margin-left: auto; }
+
+.setup-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .setup-actions { flex-direction: column-reverse; align-items: stretch; }
+  .setup-actions .btn { justify-content: center; }
+}
+</style>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NSpin, NAlert, NButton, NSpace, NText } from 'naive-ui'
 import { useAdjectives } from '../../composables/useAdjectives'
 import { useSettings } from '../../composables/useSettings'
 import {
@@ -39,9 +38,7 @@ async function generate(): Promise<SentenceItem[]> {
   const adjectives = groups.length > 0
     ? await sampleByGroups(groups, c)
     : await sample(c)
-  if (adjectives.length === 0) {
-    throw new Error('No adjectives available.')
-  }
+  if (adjectives.length === 0) throw new Error('No adjectives available.')
   const client = makeGeminiClient(settings.value.geminiApiKey)
   let res = await generateAdjectiveSentences(client, {
     model: settings.value.model,
@@ -57,9 +54,7 @@ async function generate(): Promise<SentenceItem[]> {
       res = { valid: [...res.valid, ...topUp.valid], invalid: [...res.invalid, ...topUp.invalid] }
     }
   }
-  if (res.valid.length === 0) {
-    throw new Error('No usable sentences from Gemini. Try again.')
-  }
+  if (res.valid.length === 0) throw new Error('No usable sentences from Gemini. Try again.')
   return res.valid
 }
 
@@ -80,49 +75,89 @@ async function startQuiz() {
 
 onMounted(startQuiz)
 
-const current = computed(() => quiz?.current.value ?? null)
-const finished = computed(() => quiz?.finished.value ?? false)
+const current = computed(() => (ready.value, quiz?.current.value ?? null))
+const finished = computed(() => (ready.value, quiz?.finished.value ?? false))
 
-function onAnswered(answer: string) {
-  quiz?.submit(answer)
-}
+function onAnswered(answer: string) { quiz?.submit(answer) }
 function onNext() { quiz?.advance() }
-function restart() { router.push('/adjectives/quiz') }
+function restart() { router.push({ name: 'adjectives-quiz' }) }
 </script>
 
 <template>
-  <div>
-    <template v-if="phase === 'loading'">
-      <n-space vertical align="center">
-        <n-spin />
-        <n-text>Generating sentences...</n-text>
-      </n-space>
-    </template>
-    <template v-else-if="phase === 'error'">
-      <n-space vertical>
-        <n-alert type="error" :title="'Generation failed'">{{ errorMsg }}</n-alert>
-        <n-space>
-          <n-button @click="startQuiz">Retry</n-button>
-          <n-button @click="restart">Back to setup</n-button>
-        </n-space>
-      </n-space>
-    </template>
-    <template v-else-if="phase === 'quiz' && ready && quiz">
-      <QuizResult
-        v-if="finished"
-        :questions="quiz.questions.value"
-        :score="quiz.score.value"
-        :total="quiz.total.value"
-        @restart="restart"
-      />
+  <div v-if="phase === 'loading'" class="page loading-state">
+    <div class="loading-mark">
+      <div class="micro-mark">Generating sentences via Gemini…</div>
+      <div class="loading-spinner" aria-hidden="true" />
+    </div>
+  </div>
+
+  <div v-else-if="phase === 'error'" class="page">
+    <header class="section-header">
+      <div>
+        <div class="breadcrumb">Auswertung · Fehler</div>
+        <h1 class="section-title">Failed<em>.</em></h1>
+      </div>
+    </header>
+    <div class="alert alert-danger">
+      <span class="alert-label">Generation failed</span>
+      {{ errorMsg }}
+    </div>
+    <div class="setup-actions">
+      <button class="btn btn-ghost" type="button" @click="restart">← Back to setup</button>
+      <button class="btn btn-accent" type="button" @click="startQuiz">Retry <span aria-hidden="true">→</span></button>
+    </div>
+  </div>
+
+  <template v-else-if="phase === 'quiz' && ready && quiz">
+    <QuizResult
+      v-if="finished"
+      :questions="quiz.questions.value"
+      :score="quiz.score.value"
+      :total="quiz.total.value"
+      @restart="restart"
+    />
+    <div v-else-if="current" class="page">
       <SentenceQuiz
-        v-else-if="current"
         :question="current"
         :question-number="quiz.currentIndex.value + 1"
         :total-questions="quiz.total.value"
         @answered="onAnswered"
         @next="onNext"
+        @end-quiz="restart"
       />
-    </template>
-  </div>
+    </div>
+  </template>
 </template>
+
+<style scoped>
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+.loading-mark {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--hairline);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.setup-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  gap: 16px;
+}
+</style>

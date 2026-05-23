@@ -12,7 +12,8 @@ describe('ChapterNav', () => {
     const wrapper = mount(ChapterNav, { props: { chapters, searchQuery: '' } })
     const items = wrapper.findAll('.chapter-nav-item')
     expect(items).toHaveLength(2)
-    expect(items[0].text()).toContain('I')
+    // Numerals render as lowercase mono ("i.", "ii.") per the editorial design
+    expect(items[0].find('.chapter-nav-numeral').text()).toBe('i.')
     expect(items[0].text()).toContain('Schwache Verben')
   })
 

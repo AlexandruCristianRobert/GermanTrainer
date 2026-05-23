@@ -32,9 +32,19 @@ function onSelect(id: string) {
 </script>
 
 <template>
-  <div class="grammatik">
-    <header class="grammatik-header" data-print-hide>
-      <span class="grammatik-mark">GRAMMATIK · KONJUGATION</span>
+  <div class="page grammatik">
+    <header class="section-header cheatsheet-section-header" data-print-hide>
+      <div>
+        <div class="breadcrumb">Kapitel III · Verben · Cheatsheet</div>
+        <h1 class="section-title">Grammatik<em>.</em></h1>
+        <p class="section-subtitle">
+          Twelve chapters of conjugation rules, exceptions, and example sentences —
+          built to skim, but written to read.
+        </p>
+      </div>
+      <div>
+        <router-link :to="{ name: 'verbs' }" class="btn btn-ghost back-link">← Verben</router-link>
+      </div>
     </header>
 
     <div class="grammatik-layout">
@@ -709,23 +719,18 @@ function onSelect(id: string) {
 </template>
 
 <style scoped>
-.grammatik-header {
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 32px;
+.cheatsheet-section-header {
+  margin-bottom: 48px;
 }
-
-.grammatik-mark {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  color: var(--ink-soft);
+.back-link {
+  text-decoration: none;
+  border-bottom: 0;
 }
 
 .grammatik-layout {
   display: grid;
   grid-template-columns: 240px 1fr;
-  gap: 48px;
+  gap: 64px;
   max-width: 1160px;
   margin: 0 auto;
   align-items: start;
@@ -737,30 +742,35 @@ function onSelect(id: string) {
 
 .chapter {
   position: relative;
-  margin: 80px 0;
+  margin: 0 0 96px 0;
   scroll-margin-top: 96px;
   animation: chapter-in 400ms ease-out both;
   counter-reset: pattern;
 }
 
-.chapter:first-of-type { margin-top: 16px; }
+.chapter:first-of-type { margin-top: 0; }
 
 @keyframes chapter-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Mono "Kapitel I" label — replaces the giant italic numeral */
 .chapter-numeral {
-  position: absolute;
-  top: -8px;
-  left: -88px;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 300;
-  font-size: 96px;
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
   line-height: 1;
-  color: var(--sage);
-  opacity: 0.85;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.chapter-numeral::before {
+  content: 'Kapitel ';
+  color: var(--mute);
 }
 
 .chapter-title {
@@ -781,8 +791,8 @@ function onSelect(id: string) {
   font-family: var(--font-display);
   font-size: 22px;
   font-weight: 600;
-  margin: 22px 0 10px 0;
-  color: var(--sage);
+  margin: 24px 0 10px 0;
+  color: var(--accent);
   counter-increment: pattern;
 }
 
@@ -872,11 +882,6 @@ function onSelect(id: string) {
     grid-template-columns: 1fr;
     gap: 24px;
   }
-  .chapter-numeral {
-    position: static;
-    margin-bottom: 12px;
-    font-size: 72px;
-  }
   .chapter-title { font-size: 36px; }
   .two-col { grid-template-columns: 1fr; }
   .prefix-split { grid-template-columns: 1fr; }
@@ -884,9 +889,7 @@ function onSelect(id: string) {
 
 /* Mobile — < 640px */
 @media (max-width: 639px) {
-  .grammatik { padding: 16px; }
-  .chapter { margin: 56px 0; }
-  .chapter-numeral { font-size: 56px; }
+  .chapter { margin: 0 0 56px 0; }
   .chapter-title { font-size: 28px; }
   .chapter-subtitle { font-size: 16px; }
   .modal-table { font-size: 13px; }

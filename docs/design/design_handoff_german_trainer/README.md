@@ -375,6 +375,27 @@ The redesign **does not change any persistence schemas**. Existing user data sho
 ≥ 1024px     Full desktop — two-column cheatsheet, beside-card marginalia, full nav.
 ```
 
+## Screenshots
+
+The `screenshots/` folder in this bundle contains HQ captures of every key screen in the prototype:
+
+| File | Screen |
+|---|---|
+| `01-home-light.png` | Home — 4-card module grid in light mode |
+| `02-nouns-landing.png` | Nouns landing — 2-card layout (Manage / Quiz) |
+| `03-manage-nouns.png` | Manage Nouns — search + data table with der/die/das gender tags |
+| `04-noun-quiz-setup.png` | Noun quiz setup — group chips, mode segmented, count picker |
+| `05-noun-quiz-runner.png` | Noun gender quiz runner — clean state, with marginalia sidebar |
+| `06-noun-quiz-feedback.png` | Noun gender quiz runner — post-pick (dark mode) |
+| `07-verbs-landing.png` | Verbs landing — 4-card layout (Browse / Translation / Conjugation / Cheatsheet) |
+| `08-verb-translation-setup.png` | Verb translation setup — Level / Type / Case chip filters + count |
+| `09-verb-translation-runner.png` | Verb translation runner — large infinitive, chips, input |
+| `10-cheatsheet.png` | Cheatsheet — sticky rail nav + chapter I header |
+| `11-settings.png` | Settings — Gemini API key + model picker + test connection |
+| `12-home-dark.png` | Home in dark mode — same layout, dark theme tokens |
+
+Note on the feedback screenshot (#6): the **correct** button gets a sage-tinted background + sage text, the **wrong** button gets a clay-tinted background + clay text, the third unpicked button is dimmed to opacity 0.35. The captures don't pop the bg tints as strongly as the live app does at full saturation — implement to the **token spec** (`--success-tint` / `--danger-tint` on bg, `--success` / `--danger` on border + text) rather than pixel-matching the screenshot.
+
 ## Files in this bundle
 
 | File | What it is |

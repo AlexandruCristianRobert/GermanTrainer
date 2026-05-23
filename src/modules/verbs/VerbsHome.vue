@@ -1,37 +1,65 @@
 <script setup lang="ts">
-import { NSpace, NCard, NGrid, NGridItem, NButton } from 'naive-ui'
 import { useRouter } from 'vue-router'
+
 const router = useRouter()
+
+interface ModuleCard {
+  numeral: string
+  route: string
+  title: string
+  de: string
+  desc: string
+}
+
+const cards: ModuleCard[] = [
+  { numeral: 'A', route: 'verbs-list',         title: 'Browse verbs',     de: 'Liste',       desc: 'Searchable list of all 378 A1/A2/B1/B2 verbs with type, case, and auxiliary.' },
+  { numeral: 'B', route: 'verbs-translation',  title: 'Translation quiz', de: 'Übersetzen',  desc: 'Type the English meaning of a German verb. "to" is optional.' },
+  { numeral: 'C', route: 'verbs-conjugation',  title: 'Conjugation quiz', de: 'Konjugation', desc: 'Fill in all six forms across the tenses you pick — from Präsens to Passiv.' },
+  { numeral: 'D', route: 'verbs-cheatsheet',   title: 'Cheatsheet',       de: 'Grammatik',   desc: 'Twelve chapters of conjugation rules, exceptions, and example sentences.' }
+]
+
+function go(target: string) { router.push({ name: target }) }
+function onCardKey(e: KeyboardEvent, target: string) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(target) }
+}
 </script>
 
 <template>
-  <n-space vertical size="large">
-    <h2>Verbs</h2>
-    <n-grid cols="1 768:2" :x-gap="16" :y-gap="16">
-      <n-grid-item>
-        <n-card title="Browse verbs" hoverable>
-          <p>Searchable list of all A1/A2 verbs with type, case, and auxiliary info.</p>
-          <n-button @click="router.push('/verbs/list')">Open</n-button>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item>
-        <n-card title="Translation quiz" hoverable>
-          <p>Type the English meaning of a German verb. "to" is optional.</p>
-          <n-button type="primary" @click="router.push('/verbs/translation')">Start</n-button>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item>
-        <n-card title="Conjugation quiz" hoverable>
-          <p>Fill in conjugations across the tenses you pick — from Präsens to Passiv.</p>
-          <n-button type="primary" @click="router.push('/verbs/conjugation')">Start</n-button>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item>
-        <n-card title="Cheatsheet" hoverable>
-          <p>Conjugation rules, common exceptions, and the dative-verb list.</p>
-          <n-button @click="router.push('/verbs/cheatsheet')">Open</n-button>
-        </n-card>
-      </n-grid-item>
-    </n-grid>
-  </n-space>
+  <div class="page">
+    <header class="section-header">
+      <div>
+        <div class="breadcrumb">Kapitel III · Verben</div>
+        <h1 class="section-title">Verbs<em>.</em></h1>
+        <p class="section-subtitle">
+          Translate verbs, drill all fifteen tenses one verb at a time, and consult the long-form cheatsheet
+          whenever you forget which auxiliary <em>laufen</em> takes in the Perfekt.
+        </p>
+      </div>
+    </header>
+
+    <div class="module-grid">
+      <article
+        v-for="c in cards"
+        :key="c.route"
+        class="card module-card interactive"
+        role="button"
+        tabindex="0"
+        @click="go(c.route)"
+        @keydown="onCardKey($event, c.route)"
+      >
+        <div class="module-numeral">{{ c.numeral }}</div>
+        <h2>{{ c.title }}</h2>
+        <div class="module-de">{{ c.de }}</div>
+        <p class="module-desc">{{ c.desc }}</p>
+        <div class="module-cta">Open <span aria-hidden="true">→</span></div>
+      </article>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.module-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+</style>

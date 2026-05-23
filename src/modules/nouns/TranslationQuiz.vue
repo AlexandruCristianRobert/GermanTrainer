@@ -1,7 +1,26 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { NSpace, NButton, NText, NCard, NInput } from 'naive-ui'
 import type { Noun } from '../../db/types'
+
+interface Marginalia { label: string; quote: string; body: string }
+
+const TRANSLATION_MARGINALIA: Marginalia[] = [
+  {
+    label: 'NOTIZ',
+    quote: 'Slash-separated alternatives are all accepted.',
+    body: 'When a noun has multiple English meanings — "table / desk" or "house / home" — you can type either side of the slash. Whitespace and case are ignored.'
+  },
+  {
+    label: 'BEACHTE',
+    quote: 'Type the bare noun, not "the".',
+    body: 'For Tisch type "table", not "the table". The English article isn\'t part of the answer.'
+  },
+  {
+    label: 'TIPP',
+    quote: 'Familiar root, unfamiliar gender — that\'s the trap.',
+    body: 'Translation is easy once the noun is memorised. The hard part is recalling der/die/das on demand — try the Gender mode for that.'
+  }
+]
 
 const props = defineProps<{
   noun: Noun
@@ -12,30 +31,36 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'answered', correct: boolean, userAnswer: string): void
   (e: 'next'): void
+  (e: 'end-quiz'): void
 }>()
 
 const submitted = ref(false)
 const input = ref('')
 const isCorrect = ref<boolean | null>(null)
-const inputRef = ref<InstanceType<typeof NInput> | null>(null)
-const nextButtonRef = ref<{ $el: HTMLElement } | null>(null)
+const inputRef = ref<HTMLInputElement | null>(null)
+const nextBtnRef = ref<HTMLButtonElement | null>(null)
+const margIdx = ref(Math.floor(Math.random() * TRANSLATION_MARGINALIA.length))
+
+function normalize(s: string): string {
+  return s.trim().toLowerCase().replace(/\s+/g, ' ')
+}
 
 function check(answer: string, expected: string): boolean {
-  const a = answer.trim().toLowerCase()
-  if (a.length === 0) return false
-  return expected.split('/').some(seg => seg.trim().toLowerCase() === a)
+  const a = normalize(answer)
+  if (!a) return false
+  return expected.split('/').some(seg => normalize(seg) === a)
 }
 
 function submit() {
-  if (submitted.value) return
-  if (!input.value.trim()) return
+  if (submitted.value || !input.value.trim()) return
   isCorrect.value = check(input.value, props.noun.english)
   submitted.value = true
   emit('answered', isCorrect.value, input.value)
-  nextTick(() => nextButtonRef.value?.$el?.focus?.())
+  nextTick(() => nextBtnRef.value?.focus())
 }
 
 function next() {
+  margIdx.value = (margIdx.value + 1) % TRANSLATION_MARGINALIA.length
   submitted.value = false
   input.value = ''
   isCorrect.value = null
@@ -43,50 +68,105 @@ function next() {
   nextTick(() => inputRef.value?.focus())
 }
 
-onMounted(() => {
-  nextTick(() => inputRef.value?.focus())
-})
+onMounted(() => nextTick(() => inputRef.value?.focus()))
+watch(() => props.questionNumber, () => nextTick(() => inputRef.value?.focus()))
 
-watch(() => props.questionNumber, () => {
-  nextTick(() => inputRef.value?.focus())
-})
-
-const feedbackColor = computed(() =>
-  isCorrect.value === null ? '' : isCorrect.value ? '#18a058' : '#d03050'
-)
+const marg = computed(() => TRANSLATION_MARGINALIA[margIdx.value])
 </script>
 
 <template>
-  <div class="quiz-shell">
-    <n-card>
-      <n-space vertical size="large" align="center">
-        <n-text>Question {{ questionNumber }} of {{ totalQuestions }}</n-text>
-        <n-text style="font-size: 32px">{{ noun.gender }} {{ noun.german }}</n-text>
-        <n-input
+  <div class="quiz-stage">
+    <div>
+      <div class="quiz-meta">
+        <span class="quiz-counter">Frage {{ questionNumber }} · von {{ totalQuestions }}</span>
+        <button class="btn btn-quiet" type="button" @click="emit('end-quiz')">End quiz</button>
+      </div>
+
+      <div class="prompt-card">
+        <span class="tag prompt-group">{{ noun.group }}</span>
+        <div class="prompt-german">
+          <span class="prompt-gender">{{ noun.gender }}</span> {{ noun.german }}
+        </div>
+      </div>
+
+      <form class="translation-input-wrap" @submit.prevent="submit">
+        <input
           ref="inputRef"
-          v-model:value="input"
-          :disabled="submitted"
+          class="input"
+          type="text"
           placeholder="English meaning"
-          class="quiz-input"
-          @keyup.enter="submit"
+          v-model="input"
+          :readonly="submitted"
+          autocomplete="off"
+          spellcheck="false"
+          :style="submitted ? {
+            color: isCorrect ? 'var(--success)' : 'var(--danger)',
+            borderBottomColor: isCorrect ? 'var(--success)' : 'var(--danger)'
+          } : undefined"
         />
-        <n-button v-if="!submitted" type="primary" :disabled="!input.trim()" @click="submit">Submit</n-button>
-        <n-text v-if="submitted" :style="{ color: feedbackColor }">
-          {{ isCorrect ? '✅ Correct' : `❌ Correct: ${noun.english}` }}
-        </n-text>
-        <n-button v-if="submitted" ref="nextButtonRef" type="primary" @click="next">Next</n-button>
-      </n-space>
-    </n-card>
+        <button
+          v-if="!submitted"
+          class="btn btn-accent"
+          type="submit"
+          :disabled="!input.trim()"
+        >
+          Submit <span aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <div class="feedback-line" :class="submitted ? (isCorrect ? 'correct' : 'wrong') : ''">
+        <template v-if="!submitted"><span class="feedback-prompt">Type the English meaning. Press Enter to submit.</span></template>
+        <template v-else-if="isCorrect">✓ Richtig.</template>
+        <template v-else>✗ Korrekt — <strong>{{ noun.english }}</strong></template>
+      </div>
+
+      <div class="quiz-actions">
+        <span class="micro-mark">Press <span class="kbd">Enter</span> to {{ submitted ? 'advance' : 'submit' }}</span>
+        <button
+          v-if="submitted"
+          ref="nextBtnRef"
+          class="btn btn-accent"
+          type="button"
+          @click="next"
+          @keyup.enter="next"
+        >
+          {{ questionNumber === totalQuestions ? 'Finish quiz' : 'Next' }}
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </div>
+
+    <aside class="marginalia">
+      <div class="marg-section">
+        <div class="marg-label">{{ marg.label }}</div>
+        <p class="marg-quote">{{ marg.quote }}</p>
+        <p class="marg-body">{{ marg.body }}</p>
+      </div>
+    </aside>
   </div>
 </template>
 
 <style scoped>
-.quiz-shell {
-  max-width: 480px;
-  margin: 0 auto;
+.prompt-group {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  font-size: 10px;
 }
-.quiz-input {
-  width: 100%;
-  max-width: 320px;
+
+.prompt-gender {
+  color: var(--mute);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.5em;
+  vertical-align: 0.32em;
+  margin-right: 4px;
 }
+
+.feedback-prompt {
+  color: var(--mute);
+  font-style: italic;
+}
+
+.marg-body { margin: 0; }
 </style>
