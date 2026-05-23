@@ -5,6 +5,7 @@ import { useVerbs } from '../../composables/useVerbs'
 import { checkTranslation } from '../../composables/useVerbQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { VERB_LEVELS, VERB_TYPES, VERB_CASES, type Verb, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
+import { getVerbTip } from '../../data/verb-tips'
 
 function typeTagClass(t: string): string {
   if (t === 'irregular') return 'tag-clay'
@@ -31,6 +32,7 @@ const deck = ref<Verb[]>([])
 const answers = ref<string[]>([])
 const startedAt = ref<number>(0)
 const inputRefs = ref<HTMLInputElement[]>([])
+const showTip = ref<boolean[]>([])
 
 function csvFilter<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   if (typeof raw !== 'string' || raw.length === 0) return [...allowed]
@@ -52,6 +54,7 @@ onMounted(() => {
     } else {
       deck.value = verbs
       answers.value = verbs.map(() => '')
+      showTip.value = verbs.map(() => false)
       startedAt.value = Date.now()
     }
   } catch (e) {
@@ -64,6 +67,10 @@ onMounted(() => {
 
 function setAnswer(i: number, v: string) {
   answers.value[i] = v
+}
+
+function toggleTip(i: number) {
+  showTip.value[i] = !showTip.value[i]
 }
 
 const filledCount = computed(() => answers.value.filter(a => a.trim().length > 0).length)
@@ -130,6 +137,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
           <h1 class="section-title">Übersetzung<em>.</em></h1>
           <p class="section-subtitle">
             Type the English meaning of each verb. "to" is optional. Press Enter to jump to the next line.
+            <em class="hint-aside">Doppelklick auf ein Verb für einen Tipp auf Deutsch.</em>
           </p>
         </div>
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
@@ -160,7 +168,12 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
           </div>
           <div class="test-content">
             <div class="test-prompt-row">
-              <span class="test-verb">{{ verb.german }}</span>
+              <span
+                class="test-verb"
+                :class="{ 'with-tip': showTip[i] }"
+                :title="showTip[i] ? 'Doppelklick zeigt das Verb' : 'Doppelklick für einen Tipp auf Deutsch'"
+                @dblclick="toggleTip(i)"
+              >{{ showTip[i] ? getVerbTip(verb.german) : verb.german }}</span>
               <span class="test-chips">
                 <span class="tag">{{ verb.level }}</span>
                 <span class="tag" :class="typeTagClass(verb.type)">{{ verb.type }}</span>
