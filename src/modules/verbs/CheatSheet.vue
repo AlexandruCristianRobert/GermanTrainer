@@ -1,93 +1,413 @@
 <script setup lang="ts">
-import { NSpace, NCollapse, NCollapseItem, NTable } from 'naive-ui'
+import { nextTick, ref } from 'vue'
+import './cheatsheet/cheatsheet.css'
+import ChapterNav, { type Chapter } from './cheatsheet/ChapterNav.vue'
+import ConjugationTable from './cheatsheet/ConjugationTable.vue'
+import Callout from './cheatsheet/Callout.vue'
+import VowelShift from './cheatsheet/VowelShift.vue'
+
+const chapters: Chapter[] = [
+  { id: 'ch-1',  numeral: 'I',    titleDe: 'Schwache Verben',         titleEn: 'Weak (regular) verbs' },
+  { id: 'ch-2',  numeral: 'II',   titleDe: 'Starke Verben',           titleEn: 'Strong verbs' },
+  { id: 'ch-3',  numeral: 'III',  titleDe: 'Mischverben',             titleEn: 'Mixed verbs' },
+  { id: 'ch-4',  numeral: 'IV',   titleDe: 'Modalverben',             titleEn: 'Modal verbs' },
+  { id: 'ch-5',  numeral: 'V',    titleDe: 'Trennbar & untrennbar',   titleEn: 'Separable vs inseparable prefixes' },
+  { id: 'ch-6',  numeral: 'VI',   titleDe: 'Partizip II',             titleEn: 'Past participle formation' },
+  { id: 'ch-7',  numeral: 'VII',  titleDe: 'Haben oder Sein',         titleEn: 'Auxiliary in compound tenses' },
+  { id: 'ch-8',  numeral: 'VIII', titleDe: 'Imperativ',               titleEn: 'Commands' },
+  { id: 'ch-9',  numeral: 'IX',   titleDe: 'Konjunktiv II',           titleEn: 'Subjunctive II' },
+  { id: 'ch-10', numeral: 'X',    titleDe: 'Vorgangspassiv',          titleEn: 'Process passive' },
+  { id: 'ch-11', numeral: 'XI',   titleDe: 'Reflexive Verben',        titleEn: 'Reflexive verbs' },
+  { id: 'ch-12', numeral: 'XII',  titleDe: 'Verben mit Dativ',        titleEn: 'Dative verbs' }
+]
+
+const searchQuery = ref('')
+
+function onSelect(id: string) {
+  if (typeof document === 'undefined') return
+  const el = document.getElementById(id)
+  if (!el) return
+  nextTick(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+}
 </script>
 
 <template>
-  <n-space vertical size="large" style="max-width: 760px">
-    <h2>Conjugation cheatsheet</h2>
-    <n-collapse arrow-placement="right" :default-expanded-names="['1']">
-      <n-collapse-item title="1. Regular (schwache) Verben — present endings" name="1">
-        <p>Stem + -e / -st / -t / -en / -t / -en.</p>
-        <p><strong>Bindevokal -e-:</strong> stems ending in -d, -t, -chn, -ffn, -tm, -dn add -e- before -st and -t: <em>du arbeitest, er arbeitet, ihr arbeitet</em>.</p>
-        <p><strong>-s / -ß / -z / -tz / -x stems:</strong> du-form takes only -t, not -st: <em>du tanzt, du heißt, du sitzt</em>.</p>
-      </n-collapse-item>
+  <div class="grammatik">
+    <header class="grammatik-header" data-print-hide>
+      <span class="grammatik-mark">GRAMMATIK · KONJUGATION</span>
+    </header>
 
-      <n-collapse-item title="2. Strong (starke) Verben — vowel changes in du/er" name="2">
-        <p><strong>a → ä:</strong> fahren → du fährst, er fährt; schlafen → schläft; tragen → trägt.</p>
-        <p><strong>au → äu:</strong> laufen → läufst, läuft.</p>
-        <p><strong>e → i:</strong> geben → gibst, gibt; helfen → hilfst, hilft; nehmen → nimmst, nimmt; essen → isst.</p>
-        <p><strong>e → ie:</strong> sehen → siehst, sieht; lesen → liest; empfehlen → empfiehlt.</p>
-      </n-collapse-item>
+    <div class="grammatik-layout">
+      <ChapterNav
+        :chapters="chapters"
+        :search-query="searchQuery"
+        @update:search-query="searchQuery = $event"
+        @select="onSelect"
+      />
 
-      <n-collapse-item title="3. Mixed (gemischte) Verben — irregular stem + weak endings" name="3">
-        <p>bringen → brachte, gebracht • denken → dachte, gedacht • wissen → wusste, gewusst • kennen → kannte, gekannt • brennen → brannte, gebrannt.</p>
-      </n-collapse-item>
+      <main class="grammatik-main">
+        <!-- ───────── I. Schwache Verben ───────── -->
+        <section id="ch-1" class="chapter">
+          <div class="chapter-numeral">I</div>
+          <h2 class="chapter-title">Schwache Verben</h2>
+          <p class="chapter-subtitle">Regular (weak) verbs — predictable endings on an unchanging stem</p>
+          <hr class="rule" />
 
-      <n-collapse-item title="4. Modalverben — full conjugation" name="4">
-        <n-table size="small" :bordered="false">
-          <thead><tr><th></th><th>können</th><th>müssen</th><th>dürfen</th><th>sollen</th><th>wollen</th><th>mögen</th></tr></thead>
-          <tbody>
-            <tr><td>ich</td><td>kann</td><td>muss</td><td>darf</td><td>soll</td><td>will</td><td>mag</td></tr>
-            <tr><td>du</td><td>kannst</td><td>musst</td><td>darfst</td><td>sollst</td><td>willst</td><td>magst</td></tr>
-            <tr><td>er</td><td>kann</td><td>muss</td><td>darf</td><td>soll</td><td>will</td><td>mag</td></tr>
-            <tr><td>K II</td><td>könnte</td><td>müsste</td><td>dürfte</td><td>sollte</td><td>wollte</td><td>möchte</td></tr>
-          </tbody>
-        </n-table>
-      </n-collapse-item>
+          <p class="dropcap-p">
+            Weak verbs form the bedrock of German verbal morphology. The stem stays the same throughout
+            the present tense; only the ending changes. If you can conjugate <code>spielen</code>, you can
+            conjugate hundreds of others — <code>kaufen</code>, <code>machen</code>, <code>lieben</code>,
+            <code>kochen</code>, <code>wohnen</code>, <code>fragen</code>, the whole regular crew.
+          </p>
 
-      <n-collapse-item title="5. Separable vs inseparable prefixes" name="5">
-        <p><strong>Separable (split in main clause):</strong> ab-, an-, auf-, aus-, ein-, mit-, nach-, vor-, zu-, fern-, weg-, zurück-, hin-, her-, fest-.</p>
-        <p><strong>Inseparable (never split):</strong> be-, emp-, ent-, er-, ge-, ver-, zer-, miss-.</p>
-        <p>Some prefixes are <strong>both</strong> (durch-, über-, um-, unter-, voll-, wieder-) — meaning differs by stress.</p>
-      </n-collapse-item>
+          <div class="two-col">
+            <ConjugationTable
+              verb="spielen"
+              caption="PRÄSENS"
+              :rows="[
+                { person: 'ich', form: 'spiel<span class=&quot;ending&quot;>e</span>' },
+                { person: 'du',  form: 'spiel<span class=&quot;ending&quot;>st</span>' },
+                { person: 'er',  form: 'spiel<span class=&quot;ending&quot;>t</span>' },
+                { person: 'wir', form: 'spiel<span class=&quot;ending&quot;>en</span>' },
+                { person: 'ihr', form: 'spiel<span class=&quot;ending&quot;>t</span>' },
+                { person: 'sie', form: 'spiel<span class=&quot;ending&quot;>en</span>' }
+              ]"
+            />
+            <ConjugationTable
+              verb="arbeiten"
+              caption="PRÄSENS — Bindevokal"
+              :rows="[
+                { person: 'ich', form: 'arbeit<span class=&quot;ending&quot;>e</span>' },
+                { person: 'du',  form: 'arbeit<span class=&quot;ending&quot;>est</span>' },
+                { person: 'er',  form: 'arbeit<span class=&quot;ending&quot;>et</span>' },
+                { person: 'wir', form: 'arbeit<span class=&quot;ending&quot;>en</span>' },
+                { person: 'ihr', form: 'arbeit<span class=&quot;ending&quot;>et</span>' },
+                { person: 'sie', form: 'arbeit<span class=&quot;ending&quot;>en</span>' }
+              ]"
+            />
+          </div>
 
-      <n-collapse-item title="6. Partizip II rules" name="6">
-        <p><strong>Weak:</strong> ge- + stem + -t → gespielt, gearbeitet (with Bindevokal), gekauft.</p>
-        <p><strong>Strong:</strong> ge- + (often changed) stem + -en → gegangen, gesehen, geschrieben.</p>
-        <p><strong>Separable:</strong> prefix + ge + stem → aufgestanden, eingekauft.</p>
-        <p><strong>Inseparable / -ieren:</strong> no ge- → verkauft, besucht, studiert.</p>
-      </n-collapse-item>
+          <Callout kind="note">
+            <p><strong>Bindevokal -e-.</strong> When the stem ends in <code>-d</code>, <code>-t</code>,
+              <code>-chn</code>, <code>-ffn</code>, <code>-tm</code> or <code>-dn</code>, slip an extra
+              <code>-e-</code> in before <code>-st</code> and <code>-t</code>. Examples:
+              <code>arbeiten → du arbeitest, er arbeitet</code>;
+              <code>warten → du wartest, er wartet</code>;
+              <code>finden → du findest, er findet</code>;
+              <code>öffnen → du öffnest, ihr öffnet</code>;
+              <code>atmen → du atmest, er atmet</code>.</p>
+          </Callout>
 
-      <n-collapse-item title="7. haben vs sein in Perfekt/Plusquamperfekt" name="7">
-        <p><strong>sein</strong> with verbs of motion or change-of-state, plus sein/werden/bleiben/passieren.</p>
-        <p>Examples: gehen, kommen, fahren, fliegen, laufen, schwimmen, steigen, ankommen, aufstehen.</p>
-        <p><strong>haben</strong> for everything else (most transitive and stative verbs).</p>
-      </n-collapse-item>
+          <Callout kind="exception">
+            <p><strong>Stems in -s / -ß / -z / -tz / -x.</strong> The du-form already ends in a sibilant,
+              so it takes only <code>-t</code>, not <code>-st</code>. Examples:
+              <code>tanzen → du tanz<strong>t</strong></code>;
+              <code>heißen → du heiß<strong>t</strong></code>;
+              <code>sitzen → du sitz<strong>t</strong></code>;
+              <code>reisen → du reis<strong>t</strong></code>.</p>
+          </Callout>
 
-      <n-collapse-item title="8. Imperativ" name="8">
-        <p><strong>du:</strong> usually stem (no ending). With -d/-t add -e (<em>arbeite!</em>). Strong verbs with e→i/ie carry the change (<em>gib! lies! nimm! sieh! iss!</em>). a→ä does <strong>not</strong> change (<em>fahr!</em>, not "fähr!").</p>
-        <p><strong>ihr:</strong> same as present ihr-form (<em>geht!</em>, <em>arbeitet!</em>).</p>
-        <p><strong>Sie:</strong> present Sie-form inverted (<em>Gehen Sie!</em>, <em>Helfen Sie!</em>).</p>
-      </n-collapse-item>
+          <Callout kind="example">
+            <p>
+              "Ich arbeite jeden Tag in der Bibliothek."<br />
+              "Du tanzt sehr gut."<br />
+              "Wir wohnen in Berlin."
+            </p>
+          </Callout>
+        </section>
 
-      <n-collapse-item title="9. Konjunktiv II" name="9">
-        <p>Use proper K2 forms for: sein (wäre), haben (hätte), werden (würde), modals (könnte, müsste, dürfte, sollte, wollte, möchte), wissen (wüsste), and common strong verbs (käme, ginge, fände, gäbe, ließe).</p>
-        <p>For everything else, use <strong>würde + Infinitiv</strong>: <em>Ich würde das machen.</em></p>
-      </n-collapse-item>
+        <!-- ───────── II. Starke Verben ───────── -->
+        <section id="ch-2" class="chapter">
+          <div class="chapter-numeral">II</div>
+          <h2 class="chapter-title">Starke Verben</h2>
+          <p class="chapter-subtitle">Strong verbs — vowel changes in du and er/sie/es</p>
+          <hr class="rule" />
 
-      <n-collapse-item title="10. Passiv (Vorgangspassiv)" name="10">
-        <p><strong>werden</strong> (in the right tense) + <strong>Partizip II</strong>.</p>
-        <ul>
-          <li>Präsens: <em>wird gefragt</em></li>
-          <li>Präteritum: <em>wurde gefragt</em></li>
-          <li>Perfekt: <em>ist gefragt <strong>worden</strong></em> (note: <strong>worden</strong>, not geworden)</li>
-          <li>Plusquamperfekt: <em>war gefragt worden</em></li>
-          <li>Futur I: <em>wird gefragt werden</em></li>
-        </ul>
-        <p>Only transitive verbs (accusative object) can form a normal passive.</p>
-      </n-collapse-item>
+          <p class="dropcap-p">
+            Strong verbs shift their stem vowel in the 2nd- and 3rd-person singular. The pattern is
+            predictable once you've learned which letter swaps for which — and crucially, the change
+            shows up <em>only</em> in du and er/sie/es. Everywhere else, the stem is normal.
+          </p>
 
-      <n-collapse-item title="11. Reflexive Verben" name="11">
-        <p><strong>Accusative reflexive:</strong> sich freuen, sich erinnern, sich entscheiden, sich beeilen, sich treffen.</p>
-        <p>Pronouns: mich, dich, sich, uns, euch, sich.</p>
-        <p><strong>Dative reflexive:</strong> sich (etwas) vorstellen, sich (etwas) merken, sich (die Hände) waschen.</p>
-        <p>Dative reflexive pronouns differ only in du (dir) and ich (mir).</p>
-      </n-collapse-item>
+          <h3 class="pattern-heading">a → ä</h3>
+          <p>
+            <code>fahren → du f<VowelShift from="fahren">ä</VowelShift>hrst, er f<VowelShift from="fahren">ä</VowelShift>hrt</code>
+            · <code>schlafen → schl<VowelShift>ä</VowelShift>ft</code>
+            · <code>tragen → tr<VowelShift>ä</VowelShift>gt</code>
+            · <code>waschen → w<VowelShift>ä</VowelShift>scht</code>
+            · <code>halten → h<VowelShift>ä</VowelShift>lt</code>
+            · <code>lassen → l<VowelShift>ä</VowelShift>sst</code>.
+          </p>
 
-      <n-collapse-item title="12. Verben mit Dativ" name="12">
-        <p>helfen, danken, gefallen, antworten, gehören, passieren, schmecken, glauben (+ person), gratulieren, folgen, vertrauen, widersprechen, zuhören.</p>
-        <p>Example: <em>Ich helfe dir.</em> (not <em>dich</em>)</p>
-      </n-collapse-item>
-    </n-collapse>
-  </n-space>
+          <h3 class="pattern-heading">au → äu</h3>
+          <p>
+            <code>laufen → du l<VowelShift from="laufen">äu</VowelShift>fst, er l<VowelShift from="laufen">äu</VowelShift>ft</code>
+            · <code>saufen → s<VowelShift>äu</VowelShift>ft</code>.
+          </p>
+
+          <h3 class="pattern-heading">e → i</h3>
+          <p>
+            <code>geben → du g<VowelShift from="geben">i</VowelShift>bst, er g<VowelShift from="geben">i</VowelShift>bt</code>
+            · <code>nehmen → n<VowelShift>i</VowelShift>mmt</code>
+            · <code>helfen → h<VowelShift>i</VowelShift>lft</code>
+            · <code>sprechen → spr<VowelShift>i</VowelShift>cht</code>
+            · <code>essen → <VowelShift>i</VowelShift>sst</code>
+            · <code>treffen → tr<VowelShift>i</VowelShift>fft</code>
+            · <code>werfen → w<VowelShift>i</VowelShift>rft</code>.
+          </p>
+
+          <h3 class="pattern-heading">e → ie</h3>
+          <p>
+            <code>sehen → du s<VowelShift from="sehen">ie</VowelShift>hst, er s<VowelShift from="sehen">ie</VowelShift>ht</code>
+            · <code>lesen → l<VowelShift>ie</VowelShift>st</code>
+            · <code>empfehlen → empf<VowelShift>ie</VowelShift>hlt</code>
+            · <code>stehlen → st<VowelShift>ie</VowelShift>hlt</code>.
+          </p>
+
+          <Callout kind="exception">
+            <p><strong>Looks strong but isn't.</strong> Some common verbs you'd expect to shift, don't —
+              <code>kommen → er kommt</code>, <code>gehen → er geht</code>, <code>schwimmen → er schwimmt</code>.
+              Memorise these so you don't over-apply the rules.</p>
+          </Callout>
+
+          <Callout kind="example">
+            <p>
+              "Er fährt nach Hamburg."<br />
+              "Sie liest gerade ein Buch."<br />
+              "Du gibst mir das Salz, bitte."
+            </p>
+          </Callout>
+        </section>
+
+        <!-- ───────── III. Mischverben ───────── -->
+        <section id="ch-3" class="chapter">
+          <div class="chapter-numeral">III</div>
+          <h2 class="chapter-title">Mischverben</h2>
+          <p class="chapter-subtitle">Mixed verbs — irregular stem, weak endings</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            A small but important group. In the Präteritum and Partizip II, the stem vowel changes (like
+            a strong verb), but the endings stay weak (<code>-te</code>, <code>-t</code>). They're
+            unpredictable — just memorise them.
+          </p>
+
+          <ConjugationTable
+            verb="Mischverben"
+            caption="STAMMFORMEN — selected"
+            :rows="[
+              { person: 'bringen', form: 'br<span class=&quot;vh&quot;>a</span>chte · ge·br<span class=&quot;vh&quot;>a</span>cht' },
+              { person: 'denken',  form: 'd<span class=&quot;vh&quot;>a</span>chte · ge·d<span class=&quot;vh&quot;>a</span>cht' },
+              { person: 'wissen',  form: 'w<span class=&quot;vh&quot;>u</span>sste · ge·w<span class=&quot;vh&quot;>u</span>sst' },
+              { person: 'kennen',  form: 'k<span class=&quot;vh&quot;>a</span>nnte · ge·k<span class=&quot;vh&quot;>a</span>nnt' },
+              { person: 'nennen',  form: 'n<span class=&quot;vh&quot;>a</span>nnte · ge·n<span class=&quot;vh&quot;>a</span>nnt' },
+              { person: 'brennen', form: 'br<span class=&quot;vh&quot;>a</span>nnte · ge·br<span class=&quot;vh&quot;>a</span>nnt' },
+              { person: 'rennen',  form: 'r<span class=&quot;vh&quot;>a</span>nnte · ge·r<span class=&quot;vh&quot;>a</span>nnt' },
+              { person: 'senden',  form: 's<span class=&quot;vh&quot;>a</span>ndte · ge·s<span class=&quot;vh&quot;>a</span>ndt' }
+            ]"
+          />
+
+          <Callout kind="note">
+            <p>The Präsens of mixed verbs is fully regular — the irregularity only shows up in past forms.
+              <code>bringen → ich bringe, du bringst, er bringt</code>. The surprise is <code>brachte</code> in
+              Präteritum and <code>gebracht</code> as Partizip II.</p>
+          </Callout>
+        </section>
+
+        <!-- ───────── IV. Modalverben ───────── -->
+        <section id="ch-4" class="chapter">
+          <div class="chapter-numeral">IV</div>
+          <h2 class="chapter-title">Modalverben</h2>
+          <p class="chapter-subtitle">The six modal verbs and their full conjugation grid</p>
+          <hr class="rule" />
+
+          <p class="dropcap-p">
+            Six verbs, all irregular in the singular present, all using <code>-te</code> in the Präteritum.
+            Modals usually pair with a bare infinitive at the end of the clause: <code>Ich muss arbeiten</code>.
+            In compound tenses with another infinitive, they form a "double infinitive" rather than a
+            normal Partizip II.
+          </p>
+
+          <div class="modal-grid">
+            <table class="modal-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>können</th><th>müssen</th><th>dürfen</th>
+                  <th>sollen</th><th>wollen</th><th>mögen</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th>ich</th><td>kann</td><td>muss</td><td>darf</td><td>soll</td><td>will</td><td>mag</td></tr>
+                <tr><th>du</th><td>kannst</td><td>musst</td><td>darfst</td><td>sollst</td><td>willst</td><td>magst</td></tr>
+                <tr><th>er/sie/es</th><td>kann</td><td>muss</td><td>darf</td><td>soll</td><td>will</td><td>mag</td></tr>
+                <tr><th>wir</th><td>können</td><td>müssen</td><td>dürfen</td><td>sollen</td><td>wollen</td><td>mögen</td></tr>
+                <tr><th>ihr</th><td>könnt</td><td>müsst</td><td>dürft</td><td>sollt</td><td>wollt</td><td>mögt</td></tr>
+                <tr><th>sie/Sie</th><td>können</td><td>müssen</td><td>dürfen</td><td>sollen</td><td>wollen</td><td>mögen</td></tr>
+                <tr class="row-sep"><th>Präteritum</th><td>konnte</td><td>musste</td><td>durfte</td><td>sollte</td><td>wollte</td><td>mochte</td></tr>
+                <tr><th>Konjunktiv II</th><td>könnte</td><td>müsste</td><td>dürfte</td><td>sollte</td><td>wollte</td><td>möchte</td></tr>
+                <tr><th>Partizip II</th><td>gekonnt</td><td>gemusst</td><td>gedurft</td><td>gesollt</td><td>gewollt</td><td>gemocht</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <Callout kind="note">
+            <p><strong>Doppel-Infinitiv.</strong> When a modal joins another verb in Perfekt or
+              Plusquamperfekt, both verbs end up as infinitives — no <code>ge-</code> Partizip II.
+              Compare: <em>Ich habe es gewollt</em> (modal alone, with Partizip II) vs
+              <em>Ich habe arbeiten müssen</em> (modal + infinitive, double infinitive).</p>
+          </Callout>
+
+          <Callout kind="note">
+            <p><strong>"möchte" is technically Konjunktiv II of mögen</strong>, but it functions as its own
+              modal in everyday use — <em>"Ich möchte einen Kaffee, bitte."</em> Treat it as the polite
+              equivalent of <em>"Ich will"</em>.</p>
+          </Callout>
+        </section>
+      </main>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.grammatik-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+}
+
+.grammatik-mark {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+}
+
+.grammatik-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 48px;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.grammatik-main {
+  max-width: 720px;
+}
+
+.chapter {
+  position: relative;
+  margin: 96px 0;
+  scroll-margin-top: 96px;
+  animation: chapter-in 400ms ease-out both;
+}
+
+.chapter:first-of-type { margin-top: 16px; }
+
+@keyframes chapter-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chapter-numeral {
+  position: absolute;
+  top: -8px;
+  left: -88px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 96px;
+  line-height: 1;
+  color: var(--sage);
+  opacity: 0.85;
+}
+
+.chapter-title {
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.chapter-subtitle {
+  font-size: 18px;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0 0 0 0;
+}
+
+.pattern-heading {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 22px 0 10px 0;
+  color: var(--sage);
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.modal-grid { overflow-x: auto; margin: 22px 0; }
+
+.modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-family: var(--font-mono);
+}
+
+.modal-table th, .modal-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px dotted var(--mute);
+}
+
+.modal-table th {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.modal-table thead th {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+
+.modal-table .row-sep th, .modal-table .row-sep td {
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+}
+
+/* Highlight ending letters inside conj forms */
+:deep(.conj-form .ending) {
+  color: var(--sage);
+  font-weight: 600;
+}
+
+/* Highlight vowel changes inside conj forms (.vh shorthand) */
+:deep(.conj-form .vh) {
+  color: var(--sage);
+  font-weight: 600;
+}
+
+@media (max-width: 959px) {
+  .grammatik-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .chapter-numeral {
+    position: static;
+    margin-bottom: 12px;
+    font-size: 64px;
+  }
+  .chapter-title { font-size: 32px; }
+  .two-col { grid-template-columns: 1fr; }
+}
+</style>
