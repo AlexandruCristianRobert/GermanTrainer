@@ -1,0 +1,427 @@
+// src/data/prepositions.ts
+
+export type PrepCase = 'accusative' | 'dative' | 'genitive' | 'two-way'
+export type PrepLevel = 'A1' | 'A2' | 'B1' | 'B2'
+
+/** The case actually used in a specific example sentence (resolves two-way). */
+export type UsedCase = 'accusative' | 'dative' | 'genitive'
+
+export interface PrepositionExample {
+  /** Full sentence with the inflected article in place. */
+  sentence: string
+  /** Same sentence with the article replaced by '___'. */
+  blanked: string
+  /** The article the learner must produce (e.g. "dem", "den", "die", "ihren"). */
+  expectedAnswer: string
+  /** Additional acceptable forms — rare, usually omitted. */
+  alternatives?: string[]
+  /** Resolves which case this specific example uses (esp. for two-way preps). */
+  usedCase: UsedCase
+  /** English gloss shown after submit + as the hint in article-fill mode. */
+  gloss: string
+}
+
+export interface Preposition {
+  /** Lower-case kebab id, e.g. "mit", "anstatt". Used as key in storage + tests. */
+  id: string
+  /** Surface form shown to learners. */
+  german: string
+  /** English gloss for browse table + tooltips. */
+  english: string
+  case: PrepCase
+  level: PrepLevel
+  examples: PrepositionExample[]
+}
+
+export const PREPOSITION_CASES = ['accusative', 'dative', 'genitive', 'two-way'] as const
+export const PREPOSITION_LEVELS = ['A1', 'A2', 'B1', 'B2'] as const
+
+/** Two-way prepositions in a Set for fast lookup. */
+export const TWO_WAY_PREPS = new Set([
+  'an', 'auf', 'hinter', 'in', 'neben', 'über', 'unter', 'vor', 'zwischen'
+])
+
+export const PREPOSITIONS: Preposition[] = [
+  // ───────────────────────── Accusative (8) ─────────────────────────
+  {
+    id: 'durch', german: 'durch', english: 'through', case: 'accusative', level: 'A1',
+    examples: [
+      { sentence: 'Wir gehen durch den Park.', blanked: 'Wir gehen durch ___ Park.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'We go through the park.' },
+      { sentence: 'Sie fährt durch die Stadt.', blanked: 'Sie fährt durch ___ Stadt.',
+        expectedAnswer: 'die', usedCase: 'accusative', gloss: 'She drives through the city.' }
+    ]
+  },
+  {
+    id: 'fuer', german: 'für', english: 'for', case: 'accusative', level: 'A1',
+    examples: [
+      { sentence: 'Das Geschenk ist für den Lehrer.', blanked: 'Das Geschenk ist für ___ Lehrer.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'The gift is for the teacher.' },
+      { sentence: 'Ich kaufe Blumen für meine Mutter.', blanked: 'Ich kaufe Blumen für ___ Mutter.',
+        expectedAnswer: 'meine', usedCase: 'accusative', gloss: 'I buy flowers for my mother.' },
+      { sentence: 'Das ist ein Buch für das Kind.', blanked: 'Das ist ein Buch für ___ Kind.',
+        expectedAnswer: 'das', usedCase: 'accusative', gloss: 'That is a book for the child.' }
+    ]
+  },
+  {
+    id: 'gegen', german: 'gegen', english: 'against', case: 'accusative', level: 'A1',
+    examples: [
+      { sentence: 'Wir spielen gegen die andere Mannschaft.', blanked: 'Wir spielen gegen ___ andere Mannschaft.',
+        expectedAnswer: 'die', usedCase: 'accusative', gloss: 'We play against the other team.' },
+      { sentence: 'Er fährt gegen einen Baum.', blanked: 'Er fährt gegen ___ Baum.',
+        expectedAnswer: 'einen', usedCase: 'accusative', gloss: 'He crashes into a tree.' }
+    ]
+  },
+  {
+    id: 'ohne', german: 'ohne', english: 'without', case: 'accusative', level: 'A1',
+    examples: [
+      { sentence: 'Ich komme ohne meinen Bruder.', blanked: 'Ich komme ohne ___ Bruder.',
+        expectedAnswer: 'meinen', usedCase: 'accusative', gloss: 'I come without my brother.' },
+      { sentence: 'Sie reist ohne den Koffer.', blanked: 'Sie reist ohne ___ Koffer.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'She travels without the suitcase.' }
+    ]
+  },
+  {
+    id: 'um', german: 'um', english: 'around / at (time)', case: 'accusative', level: 'A1',
+    examples: [
+      { sentence: 'Wir gehen um den See.', blanked: 'Wir gehen um ___ See.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'We walk around the lake.' },
+      { sentence: 'Sie sitzen um den Tisch.', blanked: 'Sie sitzen um ___ Tisch.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'They sit around the table.' }
+    ]
+  },
+  {
+    id: 'bis', german: 'bis', english: 'until / up to', case: 'accusative', level: 'A1',
+    examples: [
+      { sentence: 'Er bleibt bis nächsten Montag.', blanked: 'Er bleibt bis ___ Montag.',
+        expectedAnswer: 'nächsten', usedCase: 'accusative', gloss: 'He stays until next Monday.' },
+      { sentence: 'Ich warte bis den Abend.', blanked: 'Ich warte bis ___ Abend.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'I wait until evening.' }
+    ]
+  },
+  {
+    id: 'entlang', german: 'entlang', english: 'along', case: 'accusative', level: 'A2',
+    examples: [
+      { sentence: 'Sie laufen den Fluss entlang.', blanked: 'Sie laufen ___ Fluss entlang.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'They walk along the river.' },
+      { sentence: 'Wir fahren die Straße entlang.', blanked: 'Wir fahren ___ Straße entlang.',
+        expectedAnswer: 'die', usedCase: 'accusative', gloss: 'We drive along the street.' }
+    ]
+  },
+  {
+    id: 'wider', german: 'wider', english: 'against / contrary to', case: 'accusative', level: 'B2',
+    examples: [
+      { sentence: 'Er handelt wider den Willen seines Vaters.', blanked: 'Er handelt wider ___ Willen seines Vaters.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'He acts against his father\'s will.' },
+      { sentence: 'Das ist wider die Vernunft.', blanked: 'Das ist wider ___ Vernunft.',
+        expectedAnswer: 'die', usedCase: 'accusative', gloss: 'That is against reason.' }
+    ]
+  },
+
+  // ───────────────────────── Dative (10) ─────────────────────────
+  {
+    id: 'aus', german: 'aus', english: 'out of / from', case: 'dative', level: 'A1',
+    examples: [
+      { sentence: 'Sie kommt aus der Schweiz.', blanked: 'Sie kommt aus ___ Schweiz.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'She comes from Switzerland.' },
+      { sentence: 'Er nimmt das Buch aus dem Regal.', blanked: 'Er nimmt das Buch aus ___ Regal.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'He takes the book out of the shelf.' },
+      { sentence: 'Das Kind trinkt aus der Flasche.', blanked: 'Das Kind trinkt aus ___ Flasche.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'The child drinks from the bottle.' }
+    ]
+  },
+  {
+    id: 'bei', german: 'bei', english: 'at / with [person]', case: 'dative', level: 'A1',
+    examples: [
+      { sentence: 'Ich wohne bei meinen Eltern.', blanked: 'Ich wohne bei ___ Eltern.',
+        expectedAnswer: 'meinen', usedCase: 'dative', gloss: 'I live with my parents.' },
+      { sentence: 'Sie arbeitet bei der Firma.', blanked: 'Sie arbeitet bei ___ Firma.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'She works at the company.' },
+      { sentence: 'Wir sind bei dem Arzt.', blanked: 'Wir sind bei ___ Arzt.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'We are at the doctor\'s.' }
+    ]
+  },
+  {
+    id: 'mit', german: 'mit', english: 'with', case: 'dative', level: 'A1',
+    examples: [
+      { sentence: 'Ich fahre mit dem Bus.', blanked: 'Ich fahre mit ___ Bus.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'I go by bus.' },
+      { sentence: 'Sie spricht mit der Lehrerin.', blanked: 'Sie spricht mit ___ Lehrerin.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'She speaks with the teacher.' },
+      { sentence: 'Er kommt mit seinem Freund.', blanked: 'Er kommt mit ___ Freund.',
+        expectedAnswer: 'seinem', usedCase: 'dative', gloss: 'He comes with his friend.' }
+    ]
+  },
+  {
+    id: 'nach', german: 'nach', english: 'after / to [place]', case: 'dative', level: 'A1',
+    examples: [
+      { sentence: 'Nach dem Essen gehen wir spazieren.', blanked: 'Nach ___ Essen gehen wir spazieren.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'After dinner we go for a walk.' },
+      { sentence: 'Sie fragt nach der Adresse.', blanked: 'Sie fragt nach ___ Adresse.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'She asks for the address.' },
+      { sentence: 'Nach dem Unterricht spielen wir Fußball.', blanked: 'Nach ___ Unterricht spielen wir Fußball.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'After class we play soccer.' }
+    ]
+  },
+  {
+    id: 'seit', german: 'seit', english: 'since', case: 'dative', level: 'A1',
+    examples: [
+      { sentence: 'Seit dem Sommer lerne ich Deutsch.', blanked: 'Seit ___ Sommer lerne ich Deutsch.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'Since summer I have been learning German.' },
+      { sentence: 'Seit der Geburt schläft das Baby gut.', blanked: 'Seit ___ Geburt schläft das Baby gut.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'Since birth the baby sleeps well.' },
+      { sentence: 'Wir warten seit dem Morgen.', blanked: 'Wir warten seit ___ Morgen.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'We have been waiting since morning.' }
+    ]
+  },
+  {
+    id: 'von', german: 'von', english: 'from / of', case: 'dative', level: 'A1',
+    examples: [
+      { sentence: 'Das ist ein Geschenk von meiner Tante.', blanked: 'Das ist ein Geschenk von ___ Tante.',
+        expectedAnswer: 'meiner', usedCase: 'dative', gloss: 'That is a gift from my aunt.' },
+      { sentence: 'Er kommt von der Arbeit.', blanked: 'Er kommt von ___ Arbeit.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'He comes from work.' },
+      { sentence: 'Das Buch von dem Lehrer ist interessant.', blanked: 'Das Buch von ___ Lehrer ist interessant.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The book by the teacher is interesting.' }
+    ]
+  },
+  {
+    id: 'zu', german: 'zu', english: 'to', case: 'dative', level: 'A1',
+    examples: [
+      { sentence: 'Ich gehe zu dem Bahnhof.', blanked: 'Ich gehe zu ___ Bahnhof.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'I go to the train station.' },
+      { sentence: 'Sie geht zu der Schule.', blanked: 'Sie geht zu ___ Schule.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'She goes to the school.' },
+      { sentence: 'Wir fahren zu unseren Freunden.', blanked: 'Wir fahren zu ___ Freunden.',
+        expectedAnswer: 'unseren', usedCase: 'dative', gloss: 'We drive to our friends.' }
+    ]
+  },
+  {
+    id: 'gegenueber', german: 'gegenüber', english: 'opposite', case: 'dative', level: 'A2',
+    examples: [
+      { sentence: 'Die Bank liegt gegenüber dem Park.', blanked: 'Die Bank liegt gegenüber ___ Park.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The bank is opposite the park.' },
+      { sentence: 'Er sitzt gegenüber der Lehrerin.', blanked: 'Er sitzt gegenüber ___ Lehrerin.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'He sits opposite the teacher.' }
+    ]
+  },
+  {
+    id: 'ausser', german: 'außer', english: 'except for', case: 'dative', level: 'B1',
+    examples: [
+      { sentence: 'Außer dem Lehrer waren alle da.', blanked: 'Außer ___ Lehrer waren alle da.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'Except for the teacher, everyone was there.' },
+      { sentence: 'Außer der Mutter kennt es niemand.', blanked: 'Außer ___ Mutter kennt es niemand.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'Except for the mother, nobody knows it.' }
+    ]
+  },
+  {
+    id: 'ab', german: 'ab', english: 'from [a time]', case: 'dative', level: 'B1',
+    examples: [
+      { sentence: 'Ab dem Montag arbeite ich wieder.', blanked: 'Ab ___ Montag arbeite ich wieder.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'From Monday on I work again.' },
+      { sentence: 'Ab der nächsten Woche bin ich frei.', blanked: 'Ab ___ nächsten Woche bin ich frei.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'From next week I am free.' }
+    ]
+  },
+
+  // ───────────────────────── Two-way (9) ─────────────────────────
+  {
+    id: 'an', german: 'an', english: 'at / on [vertical]', case: 'two-way', level: 'A1',
+    examples: [
+      { sentence: 'Das Bild hängt an der Wand.', blanked: 'Das Bild hängt an ___ Wand.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'The picture hangs on the wall.' },
+      { sentence: 'Ich hänge das Bild an die Wand.', blanked: 'Ich hänge das Bild an ___ Wand.',
+        expectedAnswer: 'die', usedCase: 'accusative', gloss: 'I hang the picture on the wall.' },
+      { sentence: 'Wir sitzen an dem Tisch.', blanked: 'Wir sitzen an ___ Tisch.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'We sit at the table.' }
+    ]
+  },
+  {
+    id: 'auf', german: 'auf', english: 'on / onto', case: 'two-way', level: 'A1',
+    examples: [
+      { sentence: 'Das Buch liegt auf dem Tisch.', blanked: 'Das Buch liegt auf ___ Tisch.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The book lies on the table.' },
+      { sentence: 'Ich lege das Buch auf den Tisch.', blanked: 'Ich lege das Buch auf ___ Tisch.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'I put the book on the table.' },
+      { sentence: 'Die Katze springt auf das Sofa.', blanked: 'Die Katze springt auf ___ Sofa.',
+        expectedAnswer: 'das', usedCase: 'accusative', gloss: 'The cat jumps onto the sofa.' }
+    ]
+  },
+  {
+    id: 'hinter', german: 'hinter', english: 'behind', case: 'two-way', level: 'A1',
+    examples: [
+      { sentence: 'Der Garten liegt hinter dem Haus.', blanked: 'Der Garten liegt hinter ___ Haus.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The garden is behind the house.' },
+      { sentence: 'Er stellt das Fahrrad hinter das Haus.', blanked: 'Er stellt das Fahrrad hinter ___ Haus.',
+        expectedAnswer: 'das', usedCase: 'accusative', gloss: 'He puts the bike behind the house.' },
+      { sentence: 'Die Kinder spielen hinter der Schule.', blanked: 'Die Kinder spielen hinter ___ Schule.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'The children play behind the school.' }
+    ]
+  },
+  {
+    id: 'in', german: 'in', english: 'in / into', case: 'two-way', level: 'A1',
+    examples: [
+      { sentence: 'Die Bücher sind in dem Regal.', blanked: 'Die Bücher sind in ___ Regal.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The books are in the shelf.' },
+      { sentence: 'Ich stelle die Bücher in das Regal.', blanked: 'Ich stelle die Bücher in ___ Regal.',
+        expectedAnswer: 'das', usedCase: 'accusative', gloss: 'I put the books into the shelf.' },
+      { sentence: 'Wir gehen in die Schule.', blanked: 'Wir gehen in ___ Schule.',
+        expectedAnswer: 'die', usedCase: 'accusative', gloss: 'We go to school.' }
+    ]
+  },
+  {
+    id: 'neben', german: 'neben', english: 'next to', case: 'two-way', level: 'A1',
+    examples: [
+      { sentence: 'Die Lampe steht neben dem Bett.', blanked: 'Die Lampe steht neben ___ Bett.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The lamp is next to the bed.' },
+      { sentence: 'Er stellt den Stuhl neben den Tisch.', blanked: 'Er stellt den Stuhl neben ___ Tisch.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'He places the chair next to the table.' },
+      { sentence: 'Sie sitzt neben der Lehrerin.', blanked: 'Sie sitzt neben ___ Lehrerin.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'She sits next to the teacher.' }
+    ]
+  },
+  {
+    id: 'ueber', german: 'über', english: 'over / above / about', case: 'two-way', level: 'A1',
+    examples: [
+      { sentence: 'Die Lampe hängt über dem Tisch.', blanked: 'Die Lampe hängt über ___ Tisch.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The lamp hangs above the table.' },
+      { sentence: 'Sie hängt die Lampe über den Tisch.', blanked: 'Sie hängt die Lampe über ___ Tisch.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'She hangs the lamp above the table.' },
+      { sentence: 'Wir sprechen über die Reise.', blanked: 'Wir sprechen über ___ Reise.',
+        expectedAnswer: 'die', usedCase: 'accusative', gloss: 'We talk about the trip.' }
+    ]
+  },
+  {
+    id: 'unter', german: 'unter', english: 'under / among', case: 'two-way', level: 'A1',
+    examples: [
+      { sentence: 'Die Katze schläft unter dem Bett.', blanked: 'Die Katze schläft unter ___ Bett.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The cat sleeps under the bed.' },
+      { sentence: 'Der Hund läuft unter den Tisch.', blanked: 'Der Hund läuft unter ___ Tisch.',
+        expectedAnswer: 'den', usedCase: 'accusative', gloss: 'The dog runs under the table.' },
+      { sentence: 'Wir sitzen unter dem Baum.', blanked: 'Wir sitzen unter ___ Baum.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'We sit under the tree.' }
+    ]
+  },
+  {
+    id: 'vor', german: 'vor', english: 'in front of / before', case: 'two-way', level: 'A1',
+    examples: [
+      { sentence: 'Das Auto steht vor dem Haus.', blanked: 'Das Auto steht vor ___ Haus.',
+        expectedAnswer: 'dem', usedCase: 'dative', gloss: 'The car is in front of the house.' },
+      { sentence: 'Er stellt das Auto vor das Haus.', blanked: 'Er stellt das Auto vor ___ Haus.',
+        expectedAnswer: 'das', usedCase: 'accusative', gloss: 'He parks the car in front of the house.' },
+      { sentence: 'Sie wartet vor der Tür.', blanked: 'Sie wartet vor ___ Tür.',
+        expectedAnswer: 'der', usedCase: 'dative', gloss: 'She waits in front of the door.' }
+    ]
+  },
+  {
+    id: 'zwischen', german: 'zwischen', english: 'between', case: 'two-way', level: 'A2',
+    examples: [
+      { sentence: 'Das Bild hängt zwischen den Fenstern.', blanked: 'Das Bild hängt zwischen ___ Fenstern.',
+        expectedAnswer: 'den', usedCase: 'dative', gloss: 'The picture hangs between the windows.' },
+      { sentence: 'Er stellt den Tisch zwischen die Stühle.', blanked: 'Er stellt den Tisch zwischen ___ Stühle.',
+        expectedAnswer: 'die', usedCase: 'accusative', gloss: 'He puts the table between the chairs.' },
+      { sentence: 'Die Bank steht zwischen den Bäumen.', blanked: 'Die Bank steht zwischen ___ Bäumen.',
+        expectedAnswer: 'den', usedCase: 'dative', gloss: 'The bench is between the trees.' }
+    ]
+  },
+
+  // ───────────────────────── Genitive (10) ─────────────────────────
+  {
+    id: 'waehrend', german: 'während', english: 'during', case: 'genitive', level: 'A2',
+    examples: [
+      { sentence: 'Während des Tages regnet es.', blanked: 'Während ___ regnet es.',
+        expectedAnswer: 'des Tages', usedCase: 'genitive', gloss: 'During the day it rains.' },
+      { sentence: 'Während der Woche arbeite ich.', blanked: 'Während ___ Woche arbeite ich.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'During the week I work.' },
+      { sentence: 'Während des Sommers reisen wir viel.', blanked: 'Während ___ reisen wir viel.',
+        expectedAnswer: 'des Sommers', usedCase: 'genitive', gloss: 'During the summer we travel a lot.' }
+    ]
+  },
+  {
+    id: 'trotz', german: 'trotz', english: 'despite', case: 'genitive', level: 'B1',
+    examples: [
+      { sentence: 'Trotz des Regens gehen wir spazieren.', blanked: 'Trotz ___ gehen wir spazieren.',
+        expectedAnswer: 'des Regens', usedCase: 'genitive', gloss: 'Despite the rain we go for a walk.' },
+      { sentence: 'Trotz der Kälte spielt er draußen.', blanked: 'Trotz ___ Kälte spielt er draußen.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'Despite the cold he plays outside.' },
+      { sentence: 'Trotz des Lärms kann ich schlafen.', blanked: 'Trotz ___ kann ich schlafen.',
+        expectedAnswer: 'des Lärms', usedCase: 'genitive', gloss: 'Despite the noise I can sleep.' }
+    ]
+  },
+  {
+    id: 'wegen', german: 'wegen', english: 'because of', case: 'genitive', level: 'B1',
+    examples: [
+      { sentence: 'Wegen des Wetters bleiben wir zu Hause.', blanked: 'Wegen ___ bleiben wir zu Hause.',
+        expectedAnswer: 'des Wetters', usedCase: 'genitive', gloss: 'Because of the weather we stay home.' },
+      { sentence: 'Wegen der Arbeit kommt er spät.', blanked: 'Wegen ___ Arbeit kommt er spät.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'Because of work he comes late.' },
+      { sentence: 'Wegen des Streiks fahren keine Züge.', blanked: 'Wegen ___ fahren keine Züge.',
+        expectedAnswer: 'des Streiks', usedCase: 'genitive', gloss: 'Because of the strike no trains run.' }
+    ]
+  },
+  {
+    id: 'anstatt', german: '(an)statt', english: 'instead of', case: 'genitive', level: 'B1',
+    examples: [
+      { sentence: 'Anstatt des Kaffees trinkt er Tee.', blanked: 'Anstatt ___ trinkt er Tee.',
+        expectedAnswer: 'des Kaffees', usedCase: 'genitive', gloss: 'Instead of coffee he drinks tea.' },
+      { sentence: 'Statt der Suppe esse ich Salat.', blanked: 'Statt ___ Suppe esse ich Salat.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'Instead of soup I eat salad.' },
+      { sentence: 'Anstatt des Films sehen wir ein Theaterstück.', blanked: 'Anstatt ___ sehen wir ein Theaterstück.',
+        expectedAnswer: 'des Films', usedCase: 'genitive', gloss: 'Instead of the film we see a play.' }
+    ]
+  },
+  {
+    id: 'innerhalb', german: 'innerhalb', english: 'within', case: 'genitive', level: 'B2',
+    examples: [
+      { sentence: 'Innerhalb der Woche muss ich fertig sein.', blanked: 'Innerhalb ___ Woche muss ich fertig sein.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'Within the week I have to be done.' },
+      { sentence: 'Innerhalb des Hauses ist es warm.', blanked: 'Innerhalb ___ ist es warm.',
+        expectedAnswer: 'des Hauses', usedCase: 'genitive', gloss: 'Within the house it is warm.' }
+    ]
+  },
+  {
+    id: 'ausserhalb', german: 'außerhalb', english: 'outside of', case: 'genitive', level: 'B2',
+    examples: [
+      { sentence: 'Außerhalb der Stadt ist es ruhig.', blanked: 'Außerhalb ___ Stadt ist es ruhig.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'Outside the city it is quiet.' },
+      { sentence: 'Außerhalb des Dorfes gibt es Wälder.', blanked: 'Außerhalb ___ gibt es Wälder.',
+        expectedAnswer: 'des Dorfes', usedCase: 'genitive', gloss: 'Outside the village there are forests.' }
+    ]
+  },
+  {
+    id: 'aufgrund', german: 'aufgrund', english: 'on the basis of', case: 'genitive', level: 'B2',
+    examples: [
+      { sentence: 'Aufgrund des Wetters fällt der Flug aus.', blanked: 'Aufgrund ___ fällt der Flug aus.',
+        expectedAnswer: 'des Wetters', usedCase: 'genitive', gloss: 'Due to the weather the flight is cancelled.' },
+      { sentence: 'Aufgrund der Krise sparen wir.', blanked: 'Aufgrund ___ Krise sparen wir.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'Due to the crisis we save money.' }
+    ]
+  },
+  {
+    id: 'dank', german: 'dank', english: 'thanks to', case: 'genitive', level: 'B2',
+    examples: [
+      { sentence: 'Dank des Lehrers verstehe ich es jetzt.', blanked: 'Dank ___ verstehe ich es jetzt.',
+        expectedAnswer: 'des Lehrers', usedCase: 'genitive', gloss: 'Thanks to the teacher I understand it now.' },
+      { sentence: 'Dank der Hilfe sind wir fertig.', blanked: 'Dank ___ Hilfe sind wir fertig.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'Thanks to the help we are done.' }
+    ]
+  },
+  {
+    id: 'mithilfe', german: 'mithilfe', english: 'with the help of', case: 'genitive', level: 'B2',
+    examples: [
+      { sentence: 'Mithilfe des Wörterbuchs lerne ich Vokabeln.', blanked: 'Mithilfe ___ lerne ich Vokabeln.',
+        expectedAnswer: 'des Wörterbuchs', usedCase: 'genitive', gloss: 'With the help of the dictionary I learn vocabulary.' },
+      { sentence: 'Mithilfe der Nachbarin schaffen wir es.', blanked: 'Mithilfe ___ Nachbarin schaffen wir es.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'With the help of the neighbour we manage it.' }
+    ]
+  },
+  {
+    id: 'laut', german: 'laut', english: 'according to', case: 'genitive', level: 'B2',
+    examples: [
+      { sentence: 'Laut des Berichts steigt die Inflation.', blanked: 'Laut ___ steigt die Inflation.',
+        expectedAnswer: 'des Berichts', usedCase: 'genitive', gloss: 'According to the report inflation is rising.' },
+      { sentence: 'Laut der Zeitung beginnt es morgen.', blanked: 'Laut ___ Zeitung beginnt es morgen.',
+        expectedAnswer: 'der', usedCase: 'genitive', gloss: 'According to the newspaper it starts tomorrow.' }
+    ]
+  }
+]
