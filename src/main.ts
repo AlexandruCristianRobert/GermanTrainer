@@ -1,11 +1,17 @@
 import '@fontsource/fraunces/300.css'
 import '@fontsource/fraunces/400.css'
+import '@fontsource/fraunces/500.css'
 import '@fontsource/fraunces/600.css'
+import '@fontsource/fraunces/300-italic.css'
 import '@fontsource/fraunces/400-italic.css'
+import '@fontsource/fraunces/500-italic.css'
 import '@fontsource/source-serif-4/400.css'
+import '@fontsource/source-serif-4/500.css'
 import '@fontsource/source-serif-4/600.css'
 import '@fontsource/source-serif-4/400-italic.css'
 import '@fontsource/jetbrains-mono/400.css'
+import '@fontsource/jetbrains-mono/500.css'
+import './styles/tokens.css'
 
 // Apply theme synchronously to avoid a flash of incorrect mode (FOUC).
 // Reads the same storage key as src/composables/useTheme.ts.

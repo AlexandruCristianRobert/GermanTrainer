@@ -9,6 +9,7 @@ const theme = computed(() => resolved.value === 'dark' ? darkTheme : null)
 </script>
 
 <template>
+  <div class="paper-grain" aria-hidden="true" />
   <n-config-provider :theme="theme">
     <n-message-provider>
       <n-dialog-provider>
