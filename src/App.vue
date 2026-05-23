@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui'
+import { computed } from 'vue'
+import { NConfigProvider, NMessageProvider, NDialogProvider, darkTheme } from 'naive-ui'
 import NavShell from './components/NavShell.vue'
+import { useTheme } from './composables/useTheme'
+
+const { resolved } = useTheme()
+const theme = computed(() => resolved.value === 'dark' ? darkTheme : null)
 </script>
 
 <template>
-  <n-config-provider>
+  <n-config-provider :theme="theme">
     <n-message-provider>
       <n-dialog-provider>
         <NavShell />

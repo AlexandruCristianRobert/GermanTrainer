@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { NLayout, NLayoutHeader, NLayoutContent, NMenu, NSpace, NText, NButton, NDrawer } from 'naive-ui'
 import { useRouter, useRoute } from 'vue-router'
 import { useBreakpoint } from '../composables/useBreakpoint'
+import ThemeToggle from './ThemeToggle.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -52,13 +53,16 @@ const contentStyle = computed(() =>
           </n-button>
           <n-text strong :style="titleStyle">German Trainer</n-text>
         </n-space>
-        <n-menu
-          v-if="!isMobile"
-          mode="horizontal"
-          :options="items"
-          :value="activeKey"
-          @update:value="onSelect"
-        />
+        <n-space align="center" :size="8" :wrap="false">
+          <n-menu
+            v-if="!isMobile"
+            mode="horizontal"
+            :options="items"
+            :value="activeKey"
+            @update:value="onSelect"
+          />
+          <ThemeToggle />
+        </n-space>
       </n-space>
     </n-layout-header>
     <n-layout-content :content-style="contentStyle">
