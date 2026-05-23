@@ -28,6 +28,7 @@ const NAV_ITEMS = [
   { route: 'nouns', label: 'Nouns', de: 'Substantive' },
   { route: 'adjectives', label: 'Adjectives', de: 'Adjektive' },
   { route: 'verbs', label: 'Verbs', de: 'Verben' },
+  { route: 'history', label: 'History', de: 'Verlauf' },
   { route: 'settings', label: 'Settings', de: 'Einstellungen' },
 ];
 

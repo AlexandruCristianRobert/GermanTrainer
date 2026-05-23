@@ -72,8 +72,10 @@ function App() {
   else if (route === 'verbs') body = <VerbsLanding navigate={navigate} />;
   else if (route === 'verbs/translation') body = <VerbTranslationSetup navigate={navigate} startQuiz={setQuizConfig} />;
   else if (route === 'verbs/translation/run') body = <VerbTranslationRunner navigate={navigate} config={quizConfig} />;
+  else if (route === 'verbs/translation/result') body = <VerbTranslationResult navigate={navigate} />;
   else if (route === 'verbs/cheatsheet') body = <Cheatsheet navigate={navigate} />;
   else if (route === 'settings') body = <Settings navigate={navigate} />;
+  else if (route === 'history') body = <HistoryPage navigate={navigate} />;
   else body = <HomePage navigate={navigate} />;
 
   return (

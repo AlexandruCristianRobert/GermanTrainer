@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import { useConjugationQuiz } from '../../composables/useVerbQuiz'
+import { saveQuizRun } from '../../composables/useQuizHistory'
 import {
   VERB_LEVELS, VERB_TYPES, VERB_CASES, VERB_TENSES,
   TENSE_LABELS, TENSE_LEVEL,
@@ -34,6 +35,12 @@ let quiz: ReturnType<typeof useConjugationQuiz> | null = null
 const ready = ref(false)
 const inputs = ref<string[]>([])
 const submitted = ref(false)
+const startedAtMs = ref<number>(0)
+const selectedLevels = ref<VerbLevel[]>([])
+const selectedTypes = ref<VerbType[]>([])
+const selectedCases = ref<VerbCase[]>([])
+const selectedTenses = ref<VerbTense[]>([])
+const historySaved = ref(false)
 
 function csv<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   if (typeof raw !== 'string' || raw.length === 0) return [...allowed]
@@ -58,6 +65,10 @@ onMounted(() => {
     cases: csv<VerbCase>(route.query.cases, VERB_CASES)
   }
   const tenses = csv<VerbTense>(route.query.tenses, VERB_TENSES)
+  selectedLevels.value = f.levels
+  selectedTypes.value = f.types
+  selectedCases.value = f.cases
+  selectedTenses.value = tenses
   try {
     let verbs: Verb[] = sample(count, f)
     if (verbs.length === 0 || tenses.length === 0) {
@@ -67,6 +78,7 @@ onMounted(() => {
       quiz = useConjugationQuiz(verbs, shuffle(tenses))
       ready.value = true
       resetInputs()
+      startedAtMs.value = Date.now()
     }
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load.'
@@ -128,6 +140,27 @@ function skip() {
 }
 
 function restart() { router.push({ name: 'verbs-conjugation' }) }
+
+// Save history once when the quiz transitions to finished.
+watch(finished, (now) => {
+  if (!now || historySaved.value || !quiz) return
+  historySaved.value = true
+  const finishedAt = Date.now()
+  saveQuizRun({
+    type: 'verb-conjugation',
+    startedAt: new Date(startedAtMs.value).toISOString(),
+    finishedAt: new Date(finishedAt).toISOString(),
+    durationMs: finishedAt - startedAtMs.value,
+    count: quiz.totalRows.value,
+    correct: quiz.correctRows.value,
+    meta: {
+      levels: selectedLevels.value,
+      types: selectedTypes.value,
+      cases: selectedCases.value,
+      tenses: selectedTenses.value
+    }
+  })
+})
 
 const aggregateLabel = computed(() => {
   if (!ready.value || !quiz) return ''

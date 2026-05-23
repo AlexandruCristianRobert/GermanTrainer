@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useNouns } from '../../composables/useNouns'
 import { useNounQuiz, type NounQuizMode } from '../../composables/useNounQuiz'
+import { saveQuizRun } from '../../composables/useQuizHistory'
 import GenderQuiz from './GenderQuiz.vue'
 import TranslationQuiz from './TranslationQuiz.vue'
 import QuizResult from './QuizResult.vue'
@@ -16,6 +17,9 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const nouns = ref<Noun[]>([])
 const mode = ref<NounQuizMode>('gender')
+const startedAtMs = ref<number>(0)
+const selectedGroups = ref<NounGroup[]>([])
+const historySaved = ref(false)
 
 let quiz: ReturnType<typeof useNounQuiz> | null = null
 const ready = ref(false)
@@ -34,6 +38,7 @@ onMounted(async () => {
   const c = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
   const groups = parseGroupsQuery(route.query.groups)
   mode.value = m
+  selectedGroups.value = groups
   try {
     nouns.value = groups.length > 0
       ? await sampleByGroups(groups, c)
@@ -43,6 +48,7 @@ onMounted(async () => {
     } else {
       quiz = useNounQuiz(nouns.value, m)
       ready.value = true
+      startedAtMs.value = Date.now()
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load.'
@@ -66,6 +72,25 @@ function onAnswered(_correct: boolean, answer: string) {
 function onNext() { quiz?.advance() }
 
 function restart() { router.push({ name: 'nouns-quiz' }) }
+
+// Save to history once when the quiz transitions to finished.
+watch(finished, (now) => {
+  if (!now || historySaved.value) return
+  historySaved.value = true
+  const finishedAt = Date.now()
+  saveQuizRun({
+    type: mode.value === 'gender' ? 'noun-gender' : 'noun-translation',
+    startedAt: new Date(startedAtMs.value).toISOString(),
+    finishedAt: new Date(finishedAt).toISOString(),
+    durationMs: finishedAt - startedAtMs.value,
+    count: total.value,
+    correct: score.value,
+    meta: {
+      mode: mode.value,
+      groups: selectedGroups.value
+    }
+  })
+})
 </script>
 
 <template>

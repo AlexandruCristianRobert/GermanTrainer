@@ -138,12 +138,14 @@ These match the existing app routes exactly. Don't change the URLs — they're d
 /verbs                  Verbs landing      — 4 cards: Browse / Translation / Conjugation / Cheatsheet
 /verbs/list             Browse Verbs       — search + 3 filter checkbox groups + paginated table
 /verbs/translation      Translation quiz setup
-/verbs/translation/run  Translation quiz runner
-                        → result screen
+/verbs/translation/run  Translation quiz runner — test-sheet (all verbs in one list, single submit)
+/verbs/translation/result  Translation result screen
 /verbs/conjugation      Conjugation quiz setup — verb filters + tense picker w/ CEFR badges
 /verbs/conjugation/run  Conjugation quiz runner — 6 inputs per (verb × tense) question
                         → result screen
 /verbs/cheatsheet       Cheatsheet — 12 chapters with sticky rail nav
+
+/history                Quiz history — past runs with score, duration, time, filters
 ```
 
 ## Layout & visual patterns
@@ -375,6 +377,88 @@ The redesign **does not change any persistence schemas**. Existing user data sho
 ≥ 1024px     Full desktop — two-column cheatsheet, beside-card marginalia, full nav.
 ```
 
+## Update 2 — Verb translation test-sheet & History page
+
+After initial review, two screens changed from the original spec. **Implement these as described below; the rest of the document still applies.**
+
+### Verb translation runner — switched from one-at-a-time card to a single test sheet
+
+The old runner showed one verb per screen with submit/next. **The new runner shows all N verbs on one page** with inputs stacked vertically, a single Submit-all button at the bottom, and goes to a separate result page after submit. This proved to feel more like a real worksheet and lets users skim, skip, and revisit before grading.
+
+Layout (`.test-sheet`, max-width **760px**, centered):
+
+- **Section header** at the top — breadcrumb "Kapitel III · Übersetzen · N Verben", title "Übersetzung." with accent period, italic subtitle "Type the English meaning of each verb. 'to' is optional. Press Enter to jump to the next line.", and an "End quiz" quiet button on the right.
+- **Sticky meta bar** (`.test-sheet-header`) just below — sticks to `top: 73px` (under nav). Backdrop-blurred bg `color-mix(in oklab, var(--paper) 92%, transparent)`. Contains a filled count ("**6** · von 10 ausgefüllt", mono uppercase 12px / 0.18em tracking) on the left and a thin live progress bar on the right (max 280px wide). Pip turns `var(--accent)` when its row has content.
+- **Verb rows** (`.test-row`, 2-column grid `48px 1fr` with 20px gap, 18×0 padding, 1px dotted bottom hairline):
+  - Left col: a zero-padded row number `01.` `02.` … in mono 13px `--mute`, slightly indented top.
+  - Right col stacks vertically:
+    1. A prompt row with the German verb (Fraunces 500, **32px**, letter-spacing -0.01em) on the left and the level/type/case chips on the right (small tags with the existing color logic — irregular=clay, mixed=accent, separable=cobalt, modal=ochre).
+    2. A borderless input — bottom-only 1px hairline border, 17px Source Serif, italic muted placeholder "English (to is optional)…". Focus thickens the bottom border to 2px and turns it `var(--accent)`.
+- **Sticky footer** (`.test-sheet-footer`, bottom-sticky, same backdrop-blur as header) — "**N** filled · M remaining" mono label on the left, **Submit all · N verbs →** primary button on the right. Disabled until at least one input is filled. Submitting writes a history entry and navigates to the result page.
+
+Keyboard: pressing Enter in any input jumps focus to the next row's input. Pressing Enter on the last input focuses the Submit-all button.
+
+Mobile (`< 600px`): the row grid drops to `36px 1fr / gap 12px`, verb size shrinks to 26px. Everything else flows the same.
+
+The single-card runner pattern from the older translation/gender quizzes still applies for the **noun gender quiz** — keep that one one-at-a-time so the buttons can feel tactile. The list-style is specifically right for translation drills where the user wants to skim the whole set first.
+
+### Quiz history (`/history`)
+
+A new top-level destination — sits in the nav between Verbs and Settings.
+
+- **Section header**: breadcrumb "Verlauf · Quiz history", title "History.", italic subtitle, and (when there's data) a "Clear history" quiet danger button on the right.
+- **Stat strip** (`.stat-strip`, 4-column grid bordered top + bottom with 1px solid `var(--rule)`, dotted vertical hairlines between cells, 24×24 padding per cell):
+  - Total runs · Questions answered · Correct · Overall %
+  - Big numbers in Fraunces 500 / 48px / letter-spacing -0.02em. Labels in mono 11px / 0.18em tracking / uppercase / `--mute` underneath. The `%` suffix on the overall percentage renders smaller (24px) and `--mute`.
+  - Mobile (`< 720px`): collapses to 2×2 grid.
+- **Filter segmented control** (when items exist) — "All · N", then one chip per quiz type that actually has any runs (e.g. "Noun gender · 3", "Verb translation · 5"). Same `.segmented` component used elsewhere.
+- **History table** (`.data-table.history-table`) — rows:
+  - **Quiz** col (24%): quiz name in Fraunces 500/18px + German subtitle in italic Fraunces/13px/`--mute` below
+  - **Started** col (20%): relative time ("3m ago", "2h ago", "5d ago", or "Mar 14" for older) in body font + absolute "Mon 14:32" beneath in mono/12px/`--mute`
+  - **Duration** col (12%): formatted like "1m 23s" or "45s" in mono `--ink-soft`
+  - **Questions** col (12%): the count + italic "asked" tag
+  - **Score** col (18%): "7/10" in Fraunces 22px with denom muted, plus a colored % tag right of it — `--success-tint` ≥80%, `--ochre-tint` 50–79%, `--danger-tint` <50%
+  - **Filters** col (14%): mono 11px summary of meta (e.g. "gender · 6 groups", "A1/A2 · regular, irregular")
+- **Empty state** (`.empty-state`, when no history): centered card with dashed hairline border, big italic Fraunces "∅" mark, "No quizzes yet." headline, italic subtitle, accent "Back to home →" button.
+
+### Persistence — quiz history storage
+
+Stored in **localStorage** under key `gt:quizHistory` as a JSON array of entries (cap at 100, FIFO trim from oldest). Each entry:
+
+```ts
+{
+  id: number,           // timestamp ms
+  type: 'noun-gender' | 'noun-translation' | 'adjective' | 'verb-translation' | 'verb-conjugation',
+  startedAt: string,    // ISO
+  finishedAt: string,   // ISO
+  durationMs: number,
+  count: number,        // total questions asked
+  correct: number,      // total correct
+  meta: {
+    // Whatever filters were used. Shape varies by quiz type:
+    mode?: 'gender' | 'translation',  // noun
+    groups?: string[],                 // noun, adjective
+    levels?: string[],                 // verb
+    types?: string[],                  // verb
+    cases?: string[],                  // verb
+    tenses?: string[],                 // verb conjugation
+  }
+}
+```
+
+Helpers exported from `history.jsx`:
+- `saveQuizRun(entry)` — push + trim to 100. Call this from the result screen of every quiz (or from the runner when it transitions to result).
+- `loadHistory()` — returns the array (newest first).
+- `clearHistory()` — empties the store.
+
+The Vue port should put these in a small composable, e.g. `useQuizHistory.ts`, and inject `saveQuizRun` into each quiz module's result component. The schema is independent of the existing IndexedDB stores — this is a new localStorage key.
+
+### Nav additions
+
+The top-nav `NAV_ITEMS` array now includes a 5th entry **History** between Verbs and Settings. The mobile drawer mirrors this. Active state behaves the same way (2px accent underline on desktop, accent text in drawer).
+
+---
+
 ## Screenshots
 
 The `screenshots/` folder in this bundle contains HQ captures of every key screen in the prototype:
@@ -389,7 +473,7 @@ The `screenshots/` folder in this bundle contains HQ captures of every key scree
 | `06-noun-quiz-feedback.png` | Noun gender quiz runner — post-pick (dark mode) |
 | `07-verbs-landing.png` | Verbs landing — 4-card layout (Browse / Translation / Conjugation / Cheatsheet) |
 | `08-verb-translation-setup.png` | Verb translation setup — Level / Type / Case chip filters + count |
-| `09-verb-translation-runner.png` | Verb translation runner — large infinitive, chips, input |
+| `09-verb-translation-runner.png` | ⚠️ Old: single-card runner. **Has been replaced** by the test-sheet layout described in *Update 2*. Capture not yet refreshed — see the description there for the current layout. |
 | `10-cheatsheet.png` | Cheatsheet — sticky rail nav + chapter I header |
 | `11-settings.png` | Settings — Gemini API key + model picker + test connection |
 | `12-home-dark.png` | Home in dark mode — same layout, dark theme tokens |
@@ -406,8 +490,9 @@ Note on the feedback screenshot (#6): the **correct** button gets a sage-tinted 
 | `nav.jsx` | NavShell — sticky header, links, theme toggle, mobile drawer |
 | `home.jsx` | Home page — 4-card module grid + footer marks |
 | `nouns.jsx` | Nouns landing + Manage table + Quiz setup + Gender quiz runner + Result |
-| `verbs.jsx` | Verb data, Translation quiz setup + runner + result, tag-class helpers |
+| `verbs.jsx` | Verb data, Translation quiz setup + **test-sheet runner** + result, tag-class helpers |
 | `cheatsheet.jsx` | Cheatsheet shell + 2 sample chapters showing the full layout vocabulary |
+| `history.jsx` | **Quiz history** — save/load/clear helpers + HistoryPage component |
 | `other-pages.jsx` | Settings page + Adjectives/Verbs landing stubs |
 | `data.js` | Sample noun data, group counts, marginalia content |
 | `tweaks-panel.jsx` | Floating tweaks panel scaffold (host-protocol — drop on port) |

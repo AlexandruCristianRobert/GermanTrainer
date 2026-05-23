@@ -233,158 +233,148 @@ function buildVerbDeck(config) {
 function VerbTranslationRunner({ navigate, config }) {
   const cfg = config || { pool: VERBS.filter(v => v.level === 'A1'), count: 10 };
   const [deck] = React.useState(() => buildVerbDeck(cfg));
-  const [idx, setIdx] = React.useState(0);
-  const [input, setInput] = React.useState('');
-  const [submitted, setSubmitted] = React.useState(false);
-  const [history, setHistory] = React.useState([]);
-  const [margIdx, setMargIdx] = React.useState(() => Math.floor(Math.random() * TRANS_MARGINALIA.length));
-  const inputRef = React.useRef(null);
-  const nextBtnRef = React.useRef(null);
+  const [answers, setAnswers] = React.useState(() => deck.map(() => ''));
+  const [startedAt] = React.useState(() => Date.now());
+  const refs = React.useRef([]);
 
+  const setAnswer = (i, v) => {
+    const next = [...answers];
+    next[i] = v;
+    setAnswers(next);
+  };
+
+  const filled = answers.filter(a => a.trim()).length;
   const total = deck.length;
-  const verb = deck[idx];
 
-  React.useEffect(() => {
-    if (!submitted && inputRef.current) inputRef.current.focus();
-  }, [idx, submitted]);
-
-  React.useEffect(() => {
-    if (submitted && nextBtnRef.current) nextBtnRef.current.focus();
-  }, [submitted]);
-
-  if (!verb) {
-    return <VerbResultScreen navigate={navigate} history={history} total={total} />;
-  }
-
-  const isCorrect = submitted && checkTranslation(input, verb.english);
-
-  const onSubmit = (e) => {
-    e?.preventDefault?.();
-    if (submitted || !input.trim()) return;
-    setSubmitted(true);
+  const onSubmitAll = () => {
+    const graded = deck.map((verb, i) => ({
+      verb,
+      input: answers[i],
+      correct: checkTranslation(answers[i], verb.english),
+    }));
+    const finishedAt = Date.now();
+    const correctCount = graded.filter(g => g.correct).length;
+    // Save to history
+    saveQuizRun({
+      type: 'verb-translation',
+      startedAt: new Date(startedAt).toISOString(),
+      finishedAt: new Date(finishedAt).toISOString(),
+      durationMs: finishedAt - startedAt,
+      count: total,
+      correct: correctCount,
+      meta: {
+        levels: Array.from(new Set(deck.map(d => d.level))).sort(),
+        types: Array.from(new Set(deck.map(d => d.type))).sort(),
+      },
+    });
+    // Pass graded history forward
+    window.__lastVerbQuiz = { history: graded, total };
+    navigate('verbs/translation/result');
   };
 
-  const onNext = () => {
-    setHistory([...history, { verb, input, correct: isCorrect }]);
-    setMargIdx((margIdx + 1) % TRANS_MARGINALIA.length);
-    setInput('');
-    setSubmitted(false);
-    setIdx(idx + 1);
+  // Auto-focus first input on mount
+  React.useEffect(() => {
+    if (refs.current[0]) refs.current[0].focus();
+  }, []);
+
+  // Enter in any input advances to next
+  const onKeyDown = (e, i) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (i + 1 < total && refs.current[i + 1]) {
+        refs.current[i + 1].focus();
+      } else if (i + 1 === total) {
+        // last input → focus submit
+        document.getElementById('submit-all-btn')?.focus();
+      }
+    }
   };
-
-  // Progress pips
-  const pips = [];
-  for (let i = 0; i < total; i++) {
-    let cls = '';
-    if (i < history.length) cls = history[i].correct ? 'done' : 'wrong';
-    else if (i === idx && submitted) cls = isCorrect ? 'done' : 'wrong';
-    else if (i === idx) cls = 'current';
-    pips.push(cls);
-  }
-
-  const marg = TRANS_MARGINALIA[margIdx];
 
   return (
     <div className="page" data-screen-label="33 Verb translation runner">
-      <div className="quiz-stage">
-        <div>
-          <div className="quiz-meta">
-            <span className="quiz-counter">Frage {idx + 1} · von {total}</span>
-            <button className="btn btn-quiet" onClick={() => navigate('verbs/translation')}>End quiz</button>
+      <div className="test-sheet">
+        <div className="section-header" style={{marginBottom: 0}}>
+          <div>
+            <div className="breadcrumb">Kapitel III · Übersetzen · {total} Verben</div>
+            <h1 className="section-title">Übersetzung<em>.</em></h1>
+            <p className="section-subtitle">
+              Type the English meaning of each verb. "to" is optional. Press Enter to jump to the next line.
+            </p>
           </div>
+          <button className="btn btn-quiet" onClick={() => navigate('verbs/translation')}>End quiz</button>
+        </div>
 
-          <div className="quiz-progress-bar">
-            {pips.map((cls, i) => <div key={i} className={'pip ' + cls}></div>)}
-          </div>
-
-          <div className="prompt-card">
-            <div style={{position: 'absolute', top: 16, left: 0, display: 'flex', gap: 6}}>
-              <span className="tag">{verb.level}</span>
-              <span className={'tag ' + typeTagClass(verb.type)}>{verb.type}</span>
-              <span className={'tag ' + caseTagClass(verb.case)}>{verb.case}</span>
-            </div>
-            <div className="prompt-german">{verb.german}</div>
-            <div className="prompt-english" style={{opacity: submitted ? 1 : 0, transition: 'opacity .3s'}}>
-              {submitted ? verb.english : '\u00A0'}
-            </div>
-          </div>
-
-          <form onSubmit={onSubmit} className="translation-input-wrap">
-            <input
-              ref={inputRef}
-              className="input"
-              type="text"
-              placeholder="English (to is optional)"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              autoComplete="off"
-              autoCorrect="off"
-              spellCheck="false"
-              readOnly={submitted}
-              style={submitted ? {
-                color: isCorrect ? 'var(--success)' : 'var(--danger)',
-                borderBottomColor: isCorrect ? 'var(--success)' : 'var(--danger)',
-              } : undefined}
-            />
-            {!submitted && (
-              <button className="btn btn-accent" type="submit" disabled={!input.trim()}>
-                Submit →
-              </button>
-            )}
-          </form>
-
-          <div className={'feedback-line' + (submitted ? (isCorrect ? ' correct' : ' wrong') : '')}>
-            {!submitted && <span style={{color: 'var(--mute)', fontStyle: 'italic'}}>Type the English meaning. Press Enter to submit.</span>}
-            {submitted && isCorrect && <>✓ Richtig.</>}
-            {submitted && !isCorrect && <>✗ Korrekt — <strong>{verb.english}</strong></>}
-          </div>
-
-          <div className="quiz-actions">
-            <span className="micro-mark">Press <span className="kbd">Enter</span> to {submitted ? 'advance' : 'submit'}</span>
-            {submitted && (
-              <button
-                ref={nextBtnRef}
-                className="btn btn-accent"
-                onClick={onNext}
-                onKeyDown={(e) => { if (e.key === 'Enter') onNext(); }}
-              >
-                {idx + 1 === total ? 'Finish quiz' : 'Next'} →
-              </button>
-            )}
+        <div className="test-sheet-header">
+          <span className="filled-count">
+            <strong>{filled}</strong> · von {total} ausgefüllt
+          </span>
+          <div className="quiz-progress-bar" style={{flex: 1, maxWidth: 280, marginBottom: 0, marginLeft: 24}}>
+            {deck.map((_, i) => (
+              <div key={i} className={'pip ' + (answers[i]?.trim() ? 'current' : '')}></div>
+            ))}
           </div>
         </div>
 
-        <aside className="marginalia">
-          <div className="marg-section">
-            <div className="marg-label">{marg.label}</div>
-            <p className="marg-quote">{marg.quote}</p>
-            <p style={{margin: 0}}>{marg.body}</p>
-          </div>
+        <div style={{marginTop: 16}}>
+          {deck.map((verb, i) => {
+            const filledHere = answers[i]?.trim().length > 0;
+            return (
+              <div key={i} className={'test-row' + (filledHere ? ' is-filled' : '')}>
+                <div className="test-num">
+                  <strong>{String(i + 1).padStart(2, '0')}.</strong>
+                </div>
+                <div className="test-content">
+                  <div className="test-prompt-row">
+                    <span className="test-verb">{verb.german}</span>
+                    <span className="test-chips">
+                      <span className="tag">{verb.level}</span>
+                      <span className={'tag ' + typeTagClass(verb.type)}>{verb.type}</span>
+                      <span className={'tag ' + caseTagClass(verb.case)}>{verb.case}</span>
+                    </span>
+                  </div>
+                  <input
+                    ref={(el) => { refs.current[i] = el; }}
+                    className="test-input"
+                    type="text"
+                    placeholder="English (to is optional)…"
+                    value={answers[i]}
+                    onChange={(e) => setAnswer(i, e.target.value)}
+                    onKeyDown={(e) => onKeyDown(e, i)}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-          <div className="marg-section">
-            <div className="marg-label">Score so far</div>
-            <p style={{margin: 0, fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em'}}>
-              {history.filter(h => h.correct).length}
-              <span style={{color: 'var(--mute)'}}> / {history.length || '0'}</span>
-            </p>
-            <p style={{fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--mute)', margin: 0, marginTop: 4, letterSpacing: '0.06em'}}>
-              answered · {total - idx - (submitted ? 1 : 0)} remaining
-            </p>
-          </div>
-
-          <div className="marg-section">
-            <div className="marg-label">Legend</div>
-            <div style={{display: 'flex', flexDirection: 'column', gap: 5, fontSize: 13}}>
-              <div><span className="tag tag-cobalt">accusative</span> <em>direct object</em></div>
-              <div><span className="tag tag-clay">dative</span> <em>indirect object</em></div>
-              <div><span className="tag tag-ochre">genitive</span> <em>possessive</em></div>
-              <div><span className="tag tag-accent">reflexive</span> <em>sich-</em></div>
-            </div>
-          </div>
-        </aside>
+        <div className="test-sheet-footer">
+          <span className="filled-count">
+            <strong>{filled}</strong> filled · {total - filled} remaining
+          </span>
+          <button
+            id="submit-all-btn"
+            className="btn btn-accent"
+            onClick={onSubmitAll}
+            disabled={filled === 0}
+          >
+            Submit all · {total} verbs →
+          </button>
+        </div>
       </div>
     </div>
   );
+}
+
+/* ────── Result screen for verb translation ────── */
+
+function VerbTranslationResult({ navigate }) {
+  const stashed = window.__lastVerbQuiz;
+  const history = stashed?.history || [];
+  const total = stashed?.total || history.length;
+  return <VerbResultScreen navigate={navigate} history={history} total={total} />;
 }
 
 /* ────── Result screen for verb translation ────── */
@@ -440,4 +430,4 @@ function VerbResultScreen({ navigate, history, total }) {
   );
 }
 
-Object.assign(window, { VERBS, VerbTranslationSetup, VerbTranslationRunner, VerbResultScreen });
+Object.assign(window, { VERBS, VerbTranslationSetup, VerbTranslationRunner, VerbTranslationResult, VerbResultScreen });

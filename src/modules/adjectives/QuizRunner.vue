@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdjectives } from '../../composables/useAdjectives'
 import { useSettings } from '../../composables/useSettings'
@@ -9,6 +9,7 @@ import {
   type SentenceItem
 } from '../../composables/useClaude'
 import { useAdjectiveQuiz } from '../../composables/useAdjectiveQuiz'
+import { saveQuizRun } from '../../composables/useQuizHistory'
 import SentenceQuiz from './SentenceQuiz.vue'
 import QuizResult from './QuizResult.vue'
 import { ADJECTIVE_GROUPS, type AdjectiveGroup } from '../../db/types'
@@ -22,6 +23,9 @@ const phase = ref<'loading' | 'error' | 'quiz'>('loading')
 const errorMsg = ref('')
 let quiz: ReturnType<typeof useAdjectiveQuiz> | null = null
 const ready = ref(false)
+const startedAtMs = ref<number>(0)
+const selectedGroups = ref<AdjectiveGroup[]>([])
+const historySaved = ref(false)
 
 function parseGroupsQuery(raw: unknown): AdjectiveGroup[] {
   if (typeof raw !== 'string' || raw.length === 0) return []
@@ -61,12 +65,15 @@ async function generate(): Promise<SentenceItem[]> {
 async function startQuiz() {
   phase.value = 'loading'
   errorMsg.value = ''
+  historySaved.value = false
+  selectedGroups.value = parseGroupsQuery(route.query.groups)
   try {
     await loadSettings()
     const sentences = await generate()
     quiz = useAdjectiveQuiz(sentences)
     ready.value = true
     phase.value = 'quiz'
+    startedAtMs.value = Date.now()
   } catch (err) {
     errorMsg.value = err instanceof Error ? err.message : 'Failed to generate sentences.'
     phase.value = 'error'
@@ -81,6 +88,22 @@ const finished = computed(() => (ready.value, quiz?.finished.value ?? false))
 function onAnswered(answer: string) { quiz?.submit(answer) }
 function onNext() { quiz?.advance() }
 function restart() { router.push({ name: 'adjectives-quiz' }) }
+
+// Save history once when finished.
+watch(finished, (now) => {
+  if (!now || historySaved.value || !quiz) return
+  historySaved.value = true
+  const finishedAt = Date.now()
+  saveQuizRun({
+    type: 'adjective',
+    startedAt: new Date(startedAtMs.value).toISOString(),
+    finishedAt: new Date(finishedAt).toISOString(),
+    durationMs: finishedAt - startedAtMs.value,
+    count: quiz.total.value,
+    correct: quiz.score.value,
+    meta: { groups: selectedGroups.value }
+  })
+})
 </script>
 
 <template>

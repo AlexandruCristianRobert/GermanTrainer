@@ -269,6 +269,8 @@ function GenderQuizRunner({ navigate, config, onFinish }) {
   const [picked, setPicked] = React.useState(null);
   const [history, setHistory] = React.useState([]);
   const [margIdx, setMargIdx] = React.useState(() => Math.floor(Math.random() * GENDER_MARGINALIA.length));
+  const [startedAt] = React.useState(() => Date.now());
+  const savedRef = React.useRef(false);
 
   const total = deck.length;
   const noun = deck[idx];
@@ -279,6 +281,24 @@ function GenderQuizRunner({ navigate, config, onFinish }) {
   }, [picked]);
 
   if (!noun) {
+    // Save to history once on finish
+    if (!savedRef.current && history.length > 0) {
+      savedRef.current = true;
+      const correctCount = history.filter(h => h.correct).length;
+      const finishedAt = Date.now();
+      saveQuizRun({
+        type: cfg.mode === 'gender' ? 'noun-gender' : 'noun-translation',
+        startedAt: new Date(startedAt).toISOString(),
+        finishedAt: new Date(finishedAt).toISOString(),
+        durationMs: finishedAt - startedAt,
+        count: total,
+        correct: correctCount,
+        meta: {
+          mode: cfg.mode,
+          groups: cfg.groups || [],
+        },
+      });
+    }
     return (
       <ResultScreen
         navigate={navigate}
