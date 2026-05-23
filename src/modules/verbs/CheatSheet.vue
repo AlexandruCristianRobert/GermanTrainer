@@ -728,6 +728,7 @@ function onSelect(id: string) {
   gap: 48px;
   max-width: 1160px;
   margin: 0 auto;
+  align-items: start;
 }
 
 .grammatik-main {
@@ -736,9 +737,10 @@ function onSelect(id: string) {
 
 .chapter {
   position: relative;
-  margin: 96px 0;
+  margin: 80px 0;
   scroll-margin-top: 96px;
   animation: chapter-in 400ms ease-out both;
+  counter-reset: pattern;
 }
 
 .chapter:first-of-type { margin-top: 16px; }
@@ -781,6 +783,14 @@ function onSelect(id: string) {
   font-weight: 600;
   margin: 22px 0 10px 0;
   color: var(--sage);
+  counter-increment: pattern;
+}
+
+.pattern-heading::before {
+  content: counter(pattern, lower-alpha) ".";
+  margin-right: 10px;
+  color: var(--mute);
+  font-feature-settings: "tnum";
 }
 
 .two-col {
@@ -826,14 +836,17 @@ function onSelect(id: string) {
 
 /* Highlight ending letters inside conj forms */
 :deep(.conj-form .ending) {
-  color: var(--sage);
-  font-weight: 600;
+  color: var(--mute);
+  font-weight: 500;
 }
 
 /* Highlight vowel changes inside conj forms (.vh shorthand) */
 :deep(.conj-form .vh) {
   color: var(--sage);
   font-weight: 600;
+  background: var(--sage-tint);
+  padding: 0 2px;
+  border-radius: 2px;
 }
 
 .prefix-split {
@@ -853,18 +866,29 @@ function onSelect(id: string) {
   border-radius: 2px;
 }
 
-@media (max-width: 959px) {
+/* Tablet — 640–1023px */
+@media (max-width: 1023px) {
   .grammatik-layout {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 24px;
   }
   .chapter-numeral {
     position: static;
     margin-bottom: 12px;
-    font-size: 64px;
+    font-size: 72px;
   }
-  .chapter-title { font-size: 32px; }
+  .chapter-title { font-size: 36px; }
   .two-col { grid-template-columns: 1fr; }
   .prefix-split { grid-template-columns: 1fr; }
+}
+
+/* Mobile — < 640px */
+@media (max-width: 639px) {
+  .grammatik { padding: 16px; }
+  .chapter { margin: 56px 0; }
+  .chapter-numeral { font-size: 56px; }
+  .chapter-title { font-size: 28px; }
+  .chapter-subtitle { font-size: 16px; }
+  .modal-table { font-size: 13px; }
 }
 </style>
