@@ -68,3 +68,110 @@ describe('validateKiEntry — enum validity', () => {
     expect(validateKiEntry({ ...sampleValid, rationale: '   ' })).toBeNull()
   })
 })
+
+import { generateKiQuestions, type GeminiClient } from '../../src/composables/useKonjunktivQuiz'
+
+interface MockResponse { text: string }
+
+function makeMockClient(responses: MockResponse[]): GeminiClient {
+  let i = 0
+  return {
+    models: {
+      generateContent: async () => {
+        const r = responses[i] ?? { text: '' }
+        i += 1
+        return r
+      }
+    }
+  }
+}
+
+const ENTRY_OK_1 = {
+  source: 'Der Minister sagte: „Wir senken die Steuern."',
+  reportingClause: 'Der Minister sagte, ',
+  referenceAnswer: 'Der Minister sagte, sie senkten die Steuern.',
+  expectedMood: 'K2-fallback',
+  rationale: 'Plural matches indicative, K-II required.',
+  difficulty: 'medium'
+}
+
+const ENTRY_OK_2 = {
+  source: 'Sie meinte: „Er kommt morgen."',
+  reportingClause: 'Sie meinte, ',
+  referenceAnswer: 'Sie meinte, er komme morgen.',
+  expectedMood: 'K1',
+  rationale: '3rd person singular K-I is clean.',
+  difficulty: 'easy'
+}
+
+const ENTRY_BAD = {
+  source: 'No colon and no German quotes here.',
+  reportingClause: 'Sie meinte, ',
+  referenceAnswer: 'Sie meinte, etwas.',
+  expectedMood: 'K1',
+  rationale: 'r',
+  difficulty: 'easy'
+}
+
+describe('generateKiQuestions — retry loop', () => {
+  test('returns N valid entries from a single clean batch', async () => {
+    const client = makeMockClient([
+      { text: JSON.stringify({ entries: [ENTRY_OK_1, ENTRY_OK_2] }) }
+    ])
+    const result = await generateKiQuestions(client, {
+      model: 'gemini-2.5-flash',
+      count: 2,
+      difficulty: 'medium'
+    })
+    expect(result.entries).toHaveLength(2)
+    expect(result.rejected).toBe(0)
+    expect(result.attempts).toBe(1)
+  })
+
+  test('retries when the first batch fails validation', async () => {
+    const client = makeMockClient([
+      { text: JSON.stringify({ entries: [ENTRY_BAD] }) },
+      { text: JSON.stringify({ entries: [ENTRY_OK_1, ENTRY_OK_2] }) }
+    ])
+    const result = await generateKiQuestions(client, {
+      model: 'gemini-2.5-flash',
+      count: 2,
+      difficulty: 'medium',
+      maxRetries: 2
+    })
+    expect(result.entries).toHaveLength(2)
+    expect(result.rejected).toBe(1)
+    expect(result.attempts).toBe(2)
+  })
+
+  test('returns partial batch when retries exhaust', async () => {
+    const client = makeMockClient([
+      { text: JSON.stringify({ entries: [ENTRY_OK_1] }) },
+      { text: JSON.stringify({ entries: [ENTRY_BAD] }) },
+      { text: JSON.stringify({ entries: [ENTRY_BAD] }) }
+    ])
+    const result = await generateKiQuestions(client, {
+      model: 'gemini-2.5-flash',
+      count: 2,
+      difficulty: 'medium',
+      maxRetries: 2
+    })
+    expect(result.entries).toHaveLength(1)
+    expect(result.rejected).toBe(2)
+    expect(result.attempts).toBe(3)
+  })
+
+  test('survives malformed JSON in a response', async () => {
+    const client = makeMockClient([
+      { text: 'not-json {{{' },
+      { text: JSON.stringify({ entries: [ENTRY_OK_1, ENTRY_OK_2] }) }
+    ])
+    const result = await generateKiQuestions(client, {
+      model: 'gemini-2.5-flash',
+      count: 2,
+      difficulty: 'medium'
+    })
+    expect(result.entries).toHaveLength(2)
+    expect(result.attempts).toBe(2)
+  })
+})
