@@ -55,7 +55,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/passiv/quiz/result', name: 'passiv-quiz-result', component: () => import('./modules/passiv/QuizResult.vue') },
   { path: '/writing', name: 'writing', component: () => import('./modules/writing/WritingHome.vue') },
   { path: '/writing/task/:taskType', name: 'writing-task', component: () => import('./modules/writing/PromptDetail.vue') },
-  { path: '/writing/prompt/:promptId', name: 'writing-prompt', component: () => import('./modules/writing/PromptDetail.vue') }
+  { path: '/writing/prompt/:promptId', name: 'writing-prompt', component: () => import('./modules/writing/PromptDetail.vue') },
+  { path: '/writing/prompt/:promptId/draft/new', name: 'writing-draft-new', component: () => import('./modules/writing/EditorSurface.vue') },
+  { path: '/writing/prompt/:promptId/draft/:draftId', name: 'writing-draft', component: () => import('./modules/writing/EditorSurface.vue') }
 ]
 
 export const router = createRouter({
