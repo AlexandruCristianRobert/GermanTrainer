@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { samplePrepositions } from '../../composables/usePrepositions'
 import { useCaseQuiz } from '../../composables/usePrepositionQuiz'
@@ -17,6 +17,8 @@ const error = ref<string | null>(null)
 const deck = ref<Preposition[]>([])
 const startedAt = ref<number>(0)
 let quiz: ReturnType<typeof useCaseQuiz> | null = null
+
+const rowRefs = ref<HTMLElement[]>([])
 
 function csvFilter<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   if (typeof raw !== 'string' || raw.length === 0) return [...allowed]
@@ -36,6 +38,7 @@ onMounted(() => {
       deck.value = preps
       quiz = useCaseQuiz(preps)
       startedAt.value = Date.now()
+      nextTick(() => rowRefs.value[0]?.focus())
     }
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load.'
@@ -49,6 +52,25 @@ const total = computed(() => deck.value.length)
 
 function pick(i: number, c: PrepCase) {
   quiz?.pick(i, c)
+}
+
+// 1=accusative · 2=dative · 3=genitive · 4=two-way
+function onRowKeydown(e: KeyboardEvent, i: number) {
+  if (e.altKey || e.ctrlKey || e.metaKey) return
+  const idx = e.key.charCodeAt(0) - '1'.charCodeAt(0)
+  if (idx < 0 || idx >= PREPOSITION_CASES.length) return
+  e.preventDefault()
+  pick(i, PREPOSITION_CASES[idx])
+}
+
+// Center the focused row in the viewport so Tab/Shift-Tab navigation
+// keeps the active preposition visible.
+function onRowFocus(e: FocusEvent) {
+  const row = e.currentTarget as HTMLElement | null
+  if (!row) return
+  const reduce = typeof window !== 'undefined' && window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  row.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' })
 }
 
 function submitAll() {
@@ -96,7 +118,7 @@ function endQuiz() { router.push({ name: 'prepositions-case' }) }
           <div class="breadcrumb">Kapitel IV · Kasus · {{ total }} Präpositionen</div>
           <h1 class="section-title">Welcher Kasus<em>?</em></h1>
           <p class="section-subtitle">
-            For each preposition, pick the case it governs. Submit-all reveals your score on the next screen.
+            For each preposition, pick the case it governs. Press <kbd class="kbd">1</kbd>–<kbd class="kbd">4</kbd> to choose, <kbd class="kbd">Tab</kbd> for the next, <kbd class="kbd">Shift</kbd>+<kbd class="kbd">Tab</kbd> for the previous. Submit-all reveals your score on the next screen.
           </p>
         </div>
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
@@ -116,7 +138,11 @@ function endQuiz() { router.push({ name: 'prepositions-case' }) }
         <div
           v-for="(q, i) in quiz?.questions.value"
           :key="i"
-          class="test-row"
+          :ref="(el) => { if (el) rowRefs[i] = el as HTMLElement }"
+          class="test-row case-row"
+          tabindex="0"
+          @keydown="onRowKeydown($event, i)"
+          @focus="onRowFocus($event)"
         >
           <div class="test-num">
             <strong>{{ String(i + 1).padStart(2, '0') }}.</strong>
@@ -131,13 +157,17 @@ function endQuiz() { router.push({ name: 'prepositions-case' }) }
             </div>
             <div class="case-picker">
               <button
-                v-for="c in PREPOSITION_CASES"
+                v-for="(c, ci) in PREPOSITION_CASES"
                 :key="c"
                 type="button"
                 class="case-btn"
                 :class="{ selected: q.picked === c }"
+                tabindex="-1"
                 @click="pick(i, c)"
-              >{{ c }}</button>
+              >
+                <span class="case-btn-key">{{ ci + 1 }}</span>
+                <span class="case-btn-label">{{ c }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -171,6 +201,17 @@ function endQuiz() { router.push({ name: 'prepositions-case' }) }
   margin-right: 6px;
 }
 
+.case-row {
+  outline: none;
+  border-radius: 2px;
+  transition: background-color .15s, box-shadow .15s;
+}
+.case-row:focus,
+.case-row:focus-visible {
+  background: var(--accent-wash);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
 .case-picker {
   display: flex;
   gap: 6px;
@@ -181,7 +222,7 @@ function endQuiz() { router.push({ name: 'prepositions-case' }) }
   background: transparent;
   border: 1px solid var(--hairline);
   border-radius: 2px;
-  padding: 6px 14px;
+  padding: 6px 14px 6px 8px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -189,6 +230,9 @@ function endQuiz() { router.push({ name: 'prepositions-case' }) }
   color: var(--ink-soft);
   cursor: pointer;
   transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .case-btn:hover { border-color: var(--ink-soft); color: var(--ink); }
 .case-btn.selected {
@@ -196,4 +240,24 @@ function endQuiz() { router.push({ name: 'prepositions-case' }) }
   border-color: var(--accent);
   color: var(--accent);
 }
+.case-btn-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0;
+  color: var(--mute);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  background: var(--paper);
+}
+.case-btn.selected .case-btn-key {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.case-btn-label { line-height: 1; }
 </style>
