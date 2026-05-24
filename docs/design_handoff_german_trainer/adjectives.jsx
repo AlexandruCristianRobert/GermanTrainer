@@ -365,6 +365,8 @@ function AdjectiveQuizResult({ navigate }) {
   const correct = history.filter(h => h.correct).length;
   const pct = total > 0 ? Math.round(100 * correct / total) : 0;
 
+  const pagination = usePagination(history, 10);
+
   return (
     <div className="page" style={{maxWidth: 880, margin: '0 auto'}} data-screen-label="24 Adjective result">
       <div className="section-header">
@@ -386,8 +388,8 @@ function AdjectiveQuizResult({ navigate }) {
       </div>
 
       <div className="result-list">
-        {history.map((h, i) => (
-          <div key={i} className="result-row" style={{gridTemplateColumns: '1fr auto'}}>
+        {pagination.slice.map((h, i) => (
+          <div key={pagination.start + i} className="result-row" style={{gridTemplateColumns: '1fr auto'}}>
             <div>
               <div style={{fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 500, marginBottom: 4}}>
                 {h.sentence.sentence.split(h.sentence.inflected).map((part, j, arr) => (
@@ -415,6 +417,8 @@ function AdjectiveQuizResult({ navigate }) {
           </div>
         ))}
       </div>
+
+      <Pagination pagination={pagination} label="sentences" pageSizeOptions={[10, 25, 50]} />
     </div>
   );
 }

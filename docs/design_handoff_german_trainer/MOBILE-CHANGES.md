@@ -134,3 +134,119 @@ After integrating, test at ≤420px viewport:
 - [ ] Noun result page: red rows for wrong + green rows for correct + ✓/✗ medallions; summary strip at top
 - [ ] Verb result page: same stamp design
 - [ ] Long-running quiz (>25 questions): no individual pips — instead a single bar with coloured fills + cursor + counts legend
+- [ ] Version badge in header (desktop) — small pill "v1.03.06" between nav and theme toggle
+- [ ] Version badge in drawer (mobile) — dashed-border row at bottom of the drawer, opens the version page when tapped
+- [ ] Version page route (`route === 'version'`) renders masthead + key + grouped changelog entries with kind chips
+- [ ] Current version entry has an accent left rule and `● now` mark
+- [ ] Adding a new entry only requires prepending to the `CHANGELOG` array in `version.jsx` and bumping `APP_VERSION`
+
+---
+
+# Version page · changelog system
+
+A new "About · Versionen" page with a clickable badge. Reached from:
+- **Desktop:** small pill in the nav header (between nav links and theme toggle).
+- **Mobile:** dashed badge at the bottom of the hamburger drawer.
+
+## Version format · `X.YY.ZZ`
+
+- **`X`** — major redesigns. Rarely changes (currently `1`).
+- **`YY`** — bumped when a new module is added.
+- **`ZZ`** — bumped for any regular improvement or fix.
+
+When you bump `YY`, reset `ZZ` to `00`. When you bump `X`, reset both.
+
+## How to add a new entry
+
+1. Open `version.jsx`.
+2. At the top, change `const APP_VERSION = '...'` to the new number.
+3. Prepend a new object to the `CHANGELOG` array (newest at top):
+
+```js
+{
+  version: '1.03.07',
+  date: '2026-06-01',
+  kind: 'polish',   // 'major' | 'module' | 'polish' | 'fix'
+  title: 'Short headline · maybe German + English',
+  notes: [
+    'Bullet 1.',
+    'Bullet 2 with <code>inline code</code> or <strong>emphasis</strong>.',
+  ],
+},
+```
+
+`kind` controls the chip colour:
+- `major` / `module` → accent-tinted (sage)
+- `polish` → neutral grey
+- `fix` → danger-tinted (red)
+
+Notes are rendered with `dangerouslySetInnerHTML`, so HTML tags work (use for `<code>`, `<strong>`, em dashes).
+
+## Files added / changed for the version system
+
+| File | Change |
+|---|---|
+| `version.jsx` | **NEW** — exports `APP_VERSION`, `CHANGELOG`, `VersionBadge`, `VersionPage` on `window` |
+| `German Trainer.html` | `<script type="text/babel" src="version.jsx">` added before `nav.jsx` |
+| `nav.jsx` | Header `<VersionBadge navigate={...} />` between brand and theme toggle; drawer ends with `<VersionBadge variant="drawer" />` |
+| `app.jsx` | Route case `route === 'version'` renders `<VersionPage />` |
+| `styles.css` | `.version-badge`, `.version-badge-drawer`, `.version-masthead`, `.version-major-rule`, `.version-list`, `.version-entry`, plus the kind chip variants and the `@media (max-width: 720px)` mobile pass; also `.nav-actions > .version-badge { display: none }` inside the existing mobile nav block |
+
+## Screenshots (new)
+
+| File | Shows |
+|---|---|
+| `cap-13-version-desktop-badge.png` | Desktop nav with the pill `v 1.03.07` between Settings and the theme toggle |
+| `cap-14-version-page-desktop.png` | Desktop version page top — masthead with the giant tabular-num version (key removed) |
+| `cap-15-version-entries-desktop.png` | Desktop entries — current entry with accent rail + `● now`, kind chips |
+| `cap-16-version-page-mobile-top.png` | Mobile version page top — masthead reflows to one column |
+| `cap-18-version-page-no-key.png` | Version masthead WITHOUT the X / YY / ZZ key (per user request — convention is implicit) |
+| `cap-19-pagination-component.png` | The new `<Pagination>` component in action — range count, prev/next, page numbers, per-page selector |
+
+---
+
+# Pagination · reusable list-paging component
+
+A new `<Pagination>` component lives in `nav.jsx` together with the `usePagination(items, defaultPageSize)` hook. Both are exposed on `window`.
+
+## Applied to
+
+| Component | File | Default page size |
+|---|---|---|
+| Version changelog | `version.jsx` → `VersionPage` | 10 |
+| Noun manage table | `nouns.jsx` → `ManageNouns` | 25 |
+| Noun result rows | `nouns.jsx` → `ResultScreen` | 10 |
+| Verb result rows | `verbs.jsx` → `VerbResultScreen` | 10 |
+| Adjective result rows | `adjectives.jsx` → `AdjectiveQuizResult` | 10 |
+| Quiz history table | `history.jsx` → `HistoryPage` | 10 |
+
+## **NOT** applied to — by design
+
+- **Verb translation worksheet** (`verbs.jsx` → `VerbTranslationRunner`) keeps the all-in-one view. The whole point is to see every prompt at once and fill them in like a paper worksheet.
+
+## API
+
+```js
+const pagination = usePagination(items, defaultPageSize);
+// → { page, setPage, pageSize, setPageSize, total, totalPages, start, end, slice }
+
+<Pagination
+  pagination={pagination}
+  label="releases"            // singular/plural label shown in the range count
+  pageSizeOptions={[10, 25, 50, 100]} // optional, defaults to [10, 25, 50, 100]
+/>
+```
+
+Usage pattern: replace `items.map(...)` with `pagination.slice.map(...)` and render `<Pagination pagination={pagination} label="..."/>` somewhere below the list. Resetting state on filter change is done with `React.useEffect(() => pagination.setPage(1), [filter])`.
+
+## What the component renders
+
+`{start+1}–{end} of {total} {label}` · `‹ Prev` · `[1] [2] … [N]` · `Next ›` · `Per page [select]`
+
+- Active page button: sage-accent background.
+- Compact page list: when totalPages > 7, shows `1 … current±1 … last` with ellipses.
+- Mobile (≤720px): the bar wraps — pages on top, page-size middle, range count on the bottom — all centred.
+
+---
+
+## Verification checklist for Claude Code

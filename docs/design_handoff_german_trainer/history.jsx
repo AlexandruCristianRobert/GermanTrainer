@@ -278,8 +278,10 @@ function TypeBreakdown({ items }) {
 function HistoryPage({ navigate }) {
   const [items, setItems] = React.useState(() => loadHistory());
   const [filter, setFilter] = React.useState('all');
-
   const filtered = filter === 'all' ? items : items.filter(it => it.type === filter);
+  const pagination = usePagination(filtered, 10);
+
+  React.useEffect(() => { pagination.setPage(1); }, [filter]);
 
   // Aggregate stats
   const totalRuns = items.length;
@@ -474,7 +476,7 @@ function HistoryPage({ navigate }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((it) => {
+            {pagination.slice.map((it) => {
               const meta = QUIZ_TYPES[it.type] || { label: it.type, de: '', module: '' };
               const pct = it.count > 0 ? Math.round(100 * it.correct / it.count) : 0;
               return (
@@ -518,6 +520,10 @@ function HistoryPage({ navigate }) {
             })}
           </tbody>
         </table>
+      )}
+
+      {filtered.length > 0 && (
+        <Pagination pagination={pagination} label="runs" pageSizeOptions={[10, 25, 50, 100]} />
       )}
     </div>
   );

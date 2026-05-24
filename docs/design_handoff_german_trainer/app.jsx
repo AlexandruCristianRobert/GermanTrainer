@@ -177,6 +177,7 @@ function App() {
   else if (route === 'verbs/cheatsheet') body = <Cheatsheet navigate={navigate} />;
   else if (route === 'settings') body = <Settings navigate={navigate} />;
   else if (route === 'history') body = <HistoryPage navigate={navigate} />;
+  else if (route === 'version') body = <VersionPage navigate={navigate} />;
   else body = <HomePage navigate={navigate} />;
 
   return (

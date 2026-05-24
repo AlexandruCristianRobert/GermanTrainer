@@ -75,6 +75,7 @@ function NavShell({ route, navigate, theme, toggleTheme }) {
           </nav>
 
           <div className="nav-actions">
+            <VersionBadge navigate={navigate} />
             <button
               className="icon-btn"
               aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
@@ -113,6 +114,7 @@ function NavShell({ route, navigate, theme, toggleTheme }) {
             {it.de ? <span style={{fontFamily: 'var(--font-display)', fontStyle: 'italic', color: 'var(--mute)', marginLeft: 8, fontSize: 14}}>{it.de}</span> : null}
           </button>
         ))}
+        <VersionBadge navigate={(r) => { navigate(r); setOpen(false); }} variant="drawer" />
       </aside>
     </React.Fragment>
   );
@@ -174,3 +176,122 @@ function QuizProgress({ history, total, idx, advance, isCorrect }) {
 }
 
 Object.assign(window, { QuizProgress });
+
+/* ─── Shared usePagination hook + Pagination component ───
+   Reusable list pagination: page size selector + prev/next + page numbers.
+   Used by: version changelog, noun manage list, history, result lists.
+   NOT used by: verb translation worksheet (intentionally single view).
+*/
+
+function usePagination(items, defaultPageSize) {
+  defaultPageSize = defaultPageSize || 10;
+  const [pageSize, setPageSize] = React.useState(defaultPageSize);
+  const [page, setPage] = React.useState(1);
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(page, totalPages);
+  const start = (safePage - 1) * pageSize;
+  const end = Math.min(start + pageSize, total);
+  const slice = items.slice(start, end);
+
+  // Reset page when items length shrinks
+  React.useEffect(() => {
+    if (page > totalPages) setPage(1);
+  }, [totalPages]);
+
+  return {
+    page: safePage,
+    setPage,
+    pageSize,
+    setPageSize,
+    total,
+    totalPages,
+    start,
+    end,
+    slice,
+  };
+}
+
+function Pagination({ pagination, label, pageSizeOptions, hidePageSizeBelow }) {
+  const { page, setPage, pageSize, setPageSize, total, totalPages, start, end } = pagination;
+  pageSizeOptions = pageSizeOptions || [10, 25, 50, 100];
+  hidePageSizeBelow = hidePageSizeBelow || 0;
+  label = label || 'items';
+
+  // If everything fits on one page AND total is below the smallest page-size threshold, hide the chrome entirely
+  if (total === 0) return null;
+  const showPageSize = total > hidePageSizeBelow;
+
+  // Build page-number list — compact: first, last, current ±1, with ellipses
+  const pages = [];
+  const push = (p) => pages.push(p);
+  const range = (from, to) => { for (let i = from; i <= to; i++) push(i); };
+  if (totalPages <= 7) {
+    range(1, totalPages);
+  } else {
+    push(1);
+    if (page > 3) push('…');
+    range(Math.max(2, page - 1), Math.min(totalPages - 1, page + 1));
+    if (page < totalPages - 2) push('…');
+    push(totalPages);
+  }
+
+  return (
+    <nav className="pagination" aria-label={'Pagination · ' + label}>
+      <div className="pg-meta">
+        <span className="pg-range">
+          <strong>{start + 1}</strong>
+          <span className="pg-dash">–</span>
+          <strong>{end}</strong>
+          <span className="pg-of"> of </span>
+          <strong>{total}</strong>
+          <span className="pg-label"> {label}</span>
+        </span>
+      </div>
+
+      <div className="pg-pages" role="group" aria-label="Page selector">
+        <button
+          className="pg-arrow"
+          onClick={() => setPage(Math.max(1, page - 1))}
+          disabled={page === 1}
+          aria-label="Previous page"
+        >‹ Prev</button>
+
+        {pages.map((p, i) => (
+          p === '…'
+            ? <span key={'el' + i} className="pg-ellipsis" aria-hidden="true">…</span>
+            : <button
+                key={p}
+                className={'pg-num' + (p === page ? ' active' : '')}
+                onClick={() => setPage(p)}
+                aria-current={p === page ? 'page' : undefined}
+                aria-label={'Page ' + p}
+              >{p}</button>
+        ))}
+
+        <button
+          className="pg-arrow"
+          onClick={() => setPage(Math.min(totalPages, page + 1))}
+          disabled={page === totalPages}
+          aria-label="Next page"
+        >Next ›</button>
+      </div>
+
+      {showPageSize ? (
+        <div className="pg-size">
+          <label className="pg-size-label" htmlFor="pgsize">Per page</label>
+          <select
+            id="pgsize"
+            className="pg-size-select"
+            value={pageSize}
+            onChange={(e) => { setPageSize(parseInt(e.target.value, 10)); setPage(1); }}
+          >
+            {pageSizeOptions.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+        </div>
+      ) : null}
+    </nav>
+  );
+}
+
+Object.assign(window, { usePagination, Pagination });

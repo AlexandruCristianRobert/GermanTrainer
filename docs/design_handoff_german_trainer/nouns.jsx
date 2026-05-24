@@ -67,6 +67,8 @@ function ManageNouns({ navigate }) {
     n.group.toLowerCase().includes(q);
   });
 
+  const pagination = usePagination(filtered, 25);
+
   return (
     <div className="page">
       <div className="section-header" data-screen-label="11 Manage nouns">
@@ -105,7 +107,7 @@ function ManageNouns({ navigate }) {
           </tr>
         </thead>
         <tbody>
-          {filtered.map((n) => {
+          {pagination.slice.map((n) => {
             const genderClass = n.gender === 'der' ? 'tag-cobalt' : n.gender === 'die' ? 'tag-clay' : 'tag-ochre';
             return (
               <tr key={n.german}>
@@ -128,6 +130,8 @@ function ManageNouns({ navigate }) {
           }
         </tbody>
       </table>
+
+      <Pagination pagination={pagination} label="nouns" pageSizeOptions={[10, 25, 50, 100]} />
     </div>);
 
 }
@@ -496,6 +500,8 @@ function ResultScreen({ navigate, history, total, mode }) {
   const pct = total > 0 ? Math.round(correct / total * 100) : 0;
   const isGender = mode !== 'translation';
 
+  const pagination = usePagination(history, 10);
+
   return (
     <div className="page" style={{ maxWidth: 920, margin: '0 auto' }} data-screen-label="14 Quiz result">
       <div className="section-header">
@@ -532,12 +538,13 @@ function ResultScreen({ navigate, history, total, mode }) {
       </div>
 
       <div className="verb-result-list">
-        {history.map((h, i) => {
+        {pagination.slice.map((h, i) => {
+          const idx = pagination.start + i;
           const yourAnswer = isGender ? h.picked : (h.input || '').trim();
           const expectedAnswer = isGender ? h.noun.gender : h.noun.english;
           return (
-            <article key={i} className={'verb-result-card ' + (h.correct ? 'is-correct' : 'is-wrong')}>
-              <span className="verb-result-num">№ {String(i + 1).padStart(2, '0')}</span>
+            <article key={idx} className={'verb-result-card ' + (h.correct ? 'is-correct' : 'is-wrong')}>
+              <span className="verb-result-num">№ {String(idx + 1).padStart(2, '0')}</span>
 
               <div className="verb-result-prompt">
                 <div className="vrp-german">
@@ -584,6 +591,8 @@ function ResultScreen({ navigate, history, total, mode }) {
           );
         })}
       </div>
+
+      <Pagination pagination={pagination} label="questions" pageSizeOptions={[10, 25, 50]} />
     </div>);
 
 }

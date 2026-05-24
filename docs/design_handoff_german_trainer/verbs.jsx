@@ -386,6 +386,8 @@ function VerbResultScreen({ navigate, history, total }) {
   const wrong = total - correct;
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
 
+  const pagination = usePagination(history, 10);
+
   return (
     <div className="page" style={{maxWidth: 920, margin: '0 auto'}} data-screen-label="34 Verb result">
       <div className="section-header">
@@ -422,12 +424,13 @@ function VerbResultScreen({ navigate, history, total }) {
       </div>
 
       <div className="verb-result-list">
-        {history.map((h, i) => {
+        {pagination.slice.map((h, i) => {
+          const idx = pagination.start + i;
           const expected = h.verb.english;
           const yourAnswer = (h.input || '').trim();
           return (
-            <article key={i} className={'verb-result-card ' + (h.correct ? 'is-correct' : 'is-wrong')}>
-              <span className="verb-result-num">№ {String(i + 1).padStart(2, '0')}</span>
+            <article key={idx} className={'verb-result-card ' + (h.correct ? 'is-correct' : 'is-wrong')}>
+              <span className="verb-result-num">№ {String(idx + 1).padStart(2, '0')}</span>
 
               <div className="verb-result-prompt">
                 <div className="vrp-german">{h.verb.german}</div>
@@ -473,6 +476,8 @@ function VerbResultScreen({ navigate, history, total }) {
           );
         })}
       </div>
+
+      <Pagination pagination={pagination} label="verbs" pageSizeOptions={[10, 25, 50]} />
     </div>
   );
 }
