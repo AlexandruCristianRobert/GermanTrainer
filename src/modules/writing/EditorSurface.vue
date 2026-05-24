@@ -9,7 +9,8 @@ import { useSettings } from '../../composables/useSettings'
 import { makeGeminiClient } from '../../composables/useClaude'
 import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
-import { gradeAndPersist, GraderError } from '../../composables/useWritingGrader'
+import { gradeAndPersist, GraderError, upgradeParagraph } from '../../composables/useWritingGrader'
+import type { GradeCriterion, InlineNote, ParagraphFeedback } from '../../data/rubrics'
 
 const route = useRoute()
 const router = useRouter()
@@ -168,6 +169,112 @@ async function gradeNow() {
 function backToPrompt() {
   router.push({ name: 'writing-prompt', params: { promptId: promptId.value } })
 }
+
+// ── Review mode helpers ──────────────────────────────────────────
+
+interface RenderSegment {
+  text: string
+  start: number
+  end: number
+  notes: InlineNote[]
+}
+
+function buildSegments(draftText: string, notes: InlineNote[]): RenderSegment[] {
+  // Build a flat list of segments by splitting on note span boundaries.
+  if (notes.length === 0) {
+    return [{ text: draftText, start: 0, end: draftText.length, notes: [] }]
+  }
+  const boundaries = new Set<number>([0, draftText.length])
+  for (const n of notes) {
+    boundaries.add(n.spanStart)
+    boundaries.add(n.spanEnd)
+  }
+  const sorted = Array.from(boundaries).sort((a, b) => a - b)
+  const segments: RenderSegment[] = []
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const start = sorted[i]
+    const end = sorted[i + 1]
+    if (end <= start) continue
+    const overlapping = notes.filter(n => n.spanStart <= start && n.spanEnd >= end)
+    segments.push({
+      text: draftText.slice(start, end),
+      start,
+      end,
+      notes: overlapping
+    })
+  }
+  return segments
+}
+
+const reviewSegments = computed<RenderSegment[]>(() => {
+  if (!draft.value?.result) return []
+  return buildSegments(draft.value.text, draft.value.result.inlineNotes)
+})
+
+const criteria = computed<GradeCriterion[]>(() => draft.value?.result?.criteria ?? [])
+const paragraphs = computed<ParagraphFeedback[]>(() => draft.value?.result?.paragraphFeedback ?? [])
+
+// Track which evidence card is currently highlighted (for scroll-into-view).
+const highlightedSpan = ref<{ start: number; end: number } | null>(null)
+function focusEvidence(start: number, end: number) {
+  if (start < 0) return
+  highlightedSpan.value = { start, end }
+  setTimeout(() => { highlightedSpan.value = null }, 1500)
+}
+
+function isHighlighted(seg: RenderSegment): boolean {
+  if (!highlightedSpan.value) return false
+  return highlightedSpan.value.start === seg.start && highlightedSpan.value.end === seg.end
+}
+
+// ── Paragraph upgrade ────────────────────────────────────────────
+
+const upgradingIdx = ref<number | null>(null)
+
+async function runParagraphUpgrade(idx: number) {
+  if (!prompt.value || !draft.value || !draft.value.result) return
+  upgradingIdx.value = idx
+  try {
+    // Slice the draft text into paragraphs by blank lines, in the same order
+    // the grader was instructed to use.
+    const paras = draft.value.text.split(/\n\s*\n+/).map(s => s.trim()).filter(s => s.length > 0)
+    const paragraphText = paras[idx]
+    if (!paragraphText) {
+      toast.error('Paragraph not found in draft text.')
+      return
+    }
+    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const { upgradedText } = await upgradeParagraph(
+      client, settings.value.model, prompt.value, paragraphText, draft.value.rubric
+    )
+    // Persist the upgrade onto the draft.
+    const nextFeedback = [...draft.value.result.paragraphFeedback]
+    const existing = nextFeedback.find(p => p.paragraphIndex === idx)
+    if (existing) {
+      existing.upgradedText = upgradedText
+      existing.upgradedAt = Date.now()
+    } else {
+      nextFeedback.push({ paragraphIndex: idx, summaryDe: '—', upgradedText, upgradedAt: Date.now() })
+    }
+    const next: WritingDraft = {
+      ...draft.value,
+      result: { ...draft.value.result, paragraphFeedback: nextFeedback },
+      updatedAt: Date.now()
+    }
+    await db.writingDrafts.put(next)
+    draft.value = next
+  } catch (err) {
+    toast.error('Paragraph upgrade failed', { description: err instanceof Error ? err.message : String(err) })
+  } finally {
+    upgradingIdx.value = null
+  }
+}
+
+function paragraphTextAt(idx: number): string {
+  if (!draft.value) return ''
+  const paras = draft.value.text.split(/\n\s*\n+/).map(s => s.trim()).filter(s => s.length > 0)
+  return paras[idx] ?? ''
+}
 </script>
 
 <template>
@@ -219,15 +326,28 @@ function backToPrompt() {
 
     <div class="editor-wrapper" :data-band="bandColor">
       <textarea
+        v-if="!isGraded"
         class="editor-textarea"
         :class="['band-' + bandColor]"
         v-model="text"
-        :readonly="isGraded"
         placeholder="Schreibe deinen Text hier …"
         rows="20"
         spellcheck="false"
         autocomplete="off"
       ></textarea>
+      <div v-else class="editor-rendered" role="article" aria-readonly="true">
+        <template v-for="seg in reviewSegments" :key="seg.start">
+          <span
+            :class="[
+              'rendered-seg',
+              seg.notes.length > 0 ? 'has-note has-' + seg.notes[0].kind : '',
+              isHighlighted(seg) ? 'is-highlight' : ''
+            ]"
+            :data-start="seg.start"
+            :data-end="seg.end"
+          >{{ seg.text }}</span>
+        </template>
+      </div>
       <div class="editor-meta">
         <span class="word-count" :class="['band-' + bandColor]">{{ wordCount }} Wörter</span>
         <span class="word-target">Ziel {{ targetBand.min }}–{{ targetBand.max }}</span>
@@ -250,6 +370,73 @@ function backToPrompt() {
         <span class="bm-sub">{{ rubricSystem === 'goethe-c1' ? 'Goethe C1' : 'telc C1' }} · {{ wordCount }} Wörter</span>
       </button>
     </div>
+
+    <section v-if="isGraded && draft?.result" class="review-section">
+      <header class="review-header">
+        <div class="review-score-block">
+          <div class="review-total"><span class="review-total-num">{{ draft.result.totalScore }}</span><span class="review-total-denom"> / {{ RUBRICS[draft.result.rubric].totalMax }}</span></div>
+          <div class="review-band" :class="`band-chip-${draft.result.bandEstimate.toLowerCase().replace('+','plus').replace('-','minus')}`">{{ draft.result.bandEstimate }}</div>
+          <div class="review-pass" :class="draft.result.passes ? 'is-pass' : 'is-fail'">{{ draft.result.passes ? 'Bestanden' : 'Nicht bestanden' }}</div>
+        </div>
+        <div class="review-overall">
+          <div class="review-overall-de">{{ draft.result.overallDe }}</div>
+          <div class="review-overall-en">{{ draft.result.overallEn }}</div>
+        </div>
+      </header>
+
+      <h3 class="review-section-title">Per criterion</h3>
+      <ul class="criteria-list">
+        <li v-for="c in criteria" :key="c.key" class="criterion-card card">
+          <div class="criterion-head">
+            <span class="criterion-label">{{ c.labelDe }}</span>
+            <span class="criterion-score">{{ c.score }} / {{ c.maxPoints }}</span>
+          </div>
+          <div class="criterion-strengths"><strong>+</strong> {{ c.strengthsDe }}</div>
+          <div class="criterion-weaknesses"><strong>−</strong> {{ c.weaknessesDe }}</div>
+          <ul v-if="c.evidence.length > 0" class="criterion-evidence">
+            <li v-for="(ev, ei) in c.evidence" :key="ei">
+              <button
+                type="button"
+                class="evidence-quote"
+                :class="{ 'is-unanchored': ev.spanStart < 0 }"
+                @click="focusEvidence(ev.spanStart, ev.spanEnd)"
+                :title="ev.spanStart < 0 ? 'Quote not located in draft' : 'Click to highlight'"
+              >„{{ ev.quote }}"</button>
+              <span class="evidence-comment">— {{ ev.commentDe }}</span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3 class="review-section-title">Per paragraph</h3>
+      <ul class="paragraph-list">
+        <li v-for="p in paragraphs" :key="p.paragraphIndex" class="paragraph-card card">
+          <div class="paragraph-head">
+            <span class="paragraph-label">Absatz {{ p.paragraphIndex + 1 }}</span>
+            <button
+              type="button"
+              class="btn btn-quiet"
+              :disabled="upgradingIdx === p.paragraphIndex"
+              @click="runParagraphUpgrade(p.paragraphIndex)"
+            >{{ upgradingIdx === p.paragraphIndex ? 'Verbessere…' : (p.upgradedText ? 'Erneut verbessern' : 'Upgrade this paragraph') }}</button>
+          </div>
+          <div class="paragraph-summary">{{ p.summaryDe }}</div>
+          <details v-if="p.upgradedText" class="paragraph-upgrade" open>
+            <summary>Vorschlag (C1-Register)</summary>
+            <div class="paragraph-upgrade-row">
+              <div class="paragraph-upgrade-cell">
+                <div class="paragraph-upgrade-cell-label">Original</div>
+                <div class="paragraph-upgrade-cell-text">{{ paragraphTextAt(p.paragraphIndex) }}</div>
+              </div>
+              <div class="paragraph-upgrade-cell">
+                <div class="paragraph-upgrade-cell-label">Vorschlag</div>
+                <div class="paragraph-upgrade-cell-text">{{ p.upgradedText }}</div>
+              </div>
+            </div>
+          </details>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
@@ -327,4 +514,93 @@ function backToPrompt() {
 @media (max-width: 720px) {
   .editor-actions { flex-direction: column-reverse; align-items: stretch; }
 }
+
+.editor-rendered {
+  padding: 18px 18px 36px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--paper-deep);
+  min-height: 360px;
+  white-space: pre-wrap;
+}
+.rendered-seg { transition: background-color .2s; }
+.rendered-seg.has-note { border-bottom: 2px solid transparent; padding-bottom: 1px; }
+.rendered-seg.has-fix     { border-bottom-color: var(--danger);          background: color-mix(in srgb, var(--danger) 8%, transparent); }
+.rendered-seg.has-upgrade { border-bottom-color: var(--warn, #b58800);   background: color-mix(in srgb, var(--warn, #b58800) 8%, transparent); }
+.rendered-seg.has-comment { border-bottom-color: var(--accent);          background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.rendered-seg.is-highlight { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+.review-section { margin-top: 32px; }
+.review-header {
+  display: flex; gap: 24px; padding: 18px; margin-bottom: 20px;
+  background: var(--paper-deep); border-radius: 4px; border-left: 3px solid var(--accent);
+  align-items: flex-start; flex-wrap: wrap;
+}
+.review-score-block { display: flex; gap: 16px; align-items: baseline; flex: 0 0 auto; }
+.review-total { font-family: var(--font-display); }
+.review-total-num { font-size: 36px; font-weight: 500; }
+.review-total-denom { font-size: 16px; color: var(--mute); }
+.review-band {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent);
+}
+.review-pass {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; padding: 4px 8px; border-radius: 3px;
+}
+.review-pass.is-pass { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
+.review-pass.is-fail { background: color-mix(in srgb, var(--danger) 18%, transparent);  color: var(--danger); }
+.review-overall { flex: 1; font-size: 14px; line-height: 1.55; min-width: 280px; }
+.review-overall-de { color: var(--ink); }
+.review-overall-en { color: var(--ink-soft); font-style: italic; margin-top: 6px; font-size: 13px; }
+
+.review-section-title {
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--mute); margin: 24px 0 12px;
+}
+
+.criteria-list, .paragraph-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.criterion-card, .paragraph-card { padding: 16px 18px; }
+.criterion-head, .paragraph-head {
+  display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;
+}
+.criterion-label, .paragraph-label {
+  font-family: var(--font-display); font-size: 16px;
+}
+.criterion-score { font-family: var(--font-mono); color: var(--accent); font-variant-numeric: tabular-nums; }
+.criterion-strengths { font-size: 14px; line-height: 1.5; margin: 4px 0; }
+.criterion-strengths strong { color: var(--success); margin-right: 4px; }
+.criterion-weaknesses { font-size: 14px; line-height: 1.5; margin: 4px 0; }
+.criterion-weaknesses strong { color: var(--danger); margin-right: 4px; }
+.criterion-evidence { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 4px; font-size: 13px; }
+.evidence-quote {
+  background: none; border: 0; padding: 0;
+  font-family: var(--font-body); font-style: italic; color: var(--accent);
+  cursor: pointer;
+}
+.evidence-quote.is-unanchored { color: var(--mute); cursor: help; }
+.evidence-comment { color: var(--ink-soft); margin-left: 4px; }
+
+.paragraph-summary { font-size: 14px; line-height: 1.5; color: var(--ink-soft); }
+.paragraph-upgrade { margin-top: 12px; }
+.paragraph-upgrade summary {
+  cursor: pointer;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--mute);
+}
+.paragraph-upgrade-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+@media (max-width: 720px) {
+  .paragraph-upgrade-row { grid-template-columns: 1fr; }
+}
+.paragraph-upgrade-cell { padding: 12px; background: var(--paper); border: 1px solid var(--hairline); border-radius: 4px; }
+.paragraph-upgrade-cell-label {
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--mute); margin-bottom: 6px;
+}
+.paragraph-upgrade-cell-text { font-family: var(--font-body); font-size: 14px; line-height: 1.55; white-space: pre-wrap; }
 </style>
