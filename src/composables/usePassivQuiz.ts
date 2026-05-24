@@ -1,5 +1,7 @@
 import {
   PASSIV_DIFFICULTIES,
+  PASSIV_DIFFICULTY_BLURB,
+  PASSIV_GENERATOR_SCHEMA,
   TRANSFORMATION_TYPES,
   type PassivDifficulty,
   type PassivQuestion,
@@ -68,4 +70,120 @@ export function validatePassivEntry(raw: unknown): Omit<PassivQuestion, 'id'> | 
     rationale: (e.rationale as string).trim(),
     difficulty: e.difficulty as PassivDifficulty
   }
+}
+
+export interface GeminiClient {
+  models: {
+    generateContent: (opts: {
+      model: string
+      contents: string
+      config?: Record<string, unknown>
+    }) => Promise<{ text?: string }>
+  }
+}
+
+export function buildPassivGeneratorPrompt(
+  count: number,
+  difficulty: PassivDifficulty,
+  focusedTypes?: readonly TransformationType[]
+): string {
+  const focus = focusedTypes && focusedTypes.length > 0 && focusedTypes.length < TRANSFORMATION_TYPES.length
+    ? `Bias the chosen "target" toward: ${focusedTypes.join(', ')}.`
+    : 'Distribute "target" choices across the six transformation types.'
+
+  return `Generate ${count} active German sentences for a Passiv transformation drill.
+
+DIFFICULTY: ${difficulty}
+${PASSIV_DIFFICULTY_BLURB[difficulty]}
+
+REQUIREMENTS for every entry:
+- "active" is a single active sentence in German.
+- "legalTypes" enumerates every transformation that is grammatically legal
+  for this verb. Exclude:
+  * "zustandspassiv" for verbs without a resultant state.
+  * "bar-adjektiv" for verbs that don't form a -bar/-lich adjective.
+  * "sein-zu" when the modal nuance is unnatural.
+  * All passive forms except "man-konstruktion" for intransitive verbs.
+- "target" MUST be one of the entries in "legalTypes".
+- "referenceAnswer" is the canonical rewrite of "active" into the "target"
+  transformation. Examples:
+  * vorgangspassiv:  "Das Gerät wird repariert."
+  * zustandspassiv:  "Das Gerät ist repariert."
+  * sich-lassen:     "Das Gerät lässt sich reparieren."
+  * sein-zu:         "Das Gerät ist zu reparieren."
+  * bar-adjektiv:    "Das Gerät ist reparierbar."
+  * man-konstruktion: "Man repariert das Gerät."
+- "rationale" is a short English explanation (one sentence) of WHY this
+  transformation is appropriate and how the form is built.
+- "difficulty" is exactly "${difficulty}".
+- ${focus}
+- Vary verbs across the batch.
+
+Return ONLY valid JSON matching the schema. No prose. No markdown fences.`
+}
+
+export interface PassivGenerateOptions {
+  model: string
+  count: number
+  difficulty: PassivDifficulty
+  focusedTypes?: readonly TransformationType[]
+  maxRetries?: number
+}
+
+export interface PassivGenerateResult {
+  entries: PassivQuestion[]
+  rejected: number
+  attempts: number
+}
+
+export async function generatePassivQuestions(
+  client: GeminiClient,
+  opts: PassivGenerateOptions
+): Promise<PassivGenerateResult> {
+  const maxRetries = opts.maxRetries ?? 2
+  let totalRejected = 0
+  let attempts = 0
+  const accepted: PassivQuestion[] = []
+
+  while (accepted.length < opts.count && attempts <= maxRetries) {
+    attempts++
+    const remaining = opts.count - accepted.length
+    const prompt = buildPassivGeneratorPrompt(remaining, opts.difficulty, opts.focusedTypes)
+
+    const response = await client.models.generateContent({
+      model: opts.model,
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: PASSIV_GENERATOR_SCHEMA as unknown as Record<string, unknown>,
+        temperature: 0.4
+      }
+    })
+
+    const text = response.text ?? ''
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      continue
+    }
+    if (!parsed || typeof parsed !== 'object') continue
+    const entries = (parsed as { entries?: unknown[] }).entries
+    if (!Array.isArray(entries)) continue
+
+    for (const raw of entries) {
+      const v = validatePassivEntry(raw)
+      if (v === null) {
+        totalRejected++
+        continue
+      }
+      accepted.push({
+        id: `passiv-${Date.now()}-${accepted.length}`,
+        ...v
+      })
+      if (accepted.length >= opts.count) break
+    }
+  }
+
+  return { entries: accepted, rejected: totalRejected, attempts }
 }

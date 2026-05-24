@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { validatePassivEntry } from '../../src/composables/usePassivQuiz'
+import { validatePassivEntry, generatePassivQuestions, type GeminiClient } from '../../src/composables/usePassivQuiz'
 
 const sampleValid = {
   active: 'Der Techniker repariert das Gerät.',
@@ -81,5 +81,84 @@ describe('validatePassivEntry — heuristic referenceAnswer check', () => {
   })
   test('rejects blank rationale', () => {
     expect(validatePassivEntry({ ...sampleValid, rationale: '   ' })).toBeNull()
+  })
+})
+
+interface MockResponse { text: string }
+
+function makeMockClient(responses: MockResponse[]): GeminiClient {
+  let i = 0
+  return {
+    models: {
+      generateContent: async () => {
+        const r = responses[i] ?? { text: '' }
+        i += 1
+        return r
+      }
+    }
+  }
+}
+
+const ENTRY_OK = {
+  active: 'Der Techniker repariert das Gerät.',
+  target: 'sich-lassen',
+  legalTypes: ['vorgangspassiv', 'sich-lassen', 'man-konstruktion'],
+  referenceAnswer: 'Das Gerät lässt sich reparieren.',
+  rationale: 'Transitive verb, no resultant state — sich-lassen is idiomatic.',
+  difficulty: 'medium'
+}
+
+const ENTRY_BAD = {
+  active: '',
+  target: 'sich-lassen',
+  legalTypes: ['sich-lassen'],
+  referenceAnswer: 'Das Gerät lässt sich reparieren.',
+  rationale: 'r',
+  difficulty: 'medium'
+}
+
+describe('generatePassivQuestions — retry loop', () => {
+  test('returns N valid entries from a single clean batch', async () => {
+    const client = makeMockClient([
+      { text: JSON.stringify({ entries: [ENTRY_OK, { ...ENTRY_OK, active: 'Der Mechaniker prüft den Wagen.' }] }) }
+    ])
+    const result = await generatePassivQuestions(client, {
+      model: 'gemini-2.5-flash',
+      count: 2,
+      difficulty: 'medium'
+    })
+    expect(result.entries).toHaveLength(2)
+    expect(result.rejected).toBe(0)
+    expect(result.attempts).toBe(1)
+  })
+
+  test('retries when validation rejects all entries', async () => {
+    const client = makeMockClient([
+      { text: JSON.stringify({ entries: [ENTRY_BAD] }) },
+      { text: JSON.stringify({ entries: [ENTRY_OK] }) }
+    ])
+    const result = await generatePassivQuestions(client, {
+      model: 'gemini-2.5-flash',
+      count: 1,
+      difficulty: 'medium',
+      maxRetries: 2
+    })
+    expect(result.entries).toHaveLength(1)
+    expect(result.rejected).toBe(1)
+    expect(result.attempts).toBe(2)
+  })
+
+  test('survives malformed JSON', async () => {
+    const client = makeMockClient([
+      { text: 'not-json' },
+      { text: JSON.stringify({ entries: [ENTRY_OK] }) }
+    ])
+    const result = await generatePassivQuestions(client, {
+      model: 'gemini-2.5-flash',
+      count: 1,
+      difficulty: 'medium'
+    })
+    expect(result.entries).toHaveLength(1)
+    expect(result.attempts).toBe(2)
   })
 })
