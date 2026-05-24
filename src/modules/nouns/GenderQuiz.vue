@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { Noun, Gender } from '../../db/types'
 import type { NounQuestion } from '../../composables/useNounQuiz'
+import QuizProgress from '../../components/QuizProgress.vue'
 
 interface Marginalia { label: string; quote: string; body: string }
 
@@ -99,7 +100,8 @@ const pips = computed(() => {
   return out
 })
 
-const correctSoFar = computed(() => props.history.filter(h => h.isCorrect).length)
+const correctSoFar = computed(() => props.history.filter(h => h.isCorrect).length + (picked.value && isCorrect.value ? 1 : 0))
+const wrongSoFar = computed(() => props.history.filter(h => !h.isCorrect).length + (picked.value && !isCorrect.value ? 1 : 0))
 const remaining = computed(() => props.totalQuestions - props.questionNumber + (picked.value ? 0 : 1) - 1)
 
 const buttons: Array<{ value: Gender; label: string }> = [
@@ -124,9 +126,15 @@ function btnClass(g: Gender): string {
         <button class="btn btn-quiet" type="button" @click="emit('end-quiz')">End quiz</button>
       </div>
 
-      <div class="quiz-progress-bar" role="progressbar" :aria-valuenow="questionNumber" :aria-valuemin="1" :aria-valuemax="totalQuestions">
+      <QuizProgress
+        :correct="correctSoFar"
+        :wrong="wrongSoFar"
+        :total="totalQuestions"
+        :current-index="questionNumber - 1"
+        :aria-value-now="questionNumber"
+      >
         <div v-for="(cls, i) in pips" :key="i" class="pip" :class="cls" />
-      </div>
+      </QuizProgress>
 
       <div class="prompt-card">
         <span class="tag prompt-group">{{ noun.group }}</span>

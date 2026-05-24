@@ -12,12 +12,20 @@ const props = defineProps<{
 defineEmits<{ (e: 'restart'): void }>()
 
 const pct = computed(() => props.total === 0 ? 0 : Math.round((props.score / props.total) * 100))
+const wrongCount = computed(() => props.total - props.score)
 
 const summary = computed(() => {
   if (pct.value >= 80) return 'Stark. Most of these are in your bones now.'
   if (pct.value >= 50) return 'Solid. A couple weak spots to revisit.'
   return 'Keep at it — the gendered articles are the slowest to internalise.'
 })
+
+const youLabel = computed(() => props.mode === 'gender' ? 'DU · YOU' : 'DU · YOU')
+const correctLabel = computed(() => props.mode === 'gender' ? 'RICHTIG' : 'EXPECTED')
+
+function expectedAnswer(q: NounQuestion): string {
+  return props.mode === 'gender' ? q.noun.gender : q.noun.english
+}
 </script>
 
 <template>
@@ -38,32 +46,60 @@ const summary = computed(() => {
       </div>
     </header>
 
-    <div class="result-list">
-      <div v-for="(q, i) in questions" :key="i" class="result-row">
-        <div class="german">
-          <span class="german-gender">{{ q.noun.gender }}</span> {{ q.noun.german }}
-          <div class="german-english">{{ q.noun.english }}</div>
+    <div class="verb-result-summary">
+      <div class="vrs-cell is-correct">
+        <div class="vrs-num">{{ score }}</div>
+        <div class="vrs-label">Richtig · correct</div>
+      </div>
+      <div class="vrs-cell is-wrong">
+        <div class="vrs-num">{{ wrongCount }}</div>
+        <div class="vrs-label">Falsch · missed</div>
+      </div>
+      <div class="vrs-cell">
+        <div class="vrs-num">{{ pct }}<span class="vrs-pct-suffix">%</span></div>
+        <div class="vrs-label">Quote · score</div>
+      </div>
+    </div>
+
+    <div class="verb-result-list">
+      <div
+        v-for="(q, i) in questions"
+        :key="i"
+        class="verb-result-card"
+        :class="q.isCorrect ? 'is-correct' : 'is-wrong'"
+      >
+        <div class="verb-result-num"># {{ String(i + 1).padStart(2, '0') }}</div>
+        <div class="verb-result-prompt">
+          <div class="vrp-german">
+            <span class="prompt-gender-inline">{{ q.noun.gender }}</span> {{ q.noun.german }}
+          </div>
+          <div class="vrp-meta">
+            <span>{{ q.noun.english }}</span><span class="vrp-dot">·</span>
+            <span>{{ q.noun.group }}</span>
+          </div>
         </div>
-        <div class="answers">
-          <template v-if="mode === 'gender'">
-            your answer:
-            <strong :style="q.isCorrect ? 'color: var(--success)' : 'color: var(--danger)'">
-              {{ q.userAnswer || '—' }}
-            </strong>
-            <span v-if="!q.isCorrect"> · correct: <strong>{{ q.noun.gender }}</strong></span>
-          </template>
-          <template v-else>
-            your answer:
-            <strong :style="q.isCorrect ? 'color: var(--success)' : 'color: var(--danger)'">
-              {{ q.userAnswer || '—' }}
-            </strong>
-            <span v-if="!q.isCorrect"> · correct: <strong>{{ q.noun.english }}</strong></span>
-          </template>
+
+        <div class="verb-result-answers">
+          <div class="verb-result-line">
+            <span class="vrl-label">{{ youLabel }}</span>
+            <span class="vrl-value">
+              <span
+                v-if="q.userAnswer"
+                class="vr-stamp"
+                :class="q.isCorrect ? 'vr-stamp-right' : 'vr-stamp-wrong'"
+              >{{ q.userAnswer }}</span>
+              <span v-else class="vr-stamp vr-stamp-empty">—</span>
+            </span>
+          </div>
+          <div v-if="!q.isCorrect" class="verb-result-line">
+            <span class="vrl-label">{{ correctLabel }}</span>
+            <span class="vrl-value">
+              <span class="vr-stamp vr-stamp-right">{{ expectedAnswer(q) }}</span>
+            </span>
+          </div>
         </div>
-        <div>
-          <span v-if="q.isCorrect" class="tag tag-success">✓ Correct</span>
-          <span v-else class="tag tag-danger">✗ Missed</span>
-        </div>
+
+        <div class="verb-result-mark">{{ q.isCorrect ? '✓' : '✗' }}</div>
       </div>
     </div>
   </div>
@@ -71,35 +107,16 @@ const summary = computed(() => {
 
 <style scoped>
 .result-page { max-width: 880px; }
+.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
-.result-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.german-gender {
+.prompt-gender-inline {
   color: var(--mute);
   font-style: italic;
   font-weight: 400;
-}
-.german-english {
-  font-family: var(--font-body);
-  font-style: italic;
-  font-size: 14px;
-  color: var(--ink-soft);
-  font-weight: 400;
-  margin-top: 2px;
+  margin-right: 2px;
 }
 
-.tag-success {
-  background: var(--success-tint);
-  color: var(--success);
-}
-.tag-danger {
-  background: var(--danger-tint);
-  color: var(--danger);
-}
+.vrs-pct-suffix { font-size: 18px; color: var(--mute); margin-left: 2px; }
 
 @media (max-width: 720px) {
   .result-actions { flex-direction: column; align-items: stretch; }

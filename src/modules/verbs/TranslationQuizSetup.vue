@@ -188,12 +188,13 @@ function back() { router.push({ name: 'verbs' }) }
     <div class="setup-actions">
       <button class="btn btn-ghost" type="button" @click="back">← Back</button>
       <button
-        class="btn btn-accent"
+        class="btn btn-accent btn-meta"
         type="button"
         :disabled="available === 0"
         @click="start"
       >
-        Start quiz · {{ effective }} verbs <span aria-hidden="true">→</span>
+        <span class="bm-main">Start quiz <span aria-hidden="true">→</span></span>
+        <span class="bm-sub">{{ effective }} verbs</span>
       </button>
     </div>
   </div>

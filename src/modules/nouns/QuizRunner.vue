@@ -129,8 +129,10 @@ watch(finished, (now) => {
         :noun="current.noun"
         :question-number="currentIndex + 1"
         :total-questions="total"
+        :history="questions.slice(0, currentIndex)"
         @answered="onAnswered"
         @next="onNext"
+        @end-quiz="restart"
       />
     </div>
   </template>

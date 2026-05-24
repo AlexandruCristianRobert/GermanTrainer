@@ -218,12 +218,13 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
         </span>
         <button
           id="submit-all-btn"
-          class="btn btn-accent"
+          class="btn btn-accent btn-meta"
           type="button"
           :disabled="filledCount === 0"
           @click="submitAll"
         >
-          Submit all · {{ total }} verbs <span aria-hidden="true">→</span>
+          <span class="bm-main">Submit all <span aria-hidden="true">→</span></span>
+          <span class="bm-sub">{{ total }} verbs</span>
         </button>
       </div>
     </div>

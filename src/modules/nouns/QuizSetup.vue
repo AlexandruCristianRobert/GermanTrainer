@@ -194,12 +194,13 @@ function backToLanding() { router.push({ name: 'nouns' }) }
     <div class="setup-actions">
       <button class="btn btn-ghost" type="button" @click="backToLanding">← Back</button>
       <button
-        class="btn btn-accent"
+        class="btn btn-accent btn-meta"
         type="button"
         :disabled="selected.length === 0 || totalAvailable === 0"
         @click="start"
       >
-        Start quiz · {{ effectiveCount }} questions <span aria-hidden="true">→</span>
+        <span class="bm-main">Start quiz <span aria-hidden="true">→</span></span>
+        <span class="bm-sub">{{ effectiveCount }} questions</span>
       </button>
     </div>
   </div>

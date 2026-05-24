@@ -2513,8 +2513,8 @@ html, body { overflow-x: hidden; }
   .palette-preview-card { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
   .palette-preview-title { font-size: 56px; }
 
-  /* Buttons in section headers wrap below the title */
-  .section-header > div:last-child {
+  /* Buttons in section headers wrap below the title — only target the SECOND/action div */
+  .section-header > div:last-child:not(:first-child) {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;

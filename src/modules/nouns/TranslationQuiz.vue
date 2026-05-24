@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { Noun } from '../../db/types'
+import type { NounQuestion } from '../../composables/useNounQuiz'
+import QuizProgress from '../../components/QuizProgress.vue'
 
 interface Marginalia { label: string; quote: string; body: string }
 
@@ -26,6 +28,7 @@ const props = defineProps<{
   noun: Noun
   questionNumber: number
   totalQuestions: number
+  history?: NounQuestion[]
 }>()
 
 const emit = defineEmits<{
@@ -33,6 +36,35 @@ const emit = defineEmits<{
   (e: 'next'): void
   (e: 'end-quiz'): void
 }>()
+
+const correctSoFar = computed(() => {
+  const h = props.history ?? []
+  const here = submitted.value && isCorrect.value === true ? 1 : 0
+  return h.filter(q => q.isCorrect).length + here
+})
+const wrongSoFar = computed(() => {
+  const h = props.history ?? []
+  const here = submitted.value && isCorrect.value === false ? 1 : 0
+  return h.filter(q => !q.isCorrect).length + here
+})
+
+const pips = computed(() => {
+  const out: string[] = []
+  const i = props.questionNumber - 1
+  const h = props.history ?? []
+  for (let n = 0; n < props.totalQuestions; n++) {
+    if (n < h.length) {
+      out.push(h[n].isCorrect ? 'done' : 'wrong')
+    } else if (n === i && submitted.value) {
+      out.push(isCorrect.value === true ? 'done' : 'wrong')
+    } else if (n === i) {
+      out.push('current')
+    } else {
+      out.push('')
+    }
+  }
+  return out
+})
 
 const submitted = ref(false)
 const input = ref('')
@@ -81,6 +113,16 @@ const marg = computed(() => TRANSLATION_MARGINALIA[margIdx.value])
         <span class="quiz-counter">Frage {{ questionNumber }} · von {{ totalQuestions }}</span>
         <button class="btn btn-quiet" type="button" @click="emit('end-quiz')">End quiz</button>
       </div>
+
+      <QuizProgress
+        :correct="correctSoFar"
+        :wrong="wrongSoFar"
+        :total="totalQuestions"
+        :current-index="questionNumber - 1"
+        :aria-value-now="questionNumber"
+      >
+        <div v-for="(cls, i) in pips" :key="i" class="pip" :class="cls" />
+      </QuizProgress>
 
       <div class="prompt-card">
         <span class="tag prompt-group">{{ noun.group }}</span>
