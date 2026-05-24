@@ -51,7 +51,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/konjunktiv/quiz/result', name: 'konjunktiv-quiz-result', component: () => import('./modules/konjunktiv/QuizResult.vue') },
   { path: '/passiv', name: 'passiv', component: () => import('./modules/passiv/PassivHome.vue') },
   { path: '/passiv/quiz', name: 'passiv-quiz', component: () => import('./modules/passiv/QuizSetup.vue') },
-  { path: '/passiv/quiz/run', name: 'passiv-quiz-run', component: () => import('./modules/passiv/QuizRunner.vue') }
+  { path: '/passiv/quiz/run', name: 'passiv-quiz-run', component: () => import('./modules/passiv/QuizRunner.vue') },
+  { path: '/passiv/quiz/result', name: 'passiv-quiz-result', component: () => import('./modules/passiv/QuizResult.vue') }
 ]
 
 export const router = createRouter({
