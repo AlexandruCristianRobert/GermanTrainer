@@ -20,48 +20,48 @@ export const PROMPT_SIZE_SPECS = {
   verb: {
     cssVar: '--test-verb-size',
     storageKey: 'gt:testVerbSize',
-    default: 26,
+    default: 18,
     min: 18,
     max: 44,
     presets: [
-      { label: 'Compact', value: 20 },
-      { label: 'Default', value: 26 },
+      { label: 'Compact', value: 18 },
+      { label: 'Medium', value: 26 },
       { label: 'Large', value: 36 }
     ]
   },
   noun: {
     cssVar: '--noun-prompt-size',
     storageKey: 'gt:nounPromptSize',
-    default: 92,
+    default: 48,
     min: 48,
     max: 140,
     presets: [
-      { label: 'Compact', value: 64 },
-      { label: 'Default', value: 92 },
+      { label: 'Compact', value: 48 },
+      { label: 'Medium', value: 92 },
       { label: 'Large', value: 120 }
     ]
   },
   adjective: {
     cssVar: '--adjective-prompt-size',
     storageKey: 'gt:adjectivePromptSize',
-    default: 36,
+    default: 22,
     min: 22,
     max: 64,
     presets: [
-      { label: 'Compact', value: 26 },
-      { label: 'Default', value: 36 },
+      { label: 'Compact', value: 22 },
+      { label: 'Medium', value: 36 },
       { label: 'Large', value: 52 }
     ]
   },
   declension: {
     cssVar: '--decl-prompt-size',
     storageKey: 'gt:declPromptSize',
-    default: 56,
+    default: 32,
     min: 32,
     max: 96,
     presets: [
-      { label: 'Compact', value: 40 },
-      { label: 'Default', value: 56 },
+      { label: 'Compact', value: 32 },
+      { label: 'Medium', value: 56 },
       { label: 'Large', value: 80 }
     ]
   }

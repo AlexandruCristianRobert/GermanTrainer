@@ -31,8 +31,8 @@ defineEmits<{ (e: 'update:value', v: number): void }>()
       @input="$emit('update:value', parseInt(($event.target as HTMLInputElement).value, 10))"
     />
     <div class="range-slider-scale">
-      <span class="micro-mark">{{ scaleLeft ?? `${spec.min} · compact` }}</span>
-      <span class="micro-mark">{{ scaleMid ?? `${spec.default} · default` }}</span>
+      <span class="micro-mark">{{ scaleLeft ?? `${spec.min} · default` }}</span>
+      <span class="micro-mark">{{ scaleMid ?? `${Math.round((spec.min + spec.max) / 2)} · medium` }}</span>
       <span class="micro-mark">{{ scaleRight ?? `${spec.max} · large` }}</span>
     </div>
     <div class="preset-row">

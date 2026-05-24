@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.07.02'
+export const APP_VERSION = '1.07.03'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.07.03', date: '2026-05-24', kind: 'polish',
+    title: 'Default prompt sizes lowered to the minimum',
+    notes: [
+      'Out-of-the-box prompt sizes now default to the lowest available value for each quiz, so more content fits on screen without scrolling.',
+      'New defaults: verb worksheet <code>18</code>px (was 26) · noun runner <code>48</code>px (was 92) · adjective runner <code>22</code>px (was 36) · declension runner <code>32</code>px (was 56).',
+      'Existing users keep their saved size — only first-time installs and explicit resets see the new defaults.',
+      'Preset chips renamed: Compact / Medium / Large (the previous "Default" preset now sits in the middle as "Medium").'
+    ]
+  },
   {
     version: '1.07.02', date: '2026-05-24', kind: 'polish',
     title: 'Loading mask + toast notifications',
