@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { validatePassivEntry, generatePassivQuestions, type GeminiClient } from '../../src/composables/usePassivQuiz'
+import { validatePassivEntry, generatePassivQuestions, judgePassiv, type GeminiClient, type PassivQuestion } from '../../src/composables/usePassivQuiz'
 
 const sampleValid = {
   active: 'Der Techniker repariert das Gerät.',
@@ -160,5 +160,55 @@ describe('generatePassivQuestions — retry loop', () => {
     })
     expect(result.entries).toHaveLength(1)
     expect(result.attempts).toBe(2)
+  })
+})
+
+const SAMPLE_QUESTION: PassivQuestion = {
+  id: 'passiv-test-1',
+  active: 'Der Techniker repariert das Gerät.',
+  target: 'sich-lassen',
+  legalTypes: ['vorgangspassiv', 'sich-lassen', 'man-konstruktion'],
+  referenceAnswer: 'Das Gerät lässt sich reparieren.',
+  rationale: 'Transitive verb, no resultant state — sich-lassen is idiomatic.',
+  difficulty: 'medium'
+}
+
+const JUDGE_RESPONSE_OK = JSON.stringify({
+  verdict: 'correct',
+  expected: SAMPLE_QUESTION.referenceAnswer,
+  acceptedVariants: [],
+  feedback: 'Correct sich-lassen form.',
+  formCheck: { usedType: 'sich-lassen', matchesTarget: true }
+})
+
+describe('judgePassiv — happy path', () => {
+  test('parses a well-formed response', async () => {
+    const client = makeMockClient([{ text: JUDGE_RESPONSE_OK }])
+    const result = await judgePassiv(client, 'gemini-2.5-flash', SAMPLE_QUESTION, SAMPLE_QUESTION.referenceAnswer)
+    expect(result.verdict).toBe('correct')
+    expect(result.formCheck.usedType).toBe('sich-lassen')
+    expect(result.formCheck.matchesTarget).toBe(true)
+  })
+})
+
+describe('judgePassiv — fallback', () => {
+  test('falls back to local match on thrown error', async () => {
+    const client: GeminiClient = {
+      models: {
+        generateContent: async () => {
+          throw new Error('offline')
+        }
+      }
+    }
+    const result = await judgePassiv(client, 'gemini-2.5-flash', SAMPLE_QUESTION, SAMPLE_QUESTION.referenceAnswer)
+    expect(result.verdict).toBe('correct')
+    expect(result.feedback).toMatch(/fallback/i)
+    expect(result.formCheck.usedType).toBe('unknown')
+  })
+
+  test('fallback marks divergent answer incorrect', async () => {
+    const client = makeMockClient([{ text: 'garbage' }])
+    const result = await judgePassiv(client, 'gemini-2.5-flash', SAMPLE_QUESTION, 'Das Gerät wird repariert.')
+    expect(result.verdict).toBe('incorrect')
   })
 })

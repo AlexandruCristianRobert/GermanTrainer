@@ -2,11 +2,16 @@ import {
   PASSIV_DIFFICULTIES,
   PASSIV_DIFFICULTY_BLURB,
   PASSIV_GENERATOR_SCHEMA,
+  PASSIV_JUDGE_SCHEMA,
+  TRANSFORMATION_LABELS,
   TRANSFORMATION_TYPES,
   type PassivDifficulty,
+  type PassivJudgeResult,
   type PassivQuestion,
   type TransformationType
 } from '../data/passiv'
+
+export type { PassivQuestion } from '../data/passiv'
 
 const TYPE_SET = new Set<string>(TRANSFORMATION_TYPES)
 
@@ -186,4 +191,88 @@ export async function generatePassivQuestions(
   }
 
   return { entries: accepted, rejected: totalRejected, attempts }
+}
+
+// ── Module 4: Judge ──────────────────────────────────────────────────────────
+
+const PASSIV_JUDGE_SYSTEM_INSTRUCTION =
+  'You grade German Passiv and Passiv-alternative transformations. The student ' +
+  'was asked to produce a SPECIFIC transformation type. Identify which type the ' +
+  'student actually produced (vorgangspassiv, zustandspassiv, sich-lassen, ' +
+  'sein-zu, bar-adjektiv, man-konstruktion, or "unknown"), set formCheck.usedType ' +
+  'and formCheck.matchesTarget accordingly. Reject answers that are grammatically ' +
+  'correct but use the wrong type — verdict "partially_correct" — and explain the ' +
+  'type mismatch in feedback.'
+
+function normalize(s: string): string {
+  return s.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+function localPassivFallback(question: PassivQuestion, userAnswer: string): PassivJudgeResult {
+  const match = normalize(userAnswer) === normalize(question.referenceAnswer)
+  return {
+    verdict: match ? 'correct' : 'incorrect',
+    expected: question.referenceAnswer,
+    acceptedVariants: [],
+    feedback: 'Grader unavailable — fallback to reference match.',
+    formCheck: { usedType: 'unknown', matchesTarget: match }
+  }
+}
+
+function validatePassivJudgeResponse(raw: unknown, question: PassivQuestion): PassivJudgeResult | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  const verdicts = ['correct', 'partially_correct', 'incorrect'] as const
+  const allUsedTypes = [...TRANSFORMATION_TYPES, 'unknown' as const]
+  if (typeof r.verdict !== 'string' || !(verdicts as readonly string[]).includes(r.verdict)) return null
+  if (typeof r.expected !== 'string') return null
+  if (!Array.isArray(r.acceptedVariants) || r.acceptedVariants.some(v => typeof v !== 'string')) return null
+  if (typeof r.feedback !== 'string') return null
+  const fc = r.formCheck as Record<string, unknown> | undefined
+  if (!fc || typeof fc !== 'object') return null
+  if (typeof fc.usedType !== 'string' || !(allUsedTypes as readonly string[]).includes(fc.usedType)) return null
+  if (typeof fc.matchesTarget !== 'boolean') return null
+  return {
+    verdict: r.verdict as PassivJudgeResult['verdict'],
+    expected: question.referenceAnswer,
+    acceptedVariants: r.acceptedVariants as string[],
+    feedback: r.feedback as string,
+    formCheck: {
+      usedType: fc.usedType as PassivJudgeResult['formCheck']['usedType'],
+      matchesTarget: fc.matchesTarget as boolean
+    }
+  }
+}
+
+export async function judgePassiv(
+  client: GeminiClient,
+  model: string,
+  question: PassivQuestion,
+  userAnswer: string
+): Promise<PassivJudgeResult> {
+  const userPrompt =
+    `Active source:\n${question.active}\n\n` +
+    `Target transformation: ${question.target} (${TRANSFORMATION_LABELS[question.target]})\n\n` +
+    `Canonical reference:\n${question.referenceAnswer}\n\n` +
+    `Student's submitted answer:\n${userAnswer.trim() || '(empty)'}`
+
+  try {
+    const response = await client.models.generateContent({
+      model,
+      contents: userPrompt,
+      config: {
+        systemInstruction: PASSIV_JUDGE_SYSTEM_INSTRUCTION,
+        responseMimeType: 'application/json',
+        responseSchema: PASSIV_JUDGE_SCHEMA as unknown as Record<string, unknown>,
+        temperature: 0
+      }
+    })
+    const text = response.text ?? ''
+    const parsed = JSON.parse(text)
+    const v = validatePassivJudgeResponse(parsed, question)
+    if (v === null) return localPassivFallback(question, userAnswer)
+    return v
+  } catch {
+    return localPassivFallback(question, userAnswer)
+  }
 }
