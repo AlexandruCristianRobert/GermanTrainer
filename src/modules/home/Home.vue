@@ -39,10 +39,18 @@ const modules: ModuleCard[] = [
   },
   {
     numeral: 'IV',
+    route: 'konjunktiv',
+    de: 'Konjunktiv I',
+    title: 'Indirect speech',
+    desc: 'Rewrite direct-speech quotes in reported speech using Konjunktiv I — with the K-II fallback for K-I/indicative collisions. B1 · B2 · C1.',
+    meta: 'AI-generated · on demand'
+  },
+  {
+    numeral: 'V',
     route: 'settings',
     de: 'Einstellungen',
     title: 'Settings',
-    desc: 'Set your Gemini API key and choose a model. Required only for the Adjectives quiz.',
+    desc: 'Set your Gemini API key and choose a model. Required for AI-driven modules.',
     meta: 'Local · stored in your browser'
   }
 ]
@@ -61,7 +69,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/IV</div>
+        <div class="breadcrumb">Frontispiece · I/V</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,

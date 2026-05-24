@@ -45,7 +45,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/declension/pronoun-quiz/result', name: 'declension-pronoun-result', component: () => import('./modules/declension/PronounQuizResult.vue') },
   { path: '/declension/case-recognition', name: 'declension-cr', component: () => import('./modules/declension/CaseRecognitionSetup.vue') },
   { path: '/declension/case-recognition/run', name: 'declension-cr-run', component: () => import('./modules/declension/CaseRecognitionRunner.vue') },
-  { path: '/konjunktiv', name: 'konjunktiv', component: () => import('./modules/konjunktiv/KonjunktivHome.vue') }
+  { path: '/konjunktiv', name: 'konjunktiv', component: () => import('./modules/konjunktiv/KonjunktivHome.vue') },
+  { path: '/konjunktiv/quiz', name: 'konjunktiv-quiz', component: () => import('./modules/konjunktiv/QuizSetup.vue') }
 ]
 
 export const router = createRouter({
