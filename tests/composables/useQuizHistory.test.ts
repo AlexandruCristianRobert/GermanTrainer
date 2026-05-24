@@ -127,4 +127,31 @@ describe('useQuizHistory', () => {
     expect(entry.meta.passivDifficulty).toBe('hard')
     expect(entry.meta.passivPerTypeCorrect?.['vorgangspassiv']).toEqual({ correct: 3, total: 4 })
   })
+
+  it('persists a writing-grade entry with full meta', () => {
+    saveQuizRun({
+      type: 'writing-grade',
+      startedAt: new Date('2026-05-24T13:00:00Z').toISOString(),
+      finishedAt: new Date('2026-05-24T13:25:00Z').toISOString(),
+      durationMs: 1_500_000,
+      count: 1,
+      correct: 1,
+      meta: {
+        promptId: 'wp-forum-wohnen-stadt-land',
+        taskType: 'forumsbeitrag',
+        rubric: 'goethe-c1',
+        bandEstimate: 'C1',
+        totalScore: 78,
+        wordCount: 232
+      }
+    })
+    const [entry] = loadHistory()
+    expect(entry.type).toBe('writing-grade')
+    expect(entry.meta.promptId).toBe('wp-forum-wohnen-stadt-land')
+    expect(entry.meta.taskType).toBe('forumsbeitrag')
+    expect(entry.meta.rubric).toBe('goethe-c1')
+    expect(entry.meta.bandEstimate).toBe('C1')
+    expect(entry.meta.totalScore).toBe(78)
+    expect(entry.meta.wordCount).toBe(232)
+  })
 })

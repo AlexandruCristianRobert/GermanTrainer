@@ -100,7 +100,8 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'decl-case-recognition': 0,
     'decl-article-ai': 0,
     'konjunktiv-rewrite': 0,
-    'passiv-transform': 0
+    'passiv-transform': 0,
+    'writing-grade': 0
   }
 }
 
@@ -121,7 +122,8 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'decl-case-recognition': emptyBucket(),
     'decl-article-ai': emptyBucket(),
     'konjunktiv-rewrite': emptyBucket(),
-    'passiv-transform': emptyBucket()
+    'passiv-transform': emptyBucket(),
+    'writing-grade': emptyBucket()
   }
 }
 

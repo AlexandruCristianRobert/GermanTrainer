@@ -50,7 +50,8 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'decl-case-recognition':  { label: 'Declension · case ID', de: 'Deklination · Kasus erkennen', module: 'Declension' },
   'decl-article-ai': { label: 'Declension · article (AI)', de: 'Deklination · Artikel (KI)', module: 'Declension' },
   'konjunktiv-rewrite': { label: 'Konjunktiv I — indirect speech', de: 'Konjunktiv I · Indirekte Rede', module: 'Grammatik' },
-  'passiv-transform':   { label: 'Passiv transformation',          de: 'Passiv · Transformation',     module: 'Grammatik' }
+  'passiv-transform':   { label: 'Passiv transformation',          de: 'Passiv · Transformation',     module: 'Grammatik' },
+  'writing-grade':      { label: 'Writing — graded essay',         de: 'Schreiben · benoteter Aufsatz', module: 'Schreiben' }
 }
 
 const typeOrder: QuizHistoryType[] = [
@@ -61,7 +62,8 @@ const typeOrder: QuizHistoryType[] = [
   'decl-pronoun', 'decl-case-recognition',
   'decl-article-ai',
   'konjunktiv-rewrite',
-  'passiv-transform'
+  'passiv-transform',
+  'writing-grade'
 ]
 
 const filtered = computed(() =>

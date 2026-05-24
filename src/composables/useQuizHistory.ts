@@ -18,6 +18,7 @@ export type QuizHistoryType =
   | 'decl-article-ai'
   | 'konjunktiv-rewrite'
   | 'passiv-transform'
+  | 'writing-grade'
 
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation'
@@ -46,6 +47,14 @@ export interface QuizHistoryMeta {
   passivDifficulty?: 'easy' | 'medium' | 'hard'
   passivFocusedTypes?: string[]
   passivPerTypeCorrect?: Record<string, { correct: number; total: number }>
+
+  // Writing tutor
+  promptId?: string
+  taskType?: string
+  rubric?: string
+  bandEstimate?: string
+  totalScore?: number
+  wordCount?: number
 }
 
 export interface QuizHistoryEntry {
