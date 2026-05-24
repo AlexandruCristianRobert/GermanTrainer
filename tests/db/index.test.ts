@@ -8,7 +8,7 @@ describe('db', () => {
   })
 
   it('opens with the expected tables', () => {
-    expect(db.tables.map(t => t.name).sort()).toEqual(['adjectives', 'nouns', 'settings', 'writingDrafts'])
+    expect(db.tables.map(t => t.name).sort()).toEqual(['adjectives', 'nouns', 'settings', 'simulatorSessions', 'writingDrafts'])
   })
 
   it('inserts and reads a noun', async () => {

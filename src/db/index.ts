@@ -4,11 +4,27 @@ import type { WritingDraft } from '../data/writingPrompts'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
 
+// Placeholder shape — replaced by an import from ../data/simulatorC1 in Task 3.
+interface SimulatorSessionPlaceholder {
+  id: string
+  startedAt: number
+  endsAt: number
+  status: string
+  task1PromptId: string
+  task1DraftId: string
+  task2PromptId: string
+  task2DraftId: string
+  submittedAt?: number
+  gradedAt?: number
+  abandonedAt?: number
+}
+
 export class GermanTrainerDb extends Dexie {
   nouns!: Table<Noun, number>
   adjectives!: Table<Adjective, number>
   settings!: Table<Settings, 'singleton'>
   writingDrafts!: Table<WritingDraft, string>
+  simulatorSessions!: Table<SimulatorSessionPlaceholder, string>
 
   constructor() {
     super('GermanTrainerDb')
@@ -71,6 +87,13 @@ export class GermanTrainerDb extends Dexie {
       adjectives: '++id, &german, group',
       settings: 'id',
       writingDrafts: '&id, promptId, gradedAt, createdAt'
+    })
+    this.version(6).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt'
     })
   }
 }
