@@ -224,7 +224,7 @@ function focusEvidence(start: number, end: number) {
 
 function isHighlighted(seg: RenderSegment): boolean {
   if (!highlightedSpan.value) return false
-  return highlightedSpan.value.start === seg.start && highlightedSpan.value.end === seg.end
+  return seg.start >= highlightedSpan.value.start && seg.end <= highlightedSpan.value.end
 }
 
 // ── Paragraph upgrade ────────────────────────────────────────────
@@ -232,6 +232,7 @@ function isHighlighted(seg: RenderSegment): boolean {
 const upgradingIdx = ref<number | null>(null)
 
 async function runParagraphUpgrade(idx: number) {
+  if (upgradingIdx.value !== null) return
   if (!prompt.value || !draft.value || !draft.value.result) return
   upgradingIdx.value = idx
   try {
