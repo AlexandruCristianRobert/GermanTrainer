@@ -42,6 +42,7 @@ export const USER_DATA_KEYS = [
   'declAdjectiveSetup',
   'declPronounSetup',
   'declCRSetup',
+  'declArticleAISetup',
   // legacy keys — still readable for migration during import
   'nounQuizGroups',
   'adjectiveQuizGroups',
@@ -70,6 +71,7 @@ const KEY_LABELS: Record<UserDataKey, { label: string; group: string }> = {
   declAdjectiveSetup: { label: 'Declension adjective quiz setup', group: 'Quiz setup' },
   declPronounSetup: { label: 'Declension pronoun quiz setup', group: 'Quiz setup' },
   declCRSetup: { label: 'Declension case-recognition quiz setup', group: 'Quiz setup' },
+  declArticleAISetup: { label: 'Declension AI article quiz setup', group: 'Quiz setup' },
   nounQuizGroups: { label: 'Noun groups (legacy)', group: 'Quiz setup' },
   adjectiveQuizGroups: { label: 'Adjective groups (legacy)', group: 'Quiz setup' },
   'gt:quizHistory': { label: 'Quiz history', group: 'History' }

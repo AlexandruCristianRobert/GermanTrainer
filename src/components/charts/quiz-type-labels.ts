@@ -13,7 +13,8 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'decl-article': 'Declension · article',
   'decl-adjective': 'Declension · adj. ending',
   'decl-pronoun': 'Declension · pronouns',
-  'decl-case-recognition': 'Declension · case ID'
+  'decl-case-recognition': 'Declension · case ID',
+  'decl-article-ai': 'Declension · article (AI)'
 }
 
 export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
@@ -29,7 +30,8 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'decl-article': 'Deklination · Artikel',
   'decl-adjective': 'Deklination · Endung',
   'decl-pronoun': 'Deklination · Pronomen',
-  'decl-case-recognition': 'Deklination · Kasus erkennen'
+  'decl-case-recognition': 'Deklination · Kasus erkennen',
+  'decl-article-ai': 'Deklination · Artikel (KI)'
 }
 
 export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
@@ -45,5 +47,6 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'decl-article',
   'decl-adjective',
   'decl-pronoun',
-  'decl-case-recognition'
+  'decl-case-recognition',
+  'decl-article-ai'
 ]

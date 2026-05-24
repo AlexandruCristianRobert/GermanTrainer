@@ -15,6 +15,7 @@ export type QuizHistoryType =
   | 'decl-adjective'
   | 'decl-pronoun'
   | 'decl-case-recognition'
+  | 'decl-article-ai'
 
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation'
@@ -32,6 +33,8 @@ export interface QuizHistoryMeta {
   declPronounCategories?: string[]
   declCRLevels?: string[]
   declCRCases?: string[]
+  declAIDifficulty?: 'easy' | 'medium' | 'hard'
+  declAIBlanksCount?: number   // average blanks per sentence in the run
 }
 
 export interface QuizHistoryEntry {

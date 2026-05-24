@@ -58,6 +58,12 @@ describe('buildExport', () => {
     expect(out.data['declPronounSetup']).toEqual({ categories: ['personal'], count: 10 })
     expect(out.data['declCRSetup']).toEqual({ levels: ['A1'], cases: ['accusative'], count: 10 })
   })
+
+  test('AI article setup key is recognized', () => {
+    localStorage.setItem('declArticleAISetup', JSON.stringify({ difficulty: 'medium', count: 10 }))
+    const out = buildExport()
+    expect(out.data['declArticleAISetup']).toEqual({ difficulty: 'medium', count: 10 })
+  })
 })
 
 describe('applyImport', () => {
