@@ -1,28 +1,14 @@
 import Dexie, { type Table } from 'dexie'
 import type { Adjective, Noun, NounGroup, Settings } from './types'
+import type { WritingDraft } from '../data/writingPrompts'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
-
-// Placeholder shape — replaced by an import from ../data/writingPrompts in Task 3.
-// Keeps typecheck green between this task and the next.
-interface WritingDraftPlaceholder {
-  id: string
-  promptId: string
-  rubric: string
-  text: string
-  wordCount: number
-  createdAt: number
-  updatedAt: number
-  gradedAt?: number
-  graderModel?: string
-  result?: unknown
-}
 
 export class GermanTrainerDb extends Dexie {
   nouns!: Table<Noun, number>
   adjectives!: Table<Adjective, number>
   settings!: Table<Settings, 'singleton'>
-  writingDrafts!: Table<WritingDraftPlaceholder, string>
+  writingDrafts!: Table<WritingDraft, string>
 
   constructor() {
     super('GermanTrainerDb')
