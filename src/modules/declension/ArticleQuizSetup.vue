@@ -6,9 +6,61 @@ import {
   DECL_LEVELS, DECL_CASES, DECL_DETERMINERS, DECL_GENDERS,
   type DeclLevel, type DeclCase, type Determiner, type DeclGender
 } from '../../data/declension'
+import {
+  generateDeclensionArticles,
+  type GenerateResult
+} from '../../composables/useDeclensionAI'
+import { DIFFICULTIES, DIFFICULTY_LABEL, type Difficulty } from '../../data/declension-ai'
+import { useSettings } from '../../composables/useSettings'
+import { makeGeminiClient } from '../../composables/useClaude'
 
 const STORAGE_KEY = 'declArticleSetup'
+const AI_STORAGE_KEY = 'declArticleAISetup'
 const router = useRouter()
+
+type Source = 'curated' | 'ai'
+const source = ref<Source>('curated')
+const difficulty = ref<Difficulty>('medium')
+const aiCount = ref<number>(10)
+const aiFocusCases = ref<DeclCase[]>([...DECL_CASES])
+
+const { settings, hasApiKey, load: loadSettings } = useSettings()
+onMounted(loadSettings)
+
+const aiGenerating = ref(false)
+const aiError = ref<string | null>(null)
+const aiLastResult = ref<GenerateResult | null>(null)
+
+interface AIStored { difficulty?: Difficulty; count?: number; focusCases?: DeclCase[]; source?: Source }
+
+onMounted(() => {
+  try {
+    const raw = localStorage.getItem(AI_STORAGE_KEY)
+    if (!raw) return
+    const s = JSON.parse(raw) as AIStored
+    if (s.difficulty && (DIFFICULTIES as readonly string[]).includes(s.difficulty)) {
+      difficulty.value = s.difficulty
+    }
+    if (typeof s.count === 'number' && s.count > 0 && s.count <= 30) aiCount.value = s.count
+    if (Array.isArray(s.focusCases)) {
+      aiFocusCases.value = s.focusCases.filter(
+        c => (DECL_CASES as readonly string[]).includes(c)
+      ) as DeclCase[]
+    }
+    if (s.source === 'ai' || s.source === 'curated') source.value = s.source
+  } catch { /* ignore */ }
+})
+
+watch([difficulty, aiCount, aiFocusCases, source], () => {
+  try {
+    localStorage.setItem(AI_STORAGE_KEY, JSON.stringify({
+      difficulty: difficulty.value,
+      count: aiCount.value,
+      focusCases: aiFocusCases.value,
+      source: source.value
+    } satisfies AIStored))
+  } catch { /* ignore */ }
+}, { deep: true })
 
 const levels = ref<DeclLevel[]>([...DECL_LEVELS])
 const cases = ref<DeclCase[]>([...DECL_CASES])
@@ -81,7 +133,7 @@ function toggle<T>(set: T[], v: T): T[] {
   return [...set, v]
 }
 
-function start() {
+function startCurated() {
   if (available.value === 0) return
   router.push({
     name: 'declension-article-run',
@@ -93,6 +145,44 @@ function start() {
       genders: genders.value.join(',')
     }
   })
+}
+
+async function startAI() {
+  if (!hasApiKey.value) {
+    aiError.value = 'Set your Gemini API key in Settings first.'
+    return
+  }
+  aiGenerating.value = true
+  aiError.value = null
+  aiLastResult.value = null
+  try {
+    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const focusedCases = aiFocusCases.value.length > 0 && aiFocusCases.value.length < DECL_CASES.length
+      ? aiFocusCases.value
+      : undefined
+    const result = await generateDeclensionArticles(client, {
+      model: settings.value.model,
+      count: aiCount.value,
+      difficulty: difficulty.value,
+      focusedCases,
+      maxRetries: 2
+    })
+    aiLastResult.value = result
+    if (result.entries.length === 0) {
+      aiError.value = `The model returned ${result.rejected} entries but none passed validation. Try a different difficulty or retry.`
+      return
+    }
+    sessionStorage.setItem('gt:lastDeclArticleAI', JSON.stringify({
+      entries: result.entries,
+      difficulty: difficulty.value,
+      focusCases: aiFocusCases.value
+    }))
+    router.push({ name: 'declension-article-ai-run' })
+  } catch (err) {
+    aiError.value = err instanceof Error ? err.message : 'AI generation failed.'
+  } finally {
+    aiGenerating.value = false
+  }
 }
 
 function back() { router.push({ name: 'declension' }) }
@@ -110,6 +200,19 @@ function back() { router.push({ name: 'declension' }) }
       </div>
     </header>
 
+    <div class="field">
+      <div class="field-label">Source</div>
+      <div class="segmented">
+        <button type="button" :class="{ active: source === 'curated' }" @click="source = 'curated'">
+          Curated · 80 phrases
+        </button>
+        <button type="button" :class="{ active: source === 'ai' }" @click="source = 'ai'">
+          AI · Live
+        </button>
+      </div>
+    </div>
+
+    <template v-if="source === 'curated'">
     <div class="field">
       <div class="field-row">
         <div class="field-label">Level · {{ levels.length }} of {{ DECL_LEVELS.length }}</div>
@@ -213,11 +316,99 @@ function back() { router.push({ name: 'declension' }) }
       <span class="alert-label">Acceptance</span>
       Case and whitespace are ignored. The case rule for each preposition is named above the prompt as a hint.
     </div>
+    </template>
+
+    <template v-else>
+      <div v-if="!hasApiKey" class="alert alert-warning">
+        <span class="alert-label">Required</span>
+        Set your Gemini API key in <router-link :to="{ name: 'settings' }">Settings</router-link> first.
+      </div>
+
+      <div class="field">
+        <div class="field-label">Difficulty</div>
+        <div class="segmented">
+          <button
+            v-for="d in DIFFICULTIES" :key="d"
+            type="button"
+            :class="{ active: difficulty === d }"
+            @click="difficulty = d"
+          >{{ DIFFICULTY_LABEL[d] }}</button>
+        </div>
+        <p class="difficulty-blurb">
+          <template v-if="difficulty === 'easy'">A1–A2 vocabulary, 1–2 blanks per sentence, definite or indefinite article only.</template>
+          <template v-else-if="difficulty === 'medium'">B1 vocabulary, 2–3 blanks per sentence, includes possessive determiners.</template>
+          <template v-else>B2–C1 vocabulary, 3–4 blanks per sentence, genitive constructions + subordinate clauses.</template>
+        </p>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <div class="field-label">Focus cases · {{ aiFocusCases.length }} of {{ DECL_CASES.length }}</div>
+          <div class="field-actions">
+            <button class="btn btn-quiet" type="button" @click="aiFocusCases = [...DECL_CASES]">All</button>
+          </div>
+        </div>
+        <div class="chip-row">
+          <button v-for="c in DECL_CASES" :key="c"
+            type="button"
+            class="chip"
+            :class="{ selected: aiFocusCases.includes(c) }"
+            @click="aiFocusCases = toggle(aiFocusCases, c)"
+          >{{ c }}</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Number of sentences</div>
+        <div class="segmented">
+          <button v-for="n in [5, 10, 15, 20]" :key="n"
+            type="button"
+            :class="{ active: aiCount === n }"
+            @click="aiCount = n"
+          >{{ n }}</button>
+        </div>
+        <p class="ai-cost-note">Each run is one Gemini call. Aim for 10 to balance variety and cost.</p>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-label">How AI mode works</span>
+        Sentences are generated fresh on every Start and validated against the German grammar tables.
+        Wrong articles or malformed sentences are dropped automatically.
+      </div>
+
+      <div v-if="aiError" class="alert alert-danger">
+        <span class="alert-label">Generation failed</span>{{ aiError }}
+      </div>
+
+      <div v-if="aiLastResult && aiLastResult.entries.length > 0" class="alert alert-info">
+        <span class="alert-label">Last run</span>
+        {{ aiLastResult.entries.length }} accepted ·
+        {{ aiLastResult.rejected }} rejected ·
+        {{ aiLastResult.attempts }} {{ aiLastResult.attempts === 1 ? 'attempt' : 'attempts' }}
+      </div>
+    </template>
 
     <div class="setup-actions">
       <button class="btn btn-ghost" type="button" @click="back">← Back</button>
-      <button class="btn btn-accent" type="button" :disabled="available === 0" @click="start">
-        Start quiz · {{ effective }} sentences <span aria-hidden="true">→</span>
+      <button
+        v-if="source === 'curated'"
+        class="btn btn-accent btn-meta"
+        type="button"
+        :disabled="available === 0"
+        @click="startCurated"
+      >
+        <span class="bm-main">Start quiz <span aria-hidden="true">→</span></span>
+        <span class="bm-sub">{{ effective }} sentences</span>
+      </button>
+      <button
+        v-else
+        class="btn btn-accent btn-meta"
+        type="button"
+        :disabled="!hasApiKey || aiGenerating || aiFocusCases.length === 0"
+        @click="startAI"
+      >
+        <span class="bm-main">{{ aiGenerating ? 'Generating…' : 'Generate &amp; start' }} <span v-if="!aiGenerating" aria-hidden="true">→</span></span>
+        <span class="bm-sub">{{ aiCount }} sentences · {{ DIFFICULTY_LABEL[difficulty] }}</span>
       </button>
     </div>
   </div>
@@ -234,5 +425,20 @@ function back() { router.push({ name: 'declension' }) }
 @media (max-width: 720px) {
   .setup-actions { flex-direction: column-reverse; align-items: stretch; }
   .setup-actions .btn { justify-content: center; }
+}
+.difficulty-blurb {
+  margin: 10px 0 0 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+.ai-cost-note {
+  margin: 8px 0 0 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--mute);
+  text-transform: uppercase;
 }
 </style>
