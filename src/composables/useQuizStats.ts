@@ -92,7 +92,10 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'verb-conjugation': 0,
     'prep-case': 0,
     'prep-article': 0,
-    'prep-two-way': 0
+    'prep-two-way': 0,
+    'decl-table': 0,
+    'decl-article': 0,
+    'decl-adjective': 0
   }
 }
 
@@ -105,7 +108,10 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'verb-conjugation': emptyBucket(),
     'prep-case': emptyBucket(),
     'prep-article': emptyBucket(),
-    'prep-two-way': emptyBucket()
+    'prep-two-way': emptyBucket(),
+    'decl-table': emptyBucket(),
+    'decl-article': emptyBucket(),
+    'decl-adjective': emptyBucket()
   }
 }
 

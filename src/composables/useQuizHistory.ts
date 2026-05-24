@@ -10,6 +10,9 @@ export type QuizHistoryType =
   | 'prep-case'
   | 'prep-article'
   | 'prep-two-way'
+  | 'decl-table'
+  | 'decl-article'
+  | 'decl-adjective'
 
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation'
@@ -20,6 +23,10 @@ export interface QuizHistoryMeta {
   tenses?: string[]
   prepLevels?: string[]
   prepCases?: string[]
+  declLevels?: string[]
+  declCases?: string[]
+  declDeterminers?: string[]
+  declInflections?: string[]
 }
 
 export interface QuizHistoryEntry {

@@ -40,6 +40,16 @@ describe('buildExport', () => {
     expect(out.data['prepArticleSetup']).toEqual({ levels: ['A1'], count: 10 })
     expect(out.data['prepTwoWaySetup']).toEqual({ count: 5 })
   })
+
+  test('declension setup keys are recognized', () => {
+    localStorage.setItem('declTableSetup', JSON.stringify({ levels: ['A1'], count: 10 }))
+    localStorage.setItem('declArticleSetup', JSON.stringify({ levels: ['A1'], count: 10 }))
+    localStorage.setItem('declAdjectiveSetup', JSON.stringify({ levels: ['A1'], count: 10 }))
+    const out = buildExport()
+    expect(out.data['declTableSetup']).toEqual({ levels: ['A1'], count: 10 })
+    expect(out.data['declArticleSetup']).toEqual({ levels: ['A1'], count: 10 })
+    expect(out.data['declAdjectiveSetup']).toEqual({ levels: ['A1'], count: 10 })
+  })
 })
 
 describe('applyImport', () => {

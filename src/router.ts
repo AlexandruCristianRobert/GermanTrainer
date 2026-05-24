@@ -28,7 +28,16 @@ const routes: RouteRecordRaw[] = [
   { path: '/prepositions/article-quiz', name: 'prepositions-article', component: () => import('./modules/prepositions/ArticleQuizSetup.vue') },
   { path: '/prepositions/article-quiz/run', name: 'prepositions-article-run', component: () => import('./modules/prepositions/ArticleQuizRunner.vue') },
   { path: '/prepositions/two-way-quiz', name: 'prepositions-twoway', component: () => import('./modules/prepositions/TwoWayQuizSetup.vue') },
-  { path: '/prepositions/two-way-quiz/run', name: 'prepositions-twoway-run', component: () => import('./modules/prepositions/TwoWayQuizRunner.vue') }
+  { path: '/prepositions/two-way-quiz/run', name: 'prepositions-twoway-run', component: () => import('./modules/prepositions/TwoWayQuizRunner.vue') },
+  { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
+  { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
+  { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },
+  { path: '/declension/table-quiz/run', name: 'declension-table-run', component: () => import('./modules/declension/TableQuizRunner.vue') },
+  { path: '/declension/table-quiz/result', name: 'declension-table-result', component: () => import('./modules/declension/TableQuizResult.vue') },
+  { path: '/declension/article-quiz', name: 'declension-article', component: () => import('./modules/declension/ArticleQuizSetup.vue') },
+  { path: '/declension/article-quiz/run', name: 'declension-article-run', component: () => import('./modules/declension/ArticleQuizRunner.vue') },
+  { path: '/declension/adj-quiz', name: 'declension-adj', component: () => import('./modules/declension/AdjectiveQuizSetup.vue') },
+  { path: '/declension/adj-quiz/run', name: 'declension-adj-run', component: () => import('./modules/declension/AdjectiveQuizRunner.vue') }
 ]
 
 export const router = createRouter({
