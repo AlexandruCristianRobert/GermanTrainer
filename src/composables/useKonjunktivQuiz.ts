@@ -2,11 +2,15 @@ import {
   KI_DIFFICULTIES,
   KI_DIFFICULTY_BLURB,
   KI_GENERATOR_SCHEMA,
+  KI_JUDGE_SCHEMA,
   KI_TOPICS,
   type KiDifficulty,
+  type KiJudgeResult,
   type KiQuestion,
   type KiTopic
 } from '../data/konjunktiv'
+
+export type { KiQuestion }
 
 const KI_MOODS = ['K1', 'K2-fallback'] as const
 
@@ -181,4 +185,84 @@ export async function generateKiQuestions(
   }
 
   return { entries: accepted, rejected: totalRejected, attempts }
+}
+
+// ── Judge ───────────────────────────────────────────────────────
+
+const KI_JUDGE_SYSTEM_INSTRUCTION =
+  'You are a strict German grammar teacher grading indirekte-Rede transformations. ' +
+  'Accept any grammatically valid Konjunktiv I or Konjunktiv II form that preserves ' +
+  'the meaning. When Konjunktiv I coincides with the indicative (typical for plural ' +
+  'and 1st-person), Konjunktiv II is required — flag this in moodCheck. ' +
+  'Set moodCheck.used to "K1", "K2", "indicative", or "other". Set moodCheck.ok=true ' +
+  'when the chosen mood is appropriate for the source quote.'
+
+function normalize(s: string): string {
+  return s.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+function localFallback(question: KiQuestion, userAnswer: string): KiJudgeResult {
+  const match = normalize(userAnswer) === normalize(question.referenceAnswer)
+  return {
+    verdict: match ? 'correct' : 'incorrect',
+    expected: question.referenceAnswer,
+    acceptedVariants: [],
+    feedback: 'Grader unavailable — fallback to reference match.',
+    moodCheck: { used: 'other', ok: match }
+  }
+}
+
+function validateJudgeResponse(raw: unknown, question: KiQuestion): KiJudgeResult | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  const verdicts = ['correct', 'partially_correct', 'incorrect'] as const
+  const moods = ['K1', 'K2', 'indicative', 'other'] as const
+  if (typeof r.verdict !== 'string' || !(verdicts as readonly string[]).includes(r.verdict)) return null
+  if (typeof r.expected !== 'string') return null
+  if (!Array.isArray(r.acceptedVariants) || r.acceptedVariants.some(v => typeof v !== 'string')) return null
+  if (typeof r.feedback !== 'string') return null
+  const mc = r.moodCheck as Record<string, unknown> | undefined
+  if (!mc || typeof mc !== 'object') return null
+  if (typeof mc.used !== 'string' || !(moods as readonly string[]).includes(mc.used)) return null
+  if (typeof mc.ok !== 'boolean') return null
+  return {
+    verdict: r.verdict as KiJudgeResult['verdict'],
+    expected: question.referenceAnswer,        // always echo the canonical reference
+    acceptedVariants: r.acceptedVariants as string[],
+    feedback: r.feedback as string,
+    moodCheck: { used: mc.used as KiJudgeResult['moodCheck']['used'], ok: mc.ok as boolean }
+  }
+}
+
+export async function judgeKi(
+  client: GeminiClient,
+  model: string,
+  question: KiQuestion,
+  userAnswer: string
+): Promise<KiJudgeResult> {
+  const userPrompt =
+    `Source quote:\n${question.source}\n\n` +
+    `Canonical indirect-speech reference:\n${question.referenceAnswer}\n\n` +
+    `Expected mood: ${question.expectedMood}\n\n` +
+    `Student's submitted answer:\n${userAnswer.trim() || '(empty)'}`
+
+  try {
+    const response = await client.models.generateContent({
+      model,
+      contents: userPrompt,
+      config: {
+        systemInstruction: KI_JUDGE_SYSTEM_INSTRUCTION,
+        responseMimeType: 'application/json',
+        responseSchema: KI_JUDGE_SCHEMA as unknown as Record<string, unknown>,
+        temperature: 0
+      }
+    })
+    const text = response.text ?? ''
+    const parsed = JSON.parse(text)
+    const v = validateJudgeResponse(parsed, question)
+    if (v === null) return localFallback(question, userAnswer)
+    return v
+  } catch {
+    return localFallback(question, userAnswer)
+  }
 }

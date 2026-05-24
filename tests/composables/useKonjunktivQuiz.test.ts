@@ -69,7 +69,7 @@ describe('validateKiEntry — enum validity', () => {
   })
 })
 
-import { generateKiQuestions, type GeminiClient } from '../../src/composables/useKonjunktivQuiz'
+import { generateKiQuestions, judgeKi, type GeminiClient, type KiQuestion } from '../../src/composables/useKonjunktivQuiz'
 
 interface MockResponse { text: string }
 
@@ -173,5 +173,62 @@ describe('generateKiQuestions — retry loop', () => {
     })
     expect(result.entries).toHaveLength(2)
     expect(result.attempts).toBe(2)
+  })
+})
+
+const SAMPLE_QUESTION: KiQuestion = {
+  id: 'ki-test-1',
+  source: 'Der Minister sagte: „Wir senken die Steuern."',
+  reportingClause: 'Der Minister sagte, ',
+  referenceAnswer: 'Der Minister sagte, sie senkten die Steuern.',
+  expectedMood: 'K2-fallback',
+  rationale: 'Plural matches indicative, K-II required.',
+  difficulty: 'medium'
+}
+
+const JUDGE_RESPONSE_CORRECT = JSON.stringify({
+  verdict: 'correct',
+  expected: SAMPLE_QUESTION.referenceAnswer,
+  acceptedVariants: [],
+  feedback: 'Correct Konjunktiv II — the K-I form would have collided with the indicative.',
+  moodCheck: { used: 'K2', ok: true }
+})
+
+describe('judgeKi — happy path', () => {
+  test('parses a well-formed judge response', async () => {
+    const client = makeMockClient([{ text: JUDGE_RESPONSE_CORRECT }])
+    const result = await judgeKi(client, 'gemini-2.5-flash', SAMPLE_QUESTION, SAMPLE_QUESTION.referenceAnswer)
+    expect(result.verdict).toBe('correct')
+    expect(result.moodCheck.used).toBe('K2')
+    expect(result.moodCheck.ok).toBe(true)
+  })
+})
+
+describe('judgeKi — degraded fallback', () => {
+  test('falls back to local string match when the call throws', async () => {
+    const client: GeminiClient = {
+      models: {
+        generateContent: async () => {
+          throw new Error('network down')
+        }
+      }
+    }
+    const result = await judgeKi(client, 'gemini-2.5-flash', SAMPLE_QUESTION, SAMPLE_QUESTION.referenceAnswer)
+    expect(result.verdict).toBe('correct')
+    expect(result.feedback).toMatch(/fallback/i)
+    expect(result.moodCheck.used).toBe('other')
+  })
+
+  test('falls back to local string match when JSON is malformed', async () => {
+    const client = makeMockClient([{ text: 'not-json' }])
+    const result = await judgeKi(client, 'gemini-2.5-flash', SAMPLE_QUESTION, '  ' + SAMPLE_QUESTION.referenceAnswer.toUpperCase() + '  ')
+    expect(result.verdict).toBe('correct')
+    expect(result.feedback).toMatch(/fallback/i)
+  })
+
+  test('fallback marks divergent answers incorrect', async () => {
+    const client = makeMockClient([{ text: '{ invalid' }])
+    const result = await judgeKi(client, 'gemini-2.5-flash', SAMPLE_QUESTION, 'Etwas ganz anderes.')
+    expect(result.verdict).toBe('incorrect')
   })
 })
