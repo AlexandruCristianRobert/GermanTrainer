@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.07.01'
+export const APP_VERSION = '1.07.02'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.07.02', date: '2026-05-24', kind: 'polish',
+    title: 'Loading mask + toast notifications',
+    notes: [
+      'Global full-page loading mask with pulsing accent dots shown during slow operations (Gemini calls for both the declension AI mode and the adjective sentence quiz). Title + subtitle explain what is happening.',
+      'Toast notification stack in the top-right (bottom on phones) for success/info/error messages. Errors get 6s dwell, others 4s; manual dismiss via × always available.',
+      'AI generation errors now surface as toasts in addition to the inline danger alert, so they are visible even if you have scrolled down.',
+      'New "Heads up" warning alert on the article-fill AI setup and the adjective setup: <strong>Gemini takes 1–3 minutes</strong> to return a batch — don\'t close the tab while the loader is up.'
+    ]
+  },
   {
     version: '1.07.01', date: '2026-05-24', kind: 'polish',
     title: 'Declension · article-fill AI mode',

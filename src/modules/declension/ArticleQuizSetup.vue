@@ -13,6 +13,8 @@ import {
 import { DIFFICULTIES, DIFFICULTY_LABEL, type Difficulty } from '../../data/declension-ai'
 import { useSettings } from '../../composables/useSettings'
 import { makeGeminiClient } from '../../composables/useClaude'
+import { useLoading } from '../../composables/useLoading'
+import { useToast } from '../../composables/useToast'
 
 const STORAGE_KEY = 'declArticleSetup'
 const AI_STORAGE_KEY = 'declArticleAISetup'
@@ -147,31 +149,51 @@ function startCurated() {
   })
 }
 
+const loading = useLoading()
+const toast = useToast()
+
 async function startAI() {
   if (!hasApiKey.value) {
-    aiError.value = 'Set your Gemini API key in Settings first.'
+    toast.error('Gemini API key required', {
+      description: 'Set your API key in Settings before using AI mode.'
+    })
     return
   }
   aiGenerating.value = true
   aiError.value = null
   aiLastResult.value = null
   try {
-    const client = makeGeminiClient(settings.value.geminiApiKey)
-    const focusedCases = aiFocusCases.value.length > 0 && aiFocusCases.value.length < DECL_CASES.length
-      ? aiFocusCases.value
-      : undefined
-    const result = await generateDeclensionArticles(client, {
-      model: settings.value.model,
-      count: aiCount.value,
-      difficulty: difficulty.value,
-      focusedCases,
-      maxRetries: 2
-    })
+    const result = await loading.wrap(
+      async () => {
+        const client = makeGeminiClient(settings.value.geminiApiKey)
+        const focusedCases = aiFocusCases.value.length > 0 && aiFocusCases.value.length < DECL_CASES.length
+          ? aiFocusCases.value
+          : undefined
+        return await generateDeclensionArticles(client, {
+          model: settings.value.model,
+          count: aiCount.value,
+          difficulty: difficulty.value,
+          focusedCases,
+          maxRetries: 2
+        })
+      },
+      {
+        title: 'Generating sentences',
+        subtitle: `Asking Gemini for ${aiCount.value} ${difficulty.value}-difficulty sentences. This usually takes 1–3 minutes — please don't close the tab.`
+      }
+    )
     aiLastResult.value = result
     if (result.entries.length === 0) {
-      aiError.value = `The model returned ${result.rejected} entries but none passed validation. Try a different difficulty or retry.`
+      const msg = `The model returned ${result.rejected} entries but none passed validation. Try a different difficulty or retry.`
+      aiError.value = msg
+      toast.error('Generation produced no valid sentences', { description: msg })
       return
     }
+    toast.success(`Generated ${result.entries.length} sentences`, {
+      description: result.rejected > 0
+        ? `${result.rejected} entries rejected by the validator · ${result.attempts} attempt${result.attempts === 1 ? '' : 's'}`
+        : `Took ${result.attempts} attempt${result.attempts === 1 ? '' : 's'}.`
+    })
     sessionStorage.setItem('gt:lastDeclArticleAI', JSON.stringify({
       entries: result.entries,
       difficulty: difficulty.value,
@@ -179,7 +201,9 @@ async function startAI() {
     }))
     router.push({ name: 'declension-article-ai-run' })
   } catch (err) {
-    aiError.value = err instanceof Error ? err.message : 'AI generation failed.'
+    const msg = err instanceof Error ? err.message : 'AI generation failed.'
+    aiError.value = msg
+    toast.error('AI generation failed', { description: msg })
   } finally {
     aiGenerating.value = false
   }
@@ -374,6 +398,11 @@ function back() { router.push({ name: 'declension' }) }
         <span class="alert-label">How AI mode works</span>
         Sentences are generated fresh on every Start and validated against the German grammar tables.
         Wrong articles or malformed sentences are dropped automatically.
+      </div>
+
+      <div class="alert alert-warning">
+        <span class="alert-label">Heads up</span>
+        Gemini takes <strong>1–3 minutes</strong> to return a batch — please don't close the tab while the loader is up.
       </div>
 
       <div v-if="aiError" class="alert alert-danger">

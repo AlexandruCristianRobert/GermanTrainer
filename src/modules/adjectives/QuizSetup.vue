@@ -174,6 +174,11 @@ function start() {
       You type the <em>inflected</em> form (e.g. "schönen", not "schön"). Whitespace and case are ignored.
     </div>
 
+    <div class="alert alert-warning">
+      <span class="alert-label">Heads up</span>
+      Gemini takes <strong>1–3 minutes</strong> to return a batch — please don't close the tab while the loader is up.
+    </div>
+
     <div class="setup-actions">
       <button class="btn btn-ghost" type="button" @click="router.push({ name: 'adjectives' })">← Back</button>
       <button

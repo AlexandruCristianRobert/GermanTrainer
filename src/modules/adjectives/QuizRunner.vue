@@ -13,6 +13,11 @@ import { saveQuizRun } from '../../composables/useQuizHistory'
 import SentenceQuiz from './SentenceQuiz.vue'
 import QuizResult from './QuizResult.vue'
 import { ADJECTIVE_GROUPS, type AdjectiveGroup } from '../../db/types'
+import { useLoading } from '../../composables/useLoading'
+import { useToast } from '../../composables/useToast'
+
+const loading = useLoading()
+const toast = useToast()
 
 const route = useRoute()
 const router = useRouter()
@@ -69,14 +74,23 @@ async function startQuiz() {
   selectedGroups.value = parseGroupsQuery(route.query.groups)
   try {
     await loadSettings()
-    const sentences = await generate()
+    const requestedCount = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
+    const sentences = await loading.wrap(
+      () => generate(),
+      {
+        title: 'Generating sentences',
+        subtitle: `Asking Gemini for ${requestedCount} adjective sentences. This usually takes 1–3 minutes — please don't close the tab.`
+      }
+    )
     quiz = useAdjectiveQuiz(sentences)
     ready.value = true
     phase.value = 'quiz'
     startedAtMs.value = Date.now()
   } catch (err) {
-    errorMsg.value = err instanceof Error ? err.message : 'Failed to generate sentences.'
+    const msg = err instanceof Error ? err.message : 'Failed to generate sentences.'
+    errorMsg.value = msg
     phase.value = 'error'
+    toast.error('Adjective generation failed', { description: msg })
   }
 }
 
