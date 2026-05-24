@@ -52,6 +52,18 @@ export const PROMPT_SIZE_SPECS = {
       { label: 'Default', value: 36 },
       { label: 'Large', value: 52 }
     ]
+  },
+  declension: {
+    cssVar: '--decl-prompt-size',
+    storageKey: 'gt:declPromptSize',
+    default: 56,
+    min: 32,
+    max: 96,
+    presets: [
+      { label: 'Compact', value: 40 },
+      { label: 'Default', value: 56 },
+      { label: 'Large', value: 80 }
+    ]
   }
 } as const satisfies Record<string, PromptSizeSpec>
 
@@ -88,11 +100,13 @@ function persist(spec: PromptSizeSpec, px: number): void {
 const verbSize = ref<number>(readStored(PROMPT_SIZE_SPECS.verb))
 const nounSize = ref<number>(readStored(PROMPT_SIZE_SPECS.noun))
 const adjectiveSize = ref<number>(readStored(PROMPT_SIZE_SPECS.adjective))
+const declensionSize = ref<number>(readStored(PROMPT_SIZE_SPECS.declension))
 
 const refsByKind = {
   verb: verbSize,
   noun: nounSize,
-  adjective: adjectiveSize
+  adjective: adjectiveSize,
+  declension: declensionSize
 } as const
 
 // Side-effect bindings: any write to a size ref → CSS var + localStorage.
@@ -108,6 +122,10 @@ watch(adjectiveSize, v => {
   applyToRoot(PROMPT_SIZE_SPECS.adjective.cssVar, v)
   persist(PROMPT_SIZE_SPECS.adjective, v)
 })
+watch(declensionSize, v => {
+  applyToRoot(PROMPT_SIZE_SPECS.declension.cssVar, v)
+  persist(PROMPT_SIZE_SPECS.declension, v)
+})
 
 /**
  * Called once at app boot — applies persisted values to :root so the
@@ -117,6 +135,7 @@ export function initPromptSizes(): void {
   applyToRoot(PROMPT_SIZE_SPECS.verb.cssVar, verbSize.value)
   applyToRoot(PROMPT_SIZE_SPECS.noun.cssVar, nounSize.value)
   applyToRoot(PROMPT_SIZE_SPECS.adjective.cssVar, adjectiveSize.value)
+  applyToRoot(PROMPT_SIZE_SPECS.declension.cssVar, declensionSize.value)
 }
 
 export interface PromptSizeApi {

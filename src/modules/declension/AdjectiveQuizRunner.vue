@@ -215,7 +215,7 @@ function endQuiz() { router.push({ name: 'declension-adj' }) }
       </div>
 
       <div class="prompt-card">
-        <div class="decl-sentence" :style="{ fontSize: 'var(--noun-prompt-size, 56px)' }">
+        <div class="decl-sentence" :style="{ fontSize: 'var(--decl-prompt-size, 56px)' }">
           {{ current.blanked }}
         </div>
         <div class="decl-gloss">{{ current.gloss }}</div>

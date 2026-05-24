@@ -240,7 +240,7 @@ watch(finished, (now) => {
   text-align: center;
 }
 .decl-prompt-german {
-  font-size: 56px;
+  font-size: var(--decl-prompt-size, 56px);
   font-style: italic;
   line-height: 1.1;
 }
@@ -253,7 +253,7 @@ watch(finished, (now) => {
   color: var(--mute);
 }
 @media (max-width: 720px) {
-  .decl-prompt-german { font-size: 36px; }
+  .decl-prompt-german { font-size: calc(var(--decl-prompt-size, 56px) * 0.65); }
 }
 
 .decl-table {

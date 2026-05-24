@@ -5,6 +5,7 @@ import TypeSizeField from './TypeSizeField.vue'
 const verb = usePromptSize('verb')
 const noun = usePromptSize('noun')
 const adjective = usePromptSize('adjective')
+const declension = usePromptSize('declension')
 </script>
 
 <template>
@@ -83,6 +84,28 @@ const adjective = usePromptSize('adjective')
           :style="{ fontSize: 'var(--adjective-prompt-size, 36px)', lineHeight: '1.3' }"
         >Ich sehe den ____ Park.</div>
         <div class="prompt-english" style="margin-top: 12px;">the beautiful park (acc.)</div>
+      </div>
+    </div>
+
+    <hr class="settings-divider" />
+
+    <!-- ── Declension runners ───────────────────────────────────── -->
+    <TypeSizeField
+      label="Declension quiz · prompt size"
+      blurb="Controls the noun-phrase / blanked-sentence size in the three declension drills (decline-the-phrase, article-fill, adjective endings)."
+      :spec="declension.spec"
+      :value="declension.value.value"
+      @update:value="declension.setValue"
+    />
+
+    <div class="settings-preview">
+      <div class="settings-preview-label">Declension runner · preview</div>
+      <div class="prompt-card preview-card preview-card-center">
+        <div
+          class="prompt-german"
+          :style="{ fontSize: 'var(--decl-prompt-size, 56px)', lineHeight: '1.3' }"
+        >Ich gebe ____ Mann das Buch.</div>
+        <div class="prompt-english" style="margin-top: 12px;">I give the book to the man.</div>
       </div>
     </div>
   </section>

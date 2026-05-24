@@ -26,6 +26,7 @@ export const USER_DATA_KEYS = [
   'gt:testVerbSize',
   'gt:nounPromptSize',
   'gt:adjectivePromptSize',
+  'gt:declPromptSize',
   // palette overrides
   'gt:palette',
   // quiz setup memory
@@ -53,6 +54,7 @@ const KEY_LABELS: Record<UserDataKey, { label: string; group: string }> = {
   'gt:testVerbSize': { label: 'Verb test-sheet size', group: 'Display' },
   'gt:nounPromptSize': { label: 'Noun prompt size', group: 'Display' },
   'gt:adjectivePromptSize': { label: 'Adjective prompt size', group: 'Display' },
+  'gt:declPromptSize': { label: 'Declension prompt size', group: 'Display' },
   'gt:palette': { label: 'Palette overrides', group: 'Appearance' },
   nounQuizSetup: { label: 'Noun quiz setup', group: 'Quiz setup' },
   adjectiveQuizSetup: { label: 'Adjective quiz setup', group: 'Quiz setup' },
@@ -120,7 +122,8 @@ function describe(key: UserDataKey, raw: string | null): string {
   if (
     key === 'gt:testVerbSize' ||
     key === 'gt:nounPromptSize' ||
-    key === 'gt:adjectivePromptSize'
+    key === 'gt:adjectivePromptSize' ||
+    key === 'gt:declPromptSize'
   ) {
     return `${raw}px`
   }
