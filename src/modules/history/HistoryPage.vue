@@ -8,6 +8,7 @@ import {
   type QuizHistoryType
 } from '../../composables/useQuizHistory'
 import { computeStats } from '../../composables/useQuizStats'
+import { getPromptById } from '../../composables/useWritingPrompts'
 import { usePagination } from '../../composables/usePagination'
 import Pagination from '../../components/Pagination.vue'
 import MotivationStrip from '../../components/charts/MotivationStrip.vue'
@@ -182,6 +183,14 @@ function pct(it: QuizHistoryEntry): number {
 
 function summariseMeta(it: QuizHistoryEntry): string {
   const m = it.meta ?? {}
+  if (it.type === 'writing-grade') {
+    const parts: string[] = []
+    const title = m.promptId ? (getPromptById(m.promptId)?.titleDe ?? m.promptId) : null
+    if (title) parts.push(title)
+    if (m.rubric) parts.push(m.rubric)
+    if (m.wordCount != null) parts.push(`${m.wordCount} Wörter`)
+    return parts.length ? parts.join(' · ') : '—'
+  }
   const parts: string[] = []
   if (m.mode) parts.push(m.mode)
   if (m.groups && m.groups.length) parts.push(`${m.groups.length} group${m.groups.length === 1 ? '' : 's'}`)
@@ -421,7 +430,13 @@ function summariseMeta(it: QuizHistoryEntry): string {
             <span class="hist-asked">asked</span>
           </td>
           <td>
-            <div class="hist-score-row">
+            <div v-if="it.type === 'writing-grade'" class="hist-score-row">
+              <span class="hist-score">
+                {{ it.meta.totalScore }}<span class="hist-score-denom">/100</span>
+              </span>
+              <span v-if="it.meta.bandEstimate" class="tag history-pct history-pct-success">{{ it.meta.bandEstimate }}</span>
+            </div>
+            <div v-else class="hist-score-row">
               <span class="hist-score">
                 {{ it.correct }}<span class="hist-score-denom">/{{ it.count }}</span>
               </span>
@@ -443,7 +458,13 @@ function summariseMeta(it: QuizHistoryEntry): string {
             <div class="hist-quiz-label">{{ QUIZ_TYPES[it.type]?.label ?? it.type }}</div>
             <div class="hist-quiz-de">{{ QUIZ_TYPES[it.type]?.de ?? '' }}</div>
           </div>
-          <div class="hist-score-row">
+          <div v-if="it.type === 'writing-grade'" class="hist-score-row">
+            <span class="hist-score">
+              {{ it.meta.totalScore }}<span class="hist-score-denom">/100</span>
+            </span>
+            <span v-if="it.meta.bandEstimate" class="tag history-pct history-pct-success">{{ it.meta.bandEstimate }}</span>
+          </div>
+          <div v-else class="hist-score-row">
             <span class="hist-score">
               {{ it.correct }}<span class="hist-score-denom">/{{ it.count }}</span>
             </span>
