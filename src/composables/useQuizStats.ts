@@ -101,7 +101,8 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'decl-article-ai': 0,
     'konjunktiv-rewrite': 0,
     'passiv-transform': 0,
-    'writing-grade': 0
+    'writing-grade': 0,
+    'simulator-c1': 0
   }
 }
 
@@ -123,7 +124,8 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'decl-article-ai': emptyBucket(),
     'konjunktiv-rewrite': emptyBucket(),
     'passiv-transform': emptyBucket(),
-    'writing-grade': emptyBucket()
+    'writing-grade': emptyBucket(),
+    'simulator-c1': emptyBucket()
   }
 }
 

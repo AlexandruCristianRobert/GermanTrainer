@@ -154,4 +154,29 @@ describe('useQuizHistory', () => {
     expect(entry.meta.totalScore).toBe(78)
     expect(entry.meta.wordCount).toBe(232)
   })
+
+  it('persists a simulator-c1 entry with combined-score meta', () => {
+    saveQuizRun({
+      type: 'simulator-c1',
+      startedAt: new Date('2026-05-24T09:00:00Z').toISOString(),
+      finishedAt: new Date('2026-05-24T10:08:00Z').toISOString(),
+      durationMs: 4_080_000,            // 68 minutes
+      count: 1,
+      correct: 1,
+      meta: {
+        sessionId: 'sim-abc-123',
+        task1Score: 78,
+        task2Score: 65,
+        combinedScore: 73,              // 78*0.6 + 65*0.4 = 72.8 → 73
+        passes: true
+      }
+    })
+    const [entry] = loadHistory()
+    expect(entry.type).toBe('simulator-c1')
+    expect(entry.meta.sessionId).toBe('sim-abc-123')
+    expect(entry.meta.task1Score).toBe(78)
+    expect(entry.meta.task2Score).toBe(65)
+    expect(entry.meta.combinedScore).toBe(73)
+    expect(entry.meta.passes).toBe(true)
+  })
 })

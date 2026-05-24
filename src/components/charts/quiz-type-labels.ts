@@ -17,7 +17,8 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'decl-article-ai': 'Declension · article (AI)',
   'konjunktiv-rewrite': 'Konjunktiv I — indirect speech',
   'passiv-transform': 'Passiv transformation',
-  'writing-grade': 'Writing · graded essay'
+  'writing-grade': 'Writing · graded essay',
+  'simulator-c1': 'Goethe C1 · Mock exam'
 }
 
 export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
@@ -37,7 +38,8 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'decl-article-ai': 'Deklination · Artikel (KI)',
   'konjunktiv-rewrite': 'Konjunktiv I · Indirekte Rede',
   'passiv-transform': 'Passiv · Transformation',
-  'writing-grade': 'Schreiben · benoteter Aufsatz'
+  'writing-grade': 'Schreiben · benoteter Aufsatz',
+  'simulator-c1': 'Goethe C1 · Prüfungssimulation'
 }
 
 export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
@@ -57,5 +59,6 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'decl-article-ai',
   'konjunktiv-rewrite',
   'passiv-transform',
-  'writing-grade'
+  'writing-grade',
+  'simulator-c1'
 ]

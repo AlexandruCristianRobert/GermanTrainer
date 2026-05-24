@@ -19,6 +19,7 @@ export type QuizHistoryType =
   | 'konjunktiv-rewrite'
   | 'passiv-transform'
   | 'writing-grade'
+  | 'simulator-c1'
 
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation'
@@ -55,6 +56,13 @@ export interface QuizHistoryMeta {
   bandEstimate?: string
   totalScore?: number
   wordCount?: number
+
+  // Simulator C1
+  sessionId?: string
+  task1Score?: number
+  task2Score?: number
+  combinedScore?: number
+  passes?: boolean
 }
 
 export interface QuizHistoryEntry {

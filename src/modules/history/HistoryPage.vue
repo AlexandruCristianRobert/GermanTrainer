@@ -52,7 +52,8 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'decl-article-ai': { label: 'Declension · article (AI)', de: 'Deklination · Artikel (KI)', module: 'Declension' },
   'konjunktiv-rewrite': { label: 'Konjunktiv I — indirect speech', de: 'Konjunktiv I · Indirekte Rede', module: 'Grammatik' },
   'passiv-transform':   { label: 'Passiv transformation',          de: 'Passiv · Transformation',     module: 'Grammatik' },
-  'writing-grade':      { label: 'Writing — graded essay',         de: 'Schreiben · benoteter Aufsatz', module: 'Schreiben' }
+  'writing-grade':      { label: 'Writing — graded essay',         de: 'Schreiben · benoteter Aufsatz', module: 'Schreiben' },
+  'simulator-c1':       { label: 'Goethe C1 — mock exam',          de: 'Goethe C1 · Prüfungssimulation', module: 'Schreiben' }
 }
 
 const typeOrder: QuizHistoryType[] = [
@@ -64,7 +65,8 @@ const typeOrder: QuizHistoryType[] = [
   'decl-article-ai',
   'konjunktiv-rewrite',
   'passiv-transform',
-  'writing-grade'
+  'writing-grade',
+  'simulator-c1'
 ]
 
 const filtered = computed(() =>
@@ -183,6 +185,14 @@ function pct(it: QuizHistoryEntry): number {
 
 function summariseMeta(it: QuizHistoryEntry): string {
   const m = it.meta ?? {}
+  if (it.type === 'simulator-c1') {
+    const parts: string[] = []
+    if (typeof m.task1Score === 'number') parts.push(`T1: ${m.task1Score}`)
+    if (typeof m.task2Score === 'number') parts.push(`T2: ${m.task2Score}`)
+    if (typeof m.combinedScore === 'number') parts.push(`Σ ${m.combinedScore}`)
+    if (m.passes !== undefined) parts.push(m.passes ? 'PASS' : 'FAIL')
+    return parts.join(' · ')
+  }
   if (it.type === 'writing-grade') {
     const parts: string[] = []
     const title = m.promptId ? (getPromptById(m.promptId)?.titleDe ?? m.promptId) : null
@@ -430,11 +440,19 @@ function summariseMeta(it: QuizHistoryEntry): string {
             <span class="hist-asked">asked</span>
           </td>
           <td>
-            <div v-if="it.type === 'writing-grade'" class="hist-score-row">
-              <span class="hist-score">
-                {{ it.meta.totalScore }}<span class="hist-score-denom">/100</span>
-              </span>
-              <span v-if="it.meta.bandEstimate" class="tag history-pct history-pct-success">{{ it.meta.bandEstimate }}</span>
+            <div v-if="it.type === 'writing-grade' || it.type === 'simulator-c1'" class="hist-score-row">
+              <template v-if="it.type === 'writing-grade'">
+                <span class="hist-score">
+                  {{ it.meta.totalScore }}<span class="hist-score-denom">/100</span>
+                </span>
+                <span v-if="it.meta.bandEstimate" class="tag history-pct history-pct-success">{{ it.meta.bandEstimate }}</span>
+              </template>
+              <template v-else>
+                <span class="hist-score">
+                  {{ it.meta.combinedScore }}<span class="hist-score-denom">/100</span>
+                </span>
+                <span class="tag history-pct" :class="it.meta.passes ? 'history-pct-success' : 'history-pct-danger'">{{ it.meta.passes ? 'PASS' : 'FAIL' }}</span>
+              </template>
             </div>
             <div v-else class="hist-score-row">
               <span class="hist-score">
@@ -458,11 +476,19 @@ function summariseMeta(it: QuizHistoryEntry): string {
             <div class="hist-quiz-label">{{ QUIZ_TYPES[it.type]?.label ?? it.type }}</div>
             <div class="hist-quiz-de">{{ QUIZ_TYPES[it.type]?.de ?? '' }}</div>
           </div>
-          <div v-if="it.type === 'writing-grade'" class="hist-score-row">
-            <span class="hist-score">
-              {{ it.meta.totalScore }}<span class="hist-score-denom">/100</span>
-            </span>
-            <span v-if="it.meta.bandEstimate" class="tag history-pct history-pct-success">{{ it.meta.bandEstimate }}</span>
+          <div v-if="it.type === 'writing-grade' || it.type === 'simulator-c1'" class="hist-score-row">
+            <template v-if="it.type === 'writing-grade'">
+              <span class="hist-score">
+                {{ it.meta.totalScore }}<span class="hist-score-denom">/100</span>
+              </span>
+              <span v-if="it.meta.bandEstimate" class="tag history-pct history-pct-success">{{ it.meta.bandEstimate }}</span>
+            </template>
+            <template v-else>
+              <span class="hist-score">
+                {{ it.meta.combinedScore }}<span class="hist-score-denom">/100</span>
+              </span>
+              <span class="tag history-pct" :class="it.meta.passes ? 'history-pct-success' : 'history-pct-danger'">{{ it.meta.passes ? 'PASS' : 'FAIL' }}</span>
+            </template>
           </div>
           <div v-else class="hist-score-row">
             <span class="hist-score">
