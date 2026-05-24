@@ -13,6 +13,8 @@ export type QuizHistoryType =
   | 'decl-table'
   | 'decl-article'
   | 'decl-adjective'
+  | 'decl-pronoun'
+  | 'decl-case-recognition'
 
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation'
@@ -27,6 +29,9 @@ export interface QuizHistoryMeta {
   declCases?: string[]
   declDeterminers?: string[]
   declInflections?: string[]
+  declPronounCategories?: string[]
+  declCRLevels?: string[]
+  declCRCases?: string[]
 }
 
 export interface QuizHistoryEntry {

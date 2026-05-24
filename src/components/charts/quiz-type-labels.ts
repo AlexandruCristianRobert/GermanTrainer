@@ -11,7 +11,9 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'prep-two-way': 'Preposition · two-way',
   'decl-table': 'Declension · table',
   'decl-article': 'Declension · article',
-  'decl-adjective': 'Declension · adj. ending'
+  'decl-adjective': 'Declension · adj. ending',
+  'decl-pronoun': 'Declension · pronouns',
+  'decl-case-recognition': 'Declension · case ID'
 }
 
 export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
@@ -25,7 +27,9 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'prep-two-way': 'Präposition · Wechsel',
   'decl-table': 'Deklination · Tabelle',
   'decl-article': 'Deklination · Artikel',
-  'decl-adjective': 'Deklination · Endung'
+  'decl-adjective': 'Deklination · Endung',
+  'decl-pronoun': 'Deklination · Pronomen',
+  'decl-case-recognition': 'Deklination · Kasus erkennen'
 }
 
 export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
@@ -39,5 +43,7 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'prep-two-way',
   'decl-table',
   'decl-article',
-  'decl-adjective'
+  'decl-adjective',
+  'decl-pronoun',
+  'decl-case-recognition'
 ]

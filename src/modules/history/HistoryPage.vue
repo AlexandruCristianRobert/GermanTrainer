@@ -45,14 +45,17 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'prep-two-way':     { label: 'Preposition · two-way', de: 'Präposition · Wechsel', module: 'Prepositions' },
   'decl-table':     { label: 'Declension · table', de: 'Deklination · Tabelle', module: 'Declension' },
   'decl-article':   { label: 'Declension · article', de: 'Deklination · Artikel', module: 'Declension' },
-  'decl-adjective': { label: 'Declension · adj. ending', de: 'Deklination · Endung', module: 'Declension' }
+  'decl-adjective': { label: 'Declension · adj. ending', de: 'Deklination · Endung', module: 'Declension' },
+  'decl-pronoun':           { label: 'Declension · pronouns', de: 'Deklination · Pronomen', module: 'Declension' },
+  'decl-case-recognition':  { label: 'Declension · case ID', de: 'Deklination · Kasus erkennen', module: 'Declension' }
 }
 
 const typeOrder: QuizHistoryType[] = [
   'noun-gender', 'noun-translation', 'adjective',
   'verb-translation', 'verb-conjugation',
   'prep-case', 'prep-article', 'prep-two-way',
-  'decl-table', 'decl-article', 'decl-adjective'
+  'decl-table', 'decl-article', 'decl-adjective',
+  'decl-pronoun', 'decl-case-recognition'
 ]
 
 const filtered = computed(() =>

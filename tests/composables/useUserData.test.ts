@@ -50,6 +50,14 @@ describe('buildExport', () => {
     expect(out.data['declArticleSetup']).toEqual({ levels: ['A1'], count: 10 })
     expect(out.data['declAdjectiveSetup']).toEqual({ levels: ['A1'], count: 10 })
   })
+
+  test('declension v2 setup keys are recognized', () => {
+    localStorage.setItem('declPronounSetup', JSON.stringify({ categories: ['personal'], count: 10 }))
+    localStorage.setItem('declCRSetup', JSON.stringify({ levels: ['A1'], cases: ['accusative'], count: 10 }))
+    const out = buildExport()
+    expect(out.data['declPronounSetup']).toEqual({ categories: ['personal'], count: 10 })
+    expect(out.data['declCRSetup']).toEqual({ levels: ['A1'], cases: ['accusative'], count: 10 })
+  })
 })
 
 describe('applyImport', () => {
