@@ -16,6 +16,8 @@ export type QuizHistoryType =
   | 'decl-pronoun'
   | 'decl-case-recognition'
   | 'decl-article-ai'
+  | 'konjunktiv-rewrite'
+  | 'passiv-transform'
 
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation'
@@ -35,6 +37,15 @@ export interface QuizHistoryMeta {
   declCRCases?: string[]
   declAIDifficulty?: 'easy' | 'medium' | 'hard'
   declAIBlanksCount?: number   // average blanks per sentence in the run
+
+  // Konjunktiv I
+  kiDifficulty?: 'easy' | 'medium' | 'hard'
+  kiTopics?: string[]
+
+  // Passiv
+  passivDifficulty?: 'easy' | 'medium' | 'hard'
+  passivFocusedTypes?: string[]
+  passivPerTypeCorrect?: Record<string, { correct: number; total: number }>
 }
 
 export interface QuizHistoryEntry {

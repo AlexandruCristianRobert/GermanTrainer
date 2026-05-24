@@ -88,4 +88,43 @@ describe('useQuizHistory', () => {
     expect(e.durationMs).toBe(120000)
     expect(e.count).toBe(10)
   })
+
+  it('persists a konjunktiv-rewrite entry with K-I meta', () => {
+    saveQuizRun({
+      type: 'konjunktiv-rewrite',
+      startedAt: new Date('2026-05-24T10:00:00Z').toISOString(),
+      finishedAt: new Date('2026-05-24T10:05:00Z').toISOString(),
+      durationMs: 300000,
+      count: 10,
+      correct: 7,
+      meta: { kiDifficulty: 'medium', kiTopics: ['Politik', 'Wirtschaft'] }
+    })
+    const [entry] = loadHistory()
+    expect(entry.type).toBe('konjunktiv-rewrite')
+    expect(entry.meta.kiDifficulty).toBe('medium')
+    expect(entry.meta.kiTopics).toEqual(['Politik', 'Wirtschaft'])
+  })
+
+  it('persists a passiv-transform entry with per-type breakdown', () => {
+    saveQuizRun({
+      type: 'passiv-transform',
+      startedAt: new Date('2026-05-24T11:00:00Z').toISOString(),
+      finishedAt: new Date('2026-05-24T11:06:00Z').toISOString(),
+      durationMs: 360000,
+      count: 8,
+      correct: 6,
+      meta: {
+        passivDifficulty: 'hard',
+        passivFocusedTypes: ['vorgangspassiv', 'sich-lassen'],
+        passivPerTypeCorrect: {
+          'vorgangspassiv': { correct: 3, total: 4 },
+          'sich-lassen': { correct: 3, total: 4 }
+        }
+      }
+    })
+    const [entry] = loadHistory()
+    expect(entry.type).toBe('passiv-transform')
+    expect(entry.meta.passivDifficulty).toBe('hard')
+    expect(entry.meta.passivPerTypeCorrect?.['vorgangspassiv']).toEqual({ correct: 3, total: 4 })
+  })
 })

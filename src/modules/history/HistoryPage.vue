@@ -48,7 +48,9 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'decl-adjective': { label: 'Declension · adj. ending', de: 'Deklination · Endung', module: 'Declension' },
   'decl-pronoun':           { label: 'Declension · pronouns', de: 'Deklination · Pronomen', module: 'Declension' },
   'decl-case-recognition':  { label: 'Declension · case ID', de: 'Deklination · Kasus erkennen', module: 'Declension' },
-  'decl-article-ai': { label: 'Declension · article (AI)', de: 'Deklination · Artikel (KI)', module: 'Declension' }
+  'decl-article-ai': { label: 'Declension · article (AI)', de: 'Deklination · Artikel (KI)', module: 'Declension' },
+  'konjunktiv-rewrite': { label: 'Konjunktiv I — indirect speech', de: 'Konjunktiv I · Indirekte Rede', module: 'Grammatik' },
+  'passiv-transform':   { label: 'Passiv transformation',          de: 'Passiv · Transformation',     module: 'Grammatik' }
 }
 
 const typeOrder: QuizHistoryType[] = [
@@ -57,7 +59,9 @@ const typeOrder: QuizHistoryType[] = [
   'prep-case', 'prep-article', 'prep-two-way',
   'decl-table', 'decl-article', 'decl-adjective',
   'decl-pronoun', 'decl-case-recognition',
-  'decl-article-ai'
+  'decl-article-ai',
+  'konjunktiv-rewrite',
+  'passiv-transform'
 ]
 
 const filtered = computed(() =>

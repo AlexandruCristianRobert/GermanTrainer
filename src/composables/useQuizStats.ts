@@ -98,7 +98,9 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'decl-adjective': 0,
     'decl-pronoun': 0,
     'decl-case-recognition': 0,
-    'decl-article-ai': 0
+    'decl-article-ai': 0,
+    'konjunktiv-rewrite': 0,
+    'passiv-transform': 0
   }
 }
 
@@ -117,7 +119,9 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'decl-adjective': emptyBucket(),
     'decl-pronoun': emptyBucket(),
     'decl-case-recognition': emptyBucket(),
-    'decl-article-ai': emptyBucket()
+    'decl-article-ai': emptyBucket(),
+    'konjunktiv-rewrite': emptyBucket(),
+    'passiv-transform': emptyBucket()
   }
 }
 
