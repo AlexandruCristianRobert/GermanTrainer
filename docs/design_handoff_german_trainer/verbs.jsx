@@ -200,11 +200,12 @@ function VerbTranslationSetup({ navigate, startQuiz }) {
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 40, gap: 16}}>
         <button className="btn btn-ghost" onClick={() => navigate('verbs')}>← Back</button>
         <button
-          className="btn btn-accent"
+          className="btn btn-accent btn-meta"
           disabled={totalAvailable === 0}
           onClick={start}
         >
-          Start quiz · {effectiveCount} verbs →
+          <span className="bm-main">Start quiz <span aria-hidden="true">→</span></span>
+          <span className="bm-sub">{effectiveCount} verbs</span>
         </button>
       </div>
     </div>
@@ -356,11 +357,12 @@ function VerbTranslationRunner({ navigate, config }) {
           </span>
           <button
             id="submit-all-btn"
-            className="btn btn-accent"
+            className="btn btn-accent btn-meta"
             onClick={onSubmitAll}
             disabled={filled === 0}
           >
-            Submit all · {total} verbs →
+            <span className="bm-main">Submit all <span aria-hidden="true">→</span></span>
+            <span className="bm-sub">{total} verbs</span>
           </button>
         </div>
       </div>
@@ -381,10 +383,11 @@ function VerbTranslationResult({ navigate }) {
 
 function VerbResultScreen({ navigate, history, total }) {
   const correct = history.filter(h => h.correct).length;
+  const wrong = total - correct;
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
 
   return (
-    <div className="page" style={{maxWidth: 880, margin: '0 auto'}} data-screen-label="34 Verb result">
+    <div className="page" style={{maxWidth: 920, margin: '0 auto'}} data-screen-label="34 Verb result">
       <div className="section-header">
         <div>
           <div className="breadcrumb">Auswertung · Übersetzung</div>
@@ -403,28 +406,72 @@ function VerbResultScreen({ navigate, history, total }) {
         </div>
       </div>
 
-      <div className="result-list">
-        {history.map((h, i) => (
-          <div key={i} className="result-row">
-            <div className="german">
-              {h.verb.german}
-              <div style={{fontFamily: 'var(--font-body)', fontStyle: 'italic', fontSize: 13, color: 'var(--mute)', fontWeight: 400, marginTop: 2, display: 'flex', gap: 6}}>
-                <span>{h.verb.level}</span>
-                <span>·</span>
-                <span>{h.verb.type}</span>
+      <div className="verb-result-summary">
+        <div className="vrs-cell is-correct">
+          <div className="vrs-num">{correct}</div>
+          <div className="vrs-label">Richtig · correct</div>
+        </div>
+        <div className="vrs-cell is-wrong">
+          <div className="vrs-num">{wrong}</div>
+          <div className="vrs-label">Falsch · missed</div>
+        </div>
+        <div className="vrs-cell">
+          <div className="vrs-num">{pct}<span style={{fontSize: 20, color: 'var(--mute)'}}>%</span></div>
+          <div className="vrs-label">Quote · score</div>
+        </div>
+      </div>
+
+      <div className="verb-result-list">
+        {history.map((h, i) => {
+          const expected = h.verb.english;
+          const yourAnswer = (h.input || '').trim();
+          return (
+            <article key={i} className={'verb-result-card ' + (h.correct ? 'is-correct' : 'is-wrong')}>
+              <span className="verb-result-num">№ {String(i + 1).padStart(2, '0')}</span>
+
+              <div className="verb-result-prompt">
+                <div className="vrp-german">{h.verb.german}</div>
+                <div className="vrp-meta">
+                  <span>{h.verb.level}</span>
+                  <span className="vrp-dot">·</span>
+                  <span>{h.verb.type}</span>
+                  {h.verb.case && h.verb.case !== 'none' && (
+                    <>
+                      <span className="vrp-dot">·</span>
+                      <span>{h.verb.case}</span>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="answers">
-              your answer: <strong style={{color: h.correct ? 'var(--success)' : 'var(--danger)'}}>{h.input || '—'}</strong>
-              {!h.correct && <span> · expected: <strong>{h.verb.english}</strong></span>}
-            </div>
-            <div>
-              {h.correct
-                ? <span className="tag" style={{background: 'var(--success-tint)', color: 'var(--success)'}}>✓ Correct</span>
-                : <span className="tag" style={{background: 'var(--danger-tint)', color: 'var(--danger)'}}>✗ Missed</span>}
-            </div>
-          </div>
-        ))}
+
+              <div className="verb-result-answers">
+                {h.correct ? (
+                  <div className="verb-result-line">
+                    <span className="vrl-label">Antwort</span>
+                    <span className="vr-stamp vr-stamp-right">{yourAnswer}</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="verb-result-line">
+                      <span className="vrl-label">Du · you</span>
+                      {yourAnswer
+                        ? <span className="vr-stamp vr-stamp-wrong">{yourAnswer}</span>
+                        : <span className="vr-stamp vr-stamp-empty">— no answer —</span>}
+                    </div>
+                    <div className="verb-result-line">
+                      <span className="vrl-label">Richtig</span>
+                      <span className="vr-stamp vr-stamp-right">{expected}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="verb-result-mark" aria-hidden="true">
+                {h.correct ? '✓' : '✗'}
+              </div>
+            </article>
+          );
+        })}
       </div>
     </div>
   );

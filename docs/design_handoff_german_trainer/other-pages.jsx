@@ -397,10 +397,204 @@ function SettingsDisplay() {
   );
 }
 
+/* ────── Settings · Daten — backup & data management ────── */
+
+function SettingsData({ navigate }) {
+  // Mocked values for the prototype — in production these come from IndexedDB
+  const [counts] = React.useState({
+    nouns: 1407,
+    nounsCustom: 12,
+    adjectives: 248,
+    verbs: 378,
+    history: 47,
+  });
+  const [storage] = React.useState({
+    usedKb: 412,
+    quotaKb: 51200, // ~50 MB indexeddb quota typical
+    lastBackup: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
+  });
+  const pct = Math.min(100, Math.round((storage.usedKb / storage.quotaKb) * 100));
+
+  const fmtDate = (d) => {
+    if (!d) return '—';
+    const days = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
+    if (days === 0) return 'today';
+    if (days === 1) return 'yesterday';
+    return days + ' days ago';
+  };
+
+  const exportAll = () => {
+    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), counts, note: 'Prototype export — no real data wired up.' }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'grammatik-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <>
+      <div className="alert alert-info">
+        <span className="alert-label">Local-only</span>
+        Everything lives in this browser's IndexedDB. Clear your site data and it's gone — back up regularly,
+        especially before switching devices.
+      </div>
+
+      <div className="daten-storage">
+        <div className="daten-storage-cell">
+          <div className="daten-storage-num">
+            {storage.usedKb}<span className="unit">KB</span>
+          </div>
+          <div className="daten-storage-label">Belegt · used</div>
+          <div className="daten-storage-bar">
+            <div className="daten-storage-bar-fill" style={{ width: pct + '%' }}></div>
+          </div>
+        </div>
+        <div className="daten-storage-cell">
+          <div className="daten-storage-num">
+            {fmtDate(storage.lastBackup)}
+          </div>
+          <div className="daten-storage-label">Letztes Backup · last export</div>
+        </div>
+      </div>
+
+      {/* ─── Section A · Counts ─── */}
+      <div className="daten-section">
+        <div className="daten-section-head">
+          <span className="num">A.</span>
+          <span className="title">Bestand</span>
+          <span className="meta">What's stored</span>
+        </div>
+
+        <div className="daten-counts">
+          <div className="daten-counts-cell">
+            <div className="daten-counts-num">{counts.nouns}</div>
+            <div className="daten-counts-de">Substantive</div>
+            <div className="daten-counts-label">Nouns · {counts.nounsCustom} custom</div>
+          </div>
+          <div className="daten-counts-cell">
+            <div className="daten-counts-num">{counts.adjectives}</div>
+            <div className="daten-counts-de">Adjektive</div>
+            <div className="daten-counts-label">Adjectives</div>
+          </div>
+          <div className="daten-counts-cell">
+            <div className="daten-counts-num">{counts.verbs}</div>
+            <div className="daten-counts-de">Verben</div>
+            <div className="daten-counts-label">Verbs · bundled</div>
+          </div>
+          <div className="daten-counts-cell">
+            <div className="daten-counts-num">{counts.history}</div>
+            <div className="daten-counts-de">Verlauf</div>
+            <div className="daten-counts-label">Quiz runs</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Section B · Backup ─── */}
+      <div className="daten-section">
+        <div className="daten-section-head">
+          <span className="num">B.</span>
+          <span className="title">Sichern</span>
+          <span className="meta">Export &amp; restore</span>
+        </div>
+
+        <div className="daten-row">
+          <div className="daten-row-text">
+            <div className="dr-title">Export all to JSON</div>
+            <p className="dr-sub">A single file containing nouns, adjectives, quiz history, palette overrides and settings — readable, diffable, future-proof.</p>
+          </div>
+          <div className="daten-row-actions">
+            <button className="btn btn-accent" onClick={exportAll}>Export ↓</button>
+          </div>
+        </div>
+
+        <div className="daten-row">
+          <div className="daten-row-text">
+            <div className="dr-title">Import from backup</div>
+            <p className="dr-sub">Pick a previous <code>grammatik-backup-*.json</code>. Lets you merge or overwrite — you'll get a diff preview first.</p>
+          </div>
+          <div className="daten-row-actions">
+            <label className="btn btn-ghost" style={{ cursor: 'pointer' }}>
+              Choose file…
+              <input type="file" accept="application/json" style={{ display: 'none' }} onChange={(e) => { if (e.target.files?.[0]) alert('Stubbed — would parse "' + e.target.files[0].name + '" and show a diff preview.'); }} />
+            </label>
+          </div>
+        </div>
+
+        <div className="daten-row">
+          <div className="daten-row-text">
+            <div className="dr-title">Copy snapshot to clipboard</div>
+            <p className="dr-sub">Same payload as the full export, minus the file. Useful for sharing the deck with another device via a paste.</p>
+          </div>
+          <div className="daten-row-actions">
+            <button className="btn btn-ghost" onClick={() => navigator.clipboard?.writeText(JSON.stringify({ counts }))}>Copy</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Section C · Reset ─── */}
+      <div className="daten-section">
+        <div className="daten-section-head">
+          <span className="num">C.</span>
+          <span className="title">Zurücksetzen</span>
+          <span className="meta">Reset to defaults</span>
+        </div>
+
+        <div className="daten-row">
+          <div className="daten-row-text">
+            <div className="dr-title">Reset noun deck to seed</div>
+            <p className="dr-sub">Deletes your {counts.nounsCustom} custom entries and restores the curated {counts.nouns - counts.nounsCustom}-noun seed list.</p>
+          </div>
+          <div className="daten-row-actions">
+            <button className="btn btn-ghost btn-danger">Reset nouns</button>
+          </div>
+        </div>
+
+        <div className="daten-row">
+          <div className="daten-row-text">
+            <div className="dr-title">Reset adjective deck to seed</div>
+            <p className="dr-sub">Restores the ~250 curated adjectives. Custom entries are removed.</p>
+          </div>
+          <div className="daten-row-actions">
+            <button className="btn btn-ghost btn-danger">Reset adjectives</button>
+          </div>
+        </div>
+
+        <div className="daten-row">
+          <div className="daten-row-text">
+            <div className="dr-title">Clear quiz history</div>
+            <p className="dr-sub">Wipes the {counts.history} stored quiz runs. The Verlauf page resets to empty.</p>
+          </div>
+          <div className="daten-row-actions">
+            <button className="btn btn-ghost btn-danger">Clear history</button>
+          </div>
+        </div>
+
+        <div className="daten-row">
+          <div className="daten-row-text">
+            <div className="dr-title">Delete everything · nuke the deck</div>
+            <p className="dr-sub">Drops all IndexedDB tables (nouns, adjectives, history, settings) and clears localStorage. The app reloads as a fresh install.</p>
+          </div>
+          <div className="daten-row-actions">
+            <button className="btn btn-ghost btn-danger" onClick={() => { if (confirm('Delete every byte of stored data and start over? This cannot be undone unless you exported a backup first.')) alert('Stubbed — would wipe IndexedDB and reload.'); }}>Delete all</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="alert alert-warning" style={{ marginTop: 4 }}>
+        <span className="alert-label">No undo</span>
+        Reset and delete actions are permanent. Export a backup first if you've added custom nouns or adjectives.
+      </div>
+    </>
+  );
+}
+
 const SETTINGS_TABS = [
   { id: 'api',     numeral: 'I',   titleDe: 'Schlüssel',  titleEn: 'API · Gemini',     blurb: 'Set your Gemini API key and pick a model. Required only for the Adjectives quiz.' },
   { id: 'display', numeral: 'II',  titleDe: 'Anzeige',    titleEn: 'Display · Sizes',  blurb: 'Type sizes for each quiz prompt. Each setting has its own live preview.' },
   { id: 'palette', numeral: 'III', titleDe: 'Farben',     titleEn: 'Palette · Colors', blurb: 'Override design tokens per theme. Edit Light and Dark independently. Import and export as JSON.' },
+  { id: 'data',    numeral: 'IV',  titleDe: 'Daten',      titleEn: 'Data · Backup',    blurb: 'Export everything to a single JSON file, import a previous backup, or reset individual collections to the seed list.' },
 ];
 
 function Settings({ navigate }) {
@@ -451,6 +645,7 @@ function Settings({ navigate }) {
           {tab === 'api' && <SettingsApi />}
           {tab === 'display' && <SettingsDisplay />}
           {tab === 'palette' && <PaletteSection />}
+          {tab === 'data' && <SettingsData navigate={navigate} />}
         </main>
       </div>
     </div>

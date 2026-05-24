@@ -237,11 +237,11 @@ function NounQuizSetup({ navigate, startQuiz }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 40, gap: 16 }}>
         <button className="btn btn-ghost" onClick={() => navigate('nouns')}>← Back</button>
         <button
-          className="btn btn-accent"
+          className="btn btn-accent btn-meta"
           disabled={selected.size === 0 || totalAvailable === 0}
           onClick={start}>
-          
-          Start quiz · {effectiveCount} questions →
+          <span className="bm-main">Start quiz <span aria-hidden="true">→</span></span>
+          <span className="bm-sub">{effectiveCount} questions</span>
         </button>
       </div>
     </div>);
@@ -337,16 +337,6 @@ function NounQuizRunner({ navigate, config }) {
 
   const advance = isGender ? !!picked : submitted;
 
-  // Progress pips
-  const pips = [];
-  for (let i = 0; i < total; i++) {
-    let cls = '';
-    if (i < history.length) cls = history[i].correct ? 'done' : 'wrong';
-    else if (i === idx && advance) cls = isCorrect ? 'done' : 'wrong';
-    else if (i === idx) cls = 'current';
-    pips.push(cls);
-  }
-
   const marg = GENDER_MARGINALIA[margIdx];
 
   return (
@@ -358,9 +348,7 @@ function NounQuizRunner({ navigate, config }) {
             <button className="btn btn-quiet" onClick={() => navigate('nouns/quiz')}>End quiz</button>
           </div>
 
-          <div className="quiz-progress-bar">
-            {pips.map((cls, i) => <div key={i} className={'pip ' + cls}></div>)}
-          </div>
+          <QuizProgress history={history} total={total} idx={idx} advance={advance} isCorrect={isCorrect} />
 
           <div className="prompt-card">
             <span className="tag" style={{ position: 'absolute', top: 16, left: 0, fontSize: 10 }}>{noun.group}</span>
@@ -504,11 +492,12 @@ function NounQuizResult({ navigate }) {
 
 function ResultScreen({ navigate, history, total, mode }) {
   const correct = history.filter((h) => h.correct).length;
+  const wrong = total - correct;
   const pct = total > 0 ? Math.round(correct / total * 100) : 0;
   const isGender = mode !== 'translation';
 
   return (
-    <div className="page" style={{ maxWidth: 880, margin: '0 auto' }} data-screen-label="14 Quiz result">
+    <div className="page" style={{ maxWidth: 920, margin: '0 auto' }} data-screen-label="14 Quiz result">
       <div className="section-header">
         <div>
           <div className="breadcrumb">Auswertung · {isGender ? 'Genus' : 'Übersetzung'}</div>
@@ -527,29 +516,71 @@ function ResultScreen({ navigate, history, total, mode }) {
         </div>
       </div>
 
-      <div className="result-list">
+      <div className="verb-result-summary">
+        <div className="vrs-cell is-correct">
+          <div className="vrs-num">{correct}</div>
+          <div className="vrs-label">Richtig · correct</div>
+        </div>
+        <div className="vrs-cell is-wrong">
+          <div className="vrs-num">{wrong}</div>
+          <div className="vrs-label">Falsch · missed</div>
+        </div>
+        <div className="vrs-cell">
+          <div className="vrs-num">{pct}<span style={{fontSize: 20, color: 'var(--mute)'}}>%</span></div>
+          <div className="vrs-label">Quote · score</div>
+        </div>
+      </div>
+
+      <div className="verb-result-list">
         {history.map((h, i) => {
-          const yourAnswer = isGender ? h.picked : h.input;
+          const yourAnswer = isGender ? h.picked : (h.input || '').trim();
           const expectedAnswer = isGender ? h.noun.gender : h.noun.english;
           return (
-            <div key={i} className="result-row">
-              <div className="german">
-                <span style={{ color: 'var(--mute)', fontStyle: 'italic', fontWeight: 400 }}>{h.noun.gender}</span>{' '}
-                {h.noun.german}
-                <div style={{ fontFamily: 'var(--font-body)', fontStyle: 'italic', fontSize: 14, color: 'var(--ink-soft)', fontWeight: 400 }}>
-                  {h.noun.english}
+            <article key={i} className={'verb-result-card ' + (h.correct ? 'is-correct' : 'is-wrong')}>
+              <span className="verb-result-num">№ {String(i + 1).padStart(2, '0')}</span>
+
+              <div className="verb-result-prompt">
+                <div className="vrp-german">
+                  <span style={{color: 'var(--mute)', fontStyle: 'italic', fontWeight: 400}}>{h.noun.gender}</span>{' '}
+                  {h.noun.german}
+                </div>
+                <div className="vrp-meta">
+                  <span>{h.noun.english}</span>
+                  {h.noun.group && (
+                    <>
+                      <span className="vrp-dot">·</span>
+                      <span>{h.noun.group}</span>
+                    </>
+                  )}
                 </div>
               </div>
-              <div className="answers">
-                your answer: <strong style={{ color: h.correct ? 'var(--success)' : 'var(--danger)' }}>{yourAnswer || '—'}</strong>
-                {!h.correct && <span> · {isGender ? 'correct' : 'expected'}: <strong>{expectedAnswer}</strong></span>}
+
+              <div className="verb-result-answers">
+                {h.correct ? (
+                  <div className="verb-result-line">
+                    <span className="vrl-label">Antwort</span>
+                    <span className="vr-stamp vr-stamp-right">{yourAnswer || expectedAnswer}</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="verb-result-line">
+                      <span className="vrl-label">Du · you</span>
+                      {yourAnswer
+                        ? <span className="vr-stamp vr-stamp-wrong">{yourAnswer}</span>
+                        : <span className="vr-stamp vr-stamp-empty">— no answer —</span>}
+                    </div>
+                    <div className="verb-result-line">
+                      <span className="vrl-label">Richtig</span>
+                      <span className="vr-stamp vr-stamp-right">{expectedAnswer}</span>
+                    </div>
+                  </>
+                )}
               </div>
-              <div>
-                {h.correct ?
-                <span className="tag" style={{ background: 'var(--success-tint)', color: 'var(--success)' }}>✓ Correct</span> :
-                <span className="tag" style={{ background: 'var(--danger-tint)', color: 'var(--danger)' }}>✗ Missed</span>}
+
+              <div className="verb-result-mark" aria-hidden="true">
+                {h.correct ? '✓' : '✗'}
               </div>
-            </div>
+            </article>
           );
         })}
       </div>

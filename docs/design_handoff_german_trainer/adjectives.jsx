@@ -143,11 +143,12 @@ function AdjectiveQuizSetup({ navigate, startQuiz }) {
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 40, gap: 16}}>
         <button className="btn btn-ghost" onClick={() => navigate('adjectives')}>← Back</button>
         <button
-          className="btn btn-accent"
+          className="btn btn-accent btn-meta"
           disabled={selected.size === 0 || totalAvailable === 0}
           onClick={start}
         >
-          Generate sentences and start →
+          <span className="bm-main">Generate &amp; start <span aria-hidden="true">→</span></span>
+          <span className="bm-sub">{effectiveCount} sentences</span>
         </button>
       </div>
     </div>
@@ -245,16 +246,6 @@ function AdjectiveQuizRunner({ navigate, config }) {
     setIdx(idx + 1);
   };
 
-  // Progress pips
-  const pips = [];
-  for (let i = 0; i < total; i++) {
-    let cls = '';
-    if (i < history.length) cls = history[i].correct ? 'done' : 'wrong';
-    else if (i === idx && submitted) cls = isCorrect ? 'done' : 'wrong';
-    else if (i === idx) cls = 'current';
-    pips.push(cls);
-  }
-
   const marg = ADJ_MARGINALIA[margIdx];
 
   return (
@@ -266,9 +257,7 @@ function AdjectiveQuizRunner({ navigate, config }) {
             <button className="btn btn-quiet" onClick={() => navigate('adjectives/quiz')}>End quiz</button>
           </div>
 
-          <div className="quiz-progress-bar">
-            {pips.map((cls, i) => <div key={i} className={'pip ' + cls}></div>)}
-          </div>
+          <QuizProgress history={history} total={total} idx={idx} advance={submitted} isCorrect={isCorrect} />
 
           <div className="prompt-card" style={{textAlign: 'left', padding: '40px 32px'}}>
             <div style={{position: 'absolute', top: 16, left: 0, display: 'flex', gap: 6}}>

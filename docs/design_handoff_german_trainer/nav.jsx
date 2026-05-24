@@ -119,3 +119,58 @@ function NavShell({ route, navigate, theme, toggleTheme }) {
 }
 
 Object.assign(window, { NavShell });
+
+/* ─── Shared QuizProgress — pips below ~25, continuous meter above ─── */
+
+function QuizProgress({ history, total, idx, advance, isCorrect }) {
+  const correctSoFar = history.filter(h => h.correct).length + (advance && isCorrect ? 1 : 0);
+  const wrongSoFar = history.filter(h => !h.correct).length + (advance && !isCorrect ? 1 : 0);
+  const answered = correctSoFar + wrongSoFar;
+  const remaining = Math.max(0, total - answered);
+
+  // Use continuous meter once individual pips would become too small
+  if (total > 25) {
+    const correctPct = (correctSoFar / total) * 100;
+    const wrongPct = (wrongSoFar / total) * 100;
+    const cursorPct = Math.min(100, (answered / total) * 100);
+    return (
+      <div className="quiz-meter">
+        <div className="quiz-meter-track">
+          <div className="quiz-meter-fill quiz-meter-fill-done" style={{width: correctPct + '%'}}></div>
+          <div className="quiz-meter-fill quiz-meter-fill-wrong" style={{width: wrongPct + '%'}}></div>
+          {answered < total && (
+            <div className="quiz-meter-cursor" style={{left: cursorPct + '%'}}></div>
+          )}
+        </div>
+        <div className="quiz-meter-legend">
+          <span>
+            <strong style={{color: 'var(--ink)', fontFamily: 'var(--font-mono)', fontWeight: 500}}>{answered}</strong>
+            <span style={{color: 'var(--mute)'}}> / {total}</span>
+          </span>
+          <span className="qml-counts">
+            <span className="qml-correct">✓ {correctSoFar}</span>
+            <span className="qml-wrong">✗ {wrongSoFar}</span>
+            <span>· {remaining} remaining</span>
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Pips
+  const pips = [];
+  for (let i = 0; i < total; i++) {
+    let cls = '';
+    if (i < history.length) cls = history[i].correct ? 'done' : 'wrong';
+    else if (i === idx && advance) cls = isCorrect ? 'done' : 'wrong';
+    else if (i === idx) cls = 'current';
+    pips.push(cls);
+  }
+  return (
+    <div className="quiz-progress-bar">
+      {pips.map((cls, i) => <div key={i} className={'pip ' + cls}></div>)}
+    </div>
+  );
+}
+
+Object.assign(window, { QuizProgress });
