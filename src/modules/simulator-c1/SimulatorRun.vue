@@ -118,7 +118,9 @@ onMounted(async () => {
   } finally {
     initializing.value = false
   }
-  tick = window.setInterval(() => { now.value = Date.now() }, 1000)
+  if (session.value) {
+    tick = window.setInterval(() => { now.value = Date.now() }, 1000)
+  }
 })
 
 onUnmounted(() => {
@@ -132,10 +134,16 @@ function scheduleAutosave() {
     if (!draft1.value || !draft2.value) return
     const next1: WritingDraft = { ...draft1.value, text: text1.value, wordCount: wordCount1.value, updatedAt: Date.now() }
     const next2: WritingDraft = { ...draft2.value, text: text2.value, wordCount: wordCount2.value, updatedAt: Date.now() }
-    await db.writingDrafts.put(next1)
-    await db.writingDrafts.put(next2)
-    draft1.value = next1
-    draft2.value = next2
+    try {
+      await db.writingDrafts.put(next1)
+      await db.writingDrafts.put(next2)
+      draft1.value = next1
+      draft2.value = next2
+    } catch (err) {
+      toast.error('Speichern fehlgeschlagen', {
+        description: err instanceof Error ? err.message : String(err)
+      })
+    }
   }, 1000)
 }
 
@@ -151,6 +159,14 @@ async function doSubmit(auto: boolean) {
   if (!session.value || !prompt1.value || !prompt2.value) return
   if (!hasApiKey.value) {
     toast.error('Gemini API key required', { description: 'Bitte API-Key in den Einstellungen setzen.' })
+    if (auto && session.value && session.value.status === 'in_progress') {
+      // Timer ran out but no key — at least mark the session as submitted
+      // so the result page can offer a "Bewerten" retry once the user sets a key.
+      const updated = { ...session.value, status: 'submitted' as const, submittedAt: Date.now() }
+      await db.simulatorSessions.put(updated)
+      session.value = updated
+      router.push({ name: 'simulator-result', params: { sessionId: updated.id } })
+    }
     return
   }
   if (!auto) {
@@ -204,6 +220,7 @@ async function doSubmit(auto: boolean) {
 }
 
 async function onAbandon() {
+  if (submitting.value) return
   if (!session.value) return
   const ok = confirm('Diesen Prüfungsversuch wirklich abbrechen?')
   if (!ok) return
