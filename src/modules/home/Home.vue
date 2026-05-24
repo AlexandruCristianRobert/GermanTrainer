@@ -63,6 +63,14 @@ const modules: ModuleCard[] = [
   },
   {
     numeral: 'VII',
+    route: 'simulator-c1',
+    de: 'Goethe C1 · Schreiben',
+    title: 'Mock exam',
+    desc: 'Sit a timed Goethe C1 Schreiben mock — Forumsbeitrag und formelle E-Mail in 75 Minuten, beide automatisch nach der offiziellen Rubrik bewertet.',
+    meta: '75 min · 2 Aufgaben · AI-graded'
+  },
+  {
+    numeral: 'VIII',
     route: 'settings',
     de: 'Einstellungen',
     title: 'Settings',
@@ -85,7 +93,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/VII</div>
+        <div class="breadcrumb">Frontispiece · I/VIII</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,

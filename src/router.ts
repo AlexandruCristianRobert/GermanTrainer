@@ -60,7 +60,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/writing/prompt/:promptId/draft/:draftId', name: 'writing-draft', component: () => import('./modules/writing/EditorSurface.vue') },
   { path: '/writing/compare/:draftA/:draftB', name: 'writing-compare', component: () => import('./modules/writing/DraftCompare.vue') },
   { path: '/simulator', name: 'simulator-c1', component: () => import('./modules/simulator-c1/SimulatorHome.vue') },
-  { path: '/simulator/run/:sessionId', name: 'simulator-run', component: () => import('./modules/simulator-c1/SimulatorRun.vue') }
+  { path: '/simulator/run/:sessionId', name: 'simulator-run', component: () => import('./modules/simulator-c1/SimulatorRun.vue') },
+  { path: '/simulator/result/:sessionId', name: 'simulator-result', component: () => import('./modules/simulator-c1/SimulatorResult.vue') }
 ]
 
 export const router = createRouter({
