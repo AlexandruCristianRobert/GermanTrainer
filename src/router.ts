@@ -3,6 +3,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('./modules/home/Home.vue') },
   { path: '/history', name: 'history', component: () => import('./modules/history/HistoryPage.vue') },
+  { path: '/version', name: 'version', component: () => import('./modules/version/VersionPage.vue') },
   { path: '/settings', name: 'settings', component: () => import('./modules/settings/Settings.vue') },
   { path: '/nouns', name: 'nouns', component: () => import('./modules/nouns/NounsHome.vue') },
   { path: '/nouns/manage', name: 'nouns-manage', component: () => import('./modules/nouns/ManageNouns.vue') },

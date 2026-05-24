@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useTheme } from '../composables/useTheme'
+import VersionBadge from './VersionBadge.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -69,6 +70,7 @@ const themeAriaLabel = computed(() =>
       </nav>
 
       <div class="nav-actions">
+        <VersionBadge variant="header" />
         <button
           class="icon-btn"
           :aria-label="themeAriaLabel"
@@ -131,6 +133,7 @@ const themeAriaLabel = computed(() =>
       {{ item.label }}
       <span v-if="item.de" class="drawer-de">{{ item.de }}</span>
     </button>
+    <VersionBadge variant="drawer" />
   </aside>
 
   <div class="app-shell">
