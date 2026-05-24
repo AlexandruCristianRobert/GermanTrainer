@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, beforeEach } from 'vitest'
 import {
   computeRemaining,
   computeReport
@@ -11,7 +11,6 @@ import {
 import type { WritingDraft } from '../../src/data/writingPrompts'
 import type { WritingGradeResult } from '../../src/data/rubrics'
 import 'fake-indexeddb/auto'
-import { beforeEach } from 'vitest'
 import { db } from '../../src/db'
 import {
   createSession,

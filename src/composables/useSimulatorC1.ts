@@ -162,9 +162,17 @@ export async function submitAndGrade(
     await db.simulatorSessions.put(updatedSession)
   }
 
-  // Grade each task if not already graded. Idempotent.
-  if (!draft1.result) draft1 = await gradeFn(draft1)
-  if (!draft2.result) draft2 = await gradeFn(draft2)
+  // Grade each task if not already graded. Idempotent. We persist the
+  // returned draft back to Dexie ourselves so the contract on GradeFn
+  // does not require it to self-persist.
+  if (!draft1.result) {
+    draft1 = await gradeFn(draft1)
+    await db.writingDrafts.put(draft1)
+  }
+  if (!draft2.result) {
+    draft2 = await gradeFn(draft2)
+    await db.writingDrafts.put(draft2)
+  }
 
   // Finalize.
   if (draft1.result && draft2.result) {
