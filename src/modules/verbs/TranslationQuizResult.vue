@@ -2,6 +2,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Verb } from '../../data/verbs'
+import { usePagination } from '../../composables/usePagination'
+import Pagination from '../../components/Pagination.vue'
 
 interface GradedRow {
   verb: Verb
@@ -31,6 +33,8 @@ const pct = computed(() => {
 })
 
 const wrongCount = computed(() => (data.value?.total ?? 0) - (data.value?.correct ?? 0))
+
+const pagination = usePagination(() => data.value?.graded ?? [], 25)
 
 const summary = computed(() => {
   if (pct.value >= 80) return 'Stark. Most of these verbs are second nature now.'
@@ -84,14 +88,16 @@ function home() { router.push({ name: 'verbs' }) }
         </div>
       </div>
 
+      <Pagination :pagination="pagination" label="rows" :hide-page-size-below="25" />
+
       <div class="verb-result-list">
         <div
-          v-for="(g, i) in data.graded"
+          v-for="(g, i) in pagination.slice.value"
           :key="i"
           class="verb-result-card"
           :class="g.correct ? 'is-correct' : 'is-wrong'"
         >
-          <div class="verb-result-num"># {{ String(i + 1).padStart(2, '0') }}</div>
+          <div class="verb-result-num"># {{ String(pagination.start.value + i + 1).padStart(2, '0') }}</div>
           <div class="verb-result-prompt">
             <div class="vrp-german">{{ g.verb.german }}</div>
             <div class="vrp-meta">

@@ -2,6 +2,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { NModal, NForm, NFormItem, useMessage } from 'naive-ui'
 import { useNouns } from '../../composables/useNouns'
+import { usePagination } from '../../composables/usePagination'
+import Pagination from '../../components/Pagination.vue'
 import { resetTableToSeed } from '../../db'
 import { NOUN_GROUPS, type Gender, type Noun, type NounGroup } from '../../db/types'
 
@@ -29,6 +31,8 @@ const filtered = computed(() => {
     n.gender.toLowerCase().includes(q)
   )
 })
+
+const pagination = usePagination(() => filtered.value, 25)
 
 function genderTagClass(g: Gender): string {
   if (g === 'der') return 'tag-cobalt'
@@ -124,6 +128,8 @@ async function onReset() {
       <span class="micro-mark">{{ filtered.length }} of {{ items.length }} entries</span>
     </div>
 
+    <Pagination :pagination="pagination" label="nouns" />
+
     <table class="data-table desktop-only">
       <thead>
         <tr>
@@ -135,7 +141,7 @@ async function onReset() {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="n in filtered" :key="n.id">
+        <tr v-for="n in pagination.slice.value" :key="n.id">
           <td>
             <span class="german-cell">
               <span class="german-gender">{{ n.gender }}</span> {{ n.german }}
@@ -157,7 +163,7 @@ async function onReset() {
 
     <!-- Mobile card list -->
     <div class="mobile-list mobile-only">
-      <div v-for="n in filtered" :key="n.id" class="manage-card">
+      <div v-for="n in pagination.slice.value" :key="n.id" class="manage-card">
         <div class="manage-card-main">
           <div class="german-cell">
             <span class="german-gender">{{ n.gender }}</span> {{ n.german }}
@@ -175,6 +181,8 @@ async function onReset() {
       </div>
       <div v-if="filtered.length === 0" class="empty-row">No entries.</div>
     </div>
+
+    <Pagination :pagination="pagination" label="nouns" />
 
     <!-- Edit/Add modal -->
     <n-modal v-model:show="editorOpen" preset="card" :title="editorTitle" style="max-width: 520px">

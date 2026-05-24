@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { NounQuestion, NounQuizMode } from '../../composables/useNounQuiz'
+import { usePagination } from '../../composables/usePagination'
+import Pagination from '../../components/Pagination.vue'
 
 const props = defineProps<{
   questions: NounQuestion[]
@@ -8,6 +10,8 @@ const props = defineProps<{
   total: number
   mode: NounQuizMode
 }>()
+
+const pagination = usePagination(() => props.questions, 25)
 
 defineEmits<{ (e: 'restart'): void }>()
 
@@ -61,14 +65,16 @@ function expectedAnswer(q: NounQuestion): string {
       </div>
     </div>
 
+    <Pagination :pagination="pagination" label="rows" :hide-page-size-below="25" />
+
     <div class="verb-result-list">
       <div
-        v-for="(q, i) in questions"
+        v-for="(q, i) in pagination.slice.value"
         :key="i"
         class="verb-result-card"
         :class="q.isCorrect ? 'is-correct' : 'is-wrong'"
       >
-        <div class="verb-result-num"># {{ String(i + 1).padStart(2, '0') }}</div>
+        <div class="verb-result-num"># {{ String(pagination.start.value + i + 1).padStart(2, '0') }}</div>
         <div class="verb-result-prompt">
           <div class="vrp-german">
             <span class="prompt-gender-inline">{{ q.noun.gender }}</span> {{ q.noun.german }}

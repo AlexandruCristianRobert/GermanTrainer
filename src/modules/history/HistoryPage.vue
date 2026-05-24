@@ -8,6 +8,8 @@ import {
   type QuizHistoryType
 } from '../../composables/useQuizHistory'
 import { computeStats } from '../../composables/useQuizStats'
+import { usePagination } from '../../composables/usePagination'
+import Pagination from '../../components/Pagination.vue'
 import MotivationStrip from '../../components/charts/MotivationStrip.vue'
 import ActivityCalendar from '../../components/charts/ActivityCalendar.vue'
 import AccuracyTrend from '../../components/charts/AccuracyTrend.vue'
@@ -56,6 +58,8 @@ const typeOrder: QuizHistoryType[] = [
 const filtered = computed(() =>
   filter.value === 'all' ? items.value : items.value.filter(it => it.type === filter.value)
 )
+
+const pagination = usePagination(() => filtered.value, 25)
 
 const totalRuns = computed(() => items.value.length)
 const totalQuestions = computed(() => items.value.reduce((s, it) => s + (it.count || 0), 0))
@@ -366,6 +370,8 @@ function summariseMeta(it: QuizHistoryEntry): string {
       </div>
     </div>
 
+    <Pagination v-if="items.length > 0" :pagination="pagination" label="runs" />
+
     <div v-if="items.length === 0" class="empty-state">
       <div class="empty-mark">∅</div>
       <h3>No quizzes yet.</h3>
@@ -387,7 +393,7 @@ function summariseMeta(it: QuizHistoryEntry): string {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="it in filtered" :key="it.id">
+        <tr v-for="it in pagination.slice.value" :key="it.id">
           <td>
             <div class="hist-quiz-label">{{ QUIZ_TYPES[it.type]?.label ?? it.type }}</div>
             <div class="hist-quiz-de">{{ QUIZ_TYPES[it.type]?.de ?? '' }}</div>
@@ -420,7 +426,7 @@ function summariseMeta(it: QuizHistoryEntry): string {
 
     <!-- Mobile card list -->
     <div v-if="items.length > 0" class="mobile-list mobile-only">
-      <div v-for="it in filtered" :key="it.id" class="hist-card">
+      <div v-for="it in pagination.slice.value" :key="it.id" class="hist-card">
         <div class="hist-card-top">
           <div>
             <div class="hist-quiz-label">{{ QUIZ_TYPES[it.type]?.label ?? it.type }}</div>
@@ -443,6 +449,8 @@ function summariseMeta(it: QuizHistoryEntry): string {
         <div class="hist-card-filters">{{ summariseMeta(it) }}</div>
       </div>
     </div>
+
+    <Pagination v-if="items.length > 0" :pagination="pagination" label="runs" />
   </div>
 </template>
 

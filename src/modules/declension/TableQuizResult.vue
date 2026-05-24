@@ -3,6 +3,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { TableQuestion } from '../../composables/useDeclensionQuiz'
 import type { DeclCase } from '../../data/declension'
+import { usePagination } from '../../composables/usePagination'
+import Pagination from '../../components/Pagination.vue'
 
 const CASE_SHORT: Record<DeclCase, string> = {
   nominative: 'NOM.',
@@ -40,6 +42,8 @@ const summary = computed(() => {
   return 'Keep practising — drill the tables in /declension/tables and try again.'
 })
 
+const pagination = usePagination(() => data.value?.questions ?? [], 25)
+
 function restart() { router.push({ name: 'declension-table' }) }
 function home() { router.push({ name: 'declension' }) }
 </script>
@@ -70,14 +74,16 @@ function home() { router.push({ name: 'declension' }) }
       </div>
     </header>
 
+    <Pagination :pagination="pagination" label="rows" :hide-page-size-below="25" />
+
     <div class="decl-result-list">
       <div
-        v-for="(q, i) in data.questions"
+        v-for="(q, i) in pagination.slice.value"
         :key="i"
         class="decl-result-card"
         :class="q.correctCount === q.totalCount ? 'is-correct' : 'is-wrong'"
       >
-        <div class="decl-result-num"># {{ String(i + 1).padStart(2, '0') }}</div>
+        <div class="decl-result-num"># {{ String(pagination.start.value + i + 1).padStart(2, '0') }}</div>
         <div class="decl-result-prompt">
           <div class="drp-german">{{ q.entry.forms.nominative }}</div>
           <div class="drp-meta">{{ q.entry.gender }} · {{ q.entry.determiner }}</div>
