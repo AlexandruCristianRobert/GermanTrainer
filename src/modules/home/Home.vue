@@ -55,6 +55,14 @@ const modules: ModuleCard[] = [
   },
   {
     numeral: 'VI',
+    route: 'writing',
+    de: 'Schreiben',
+    title: 'Writing tutor',
+    desc: 'Goethe C1 / telc C1 rubric grading on a free-form German essay. Six task types, draft history, paragraph-upgrade suggestions, per-criterion feedback.',
+    meta: 'AI-graded · on demand'
+  },
+  {
+    numeral: 'VII',
     route: 'settings',
     de: 'Einstellungen',
     title: 'Settings',
@@ -77,7 +85,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/VI</div>
+        <div class="breadcrumb">Frontispiece · I/VII</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,
