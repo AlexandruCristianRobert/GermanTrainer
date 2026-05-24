@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.07.00'
+export const APP_VERSION = '1.07.01'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,18 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.07.01', date: '2026-05-24', kind: 'polish',
+    title: 'Declension · article-fill AI mode',
+    notes: [
+      'New <strong>Source · AI · Live</strong> toggle on the article-fill setup page calls Gemini to generate fresh sentences.',
+      'Difficulty levels: <em>Easy</em> (A1–A2, 1–2 blanks, def/indef only) · <em>Medium</em> (B1, 2–3 blanks, +possessive) · <em>Hard</em> (B2–C1, 3–4 blanks, +genitive constructions).',
+      'Each sentence supports multiple blanks; the runner interleaves inputs at every <code>___</code> in the template and grades them all at once.',
+      'Anti-fabrication: 5-stage validation per entry (structural sanity · blanks-count match · sentence reconstruction · enum validity · strict definite/indefinite article-form lookup). Failing entries are dropped and the model is asked again, up to 2 retries.',
+      'Per-blank rationale shown after submit so the learner sees <em>why</em> each case applies.',
+      'AI runs land in history as <code>decl-article-ai</code> with the difficulty and average blank-count recorded.'
+    ]
+  },
   {
     version: '1.07.00', date: '2026-05-24', kind: 'module',
     title: 'Declension v2 · Pronouns & Case recognition',

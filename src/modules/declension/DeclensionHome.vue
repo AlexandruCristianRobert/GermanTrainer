@@ -13,7 +13,7 @@ const cards: Card[] = [
     desc: 'Given a noun phrase in the nominative, type all four case forms. The foundational drill of German grammar.',
     cta: 'Start' },
   { numeral: 'C', route: 'declension-article', title: 'Article in context', de: 'Artikel einsetzen',
-    desc: 'Fill in the missing article in a real sentence. The case rule is given as a hint above.',
+    desc: 'Fill in the missing article in a real sentence. Curated A1–B2 entries or AI-generated sentences with multiple blanks.',
     cta: 'Start' },
   { numeral: 'D', route: 'declension-adj', title: 'Adjective endings', de: 'Adjektivendungen',
     desc: 'Produce the correct inflected adjective. Weak / mixed / strong inflection is named above each prompt.',
