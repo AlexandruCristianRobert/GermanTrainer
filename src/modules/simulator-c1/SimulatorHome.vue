@@ -42,6 +42,12 @@ const submittedDisplay = computed(() =>
   active.value?.status === 'submitted'
 )
 
+const timerExpired = computed(() => {
+  if (!active.value) return false
+  if (active.value.status !== 'in_progress') return false
+  return active.value.endsAt <= now.value
+})
+
 const recent = computed(() =>
   loadHistory()
     .filter(h => h.type === 'simulator-c1')
@@ -61,7 +67,7 @@ async function start() {
 
 function resume() {
   if (!active.value) return
-  if (active.value.status === 'submitted') {
+  if (active.value.status === 'submitted' || timerExpired.value) {
     router.push({ name: 'simulator-result', params: { sessionId: active.value.id } })
   } else {
     router.push({ name: 'simulator-run', params: { sessionId: active.value.id } })
@@ -100,7 +106,18 @@ function back() { router.push({ name: 'home' }) }
       offizielle Modellsätze bleiben die maßgebliche Vorbereitungsquelle.
     </div>
 
-    <div v-if="active && active.status === 'in_progress'" class="card simulator-cta">
+    <div v-if="timerExpired || submittedDisplay" class="card simulator-cta">
+      <div class="simulator-cta-head">
+        <h2>Time's up</h2>
+      </div>
+      <p class="simulator-cta-desc">Diese Prüfung wurde abgegeben (Zeit abgelaufen oder du hast „Submit" geklickt). Klicke „Bewerten", um die Ergebnisse zu sehen, oder „Abbrechen", um sie zu verwerfen.</p>
+      <div class="simulator-cta-actions">
+        <button class="btn btn-accent" type="button" @click="resume">Bewerten <span aria-hidden="true">→</span></button>
+        <button class="btn btn-quiet" type="button" @click="abandon">Abbrechen</button>
+      </div>
+    </div>
+
+    <div v-else-if="active && active.status === 'in_progress'" class="card simulator-cta">
       <div class="simulator-cta-head">
         <h2>Resume exam</h2>
         <span class="simulator-time-left">Verbleibend: {{ remainingDisplay }}</span>
@@ -108,17 +125,6 @@ function back() { router.push({ name: 'home' }) }
       <p class="simulator-cta-desc">Du hast eine Prüfung in Bearbeitung. Klicke „Fortsetzen", um zurückzukehren — oder „Abbrechen", um diese Sitzung zu beenden.</p>
       <div class="simulator-cta-actions">
         <button class="btn btn-accent" type="button" @click="resume">Fortsetzen <span aria-hidden="true">→</span></button>
-        <button class="btn btn-quiet" type="button" @click="abandon">Abbrechen</button>
-      </div>
-    </div>
-
-    <div v-else-if="submittedDisplay" class="card simulator-cta">
-      <div class="simulator-cta-head">
-        <h2>Time's up</h2>
-      </div>
-      <p class="simulator-cta-desc">Diese Prüfung wurde abgegeben (Zeit abgelaufen oder du hast „Submit" geklickt). Klicke „Bewerten", um die Ergebnisse zu sehen, oder „Abbrechen", um sie zu verwerfen.</p>
-      <div class="simulator-cta-actions">
-        <button class="btn btn-accent" type="button" @click="resume">Bewerten <span aria-hidden="true">→</span></button>
         <button class="btn btn-quiet" type="button" @click="abandon">Abbrechen</button>
       </div>
     </div>

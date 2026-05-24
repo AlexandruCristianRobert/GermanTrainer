@@ -34,7 +34,6 @@ const draft2 = ref<WritingDraft | null>(null)
 const initializing = ref(true)
 const error = ref<string | null>(null)
 const retrying = ref(false)
-const historySaved = ref(false)
 const expanded = ref<{ t1: boolean; t2: boolean }>({ t1: false, t2: false })
 
 const report = computed(() => {
@@ -78,7 +77,7 @@ async function load() {
       error.value = 'Sitzungsdaten unvollständig.'
       return
     }
-    maybeSaveHistory()
+    await maybeSaveHistory()
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Ladefehler.'
   } finally {
@@ -97,7 +96,7 @@ async function tryGradeMissing() {
     const grader: GradeFn = async (draft) => {
       const p = draft.id === session.value!.task1DraftId ? prompt1.value! : prompt2.value!
       const client = makeGeminiClient(settings.value.geminiApiKey)
-      return await gradeAndPersist(client, settings.value.model, p, draft, 'goethe-c1')
+      return await gradeAndPersist(client, settings.value.model, p, draft, 'goethe-c1', { recordHistory: false })
     }
     await loading.wrap(
       async () => submitAndGrade(session.value!.id, grader),
@@ -120,11 +119,11 @@ onMounted(async () => {
 
 // Persist history exactly once, when both tasks are graded. Called from
 // load() and from tryGradeMissing() after a successful regrade.
-function maybeSaveHistory() {
-  if (historySaved.value) return
+async function maybeSaveHistory() {
   if (!session.value || !report.value || session.value.status !== 'graded') return
   if (report.value.task1Score === null || report.value.task2Score === null) return
-  historySaved.value = true
+  if (session.value.historySavedAt !== undefined) return  // already saved on a previous mount
+
   const dur = (session.value.submittedAt ?? Date.now()) - session.value.startedAt
   saveQuizRun({
     type: 'simulator-c1',
@@ -141,6 +140,10 @@ function maybeSaveHistory() {
       passes: report.value.passes
     }
   })
+
+  const updated = { ...session.value, historySavedAt: Date.now() }
+  await db.simulatorSessions.put(updated)
+  session.value = updated
 }
 
 function back() { router.push({ name: 'simulator-c1' }) }

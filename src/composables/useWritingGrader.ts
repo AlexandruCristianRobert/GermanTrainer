@@ -320,7 +320,8 @@ export async function gradeAndPersist(
   model: string,
   prompt: WritingPrompt,
   draft: WritingDraft,
-  rubric: RubricSystem
+  rubric: RubricSystem,
+  opts: { recordHistory?: boolean } = {}
 ): Promise<WritingDraft> {
   const startedAt = Date.now()
   const result = await gradeDraft(client, model, prompt, draft, RUBRICS[rubric])
@@ -336,22 +337,24 @@ export async function gradeAndPersist(
   }
   await db.writingDrafts.put(updated)
 
-  saveQuizRun({
-    type: 'writing-grade',
-    startedAt: new Date(startedAt).toISOString(),
-    finishedAt: new Date(finishedAt).toISOString(),
-    durationMs: finishedAt - startedAt,
-    count: 1,
-    correct: result.passes ? 1 : 0,
-    meta: {
-      promptId: prompt.id,
-      taskType: prompt.type,
-      rubric,
-      bandEstimate: result.bandEstimate,
-      totalScore: result.totalScore,
-      wordCount: draft.wordCount
-    }
-  })
+  if (opts.recordHistory !== false) {
+    saveQuizRun({
+      type: 'writing-grade',
+      startedAt: new Date(startedAt).toISOString(),
+      finishedAt: new Date(finishedAt).toISOString(),
+      durationMs: finishedAt - startedAt,
+      count: 1,
+      correct: result.passes ? 1 : 0,
+      meta: {
+        promptId: prompt.id,
+        taskType: prompt.type,
+        rubric,
+        bandEstimate: result.bandEstimate,
+        totalScore: result.totalScore,
+        wordCount: draft.wordCount
+      }
+    })
+  }
 
   return updated
 }

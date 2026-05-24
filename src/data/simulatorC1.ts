@@ -32,6 +32,7 @@ export interface SimulatorSession {
   submittedAt?: number             // ms epoch when user clicked Submit (or timer ran out)
   gradedAt?: number                // ms epoch when the second grade completed
   abandonedAt?: number             // ms epoch when user abandoned
+  historySavedAt?: number          // ms epoch when saveQuizRun was last called for this session
 }
 
 /** Computed per-session from the drafts' .result fields. Not persisted standalone. */

@@ -196,7 +196,7 @@ async function doSubmit(auto: boolean) {
       ? prompt1.value!
       : prompt2.value!
     const client = makeGeminiClient(settings.value.geminiApiKey)
-    return await gradeAndPersist(client, settings.value.model, promptForDraft, draft, 'goethe-c1')
+    return await gradeAndPersist(client, settings.value.model, promptForDraft, draft, 'goethe-c1', { recordHistory: false })
   }
 
   try {
