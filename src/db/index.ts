@@ -3,10 +3,26 @@ import type { Adjective, Noun, NounGroup, Settings } from './types'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
 
+// Placeholder shape — replaced by an import from ../data/writingPrompts in Task 3.
+// Keeps typecheck green between this task and the next.
+interface WritingDraftPlaceholder {
+  id: string
+  promptId: string
+  rubric: string
+  text: string
+  wordCount: number
+  createdAt: number
+  updatedAt: number
+  gradedAt?: number
+  graderModel?: string
+  result?: unknown
+}
+
 export class GermanTrainerDb extends Dexie {
   nouns!: Table<Noun, number>
   adjectives!: Table<Adjective, number>
   settings!: Table<Settings, 'singleton'>
+  writingDrafts!: Table<WritingDraftPlaceholder, string>
 
   constructor() {
     super('GermanTrainerDb')
@@ -63,6 +79,12 @@ export class GermanTrainerDb extends Dexie {
       }
       if (toAdd.length > 0) await table.bulkAdd(toAdd)
       for (const u of toUpdate) await table.update(u.id, { group: u.group })
+    })
+    this.version(5).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt'
     })
   }
 }
