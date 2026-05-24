@@ -47,6 +47,14 @@ const modules: ModuleCard[] = [
   },
   {
     numeral: 'V',
+    route: 'passiv',
+    de: 'Passiv',
+    title: 'Passiv transformations',
+    desc: 'Rewrite active sentences as Vorgangs-, Zustandspassiv, sich-lassen, sein-zu, -bar-Adjektiv, or man-Konstruktion — one target form at a time.',
+    meta: 'AI-generated · on demand'
+  },
+  {
+    numeral: 'VI',
     route: 'settings',
     de: 'Einstellungen',
     title: 'Settings',
@@ -69,7 +77,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/V</div>
+        <div class="breadcrumb">Frontispiece · I/VI</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,
