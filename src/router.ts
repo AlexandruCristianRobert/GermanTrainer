@@ -38,7 +38,12 @@ const routes: RouteRecordRaw[] = [
   { path: '/declension/article-quiz', name: 'declension-article', component: () => import('./modules/declension/ArticleQuizSetup.vue') },
   { path: '/declension/article-quiz/run', name: 'declension-article-run', component: () => import('./modules/declension/ArticleQuizRunner.vue') },
   { path: '/declension/adj-quiz', name: 'declension-adj', component: () => import('./modules/declension/AdjectiveQuizSetup.vue') },
-  { path: '/declension/adj-quiz/run', name: 'declension-adj-run', component: () => import('./modules/declension/AdjectiveQuizRunner.vue') }
+  { path: '/declension/adj-quiz/run', name: 'declension-adj-run', component: () => import('./modules/declension/AdjectiveQuizRunner.vue') },
+  { path: '/declension/pronoun-quiz', name: 'declension-pronoun', component: () => import('./modules/declension/PronounQuizSetup.vue') },
+  { path: '/declension/pronoun-quiz/run', name: 'declension-pronoun-run', component: () => import('./modules/declension/PronounQuizRunner.vue') },
+  { path: '/declension/pronoun-quiz/result', name: 'declension-pronoun-result', component: () => import('./modules/declension/PronounQuizResult.vue') },
+  { path: '/declension/case-recognition', name: 'declension-cr', component: () => import('./modules/declension/CaseRecognitionSetup.vue') },
+  { path: '/declension/case-recognition/run', name: 'declension-cr-run', component: () => import('./modules/declension/CaseRecognitionRunner.vue') }
 ]
 
 export const router = createRouter({

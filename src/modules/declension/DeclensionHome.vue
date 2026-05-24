@@ -17,6 +17,12 @@ const cards: Card[] = [
     cta: 'Start' },
   { numeral: 'D', route: 'declension-adj', title: 'Adjective endings', de: 'Adjektivendungen',
     desc: 'Produce the correct inflected adjective. Weak / mixed / strong inflection is named above each prompt.',
+    cta: 'Start' },
+  { numeral: 'E', route: 'declension-pronoun', title: 'Pronoun forms', de: 'Pronomen',
+    desc: 'Produce all four case forms for personal, possessive, and reflexive pronouns. Same 4-row layout as decline-the-phrase.',
+    cta: 'Start' },
+  { numeral: 'F', route: 'declension-cr', title: 'Recognize the case', de: 'Kasus erkennen',
+    desc: 'Read a sentence with a highlighted noun phrase, pick the case it is in. Press 1–4 for the four cases.',
     cta: 'Start' }
 ]
 </script>
@@ -29,7 +35,7 @@ const cards: Card[] = [
         <h1 class="section-title">Declension<em>.</em></h1>
         <p class="section-subtitle">
           Four cases × three genders × the article ahead of the adjective — the system that
-          turns vocabulary into actual sentences. Three drills, one rule each.
+          turns vocabulary into actual sentences. Five drills, one rule each.
         </p>
       </div>
     </header>
