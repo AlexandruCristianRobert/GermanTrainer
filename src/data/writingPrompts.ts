@@ -5,8 +5,7 @@
 // prompts is a code change; the `source: 'custom'` slot is reserved for a
 // future Manage UI.
 
-// Replaced by an import from ./rubrics in Task 4.
-export interface WritingGradeResult { totalScore: number; bandEstimate: string; rubric: string; [k: string]: unknown }
+import type { WritingGradeResult } from './rubrics'
 
 export type WritingTaskType =
   | 'forumsbeitrag'              // Goethe C1, ~230 words
