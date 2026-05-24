@@ -1,11 +1,14 @@
 import {
   BAND_ESTIMATES,
+  GRADE_RESPONSE_SCHEMA,
+  TASK_TYPE_HINT,
   type BandEstimate,
   type GradeCriterion,
   type RubricDescriptor,
   type RubricSystem,
   type WritingGradeResult
 } from '../data/rubrics'
+import type { WritingPrompt, WritingDraft } from '../data/writingPrompts'
 
 // ── Pure validator ────────────────────────────────────────────────
 
@@ -141,4 +144,127 @@ export function validateGradeResult(
     generatedAt: typeof r.generatedAt === 'number' ? (r.generatedAt as number) : Date.now(),
     modelUsed: typeof r.modelUsed === 'string' ? (r.modelUsed as string) : 'unknown'
   }
+}
+
+// ── Gemini client shape (matches useKonjunktivQuiz.GeminiClient) ──
+
+export interface GeminiClient {
+  models: {
+    generateContent: (opts: {
+      model: string
+      contents: string
+      config?: Record<string, unknown>
+    }) => Promise<{ text?: string }>
+  }
+}
+
+export class GraderError extends Error {
+  constructor(message: string, public readonly attempts: number) {
+    super(message)
+    this.name = 'GraderError'
+  }
+}
+
+// ── Prompt builder ────────────────────────────────────────────────
+
+function rubricBlock(rubric: RubricDescriptor): string {
+  const lines: string[] = []
+  lines.push(`RUBRIC: ${rubric.labelDe} (System: ${rubric.system})`)
+  lines.push(`Maximalpunktzahl: ${rubric.totalMax} · Bestehensgrenze: ${rubric.passingScore}`)
+  lines.push('')
+  lines.push('Kriterien (in dieser Reihenfolge, jedes mit max. Punktzahl):')
+  for (const c of rubric.criteria) {
+    lines.push(`- key="${c.key}" — ${c.labelDe} (max ${c.maxPoints} Punkte):`)
+    lines.push(`    ${c.descriptorDe}`)
+  }
+  lines.push('')
+  lines.push(`Hinweis: ${rubric.notes}`)
+  return lines.join('\n')
+}
+
+export function buildGraderPrompt(
+  prompt: WritingPrompt,
+  draft: WritingDraft,
+  rubric: RubricDescriptor
+): { system: string; user: string } {
+  const system =
+    'Du bist eine strenge, kalibrierte Prüferin für deutsche schriftliche ' +
+    'Abschlussprüfungen auf Niveau C1. Du benotest den Text der Studentin/des ' +
+    'Studenten ausschließlich nach der unten angegebenen Rubrik. Deine Antwort ' +
+    'ist ausschließlich JSON gemäß dem responseSchema — kein Prosa-Vorspann, ' +
+    'keine Markdown-Fences. Für jedes Kriterium gibst du eine ganzzahlige ' +
+    'Punktzahl im erlaubten Bereich, sowie kurze Stärken- und Schwächen-' +
+    'Begründungen auf Deutsch. Belege (EvidenceQuote) zitierst du WÖRTLICH aus ' +
+    'dem eingereichten Text und gibst die korrekten Zeichenpositionen (0-' +
+    'indiziert, Halb-Offen) an. Anschließend formulierst du ein holistisches ' +
+    'Gesamturteil auf Deutsch (3–5 Sätze) und auf Englisch (2–3 Sätze).\n\n' +
+    rubricBlock(rubric)
+
+  const overWords = draft.wordCount > prompt.targetWords.max
+    ? `\n\nACHTUNG: Der Text überschreitet die obere Zielmarke (${prompt.targetWords.max} Wörter). Das soll bei "erfuellung" / "aufgabengerechtigkeit" zu Punktabzug führen.`
+    : draft.wordCount < prompt.targetWords.min
+    ? `\n\nACHTUNG: Der Text unterschreitet die untere Zielmarke (${prompt.targetWords.min} Wörter). Das soll bei "erfuellung" / "aufgabengerechtigkeit" zu Punktabzug führen.`
+    : ''
+
+  const user =
+    `AUFGABENTYP: ${prompt.type}\n${TASK_TYPE_HINT[prompt.type]}\n\n` +
+    `AUFGABENSTELLUNG:\n${prompt.promptText}\n\n` +
+    (prompt.promptContext ? `KONTEXT:\n${prompt.promptContext}\n\n` : '') +
+    `ZIELUMFANG: ${prompt.targetWords.min}–${prompt.targetWords.max} Wörter (Ziel: ${prompt.targetWords.target}).\n` +
+    `EINGEREICHTER TEXT (Wortzahl ${draft.wordCount}):\n${draft.text}` +
+    overWords
+
+  return { system, user }
+}
+
+// ── Grader call with one retry ────────────────────────────────────
+
+export async function gradeDraft(
+  client: GeminiClient,
+  model: string,
+  prompt: WritingPrompt,
+  draft: WritingDraft,
+  rubric: RubricDescriptor
+): Promise<WritingGradeResult> {
+  const { system, user } = buildGraderPrompt(prompt, draft, rubric)
+  const maxRetries = 1
+  let attempts = 0
+  let lastError: string = 'no attempts'
+
+  while (attempts <= maxRetries) {
+    attempts++
+    try {
+      const response = await client.models.generateContent({
+        model,
+        contents: user,
+        config: {
+          systemInstruction: system,
+          responseMimeType: 'application/json',
+          responseSchema: GRADE_RESPONSE_SCHEMA as unknown as Record<string, unknown>,
+          temperature: 0
+        }
+      })
+      const text = response.text ?? ''
+      let parsed: unknown
+      try {
+        parsed = JSON.parse(text)
+      } catch {
+        lastError = 'malformed JSON'
+        continue
+      }
+      const validated = validateGradeResult(parsed, rubric, draft.text)
+      if (validated === null) {
+        lastError = 'validation failed'
+        continue
+      }
+      validated.generatedAt = Date.now()
+      validated.modelUsed = model
+      return validated
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : String(err)
+      continue
+    }
+  }
+
+  throw new GraderError(`Grader exhausted ${attempts} attempts. Last error: ${lastError}`, attempts)
 }

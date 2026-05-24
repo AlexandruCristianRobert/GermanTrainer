@@ -139,3 +139,123 @@ describe('validateGradeResult — paragraphFeedback', () => {
     expect(validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)).toBeNull()
   })
 })
+
+import {
+  gradeDraft,
+  GraderError,
+  type GeminiClient
+} from '../../src/composables/useWritingGrader'
+import type { WritingPrompt, WritingDraft } from '../../src/data/writingPrompts'
+
+interface MockResponse { text: string }
+
+function makeMockClient(responses: MockResponse[]): GeminiClient {
+  let i = 0
+  return {
+    models: {
+      generateContent: async () => {
+        const r = responses[i] ?? { text: '' }
+        i += 1
+        return r
+      }
+    }
+  }
+}
+
+const SAMPLE_PROMPT: WritingPrompt = {
+  id: 'wp-test',
+  type: 'forumsbeitrag',
+  defaultRubric: 'goethe-c1',
+  level: 'C1',
+  titleDe: 'Test',
+  promptText: 'Schreiben Sie einen Beitrag.',
+  targetWords: { min: 195, target: 230, max: 265 },
+  suggestedMinutes: 30,
+  source: 'seed'
+}
+
+const SAMPLE_DRAFT: WritingDraft = {
+  id: 'd1',
+  promptId: 'wp-test',
+  rubric: 'goethe-c1',
+  text:
+    'Wohnen in der Stadt hat klare Vorteile. Man hat kurze Wege zur Arbeit ' +
+    'und ein vielfältiges Kulturangebot. Auf dem Land hingegen genießt man ' +
+    'Ruhe und mehr Wohnfläche zum gleichen Preis. Beide Lebensformen haben ihre Berechtigung.',
+  wordCount: 39,
+  createdAt: 1716552000000,
+  updatedAt: 1716552000000
+}
+
+function makeValidGradePayload() {
+  return {
+    rubric: 'goethe-c1',
+    totalScore: 60,
+    bandEstimate: 'C1-',
+    passes: true,
+    criteria: [
+      { key: 'erfuellung',  labelDe: 'Erfüllung',  maxPoints: 20, score: 12, strengthsDe: 'a', weaknessesDe: 'b', evidence: [] },
+      { key: 'kohaerenz',   labelDe: 'Kohärenz',   maxPoints: 20, score: 12, strengthsDe: 'a', weaknessesDe: 'b', evidence: [] },
+      { key: 'wortschatz',  labelDe: 'Wortschatz', maxPoints: 20, score: 12, strengthsDe: 'a', weaknessesDe: 'b', evidence: [] },
+      { key: 'strukturen',  labelDe: 'Strukturen', maxPoints: 20, score: 12, strengthsDe: 'a', weaknessesDe: 'b', evidence: [] },
+      { key: 'korrektheit', labelDe: 'Korrektheit',maxPoints: 20, score: 12, strengthsDe: 'a', weaknessesDe: 'b', evidence: [] }
+    ],
+    inlineNotes: [],
+    paragraphFeedback: [{ paragraphIndex: 0, summaryDe: 'ok' }],
+    overallDe: 'ok',
+    overallEn: 'ok'
+  }
+}
+
+describe('gradeDraft — happy path', () => {
+  test('returns a validated result on a clean response', async () => {
+    const client = makeMockClient([
+      { text: JSON.stringify(makeValidGradePayload()) }
+    ])
+    const r = await gradeDraft(client, 'gemini-2.5-flash', SAMPLE_PROMPT, SAMPLE_DRAFT, GOETHE_C1)
+    expect(r.totalScore).toBe(60)
+    expect(r.modelUsed).toBe('gemini-2.5-flash')
+  })
+})
+
+describe('gradeDraft — retry once on validation failure', () => {
+  test('retries when first response is malformed JSON, succeeds on second', async () => {
+    const client = makeMockClient([
+      { text: 'not-json {{{' },
+      { text: JSON.stringify(makeValidGradePayload()) }
+    ])
+    const r = await gradeDraft(client, 'gemini-2.5-flash', SAMPLE_PROMPT, SAMPLE_DRAFT, GOETHE_C1)
+    expect(r.totalScore).toBe(60)
+  })
+
+  test('retries when first response fails validation, succeeds on second', async () => {
+    const bad = { ...makeValidGradePayload(), totalScore: 999 }
+    const client = makeMockClient([
+      { text: JSON.stringify(bad) },
+      { text: JSON.stringify(makeValidGradePayload()) }
+    ])
+    const r = await gradeDraft(client, 'gemini-2.5-flash', SAMPLE_PROMPT, SAMPLE_DRAFT, GOETHE_C1)
+    expect(r.totalScore).toBe(60)
+  })
+
+  test('throws GraderError when both attempts fail validation', async () => {
+    const client = makeMockClient([
+      { text: 'invalid' },
+      { text: '{"verdict":"???"}' }
+    ])
+    await expect(
+      gradeDraft(client, 'gemini-2.5-flash', SAMPLE_PROMPT, SAMPLE_DRAFT, GOETHE_C1)
+    ).rejects.toBeInstanceOf(GraderError)
+  })
+
+  test('throws GraderError when network throws on both attempts', async () => {
+    const failing: GeminiClient = {
+      models: {
+        generateContent: async () => { throw new Error('offline') }
+      }
+    }
+    await expect(
+      gradeDraft(failing, 'gemini-2.5-flash', SAMPLE_PROMPT, SAMPLE_DRAFT, GOETHE_C1)
+    ).rejects.toBeInstanceOf(GraderError)
+  })
+})
