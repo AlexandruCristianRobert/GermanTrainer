@@ -57,7 +57,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/writing/task/:taskType', name: 'writing-task', component: () => import('./modules/writing/PromptDetail.vue') },
   { path: '/writing/prompt/:promptId', name: 'writing-prompt', component: () => import('./modules/writing/PromptDetail.vue') },
   { path: '/writing/prompt/:promptId/draft/new', name: 'writing-draft-new', component: () => import('./modules/writing/EditorSurface.vue') },
-  { path: '/writing/prompt/:promptId/draft/:draftId', name: 'writing-draft', component: () => import('./modules/writing/EditorSurface.vue') }
+  { path: '/writing/prompt/:promptId/draft/:draftId', name: 'writing-draft', component: () => import('./modules/writing/EditorSurface.vue') },
+  { path: '/writing/compare/:draftA/:draftB', name: 'writing-compare', component: () => import('./modules/writing/DraftCompare.vue') }
 ]
 
 export const router = createRouter({
