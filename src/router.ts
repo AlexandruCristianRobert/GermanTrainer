@@ -37,6 +37,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/declension/table-quiz/result', name: 'declension-table-result', component: () => import('./modules/declension/TableQuizResult.vue') },
   { path: '/declension/article-quiz', name: 'declension-article', component: () => import('./modules/declension/ArticleQuizSetup.vue') },
   { path: '/declension/article-quiz/run', name: 'declension-article-run', component: () => import('./modules/declension/ArticleQuizRunner.vue') },
+  { path: '/declension/article-quiz/ai-run', name: 'declension-article-ai-run', component: () => import('./modules/declension/ArticleAIQuizRunner.vue') },
   { path: '/declension/adj-quiz', name: 'declension-adj', component: () => import('./modules/declension/AdjectiveQuizSetup.vue') },
   { path: '/declension/adj-quiz/run', name: 'declension-adj-run', component: () => import('./modules/declension/AdjectiveQuizRunner.vue') },
   { path: '/declension/pronoun-quiz', name: 'declension-pronoun', component: () => import('./modules/declension/PronounQuizSetup.vue') },
