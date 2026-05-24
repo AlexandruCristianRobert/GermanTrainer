@@ -1,13 +1,21 @@
 # German Trainer
 
-A personal-use Vue 3 SPA for practicing German vocabulary. Two modules:
+A personal-use Vue 3 SPA for practicing German vocabulary and grammar.
 
-- **Nouns** — quiz the gender (`der`/`die`/`das`) or English translation of German nouns.
-- **Adjectives** — fill-in-the-blank quiz with sentences generated on demand by the Anthropic API.
+## Modules
+
+- **Nouns** — quiz the gender (`der`/`die`/`das`) or English translation of German nouns, grouped by theme.
+- **Adjectives** — fill-in-the-blank quiz with sentences generated on demand by Gemini.
+- **Verbs** — translation and conjugation drills across all tenses, plus a twelve-chapter grammar cheatsheet.
+- **Prepositions** — case, article, and two-way preposition drills.
+- **Declension** — tables reference plus case/article/adjective/pronoun/recognition drills, including an AI-driven article-in-context mode.
+- **Konjunktiv I** — rewrite direct-speech quotes as reported speech, judged by Gemini against the canonical K-I form (or K-II fallback).
+- **Passiv** — transform active sentences into a specific passive form (Vorgangs-, Zustands-, sich-lassen, sein-zu, -bar-Adjektiv, or man-Konstruktion), judged by Gemini.
+- **History** — every run is logged locally; charts visualise per-type accuracy and study cadence.
 
 ## Stack
 
-Vue 3, Vite, TypeScript, Naive UI, Vue Router, Dexie (IndexedDB), `@anthropic-ai/sdk`. All persistence is local. The Anthropic API is called direct from the browser.
+Vue 3, Vite, TypeScript, Vue Router, Dexie (IndexedDB), `@google/genai` for the Gemini API. All persistence is local; the Gemini API is called directly from the browser.
 
 ## Setup
 
@@ -16,11 +24,11 @@ npm install
 npm run dev
 ```
 
-Open the app, go to **Settings**, paste your Anthropic API key, and click **Test connection**. The default model is `claude-sonnet-4-6`; `claude-haiku-4-5-20251001` is cheaper and faster.
+Open the app, go to **Settings**, paste your Gemini API key, and click **Test connection**. The default model is `gemini-2.5-flash`.
 
 ## Security
 
-This app is for personal use on personal machines only. The API key sits in IndexedDB and is sent direct to `api.anthropic.com`. Anyone with access to your browser profile can read it. **Do not deploy this as a public site** — there is no backend proxy.
+This app is for personal use on personal machines only. The API key sits in IndexedDB and is sent direct to Google. Anyone with access to your browser profile can read it. **Do not deploy this as a public site** — there is no backend proxy.
 
 ## Scripts
 
@@ -37,6 +45,6 @@ This app is for personal use on personal machines only. The API key sits in Inde
 
 The seed lists in `src/data/*.seed.json` are loaded on first run. After that, manage entries via the **Manage nouns** / **Manage adjectives** screens. Use **Reset to defaults** to wipe and re-seed (with confirmation).
 
-## Spec / plan
+## Specs / plans
 
-See `docs/superpowers/specs/2026-05-04-german-trainer-design.md` and `docs/superpowers/plans/2026-05-04-german-trainer.md`.
+See the latest specs and plans in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
