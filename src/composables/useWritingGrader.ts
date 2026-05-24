@@ -1,6 +1,8 @@
 import {
   BAND_ESTIMATES,
   GRADE_RESPONSE_SCHEMA,
+  PARAGRAPH_UPGRADE_SCHEMA,
+  RUBRICS,
   TASK_TYPE_HINT,
   type BandEstimate,
   type GradeCriterion,
@@ -9,6 +11,8 @@ import {
   type WritingGradeResult
 } from '../data/rubrics'
 import type { WritingPrompt, WritingDraft } from '../data/writingPrompts'
+import { db } from '../db'
+import { saveQuizRun } from './useQuizHistory'
 
 // ── Pure validator ────────────────────────────────────────────────
 
@@ -267,4 +271,93 @@ export async function gradeDraft(
   }
 
   throw new GraderError(`Grader exhausted ${attempts} attempts. Last error: ${lastError}`, attempts)
+}
+
+// ── Paragraph upgrade ────────────────────────────────────────────
+
+const UPGRADE_SYSTEM_INSTRUCTION =
+  'Du formulierst den vorliegenden Absatz in ein höheres C1-Register um: ' +
+  'mehr Nominalisierung, formelle Konnektoren (folglich, hinsichtlich, ' +
+  'insofern als, mithin), Verzicht auf umgangssprachliche Wendungen, ' +
+  'idiomatische Kollokationen. Bedeutung und Aussage bleiben erhalten. ' +
+  'Antworte ausschließlich als JSON nach dem responseSchema, ohne Prosa.'
+
+export async function upgradeParagraph(
+  client: GeminiClient,
+  model: string,
+  prompt: WritingPrompt,
+  paragraphText: string,
+  _rubric: RubricSystem
+): Promise<{ upgradedText: string; rationaleDe: string }> {
+  const user =
+    `AUFGABENTYP: ${prompt.type}\n` +
+    `URSPRÜNGLICHER ABSATZ:\n${paragraphText}\n\n` +
+    'Formuliere diesen Absatz in höherem C1-Register um.'
+
+  const response = await client.models.generateContent({
+    model,
+    contents: user,
+    config: {
+      systemInstruction: UPGRADE_SYSTEM_INSTRUCTION,
+      responseMimeType: 'application/json',
+      responseSchema: PARAGRAPH_UPGRADE_SCHEMA as unknown as Record<string, unknown>,
+      temperature: 0.2
+    }
+  })
+  const text = response.text ?? ''
+  const parsed = JSON.parse(text)
+  if (!parsed || typeof parsed !== 'object') throw new Error('paragraph upgrade returned non-object')
+  const p = parsed as Record<string, unknown>
+  if (typeof p.upgradedText !== 'string') throw new Error('paragraph upgrade missing upgradedText')
+  if (typeof p.rationaleDe !== 'string') throw new Error('paragraph upgrade missing rationaleDe')
+  return { upgradedText: p.upgradedText, rationaleDe: p.rationaleDe }
+}
+
+// ── gradeAndPersist: grade + write to Dexie + history entry ──────
+
+export async function gradeAndPersist(
+  client: GeminiClient,
+  model: string,
+  prompt: WritingPrompt,
+  draft: WritingDraft,
+  rubric: RubricSystem
+): Promise<WritingDraft> {
+  const startedAt = Date.now()
+  const result = await gradeDraft(client, model, prompt, draft, RUBRICS[rubric])
+  const finishedAt = Date.now()
+
+  const updated: WritingDraft = {
+    ...draft,
+    rubric,
+    gradedAt: finishedAt,
+    graderModel: model,
+    result,
+    updatedAt: finishedAt
+  }
+  await db.writingDrafts.put(updated)
+
+  saveQuizRun({
+    type: 'writing-grade',
+    startedAt: new Date(startedAt).toISOString(),
+    finishedAt: new Date(finishedAt).toISOString(),
+    durationMs: finishedAt - startedAt,
+    count: 1,
+    correct: result.passes ? 1 : 0,
+    meta: {
+      promptId: prompt.id,
+      taskType: prompt.type,
+      rubric,
+      bandEstimate: result.bandEstimate,
+      totalScore: result.totalScore,
+      wordCount: draft.wordCount
+    }
+  })
+
+  return updated
+}
+
+// ── Composable wrapper ───────────────────────────────────────────
+
+export function useWritingGrader() {
+  return { gradeDraft, gradeAndPersist, upgradeParagraph, buildGraderPrompt, validateGradeResult }
 }

@@ -259,3 +259,38 @@ describe('gradeDraft — retry once on validation failure', () => {
     ).rejects.toBeInstanceOf(GraderError)
   })
 })
+
+import { upgradeParagraph } from '../../src/composables/useWritingGrader'
+
+describe('upgradeParagraph', () => {
+  test('returns upgradedText and rationaleDe from a clean response', async () => {
+    const payload = { upgradedText: 'Aufgrund der vorliegenden Statistik …', rationaleDe: 'Nominaler Stil eingeführt.' }
+    const client = makeMockClient([{ text: JSON.stringify(payload) }])
+    const r = await upgradeParagraph(client, 'gemini-2.5-flash', SAMPLE_PROMPT, 'Die Statistik zeigt …', 'goethe-c1')
+    expect(r.upgradedText).toBe(payload.upgradedText)
+    expect(r.rationaleDe).toBe(payload.rationaleDe)
+  })
+
+  test('throws on malformed JSON (no retry)', async () => {
+    const client = makeMockClient([{ text: 'not-json' }])
+    await expect(
+      upgradeParagraph(client, 'gemini-2.5-flash', SAMPLE_PROMPT, 'paragraph', 'goethe-c1')
+    ).rejects.toThrow()
+  })
+
+  test('throws on missing fields', async () => {
+    const client = makeMockClient([{ text: JSON.stringify({ upgradedText: 'only this' }) }])
+    await expect(
+      upgradeParagraph(client, 'gemini-2.5-flash', SAMPLE_PROMPT, 'paragraph', 'goethe-c1')
+    ).rejects.toThrow()
+  })
+
+  test('throws on network error (no retry)', async () => {
+    const failing: GeminiClient = {
+      models: { generateContent: async () => { throw new Error('offline') } }
+    }
+    await expect(
+      upgradeParagraph(failing, 'gemini-2.5-flash', SAMPLE_PROMPT, 'paragraph', 'goethe-c1')
+    ).rejects.toThrow()
+  })
+})
