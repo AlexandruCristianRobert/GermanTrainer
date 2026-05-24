@@ -1,30 +1,16 @@
 import Dexie, { type Table } from 'dexie'
 import type { Adjective, Noun, NounGroup, Settings } from './types'
 import type { WritingDraft } from '../data/writingPrompts'
+import type { SimulatorSession } from '../data/simulatorC1'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
-
-// Placeholder shape — replaced by an import from ../data/simulatorC1 in Task 3.
-interface SimulatorSessionPlaceholder {
-  id: string
-  startedAt: number
-  endsAt: number
-  status: string
-  task1PromptId: string
-  task1DraftId: string
-  task2PromptId: string
-  task2DraftId: string
-  submittedAt?: number
-  gradedAt?: number
-  abandonedAt?: number
-}
 
 export class GermanTrainerDb extends Dexie {
   nouns!: Table<Noun, number>
   adjectives!: Table<Adjective, number>
   settings!: Table<Settings, 'singleton'>
   writingDrafts!: Table<WritingDraft, string>
-  simulatorSessions!: Table<SimulatorSessionPlaceholder, string>
+  simulatorSessions!: Table<SimulatorSession, string>
 
   constructor() {
     super('GermanTrainerDb')
