@@ -11542,5 +11542,545 @@
     "gender": "die",
     "english": "recovery/convalescence",
     "group": "Body & Health"
+  },
+  {
+    "german": "Kapuze",
+    "gender": "die",
+    "english": "hood",
+    "group": "Clothing"
+  },
+  {
+    "german": "Kragen",
+    "gender": "der",
+    "english": "collar",
+    "group": "Clothing"
+  },
+  {
+    "german": "Ärmel",
+    "gender": "der",
+    "english": "sleeve",
+    "group": "Clothing"
+  },
+  {
+    "german": "Manschette",
+    "gender": "die",
+    "english": "cuff",
+    "group": "Clothing"
+  },
+  {
+    "german": "Saum",
+    "gender": "der",
+    "english": "hem",
+    "group": "Clothing"
+  },
+  {
+    "german": "Naht",
+    "gender": "die",
+    "english": "seam",
+    "group": "Clothing"
+  },
+  {
+    "german": "Weste",
+    "gender": "die",
+    "english": "vest / waistcoat",
+    "group": "Clothing"
+  },
+  {
+    "german": "Trikot",
+    "gender": "das",
+    "english": "jersey",
+    "group": "Clothing"
+  },
+  {
+    "german": "Latzhose",
+    "gender": "die",
+    "english": "dungarees / overalls",
+    "group": "Clothing"
+  },
+  {
+    "german": "Hosenträger",
+    "gender": "der",
+    "english": "suspenders / braces",
+    "group": "Clothing"
+  },
+  {
+    "german": "Faden",
+    "gender": "der",
+    "english": "thread",
+    "group": "Clothing"
+  },
+  {
+    "german": "Spitze",
+    "gender": "die",
+    "english": "lace",
+    "group": "Clothing"
+  },
+  {
+    "german": "Leder",
+    "gender": "das",
+    "english": "leather",
+    "group": "Clothing"
+  },
+  {
+    "german": "Wolle",
+    "gender": "die",
+    "english": "wool",
+    "group": "Clothing"
+  },
+  {
+    "german": "Pelz",
+    "gender": "der",
+    "english": "fur",
+    "group": "Clothing"
+  },
+  {
+    "german": "Träger",
+    "gender": "der",
+    "english": "strap",
+    "group": "Clothing"
+  },
+  {
+    "german": "Bügel",
+    "gender": "der",
+    "english": "coat hanger",
+    "group": "Clothing"
+  },
+  {
+    "german": "Kittel",
+    "gender": "der",
+    "english": "smock / overall coat",
+    "group": "Clothing"
+  },
+  {
+    "german": "Gipfel",
+    "gender": "der",
+    "english": "summit / peak",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Schlucht",
+    "gender": "die",
+    "english": "gorge / canyon",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Grotte",
+    "gender": "die",
+    "english": "grotto / cave",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Felsen",
+    "gender": "der",
+    "english": "rock / cliff",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Gletscher",
+    "gender": "der",
+    "english": "glacier",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Lawine",
+    "gender": "die",
+    "english": "avalanche",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Regenbogen",
+    "gender": "der",
+    "english": "rainbow",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Tau",
+    "gender": "der",
+    "english": "dew",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Dürre",
+    "gender": "die",
+    "english": "drought",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Überschwemmung",
+    "gender": "die",
+    "english": "flood",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Erdbeben",
+    "gender": "das",
+    "english": "earthquake",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Vulkan",
+    "gender": "der",
+    "english": "volcano",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Sumpf",
+    "gender": "der",
+    "english": "swamp / marsh",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Teich",
+    "gender": "der",
+    "english": "pond",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Wasserfall",
+    "gender": "der",
+    "english": "waterfall",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Knospe",
+    "gender": "die",
+    "english": "bud",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Strauch",
+    "gender": "der",
+    "english": "shrub / bush",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Moos",
+    "gender": "das",
+    "english": "moss",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Wildschwein",
+    "gender": "das",
+    "english": "wild boar",
+    "group": "Animals"
+  },
+  {
+    "german": "Luchs",
+    "gender": "der",
+    "english": "lynx",
+    "group": "Animals"
+  },
+  {
+    "german": "Maulwurf",
+    "gender": "der",
+    "english": "mole",
+    "group": "Animals"
+  },
+  {
+    "german": "Fledermaus",
+    "gender": "die",
+    "english": "bat",
+    "group": "Animals"
+  },
+  {
+    "german": "Otter",
+    "gender": "der",
+    "english": "otter",
+    "group": "Animals"
+  },
+  {
+    "german": "Biber",
+    "gender": "der",
+    "english": "beaver",
+    "group": "Animals"
+  },
+  {
+    "german": "Dachs",
+    "gender": "der",
+    "english": "badger",
+    "group": "Animals"
+  },
+  {
+    "german": "Waschbär",
+    "gender": "der",
+    "english": "raccoon",
+    "group": "Animals"
+  },
+  {
+    "german": "Eidechse",
+    "gender": "die",
+    "english": "lizard",
+    "group": "Animals"
+  },
+  {
+    "german": "Kröte",
+    "gender": "die",
+    "english": "toad",
+    "group": "Animals"
+  },
+  {
+    "german": "Krebs",
+    "gender": "der",
+    "english": "crab",
+    "group": "Animals"
+  },
+  {
+    "german": "Kaulquappe",
+    "gender": "die",
+    "english": "tadpole",
+    "group": "Animals"
+  },
+  {
+    "german": "Qualle",
+    "gender": "die",
+    "english": "jellyfish",
+    "group": "Animals"
+  },
+  {
+    "german": "Schnecke",
+    "gender": "die",
+    "english": "snail",
+    "group": "Animals"
+  },
+  {
+    "german": "Libelle",
+    "gender": "die",
+    "english": "dragonfly",
+    "group": "Animals"
+  },
+  {
+    "german": "Heuschrecke",
+    "gender": "die",
+    "english": "grasshopper",
+    "group": "Animals"
+  },
+  {
+    "german": "Storch",
+    "gender": "der",
+    "english": "stork",
+    "group": "Animals"
+  },
+  {
+    "german": "Möwe",
+    "gender": "die",
+    "english": "seagull",
+    "group": "Animals"
+  },
+  {
+    "german": "Kofferraum",
+    "gender": "der",
+    "english": "car trunk / boot",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Scheinwerfer",
+    "gender": "der",
+    "english": "headlight",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Auspuff",
+    "gender": "der",
+    "english": "exhaust pipe",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Motor",
+    "gender": "der",
+    "english": "engine / motor",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Kennzeichen",
+    "gender": "das",
+    "english": "license plate",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Anhänger",
+    "gender": "der",
+    "english": "trailer",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Mautstelle",
+    "gender": "die",
+    "english": "toll station",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Bordkarte",
+    "gender": "die",
+    "english": "boarding pass",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Abflug",
+    "gender": "der",
+    "english": "departure (flight)",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Ankunft",
+    "gender": "die",
+    "english": "arrival",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Bahnsteig",
+    "gender": "der",
+    "english": "platform",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Schaffner",
+    "gender": "der",
+    "english": "conductor / ticket inspector",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Lokomotive",
+    "gender": "die",
+    "english": "locomotive",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Waggon",
+    "gender": "der",
+    "english": "railway carriage / wagon",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Segelboot",
+    "gender": "das",
+    "english": "sailboat",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Umleitung",
+    "gender": "die",
+    "english": "detour / diversion",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Rastplatz",
+    "gender": "der",
+    "english": "rest area",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Mietwagen",
+    "gender": "der",
+    "english": "rental car",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Bildschirmschoner",
+    "gender": "der",
+    "english": "screensaver",
+    "group": "Technology"
+  },
+  {
+    "german": "Lüfter",
+    "gender": "der",
+    "english": "fan (cooling)",
+    "group": "Technology"
+  },
+  {
+    "german": "Prozessor",
+    "gender": "der",
+    "english": "processor",
+    "group": "Technology"
+  },
+  {
+    "german": "Arbeitsspeicher",
+    "gender": "der",
+    "english": "RAM / memory",
+    "group": "Technology"
+  },
+  {
+    "german": "Grafikkarte",
+    "gender": "die",
+    "english": "graphics card",
+    "group": "Technology"
+  },
+  {
+    "german": "Hauptplatine",
+    "gender": "die",
+    "english": "motherboard",
+    "group": "Technology"
+  },
+  {
+    "german": "Sensor",
+    "gender": "der",
+    "english": "sensor",
+    "group": "Technology"
+  },
+  {
+    "german": "Schaltung",
+    "gender": "die",
+    "english": "circuit",
+    "group": "Technology"
+  },
+  {
+    "german": "Verschlüsselung",
+    "gender": "die",
+    "english": "encryption",
+    "group": "Technology"
+  },
+  {
+    "german": "Sicherung",
+    "gender": "die",
+    "english": "backup / fuse",
+    "group": "Technology"
+  },
+  {
+    "german": "Aktualisierung",
+    "gender": "die",
+    "english": "update",
+    "group": "Technology"
+  },
+  {
+    "german": "Schnittstelle",
+    "gender": "die",
+    "english": "interface",
+    "group": "Technology"
+  },
+  {
+    "german": "Suchmaschine",
+    "gender": "die",
+    "english": "search engine",
+    "group": "Technology"
+  },
+  {
+    "german": "Ohrhörer",
+    "gender": "der",
+    "english": "earbuds / earphones",
+    "group": "Technology"
+  },
+  {
+    "german": "Speicherkarte",
+    "gender": "die",
+    "english": "memory card",
+    "group": "Technology"
+  },
+  {
+    "german": "Festplattenlaufwerk",
+    "gender": "das",
+    "english": "hard disk drive",
+    "group": "Technology"
+  },
+  {
+    "german": "Datenbank",
+    "gender": "die",
+    "english": "database",
+    "group": "Technology"
+  },
+  {
+    "german": "Bildpunkt",
+    "gender": "der",
+    "english": "pixel",
+    "group": "Technology"
   }
 ]
