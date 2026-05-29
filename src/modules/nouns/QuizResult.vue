@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { NounQuestion, NounQuizMode } from '../../composables/useNounQuiz'
+import { wrongNouns, type NounQuestion, type NounQuizMode } from '../../composables/useNounQuiz'
 import { usePagination } from '../../composables/usePagination'
 import Pagination from '../../components/Pagination.vue'
 
@@ -16,7 +16,9 @@ const pagination = usePagination(() => props.questions, 25)
 defineEmits<{ (e: 'restart'): void; (e: 'retry-wrong'): void }>()
 
 const pct = computed(() => props.total === 0 ? 0 : Math.round((props.score / props.total) * 100))
-const wrongCount = computed(() => props.total - props.score)
+// Derive from wrongNouns (isCorrect === false) so the "Retry N wrong" label and the
+// set retryWrong() actually rebuilds share one source of truth (unanswered ≠ wrong).
+const wrongCount = computed(() => wrongNouns(props.questions).length)
 
 const summary = computed(() => {
   if (pct.value >= 80) return 'Stark. Most of these are in your bones now.'
