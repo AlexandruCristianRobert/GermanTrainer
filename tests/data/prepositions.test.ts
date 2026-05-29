@@ -91,4 +91,23 @@ describe('prepositions dataset', () => {
       expect(validLevels.has(p.level), `${p.id}: bad level ${p.level}`).toBe(true)
     }
   })
+
+  test('no duplicate example sentences across the whole dataset', () => {
+    const counts = new Map<string, number>()
+    for (const p of PREPOSITIONS) {
+      for (const e of p.examples) {
+        const key = e.sentence.trim()
+        counts.set(key, (counts.get(key) ?? 0) + 1)
+      }
+    }
+    const dupes = [...counts.entries()].filter(([, n]) => n > 1).map(([s]) => s)
+    expect(dupes).toEqual([])
+  })
+
+  test('the two-way decision drill has at least 400 examples', () => {
+    const twoWay = PREPOSITIONS
+      .filter(p => p.case === 'two-way')
+      .reduce((n, p) => n + p.examples.length, 0)
+    expect(twoWay).toBeGreaterThanOrEqual(400)
+  })
 })
