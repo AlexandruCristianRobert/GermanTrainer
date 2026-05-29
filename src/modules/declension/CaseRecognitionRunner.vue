@@ -10,6 +10,7 @@ import {
 } from '../../data/declension'
 import { usePagination } from '../../composables/usePagination'
 import Pagination from '../../components/Pagination.vue'
+import { createPool, type FieldMatchers } from '../../data/pool'
 
 const CASE_SHORT: Record<DeclCase, string> = {
   nominative: 'NOM',
@@ -43,16 +44,18 @@ function csv<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   return raw.split(',').map(s => s.trim()).filter((x): x is T => set.has(x))
 }
 
+type CaseRecognitionFilter = { levels?: DeclLevel[]; cases?: DeclCase[] }
+const caseRecognitionPool = createPool<CaseRecognitionEntry, CaseRecognitionFilter>(CASE_RECOGNITION_ENTRIES, {
+  levels: e => e.level,
+  cases: e => e.case,
+} satisfies FieldMatchers<CaseRecognitionEntry, CaseRecognitionFilter>)
+
 onMounted(() => {
   const count = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
   const levels = csv<DeclLevel>(route.query.levels, DECL_LEVELS)
   const cases = csv<DeclCase>(route.query.cases, DECL_CASES)
   try {
-    const pool = CASE_RECOGNITION_ENTRIES.filter(e =>
-      levels.includes(e.level) && cases.includes(e.case)
-    )
-    const shuffled = [...pool].sort(() => Math.random() - 0.5)
-    const deck: CaseRecognitionEntry[] = shuffled.slice(0, Math.min(count, shuffled.length))
+    const deck = caseRecognitionPool.sample(count, { levels, cases })
     if (deck.length === 0) {
       error.value = 'No sentences match the selected filters.'
     } else {

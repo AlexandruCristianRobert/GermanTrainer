@@ -5,6 +5,7 @@ import { usePronounQuiz } from '../../composables/useDeclensionQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { PRONOUNS, PRONOUN_CATEGORIES, type PronounCategory, type PronounEntry } from '../../data/pronouns'
 import type { DeclCase } from '../../data/declension'
+import { createPool, type FieldMatchers } from '../../data/pool'
 
 const CASE_SHORT: Record<DeclCase, string> = {
   nominative: 'NOM.',
@@ -32,14 +33,17 @@ function csv<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   return raw.split(',').map(s => s.trim()).filter((x): x is T => set.has(x))
 }
 
+type PronounFilter = { categories?: PronounCategory[] }
+const pronounPool = createPool<PronounEntry, PronounFilter>(PRONOUNS, {
+  categories: p => p.category,
+} satisfies FieldMatchers<PronounEntry, PronounFilter>)
+
 onMounted(() => {
   const count = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
   const categories = csv<PronounCategory>(route.query.categories, PRONOUN_CATEGORIES)
   selectedCategories.value = categories
   try {
-    const pool = PRONOUNS.filter(p => categories.includes(p.category))
-    const shuffled = [...pool].sort(() => Math.random() - 0.5)
-    const deck: PronounEntry[] = shuffled.slice(0, Math.min(count, shuffled.length))
+    const deck = pronounPool.sample(count, { categories })
     if (deck.length === 0) {
       error.value = 'Nothing to quiz on.'
     } else {
