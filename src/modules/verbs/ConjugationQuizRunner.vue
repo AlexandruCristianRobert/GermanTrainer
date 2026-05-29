@@ -9,6 +9,7 @@ import {
   TENSE_LABELS, TENSE_LEVEL,
   type Verb, type VerbLevel, type VerbType, type VerbCase, type VerbTense
 } from '../../data/verbs'
+import { shuffle } from '../../data/pool'
 
 function typeTagClass(t: string): string {
   if (t === 'irregular') return 'tag-clay'
@@ -48,15 +49,6 @@ function csv<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   return raw.split(',').map(s => s.trim()).filter((x): x is T => set.has(x))
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
-  for (let i = 0; i < a.length; i++) {
-    const j = i + Math.floor(Math.random() * (a.length - i))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
-
 onMounted(() => {
   const count = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
   const f = {
@@ -70,11 +62,10 @@ onMounted(() => {
   selectedCases.value = f.cases
   selectedTenses.value = tenses
   try {
-    let verbs: Verb[] = sample(count, f)
+    const verbs: Verb[] = sample(count, f)
     if (verbs.length === 0 || tenses.length === 0) {
       error.value = 'Nothing to quiz on.'
     } else {
-      verbs = shuffle(verbs)
       quiz = useConjugationQuiz(verbs, shuffle(tenses))
       ready.value = true
       resetInputs()

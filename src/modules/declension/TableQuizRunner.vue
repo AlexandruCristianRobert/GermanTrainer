@@ -38,15 +38,6 @@ function csv<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   return raw.split(',').map(s => s.trim()).filter((x): x is T => set.has(x))
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
-  for (let i = 0; i < a.length; i++) {
-    const j = i + Math.floor(Math.random() * (a.length - i))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
-
 onMounted(() => {
   const count = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
   const f = {
@@ -58,11 +49,10 @@ onMounted(() => {
   selectedDeterminers.value = f.determiners
   selectedGenders.value = f.genders
   try {
-    let entries: DeclensionEntry[] = sampleDeclensionTables(count, f)
+    const entries: DeclensionEntry[] = sampleDeclensionTables(count, f)
     if (entries.length === 0) {
       error.value = 'Nothing to quiz on.'
     } else {
-      entries = shuffle(entries)
       quiz = useTableQuiz(entries)
       ready.value = true
       resetInputs()
