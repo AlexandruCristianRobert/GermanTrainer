@@ -93,7 +93,7 @@
     "german": "Affe",
     "gender": "der",
     "english": "monkey / ape",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Agenda",
@@ -104,8 +104,8 @@
   {
     "german": "Akku",
     "gender": "der",
-    "english": "battery / rechargeable battery",
-    "group": "Other"
+    "english": "battery (rechargeable)",
+    "group": "Technology"
   },
   {
     "german": "Akte",
@@ -147,19 +147,19 @@
     "german": "Allergie",
     "gender": "die",
     "english": "allergy",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Ameise",
     "gender": "die",
     "english": "ant",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Ampel",
     "gender": "die",
     "english": "traffic light",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Ananas",
@@ -201,7 +201,7 @@
     "german": "Anzug",
     "gender": "der",
     "english": "suit",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Apfel",
@@ -219,13 +219,13 @@
     "german": "Apotheke",
     "gender": "die",
     "english": "pharmacy",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "App",
     "gender": "die",
     "english": "app",
-    "group": "Other"
+    "group": "Technology"
   },
   {
     "german": "Aprikose",
@@ -279,7 +279,7 @@
     "german": "Arm",
     "gender": "der",
     "english": "arm",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Armut",
@@ -296,8 +296,8 @@
   {
     "german": "Arzt",
     "gender": "der",
-    "english": "doctor",
-    "group": "Other"
+    "english": "doctor (m)",
+    "group": "Body & Health"
   },
   {
     "german": "Aubergine",
@@ -339,7 +339,7 @@
     "german": "Auge",
     "gender": "das",
     "english": "eye",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Aula",
@@ -381,13 +381,13 @@
     "german": "Auto",
     "gender": "das",
     "english": "car",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Autobahn",
     "gender": "die",
-    "english": "motorway / highway",
-    "group": "Other"
+    "english": "highway / motorway",
+    "group": "Transport & Travel"
   },
   {
     "german": "Avocado",
@@ -411,7 +411,7 @@
     "german": "Bäckerei",
     "gender": "die",
     "english": "bakery",
-    "group": "Food"
+    "group": "City & Shopping"
   },
   {
     "german": "Bad",
@@ -447,7 +447,7 @@
     "german": "Bahnhof",
     "gender": "der",
     "english": "train station",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Balkon",
@@ -477,7 +477,7 @@
     "german": "Bär",
     "gender": "der",
     "english": "bear",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Bargeld",
@@ -501,19 +501,19 @@
     "german": "Basketball",
     "gender": "der",
     "english": "basketball",
-    "group": "Other"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Bauch",
     "gender": "der",
     "english": "belly / stomach",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Baum",
     "gender": "der",
     "english": "tree",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Beamer",
@@ -525,7 +525,7 @@
     "german": "Beerdigung",
     "gender": "die",
     "english": "funeral",
-    "group": "Family"
+    "group": "Culture & Arts"
   },
   {
     "german": "Beförderung",
@@ -543,7 +543,7 @@
     "german": "Bein",
     "gender": "das",
     "english": "leg",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Beitrag",
@@ -579,7 +579,7 @@
     "german": "Berg",
     "gender": "der",
     "english": "mountain",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Bericht",
@@ -656,8 +656,8 @@
   {
     "german": "Bibliothek",
     "gender": "die",
-    "english": "library (room)",
-    "group": "Rooms"
+    "english": "library",
+    "group": "Culture & Arts"
   },
   {
     "german": "BIC",
@@ -669,7 +669,7 @@
     "german": "Biene",
     "gender": "die",
     "english": "bee",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Bier",
@@ -680,8 +680,8 @@
   {
     "german": "Bildschirm",
     "gender": "der",
-    "english": "screen / monitor",
-    "group": "Office"
+    "english": "screen",
+    "group": "Technology"
   },
   {
     "german": "Biologie",
@@ -711,13 +711,13 @@
     "german": "Blitz",
     "gender": "der",
     "english": "lightning",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Blume",
     "gender": "die",
     "english": "flower",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Blumenkohl",
@@ -735,13 +735,13 @@
     "german": "Bluse",
     "gender": "die",
     "english": "blouse",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Blut",
     "gender": "das",
     "english": "blood",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Boden",
@@ -771,7 +771,7 @@
     "german": "Boot",
     "gender": "das",
     "english": "boat",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Bratwurst",
@@ -789,7 +789,7 @@
     "german": "Brettspiel",
     "gender": "das",
     "english": "board game",
-    "group": "Other"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Brezel",
@@ -873,7 +873,7 @@
     "german": "Brücke",
     "gender": "die",
     "english": "bridge",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Bruder",
@@ -921,7 +921,7 @@
     "german": "Burg",
     "gender": "die",
     "english": "castle / fortress",
-    "group": "Other"
+    "group": "City & Shopping"
   },
   {
     "german": "Burger",
@@ -957,7 +957,7 @@
     "german": "Bus",
     "gender": "der",
     "english": "bus",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Butter",
@@ -1041,7 +1041,7 @@
     "german": "Computer",
     "gender": "der",
     "english": "computer",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Cornflakes",
@@ -1131,7 +1131,7 @@
     "german": "Datum",
     "gender": "das",
     "english": "date",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Dauerauftrag",
@@ -1269,7 +1269,7 @@
     "german": "Donner",
     "gender": "der",
     "english": "thunder",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Doppelbett",
@@ -1281,13 +1281,13 @@
     "german": "Dorf",
     "gender": "das",
     "english": "village",
-    "group": "Other"
+    "group": "City & Shopping"
   },
   {
     "german": "Drucker",
     "gender": "der",
     "english": "printer",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Drucker­papier",
@@ -1335,7 +1335,7 @@
     "german": "E-Mail",
     "gender": "die",
     "english": "email",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "EC-Karte",
@@ -1448,14 +1448,14 @@
   {
     "german": "Eis",
     "gender": "das",
-    "english": "ice cream / ice",
-    "group": "Food"
+    "english": "ice",
+    "group": "Nature & Weather"
   },
   {
     "german": "Elefant",
     "gender": "der",
     "english": "elephant",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Eltern",
@@ -1563,7 +1563,7 @@
     "german": "Erkältung",
     "gender": "die",
     "english": "cold",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Ersparnis",
@@ -1646,20 +1646,20 @@
   {
     "german": "Fahrkarte",
     "gender": "die",
-    "english": "ticket",
-    "group": "Other"
+    "english": "ticket (transport)",
+    "group": "Transport & Travel"
   },
   {
     "german": "Fahrplan",
     "gender": "der",
-    "english": "timetable / schedule",
-    "group": "Other"
+    "english": "schedule / timetable",
+    "group": "Transport & Travel"
   },
   {
     "german": "Fahrrad",
     "gender": "das",
     "english": "bicycle",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Fallrohr",
@@ -1713,7 +1713,7 @@
     "german": "Feld",
     "gender": "das",
     "english": "field",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Fenchel",
@@ -1749,7 +1749,7 @@
     "german": "Festplatte",
     "gender": "die",
     "english": "hard drive",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Feuerlöscher",
@@ -1761,7 +1761,7 @@
     "german": "Fieber",
     "gender": "das",
     "english": "fever",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Filiale",
@@ -1772,14 +1772,14 @@
   {
     "german": "Film",
     "gender": "der",
-    "english": "film / movie",
-    "group": "Other"
+    "english": "movie / film",
+    "group": "Culture & Arts"
   },
   {
     "german": "Finger",
     "gender": "der",
     "english": "finger",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Firma",
@@ -1791,7 +1791,7 @@
     "german": "Fisch",
     "gender": "der",
     "english": "fish",
-    "group": "Food"
+    "group": "Animals"
   },
   {
     "german": "Fitnessraum",
@@ -1821,7 +1821,7 @@
     "german": "Fliege",
     "gender": "die",
     "english": "fly",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Fliese",
@@ -1839,13 +1839,13 @@
     "german": "Flughafen",
     "gender": "der",
     "english": "airport",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Flugzeug",
     "gender": "das",
     "english": "airplane",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Flur",
@@ -1857,7 +1857,7 @@
     "german": "Fluss",
     "gender": "der",
     "english": "river",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Folie",
@@ -1917,7 +1917,7 @@
     "german": "Freundschaft",
     "gender": "die",
     "english": "friendship",
-    "group": "Other"
+    "group": "Family"
   },
   {
     "german": "Frieden",
@@ -1941,7 +1941,7 @@
     "german": "Frost",
     "gender": "der",
     "english": "frost",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Frühling",
@@ -1965,13 +1965,13 @@
     "german": "Fuß",
     "gender": "der",
     "english": "foot",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Fußball",
     "gender": "der",
-    "english": "football / soccer",
-    "group": "Other"
+    "english": "soccer / football",
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Fußhocker",
@@ -2067,7 +2067,7 @@
     "german": "Gehirn",
     "gender": "das",
     "english": "brain",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Gehweg",
@@ -2096,8 +2096,8 @@
   {
     "german": "Geldbörse",
     "gender": "die",
-    "english": "purse / wallet",
-    "group": "Bank & Money"
+    "english": "wallet / purse",
+    "group": "Clothing"
   },
   {
     "german": "Generation",
@@ -2132,8 +2132,8 @@
   {
     "german": "Geschäft",
     "gender": "das",
-    "english": "shop / store",
-    "group": "Other"
+    "english": "store / business",
+    "group": "City & Shopping"
   },
   {
     "german": "Geschäftsführer",
@@ -2150,8 +2150,8 @@
   {
     "german": "Geschichte",
     "gender": "die",
-    "english": "history",
-    "group": "School"
+    "english": "story / history",
+    "group": "Culture & Arts"
   },
   {
     "german": "Geschwister",
@@ -2223,7 +2223,7 @@
     "german": "Gras",
     "gender": "das",
     "english": "grass",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Grenze",
@@ -2235,7 +2235,7 @@
     "german": "Grippe",
     "gender": "die",
     "english": "flu",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Großmutter",
@@ -2295,7 +2295,7 @@
     "german": "Gürtel",
     "gender": "der",
     "english": "belt",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Gutschrift",
@@ -2313,13 +2313,13 @@
     "german": "Haar",
     "gender": "das",
     "english": "hair",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Hafen",
     "gender": "der",
-    "english": "port / harbour",
-    "group": "Other"
+    "english": "harbor / port",
+    "group": "Transport & Travel"
   },
   {
     "german": "Haferflocken",
@@ -2343,13 +2343,13 @@
     "german": "Hagel",
     "gender": "der",
     "english": "hail",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Hahn",
     "gender": "der",
-    "english": "tap / faucet",
-    "group": "House"
+    "english": "rooster",
+    "group": "Animals"
   },
   {
     "german": "Hähnchen",
@@ -2379,31 +2379,31 @@
     "german": "Hals",
     "gender": "der",
     "english": "neck / throat",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Haltestelle",
     "gender": "die",
-    "english": "stop / bus stop",
-    "group": "Other"
+    "english": "bus stop",
+    "group": "Transport & Travel"
   },
   {
     "german": "Hand",
     "gender": "die",
     "english": "hand",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Handschuh",
     "gender": "der",
     "english": "glove",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Handy",
     "gender": "das",
-    "english": "mobile phone",
-    "group": "Other"
+    "english": "cellphone / mobile",
+    "group": "Technology"
   },
   {
     "german": "Hängematte",
@@ -2420,8 +2420,8 @@
   {
     "german": "Hase",
     "gender": "der",
-    "english": "rabbit / hare",
-    "group": "Other"
+    "english": "hare",
+    "group": "Animals"
   },
   {
     "german": "Haselnuss",
@@ -2445,7 +2445,7 @@
     "german": "Hauptstadt",
     "gender": "die",
     "english": "capital city",
-    "group": "Other"
+    "group": "City & Shopping"
   },
   {
     "german": "Hausaufgabe",
@@ -2493,7 +2493,7 @@
     "german": "Haut",
     "gender": "die",
     "english": "skin",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Headset",
@@ -2547,7 +2547,7 @@
     "german": "Hemd",
     "gender": "das",
     "english": "shirt",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Herbst",
@@ -2565,7 +2565,7 @@
     "german": "Herz",
     "gender": "das",
     "english": "heart",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Himbeere",
@@ -2583,7 +2583,7 @@
     "german": "Hobby",
     "gender": "das",
     "english": "hobby",
-    "group": "Other"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Hobbyraum",
@@ -2607,7 +2607,7 @@
     "german": "Hochzeit",
     "gender": "die",
     "english": "wedding",
-    "group": "Family"
+    "group": "Culture & Arts"
   },
   {
     "german": "Hocker",
@@ -2648,26 +2648,26 @@
   {
     "german": "Hose",
     "gender": "die",
-    "english": "trousers / pants",
-    "group": "Other"
+    "english": "pants / trousers",
+    "group": "Clothing"
   },
   {
     "german": "Hotel",
     "gender": "das",
     "english": "hotel",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Hügel",
     "gender": "der",
     "english": "hill",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Huhn",
     "gender": "das",
     "english": "chicken / hen",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Hühnchen",
@@ -2685,19 +2685,19 @@
     "german": "Hund",
     "gender": "der",
     "english": "dog",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Husten",
     "gender": "der",
     "english": "cough",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Hut",
     "gender": "der",
     "english": "hat",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Hypothek",
@@ -2757,13 +2757,13 @@
     "german": "Insel",
     "gender": "die",
     "english": "island",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Internet",
     "gender": "das",
     "english": "internet",
-    "group": "Other"
+    "group": "Technology"
   },
   {
     "german": "Investition",
@@ -2775,19 +2775,19 @@
     "german": "Jacke",
     "gender": "die",
     "english": "jacket",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Jahr",
     "gender": "das",
     "english": "year",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Jahrhundert",
     "gender": "das",
     "english": "century",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Jalousie",
@@ -2799,7 +2799,7 @@
     "german": "Jeans",
     "gender": "die",
     "english": "jeans",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Joghurt",
@@ -2823,7 +2823,7 @@
     "german": "Jugendherberge",
     "gender": "die",
     "english": "youth hostel",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Jugendlicher",
@@ -2835,7 +2835,7 @@
     "german": "Kabel",
     "gender": "das",
     "english": "cable",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Kaffee",
@@ -2865,7 +2865,7 @@
     "german": "Kalender",
     "gender": "der",
     "english": "calendar",
-    "group": "Office"
+    "group": "Time & Numbers"
   },
   {
     "german": "Kälte",
@@ -2877,7 +2877,7 @@
     "german": "Kamera",
     "gender": "die",
     "english": "camera",
-    "group": "Other"
+    "group": "Technology"
   },
   {
     "german": "Kamin",
@@ -2949,7 +2949,7 @@
     "german": "Katze",
     "gender": "die",
     "english": "cat",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Keks",
@@ -3027,13 +3027,13 @@
     "german": "Kino",
     "gender": "das",
     "english": "cinema",
-    "group": "Other"
+    "group": "Culture & Arts"
   },
   {
     "german": "Kirche",
     "gender": "die",
     "english": "church",
-    "group": "Other"
+    "group": "Culture & Arts"
   },
   {
     "german": "Kirsche",
@@ -3105,7 +3105,7 @@
     "german": "Kleid",
     "gender": "das",
     "english": "dress",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Kleiderschrank",
@@ -3117,7 +3117,7 @@
     "german": "Kleidung",
     "gender": "die",
     "english": "clothing",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Kleinkind",
@@ -3147,7 +3147,7 @@
     "german": "Knie",
     "gender": "das",
     "english": "knee",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Knoblauch",
@@ -3159,7 +3159,7 @@
     "german": "Knochen",
     "gender": "der",
     "english": "bone",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Koch",
@@ -3206,8 +3206,8 @@
   {
     "german": "Konditorei",
     "gender": "die",
-    "english": "patisserie / confectionery",
-    "group": "Food"
+    "english": "pastry shop",
+    "group": "City & Shopping"
   },
   {
     "german": "Konferenz",
@@ -3261,13 +3261,13 @@
     "german": "Konzert",
     "gender": "das",
     "english": "concert",
-    "group": "Other"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Kopf",
     "gender": "der",
     "english": "head",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Kopfhörer",
@@ -3303,7 +3303,7 @@
     "german": "Krankenhaus",
     "gender": "das",
     "english": "hospital",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Krankenstand",
@@ -3320,8 +3320,8 @@
   {
     "german": "Krankheit",
     "gender": "die",
-    "english": "illness / disease",
-    "group": "Other"
+    "english": "illness",
+    "group": "Body & Health"
   },
   {
     "german": "Kräuter",
@@ -3339,7 +3339,7 @@
     "german": "Krawatte",
     "gender": "die",
     "english": "tie",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Kredit",
@@ -3399,7 +3399,7 @@
     "german": "Kuh",
     "gender": "die",
     "english": "cow",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Kühlschrank",
@@ -3411,13 +3411,13 @@
     "german": "Kultur",
     "gender": "die",
     "english": "culture",
-    "group": "Other"
+    "group": "Culture & Arts"
   },
   {
     "german": "Kunde",
     "gender": "der",
-    "english": "customer / client",
-    "group": "Work"
+    "english": "customer (m)",
+    "group": "City & Shopping"
   },
   {
     "german": "Kündigung",
@@ -3429,7 +3429,7 @@
     "german": "Kunst",
     "gender": "die",
     "english": "art",
-    "group": "School"
+    "group": "Culture & Arts"
   },
   {
     "german": "Kürbis",
@@ -3459,7 +3459,7 @@
     "german": "Laden",
     "gender": "der",
     "english": "shop / store",
-    "group": "Other"
+    "group": "City & Shopping"
   },
   {
     "german": "Lagerraum",
@@ -3483,13 +3483,13 @@
     "german": "Land",
     "gender": "das",
     "english": "country / land",
-    "group": "Other"
+    "group": "City & Shopping"
   },
   {
     "german": "Laptop",
     "gender": "der",
     "english": "laptop",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Lasagne",
@@ -3524,8 +3524,8 @@
   {
     "german": "Lautsprecher",
     "gender": "der",
-    "english": "speaker",
-    "group": "Office"
+    "english": "speaker / loudspeaker",
+    "group": "Technology"
   },
   {
     "german": "Lebenslauf",
@@ -3537,7 +3537,7 @@
     "german": "Leber",
     "gender": "die",
     "english": "liver",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Lehrer",
@@ -3657,7 +3657,7 @@
     "german": "Löwe",
     "gender": "der",
     "english": "lion",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Lüge",
@@ -3669,7 +3669,7 @@
     "german": "Lunge",
     "gender": "die",
     "english": "lung",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Macht",
@@ -3681,7 +3681,7 @@
     "german": "Magen",
     "gender": "der",
     "english": "stomach",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Mahlzeit",
@@ -3717,7 +3717,7 @@
     "german": "Mannschaft",
     "gender": "die",
     "english": "team",
-    "group": "Other"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Mansarde",
@@ -3729,7 +3729,7 @@
     "german": "Mantel",
     "gender": "der",
     "english": "coat",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Mappe",
@@ -3753,7 +3753,7 @@
     "german": "Markt",
     "gender": "der",
     "english": "market",
-    "group": "Work"
+    "group": "City & Shopping"
   },
   {
     "german": "Marmelade",
@@ -3795,7 +3795,7 @@
     "german": "Maus",
     "gender": "die",
     "english": "mouse",
-    "group": "Office"
+    "group": "Animals"
   },
   {
     "german": "Mayonnaise",
@@ -3806,14 +3806,14 @@
   {
     "german": "Medikament",
     "gender": "das",
-    "english": "medication / medicine",
-    "group": "Other"
+    "english": "medication",
+    "group": "Body & Health"
   },
   {
     "german": "Meer",
     "gender": "das",
-    "english": "sea / ocean",
-    "group": "Other"
+    "english": "sea",
+    "group": "Nature & Weather"
   },
   {
     "german": "Mehl",
@@ -3855,13 +3855,13 @@
     "german": "Metzgerei",
     "gender": "die",
     "english": "butcher's shop",
-    "group": "Food"
+    "group": "City & Shopping"
   },
   {
     "german": "Mikrofon",
     "gender": "das",
     "english": "microphone",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Milch",
@@ -3885,7 +3885,7 @@
     "german": "Minute",
     "gender": "die",
     "english": "minute",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Minze",
@@ -3908,8 +3908,8 @@
   {
     "german": "Mittag",
     "gender": "der",
-    "english": "midday / noon",
-    "group": "Other"
+    "english": "noon",
+    "group": "Time & Numbers"
   },
   {
     "german": "Mittagessen",
@@ -3933,13 +3933,13 @@
     "german": "Monat",
     "gender": "der",
     "english": "month",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Mond",
     "gender": "der",
     "english": "moon",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Montag",
@@ -3951,13 +3951,13 @@
     "german": "Morgen",
     "gender": "der",
     "english": "morning",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Motorrad",
     "gender": "das",
     "english": "motorcycle",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Mozzarella",
@@ -3968,8 +3968,8 @@
   {
     "german": "Mücke",
     "gender": "die",
-    "english": "mosquito / gnat",
-    "group": "Other"
+    "english": "mosquito",
+    "group": "Animals"
   },
   {
     "german": "Muffin",
@@ -3993,7 +3993,7 @@
     "german": "Mund",
     "gender": "der",
     "english": "mouth",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Münze",
@@ -4011,13 +4011,13 @@
     "german": "Museum",
     "gender": "das",
     "english": "museum",
-    "group": "Other"
+    "group": "Culture & Arts"
   },
   {
     "german": "Musik",
     "gender": "die",
     "english": "music",
-    "group": "School"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Musikzimmer",
@@ -4029,7 +4029,7 @@
     "german": "Muskel",
     "gender": "der",
     "english": "muscle",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Müsli",
@@ -4052,8 +4052,8 @@
   {
     "german": "Mütze",
     "gender": "die",
-    "english": "hat / beanie",
-    "group": "Other"
+    "english": "cap / beanie",
+    "group": "Clothing"
   },
   {
     "german": "Nachkomme",
@@ -4071,13 +4071,13 @@
     "german": "Nachricht",
     "gender": "die",
     "english": "message / news",
-    "group": "Other"
+    "group": "Technology"
   },
   {
     "german": "Nacht",
     "gender": "die",
     "english": "night",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Nachtisch",
@@ -4101,13 +4101,13 @@
     "german": "Nase",
     "gender": "die",
     "english": "nose",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Nebel",
     "gender": "der",
-    "english": "fog / mist",
-    "group": "Other"
+    "english": "fog",
+    "group": "Nature & Weather"
   },
   {
     "german": "Neffe",
@@ -4125,7 +4125,7 @@
     "german": "Netzwerk",
     "gender": "das",
     "english": "network",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Nichte",
@@ -4191,7 +4191,7 @@
     "german": "Ohr",
     "gender": "das",
     "english": "ear",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Öl",
@@ -4238,8 +4238,8 @@
   {
     "german": "Ordner",
     "gender": "der",
-    "english": "folder / binder",
-    "group": "Office"
+    "english": "folder",
+    "group": "Technology"
   },
   {
     "german": "Oregano",
@@ -4287,7 +4287,7 @@
     "german": "Park",
     "gender": "der",
     "english": "park",
-    "group": "Other"
+    "group": "City & Shopping"
   },
   {
     "german": "Parkett",
@@ -4298,14 +4298,14 @@
   {
     "german": "Parkplatz",
     "gender": "der",
-    "english": "car park / parking space",
-    "group": "Office"
+    "english": "parking lot",
+    "group": "Transport & Travel"
   },
   {
     "german": "Partner",
     "gender": "der",
-    "english": "partner",
-    "group": "Work"
+    "english": "partner (m)",
+    "group": "Family"
   },
   {
     "german": "Partnerin",
@@ -4317,7 +4317,7 @@
     "german": "Passwort",
     "gender": "das",
     "english": "password",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Pate",
@@ -4352,8 +4352,8 @@
   {
     "german": "Pension",
     "gender": "die",
-    "english": "guesthouse / bed and breakfast",
-    "group": "Other"
+    "english": "guesthouse / pension",
+    "group": "Transport & Travel"
   },
   {
     "german": "Pergola",
@@ -4389,7 +4389,7 @@
     "german": "Pferd",
     "gender": "das",
     "english": "horse",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Pfirsich",
@@ -4401,7 +4401,7 @@
     "german": "Pflanze",
     "gender": "die",
     "english": "plant",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Pflanzenmilch",
@@ -4527,7 +4527,7 @@
     "german": "Preis",
     "gender": "der",
     "english": "price",
-    "group": "Bank & Money"
+    "group": "City & Shopping"
   },
   {
     "german": "Probezeit",
@@ -4580,8 +4580,8 @@
   {
     "german": "Pullover",
     "gender": "der",
-    "english": "jumper / sweater",
-    "group": "Other"
+    "english": "sweater / pullover",
+    "group": "Clothing"
   },
   {
     "german": "Pute",
@@ -4605,13 +4605,13 @@
     "german": "Quittung",
     "gender": "die",
     "english": "receipt",
-    "group": "Office"
+    "group": "City & Shopping"
   },
   {
     "german": "Rabatt",
     "gender": "der",
-    "english": "discount / rebate",
-    "group": "Bank & Money"
+    "english": "discount",
+    "group": "City & Shopping"
   },
   {
     "german": "Radiergummi",
@@ -4635,7 +4635,7 @@
     "german": "Ratte",
     "gender": "die",
     "english": "rat",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Realschule",
@@ -4671,7 +4671,7 @@
     "german": "Regen",
     "gender": "der",
     "english": "rain",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Register",
@@ -4700,8 +4700,8 @@
   {
     "german": "Reise",
     "gender": "die",
-    "english": "journey / trip",
-    "group": "Other"
+    "english": "trip / journey",
+    "group": "Transport & Travel"
   },
   {
     "german": "Reisekostenabrechnung",
@@ -4718,14 +4718,14 @@
   {
     "german": "Reißverschluss",
     "gender": "der",
-    "english": "zip / zipper",
-    "group": "Other"
+    "english": "zipper",
+    "group": "Clothing"
   },
   {
     "german": "Religion",
     "gender": "die",
-    "english": "religious education",
-    "group": "School"
+    "english": "religion",
+    "group": "Culture & Arts"
   },
   {
     "german": "Rente",
@@ -4755,7 +4755,7 @@
     "german": "Rock",
     "gender": "der",
     "english": "skirt",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Rohr",
@@ -4773,7 +4773,7 @@
     "german": "Roman",
     "gender": "der",
     "english": "novel",
-    "group": "Other"
+    "group": "Culture & Arts"
   },
   {
     "german": "Rosine",
@@ -4808,14 +4808,14 @@
   {
     "german": "Rucksack",
     "gender": "der",
-    "english": "backpack / rucksack",
-    "group": "Office"
+    "english": "backpack",
+    "group": "Clothing"
   },
   {
     "german": "S-Bahn",
     "gender": "die",
-    "english": "suburban train",
-    "group": "Other"
+    "english": "city train",
+    "group": "Transport & Travel"
   },
   {
     "german": "Saft",
@@ -4851,13 +4851,13 @@
     "german": "Sand",
     "gender": "der",
     "english": "sand",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Sandale",
     "gender": "die",
     "english": "sandal",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Sandwich",
@@ -4899,13 +4899,13 @@
     "german": "Schaf",
     "gender": "das",
     "english": "sheep",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Schal",
     "gender": "der",
     "english": "scarf",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Schalter",
@@ -4947,7 +4947,7 @@
     "german": "Schiff",
     "gender": "das",
     "english": "ship",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Schinken",
@@ -4971,13 +4971,13 @@
     "german": "Schlange",
     "gender": "die",
     "english": "snake",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Schloss",
     "gender": "das",
     "english": "castle / palace",
-    "group": "Other"
+    "group": "City & Shopping"
   },
   {
     "german": "Schlüssel",
@@ -4989,7 +4989,7 @@
     "german": "Schmerz",
     "gender": "der",
     "english": "pain",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Schnaps",
@@ -5001,7 +5001,7 @@
     "german": "Schnee",
     "gender": "der",
     "english": "snow",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Schnittlauch",
@@ -5055,7 +5055,7 @@
     "german": "Schuh",
     "gender": "der",
     "english": "shoe",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Schuhregal",
@@ -5139,7 +5139,7 @@
     "german": "Schulter",
     "gender": "die",
     "english": "shoulder",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Schulung",
@@ -5175,7 +5175,7 @@
     "german": "Schwein",
     "gender": "das",
     "english": "pig",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Schweinefleisch",
@@ -5217,19 +5217,19 @@
     "german": "Schwimmen",
     "gender": "das",
     "english": "swimming",
-    "group": "Other"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "See",
     "gender": "der",
     "english": "lake",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Sehenswürdigkeit",
     "gender": "die",
-    "english": "sight / tourist attraction",
-    "group": "Other"
+    "english": "tourist attraction",
+    "group": "Transport & Travel"
   },
   {
     "german": "Sekretariat",
@@ -5247,7 +5247,7 @@
     "german": "Sekunde",
     "gender": "die",
     "english": "second",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Sellerie",
@@ -5289,7 +5289,7 @@
     "german": "Server",
     "gender": "der",
     "english": "server",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Sessel",
@@ -5319,7 +5319,7 @@
     "german": "Smartphone",
     "gender": "das",
     "english": "smartphone",
-    "group": "Other"
+    "group": "Technology"
   },
   {
     "german": "Smoothie",
@@ -5336,14 +5336,14 @@
   {
     "german": "Sneaker",
     "gender": "der",
-    "english": "sneaker",
-    "group": "Other"
+    "english": "sneaker / trainer",
+    "group": "Clothing"
   },
   {
     "german": "Socke",
     "gender": "die",
     "english": "sock",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Sofa",
@@ -5355,7 +5355,7 @@
     "german": "Software",
     "gender": "die",
     "english": "software",
-    "group": "Other"
+    "group": "Technology"
   },
   {
     "german": "Sohn",
@@ -5385,7 +5385,7 @@
     "german": "Sonne",
     "gender": "die",
     "english": "sun",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Sorge",
@@ -5462,8 +5462,8 @@
   {
     "german": "Spiel",
     "gender": "das",
-    "english": "game",
-    "group": "Other"
+    "english": "game / match",
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Spielzimmer",
@@ -5481,7 +5481,7 @@
     "german": "Spinne",
     "gender": "die",
     "english": "spider",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Spitzer",
@@ -5492,20 +5492,20 @@
   {
     "german": "Sport",
     "gender": "der",
-    "english": "sport / PE",
-    "group": "School"
+    "english": "sport",
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Sprache",
     "gender": "die",
     "english": "language",
-    "group": "Other"
+    "group": "Culture & Arts"
   },
   {
     "german": "Spritze",
     "gender": "die",
     "english": "injection / syringe",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Spülmaschine",
@@ -5522,8 +5522,8 @@
   {
     "german": "Stadt",
     "gender": "die",
-    "english": "city / town",
-    "group": "Other"
+    "english": "city",
+    "group": "City & Shopping"
   },
   {
     "german": "Stammbaum",
@@ -5535,7 +5535,7 @@
     "german": "Stau",
     "gender": "der",
     "english": "traffic jam",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Steak",
@@ -5552,8 +5552,8 @@
   {
     "german": "Steckdose",
     "gender": "die",
-    "english": "power socket",
-    "group": "Office"
+    "english": "socket / outlet",
+    "group": "Technology"
   },
   {
     "german": "Stehlampe",
@@ -5564,8 +5564,8 @@
   {
     "german": "Stein",
     "gender": "der",
-    "english": "stone / rock",
-    "group": "Other"
+    "english": "stone",
+    "group": "Nature & Weather"
   },
   {
     "german": "Stelle",
@@ -5601,7 +5601,7 @@
     "german": "Stern",
     "gender": "der",
     "english": "star",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Steuer",
@@ -5613,7 +5613,7 @@
     "german": "Stiefel",
     "gender": "der",
     "english": "boot",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Stiefmutter",
@@ -5667,19 +5667,19 @@
     "german": "Strand",
     "gender": "der",
     "english": "beach",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Straße",
     "gender": "die",
-    "english": "street / road",
-    "group": "Other"
+    "english": "street",
+    "group": "Transport & Travel"
   },
   {
     "german": "Straßenbahn",
     "gender": "die",
-    "english": "tram",
-    "group": "Other"
+    "english": "tram / streetcar",
+    "group": "Transport & Travel"
   },
   {
     "german": "Strategie",
@@ -5691,7 +5691,7 @@
     "german": "Strumpfhose",
     "gender": "die",
     "english": "tights / pantyhose",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Student",
@@ -5726,8 +5726,8 @@
   {
     "german": "Stunde",
     "gender": "die",
-    "english": "lesson / hour",
-    "group": "School"
+    "english": "hour",
+    "group": "Time & Numbers"
   },
   {
     "german": "Stundenplan",
@@ -5739,13 +5739,13 @@
     "german": "Sturm",
     "gender": "der",
     "english": "storm",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Supermarkt",
     "gender": "der",
     "english": "supermarket",
-    "group": "Other"
+    "group": "City & Shopping"
   },
   {
     "german": "Suppe",
@@ -5756,8 +5756,8 @@
   {
     "german": "T-Shirt",
     "gender": "das",
-    "english": "t-shirt",
-    "group": "Other"
+    "english": "T-shirt",
+    "group": "Clothing"
   },
   {
     "german": "Tabelle",
@@ -5769,13 +5769,13 @@
     "german": "Tablet",
     "gender": "das",
     "english": "tablet",
-    "group": "Other"
+    "group": "Technology"
   },
   {
     "german": "Tablette",
     "gender": "die",
-    "english": "tablet / pill",
-    "group": "Other"
+    "english": "pill / tablet",
+    "group": "Body & Health"
   },
   {
     "german": "Tacker",
@@ -5793,7 +5793,7 @@
     "german": "Tag",
     "gender": "der",
     "english": "day",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Tagesordnung",
@@ -5811,13 +5811,13 @@
     "german": "Tal",
     "gender": "das",
     "english": "valley",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Tankstelle",
     "gender": "die",
-    "english": "petrol station / gas station",
-    "group": "Other"
+    "english": "gas station",
+    "group": "Transport & Travel"
   },
   {
     "german": "Tante",
@@ -5829,7 +5829,7 @@
     "german": "Tanz",
     "gender": "der",
     "english": "dance",
-    "group": "Other"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Tapete",
@@ -5847,7 +5847,7 @@
     "german": "Tasche",
     "gender": "die",
     "english": "bag / pocket",
-    "group": "Other"
+    "group": "Clothing"
   },
   {
     "german": "Taschenrechner",
@@ -5865,19 +5865,19 @@
     "german": "Tastatur",
     "gender": "die",
     "english": "keyboard",
-    "group": "Office"
+    "group": "Technology"
   },
   {
     "german": "Taxi",
     "gender": "das",
     "english": "taxi",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Team",
     "gender": "das",
     "english": "team",
-    "group": "Work"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Tee",
@@ -5913,7 +5913,7 @@
     "german": "Tennis",
     "gender": "das",
     "english": "tennis",
-    "group": "Other"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Teppich",
@@ -5925,7 +5925,7 @@
     "german": "Termin",
     "gender": "der",
     "english": "appointment",
-    "group": "Office"
+    "group": "Time & Numbers"
   },
   {
     "german": "Terrasse",
@@ -5948,8 +5948,8 @@
   {
     "german": "Theater",
     "gender": "das",
-    "english": "theatre",
-    "group": "Other"
+    "english": "theater",
+    "group": "Culture & Arts"
   },
   {
     "german": "Thunfisch",
@@ -5967,13 +5967,13 @@
     "german": "Tier",
     "gender": "das",
     "english": "animal",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Tiger",
     "gender": "der",
     "english": "tiger",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Tintenfisch",
@@ -6044,8 +6044,8 @@
   {
     "german": "Tor",
     "gender": "das",
-    "english": "gate",
-    "group": "House"
+    "english": "goal / gate",
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Torte",
@@ -6117,7 +6117,7 @@
     "german": "Tunnel",
     "gender": "der",
     "english": "tunnel",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Tür",
@@ -6158,8 +6158,8 @@
   {
     "german": "U-Bahn",
     "gender": "die",
-    "english": "subway / underground",
-    "group": "Other"
+    "english": "subway / metro",
+    "group": "Transport & Travel"
   },
   {
     "german": "Überschuss",
@@ -6260,8 +6260,8 @@
   {
     "german": "Urlaub",
     "gender": "der",
-    "english": "holiday / annual leave",
-    "group": "Work"
+    "english": "vacation / holiday",
+    "group": "Transport & Travel"
   },
   {
     "german": "USB-Stick",
@@ -6357,7 +6357,7 @@
     "german": "Vogel",
     "gender": "der",
     "english": "bird",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Vollzeit",
@@ -6440,8 +6440,8 @@
   {
     "german": "Wald",
     "gender": "der",
-    "english": "forest",
-    "group": "Other"
+    "english": "forest / wood",
+    "group": "Nature & Weather"
   },
   {
     "german": "Walnuss",
@@ -6549,7 +6549,7 @@
     "german": "Webseite",
     "gender": "die",
     "english": "website",
-    "group": "Other"
+    "group": "Technology"
   },
   {
     "german": "Wechselkurs",
@@ -6609,7 +6609,7 @@
     "german": "Wespe",
     "gender": "die",
     "english": "wasp",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Wettbewerber",
@@ -6621,7 +6621,7 @@
     "german": "Wetter",
     "gender": "das",
     "english": "weather",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Whisky",
@@ -6639,13 +6639,13 @@
     "german": "Wiese",
     "gender": "die",
     "english": "meadow",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Wind",
     "gender": "der",
     "english": "wind",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Winter",
@@ -6680,20 +6680,20 @@
   {
     "german": "WLAN",
     "gender": "das",
-    "english": "wi-fi / wireless network",
-    "group": "Other"
+    "english": "Wi-Fi",
+    "group": "Technology"
   },
   {
     "german": "Woche",
     "gender": "die",
     "english": "week",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Wochenende",
     "gender": "das",
     "english": "weekend",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Wodka",
@@ -6717,13 +6717,13 @@
     "german": "Wolf",
     "gender": "der",
     "english": "wolf",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Wolke",
     "gender": "die",
     "english": "cloud",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Workshop",
@@ -6741,7 +6741,7 @@
     "german": "Wunde",
     "gender": "die",
     "english": "wound",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Wunsch",
@@ -6759,19 +6759,19 @@
     "german": "Wüste",
     "gender": "die",
     "english": "desert",
-    "group": "Other"
+    "group": "Nature & Weather"
   },
   {
     "german": "Yoga",
     "gender": "das",
     "english": "yoga",
-    "group": "Other"
+    "group": "Sports & Hobbies"
   },
   {
     "german": "Zahn",
     "gender": "der",
     "english": "tooth",
-    "group": "Other"
+    "group": "Body & Health"
   },
   {
     "german": "Zaun",
@@ -6795,7 +6795,7 @@
     "german": "Zeit",
     "gender": "die",
     "english": "time",
-    "group": "Other"
+    "group": "Time & Numbers"
   },
   {
     "german": "Zeugnis",
@@ -6807,7 +6807,7 @@
     "german": "Ziege",
     "gender": "die",
     "english": "goat",
-    "group": "Other"
+    "group": "Animals"
   },
   {
     "german": "Ziegel",
@@ -6879,7 +6879,7 @@
     "german": "Zug",
     "gender": "der",
     "english": "train",
-    "group": "Other"
+    "group": "Transport & Travel"
   },
   {
     "german": "Zugangskarte",
@@ -6905,534 +6905,1540 @@
     "english": "twin",
     "group": "Family"
   },
-
-  { "german": "Körper", "gender": "der", "english": "body", "group": "Body & Health" },
-  { "german": "Kopf", "gender": "der", "english": "head", "group": "Body & Health" },
-  { "german": "Gesicht", "gender": "das", "english": "face", "group": "Body & Health" },
-  { "german": "Auge", "gender": "das", "english": "eye", "group": "Body & Health" },
-  { "german": "Ohr", "gender": "das", "english": "ear", "group": "Body & Health" },
-  { "german": "Nase", "gender": "die", "english": "nose", "group": "Body & Health" },
-  { "german": "Mund", "gender": "der", "english": "mouth", "group": "Body & Health" },
-  { "german": "Zahn", "gender": "der", "english": "tooth", "group": "Body & Health" },
-  { "german": "Zunge", "gender": "die", "english": "tongue", "group": "Body & Health" },
-  { "german": "Lippe", "gender": "die", "english": "lip", "group": "Body & Health" },
-  { "german": "Haar", "gender": "das", "english": "hair", "group": "Body & Health" },
-  { "german": "Hals", "gender": "der", "english": "neck / throat", "group": "Body & Health" },
-  { "german": "Schulter", "gender": "die", "english": "shoulder", "group": "Body & Health" },
-  { "german": "Arm", "gender": "der", "english": "arm", "group": "Body & Health" },
-  { "german": "Ellbogen", "gender": "der", "english": "elbow", "group": "Body & Health" },
-  { "german": "Handgelenk", "gender": "das", "english": "wrist", "group": "Body & Health" },
-  { "german": "Hand", "gender": "die", "english": "hand", "group": "Body & Health" },
-  { "german": "Finger", "gender": "der", "english": "finger", "group": "Body & Health" },
-  { "german": "Daumen", "gender": "der", "english": "thumb", "group": "Body & Health" },
-  { "german": "Nagel", "gender": "der", "english": "nail", "group": "Body & Health" },
-  { "german": "Bauch", "gender": "der", "english": "belly / stomach", "group": "Body & Health" },
-  { "german": "Brust", "gender": "die", "english": "chest / breast", "group": "Body & Health" },
-  { "german": "Rücken", "gender": "der", "english": "back", "group": "Body & Health" },
-  { "german": "Hüfte", "gender": "die", "english": "hip", "group": "Body & Health" },
-  { "german": "Bein", "gender": "das", "english": "leg", "group": "Body & Health" },
-  { "german": "Knie", "gender": "das", "english": "knee", "group": "Body & Health" },
-  { "german": "Fuß", "gender": "der", "english": "foot", "group": "Body & Health" },
-  { "german": "Zehe", "gender": "die", "english": "toe", "group": "Body & Health" },
-  { "german": "Knöchel", "gender": "der", "english": "ankle", "group": "Body & Health" },
-  { "german": "Herz", "gender": "das", "english": "heart", "group": "Body & Health" },
-  { "german": "Lunge", "gender": "die", "english": "lung", "group": "Body & Health" },
-  { "german": "Magen", "gender": "der", "english": "stomach", "group": "Body & Health" },
-  { "german": "Leber", "gender": "die", "english": "liver", "group": "Body & Health" },
-  { "german": "Niere", "gender": "die", "english": "kidney", "group": "Body & Health" },
-  { "german": "Gehirn", "gender": "das", "english": "brain", "group": "Body & Health" },
-  { "german": "Blut", "gender": "das", "english": "blood", "group": "Body & Health" },
-  { "german": "Knochen", "gender": "der", "english": "bone", "group": "Body & Health" },
-  { "german": "Muskel", "gender": "der", "english": "muscle", "group": "Body & Health" },
-  { "german": "Haut", "gender": "die", "english": "skin", "group": "Body & Health" },
-  { "german": "Ader", "gender": "die", "english": "vein", "group": "Body & Health" },
-  { "german": "Krankheit", "gender": "die", "english": "illness", "group": "Body & Health" },
-  { "german": "Erkältung", "gender": "die", "english": "cold", "group": "Body & Health" },
-  { "german": "Grippe", "gender": "die", "english": "flu", "group": "Body & Health" },
-  { "german": "Fieber", "gender": "das", "english": "fever", "group": "Body & Health" },
-  { "german": "Schmerz", "gender": "der", "english": "pain", "group": "Body & Health" },
-  { "german": "Husten", "gender": "der", "english": "cough", "group": "Body & Health" },
-  { "german": "Schnupfen", "gender": "der", "english": "runny nose", "group": "Body & Health" },
-  { "german": "Allergie", "gender": "die", "english": "allergy", "group": "Body & Health" },
-  { "german": "Verletzung", "gender": "die", "english": "injury", "group": "Body & Health" },
-  { "german": "Wunde", "gender": "die", "english": "wound", "group": "Body & Health" },
-  { "german": "Arzt", "gender": "der", "english": "doctor (m)", "group": "Body & Health" },
-  { "german": "Ärztin", "gender": "die", "english": "doctor (f)", "group": "Body & Health" },
-  { "german": "Apotheke", "gender": "die", "english": "pharmacy", "group": "Body & Health" },
-  { "german": "Krankenhaus", "gender": "das", "english": "hospital", "group": "Body & Health" },
-  { "german": "Klinik", "gender": "die", "english": "clinic", "group": "Body & Health" },
-  { "german": "Medikament", "gender": "das", "english": "medication", "group": "Body & Health" },
-  { "german": "Tablette", "gender": "die", "english": "pill / tablet", "group": "Body & Health" },
-  { "german": "Rezept", "gender": "das", "english": "prescription / recipe", "group": "Body & Health" },
-  { "german": "Spritze", "gender": "die", "english": "injection / syringe", "group": "Body & Health" },
-  { "german": "Operation", "gender": "die", "english": "operation / surgery", "group": "Body & Health" },
-  { "german": "Diät", "gender": "die", "english": "diet", "group": "Body & Health" },
-  { "german": "Gesundheit", "gender": "die", "english": "health", "group": "Body & Health" },
-  { "german": "Hygiene", "gender": "die", "english": "hygiene", "group": "Body & Health" },
-  { "german": "Patient", "gender": "der", "english": "patient (m)", "group": "Body & Health" },
-  { "german": "Notfall", "gender": "der", "english": "emergency", "group": "Body & Health" },
-  { "german": "Symptom", "gender": "das", "english": "symptom", "group": "Body & Health" },
-  { "german": "Diagnose", "gender": "die", "english": "diagnosis", "group": "Body & Health" },
-  { "german": "Therapie", "gender": "die", "english": "therapy", "group": "Body & Health" },
-  { "german": "Impfung", "gender": "die", "english": "vaccination", "group": "Body & Health" },
-
-  { "german": "Kleidung", "gender": "die", "english": "clothing", "group": "Clothing" },
-  { "german": "Hemd", "gender": "das", "english": "shirt", "group": "Clothing" },
-  { "german": "Bluse", "gender": "die", "english": "blouse", "group": "Clothing" },
-  { "german": "Hose", "gender": "die", "english": "pants / trousers", "group": "Clothing" },
-  { "german": "Rock", "gender": "der", "english": "skirt", "group": "Clothing" },
-  { "german": "Kleid", "gender": "das", "english": "dress", "group": "Clothing" },
-  { "german": "Anzug", "gender": "der", "english": "suit", "group": "Clothing" },
-  { "german": "Jacke", "gender": "die", "english": "jacket", "group": "Clothing" },
-  { "german": "Mantel", "gender": "der", "english": "coat", "group": "Clothing" },
-  { "german": "Pullover", "gender": "der", "english": "sweater / pullover", "group": "Clothing" },
-  { "german": "T-Shirt", "gender": "das", "english": "T-shirt", "group": "Clothing" },
-  { "german": "Jeans", "gender": "die", "english": "jeans", "group": "Clothing" },
-  { "german": "Shorts", "gender": "die", "english": "shorts", "group": "Clothing" },
-  { "german": "Socke", "gender": "die", "english": "sock", "group": "Clothing" },
-  { "german": "Strumpf", "gender": "der", "english": "stocking", "group": "Clothing" },
-  { "german": "Strumpfhose", "gender": "die", "english": "tights / pantyhose", "group": "Clothing" },
-  { "german": "Schuh", "gender": "der", "english": "shoe", "group": "Clothing" },
-  { "german": "Stiefel", "gender": "der", "english": "boot", "group": "Clothing" },
-  { "german": "Sandale", "gender": "die", "english": "sandal", "group": "Clothing" },
-  { "german": "Sneaker", "gender": "der", "english": "sneaker / trainer", "group": "Clothing" },
-  { "german": "Mütze", "gender": "die", "english": "cap / beanie", "group": "Clothing" },
-  { "german": "Hut", "gender": "der", "english": "hat", "group": "Clothing" },
-  { "german": "Schal", "gender": "der", "english": "scarf", "group": "Clothing" },
-  { "german": "Handschuh", "gender": "der", "english": "glove", "group": "Clothing" },
-  { "german": "Gürtel", "gender": "der", "english": "belt", "group": "Clothing" },
-  { "german": "Krawatte", "gender": "die", "english": "tie", "group": "Clothing" },
-  { "german": "Tasche", "gender": "die", "english": "bag / pocket", "group": "Clothing" },
-  { "german": "Rucksack", "gender": "der", "english": "backpack", "group": "Clothing" },
-  { "german": "Geldbörse", "gender": "die", "english": "wallet / purse", "group": "Clothing" },
-  { "german": "Brille", "gender": "die", "english": "glasses", "group": "Clothing" },
-  { "german": "Sonnenbrille", "gender": "die", "english": "sunglasses", "group": "Clothing" },
-  { "german": "Schmuck", "gender": "der", "english": "jewelry", "group": "Clothing" },
-  { "german": "Ring", "gender": "der", "english": "ring", "group": "Clothing" },
-  { "german": "Kette", "gender": "die", "english": "necklace / chain", "group": "Clothing" },
-  { "german": "Ohrring", "gender": "der", "english": "earring", "group": "Clothing" },
-  { "german": "Armband", "gender": "das", "english": "bracelet", "group": "Clothing" },
-  { "german": "Knopf", "gender": "der", "english": "button", "group": "Clothing" },
-  { "german": "Reißverschluss", "gender": "der", "english": "zipper", "group": "Clothing" },
-  { "german": "Stoff", "gender": "der", "english": "fabric / cloth", "group": "Clothing" },
-  { "german": "Mode", "gender": "die", "english": "fashion", "group": "Clothing" },
-  { "german": "Bademantel", "gender": "der", "english": "bathrobe", "group": "Clothing" },
-  { "german": "Schlafanzug", "gender": "der", "english": "pajamas", "group": "Clothing" },
-  { "german": "Unterhose", "gender": "die", "english": "underpants", "group": "Clothing" },
-  { "german": "Unterhemd", "gender": "das", "english": "undershirt", "group": "Clothing" },
-
-  { "german": "Natur", "gender": "die", "english": "nature", "group": "Nature & Weather" },
-  { "german": "Wetter", "gender": "das", "english": "weather", "group": "Nature & Weather" },
-  { "german": "Klima", "gender": "das", "english": "climate", "group": "Nature & Weather" },
-  { "german": "Himmel", "gender": "der", "english": "sky", "group": "Nature & Weather" },
-  { "german": "Sonne", "gender": "die", "english": "sun", "group": "Nature & Weather" },
-  { "german": "Mond", "gender": "der", "english": "moon", "group": "Nature & Weather" },
-  { "german": "Stern", "gender": "der", "english": "star", "group": "Nature & Weather" },
-  { "german": "Planet", "gender": "der", "english": "planet", "group": "Nature & Weather" },
-  { "german": "Wolke", "gender": "die", "english": "cloud", "group": "Nature & Weather" },
-  { "german": "Regen", "gender": "der", "english": "rain", "group": "Nature & Weather" },
-  { "german": "Schnee", "gender": "der", "english": "snow", "group": "Nature & Weather" },
-  { "german": "Wind", "gender": "der", "english": "wind", "group": "Nature & Weather" },
-  { "german": "Sturm", "gender": "der", "english": "storm", "group": "Nature & Weather" },
-  { "german": "Nebel", "gender": "der", "english": "fog", "group": "Nature & Weather" },
-  { "german": "Blitz", "gender": "der", "english": "lightning", "group": "Nature & Weather" },
-  { "german": "Donner", "gender": "der", "english": "thunder", "group": "Nature & Weather" },
-  { "german": "Gewitter", "gender": "das", "english": "thunderstorm", "group": "Nature & Weather" },
-  { "german": "Frost", "gender": "der", "english": "frost", "group": "Nature & Weather" },
-  { "german": "Hagel", "gender": "der", "english": "hail", "group": "Nature & Weather" },
-  { "german": "Temperatur", "gender": "die", "english": "temperature", "group": "Nature & Weather" },
-  { "german": "Grad", "gender": "der", "english": "degree", "group": "Nature & Weather" },
-  { "german": "Berg", "gender": "der", "english": "mountain", "group": "Nature & Weather" },
-  { "german": "Tal", "gender": "das", "english": "valley", "group": "Nature & Weather" },
-  { "german": "Hügel", "gender": "der", "english": "hill", "group": "Nature & Weather" },
-  { "german": "Wald", "gender": "der", "english": "forest / wood", "group": "Nature & Weather" },
-  { "german": "Baum", "gender": "der", "english": "tree", "group": "Nature & Weather" },
-  { "german": "Blume", "gender": "die", "english": "flower", "group": "Nature & Weather" },
-  { "german": "Blatt", "gender": "das", "english": "leaf / sheet", "group": "Nature & Weather" },
-  { "german": "Gras", "gender": "das", "english": "grass", "group": "Nature & Weather" },
-  { "german": "Fluss", "gender": "der", "english": "river", "group": "Nature & Weather" },
-  { "german": "Bach", "gender": "der", "english": "stream / brook", "group": "Nature & Weather" },
-  { "german": "See", "gender": "der", "english": "lake", "group": "Nature & Weather" },
-  { "german": "Meer", "gender": "das", "english": "sea", "group": "Nature & Weather" },
-  { "german": "Ozean", "gender": "der", "english": "ocean", "group": "Nature & Weather" },
-  { "german": "Strand", "gender": "der", "english": "beach", "group": "Nature & Weather" },
-  { "german": "Insel", "gender": "die", "english": "island", "group": "Nature & Weather" },
-  { "german": "Küste", "gender": "die", "english": "coast", "group": "Nature & Weather" },
-  { "german": "Wüste", "gender": "die", "english": "desert", "group": "Nature & Weather" },
-  { "german": "Wiese", "gender": "die", "english": "meadow", "group": "Nature & Weather" },
-  { "german": "Feld", "gender": "das", "english": "field", "group": "Nature & Weather" },
-  { "german": "Stein", "gender": "der", "english": "stone", "group": "Nature & Weather" },
-  { "german": "Sand", "gender": "der", "english": "sand", "group": "Nature & Weather" },
-  { "german": "Erde", "gender": "die", "english": "earth / soil", "group": "Nature & Weather" },
-  { "german": "Luft", "gender": "die", "english": "air", "group": "Nature & Weather" },
-  { "german": "Feuer", "gender": "das", "english": "fire", "group": "Nature & Weather" },
-  { "german": "Eis", "gender": "das", "english": "ice", "group": "Nature & Weather" },
-  { "german": "Pflanze", "gender": "die", "english": "plant", "group": "Nature & Weather" },
-  { "german": "Wurzel", "gender": "die", "english": "root", "group": "Nature & Weather" },
-  { "german": "Ast", "gender": "der", "english": "branch", "group": "Nature & Weather" },
-  { "german": "Welle", "gender": "die", "english": "wave", "group": "Nature & Weather" },
-  { "german": "Umwelt", "gender": "die", "english": "environment", "group": "Nature & Weather" },
-
-  { "german": "Tier", "gender": "das", "english": "animal", "group": "Animals" },
-  { "german": "Hund", "gender": "der", "english": "dog", "group": "Animals" },
-  { "german": "Katze", "gender": "die", "english": "cat", "group": "Animals" },
-  { "german": "Pferd", "gender": "das", "english": "horse", "group": "Animals" },
-  { "german": "Kuh", "gender": "die", "english": "cow", "group": "Animals" },
-  { "german": "Stier", "gender": "der", "english": "bull", "group": "Animals" },
-  { "german": "Schwein", "gender": "das", "english": "pig", "group": "Animals" },
-  { "german": "Schaf", "gender": "das", "english": "sheep", "group": "Animals" },
-  { "german": "Ziege", "gender": "die", "english": "goat", "group": "Animals" },
-  { "german": "Huhn", "gender": "das", "english": "chicken / hen", "group": "Animals" },
-  { "german": "Hahn", "gender": "der", "english": "rooster", "group": "Animals" },
-  { "german": "Ente", "gender": "die", "english": "duck", "group": "Animals" },
-  { "german": "Gans", "gender": "die", "english": "goose", "group": "Animals" },
-  { "german": "Vogel", "gender": "der", "english": "bird", "group": "Animals" },
-  { "german": "Taube", "gender": "die", "english": "pigeon / dove", "group": "Animals" },
-  { "german": "Spatz", "gender": "der", "english": "sparrow", "group": "Animals" },
-  { "german": "Adler", "gender": "der", "english": "eagle", "group": "Animals" },
-  { "german": "Eule", "gender": "die", "english": "owl", "group": "Animals" },
-  { "german": "Fisch", "gender": "der", "english": "fish", "group": "Animals" },
-  { "german": "Hai", "gender": "der", "english": "shark", "group": "Animals" },
-  { "german": "Delfin", "gender": "der", "english": "dolphin", "group": "Animals" },
-  { "german": "Wal", "gender": "der", "english": "whale", "group": "Animals" },
-  { "german": "Schildkröte", "gender": "die", "english": "turtle", "group": "Animals" },
-  { "german": "Schlange", "gender": "die", "english": "snake", "group": "Animals" },
-  { "german": "Frosch", "gender": "der", "english": "frog", "group": "Animals" },
-  { "german": "Maus", "gender": "die", "english": "mouse", "group": "Animals" },
-  { "german": "Ratte", "gender": "die", "english": "rat", "group": "Animals" },
-  { "german": "Kaninchen", "gender": "das", "english": "rabbit", "group": "Animals" },
-  { "german": "Hase", "gender": "der", "english": "hare", "group": "Animals" },
-  { "german": "Bär", "gender": "der", "english": "bear", "group": "Animals" },
-  { "german": "Wolf", "gender": "der", "english": "wolf", "group": "Animals" },
-  { "german": "Fuchs", "gender": "der", "english": "fox", "group": "Animals" },
-  { "german": "Reh", "gender": "das", "english": "deer / roe deer", "group": "Animals" },
-  { "german": "Hirsch", "gender": "der", "english": "stag", "group": "Animals" },
-  { "german": "Elefant", "gender": "der", "english": "elephant", "group": "Animals" },
-  { "german": "Löwe", "gender": "der", "english": "lion", "group": "Animals" },
-  { "german": "Tiger", "gender": "der", "english": "tiger", "group": "Animals" },
-  { "german": "Giraffe", "gender": "die", "english": "giraffe", "group": "Animals" },
-  { "german": "Affe", "gender": "der", "english": "monkey / ape", "group": "Animals" },
-  { "german": "Zebra", "gender": "das", "english": "zebra", "group": "Animals" },
-  { "german": "Spinne", "gender": "die", "english": "spider", "group": "Animals" },
-  { "german": "Biene", "gender": "die", "english": "bee", "group": "Animals" },
-  { "german": "Wespe", "gender": "die", "english": "wasp", "group": "Animals" },
-  { "german": "Fliege", "gender": "die", "english": "fly", "group": "Animals" },
-  { "german": "Mücke", "gender": "die", "english": "mosquito", "group": "Animals" },
-  { "german": "Käfer", "gender": "der", "english": "beetle", "group": "Animals" },
-  { "german": "Schmetterling", "gender": "der", "english": "butterfly", "group": "Animals" },
-  { "german": "Ameise", "gender": "die", "english": "ant", "group": "Animals" },
-  { "german": "Wurm", "gender": "der", "english": "worm", "group": "Animals" },
-  { "german": "Kamel", "gender": "das", "english": "camel", "group": "Animals" },
-
-  { "german": "Verkehr", "gender": "der", "english": "traffic", "group": "Transport & Travel" },
-  { "german": "Auto", "gender": "das", "english": "car", "group": "Transport & Travel" },
-  { "german": "Wagen", "gender": "der", "english": "car / vehicle", "group": "Transport & Travel" },
-  { "german": "Bus", "gender": "der", "english": "bus", "group": "Transport & Travel" },
-  { "german": "Straßenbahn", "gender": "die", "english": "tram / streetcar", "group": "Transport & Travel" },
-  { "german": "U-Bahn", "gender": "die", "english": "subway / metro", "group": "Transport & Travel" },
-  { "german": "S-Bahn", "gender": "die", "english": "city train", "group": "Transport & Travel" },
-  { "german": "Zug", "gender": "der", "english": "train", "group": "Transport & Travel" },
-  { "german": "Bahn", "gender": "die", "english": "railway", "group": "Transport & Travel" },
-  { "german": "Taxi", "gender": "das", "english": "taxi", "group": "Transport & Travel" },
-  { "german": "Fahrrad", "gender": "das", "english": "bicycle", "group": "Transport & Travel" },
-  { "german": "Motorrad", "gender": "das", "english": "motorcycle", "group": "Transport & Travel" },
-  { "german": "Roller", "gender": "der", "english": "scooter", "group": "Transport & Travel" },
-  { "german": "Flugzeug", "gender": "das", "english": "airplane", "group": "Transport & Travel" },
-  { "german": "Hubschrauber", "gender": "der", "english": "helicopter", "group": "Transport & Travel" },
-  { "german": "Schiff", "gender": "das", "english": "ship", "group": "Transport & Travel" },
-  { "german": "Boot", "gender": "das", "english": "boat", "group": "Transport & Travel" },
-  { "german": "Fähre", "gender": "die", "english": "ferry", "group": "Transport & Travel" },
-  { "german": "Lastwagen", "gender": "der", "english": "truck / lorry", "group": "Transport & Travel" },
-  { "german": "Straße", "gender": "die", "english": "street", "group": "Transport & Travel" },
-  { "german": "Autobahn", "gender": "die", "english": "highway / motorway", "group": "Transport & Travel" },
-  { "german": "Brücke", "gender": "die", "english": "bridge", "group": "Transport & Travel" },
-  { "german": "Tunnel", "gender": "der", "english": "tunnel", "group": "Transport & Travel" },
-  { "german": "Kreuzung", "gender": "die", "english": "intersection", "group": "Transport & Travel" },
-  { "german": "Ampel", "gender": "die", "english": "traffic light", "group": "Transport & Travel" },
-  { "german": "Verkehrsschild", "gender": "das", "english": "traffic sign", "group": "Transport & Travel" },
-  { "german": "Parkplatz", "gender": "der", "english": "parking lot", "group": "Transport & Travel" },
-  { "german": "Tankstelle", "gender": "die", "english": "gas station", "group": "Transport & Travel" },
-  { "german": "Bahnhof", "gender": "der", "english": "train station", "group": "Transport & Travel" },
-  { "german": "Flughafen", "gender": "der", "english": "airport", "group": "Transport & Travel" },
-  { "german": "Hafen", "gender": "der", "english": "harbor / port", "group": "Transport & Travel" },
-  { "german": "Haltestelle", "gender": "die", "english": "bus stop", "group": "Transport & Travel" },
-  { "german": "Gleis", "gender": "das", "english": "track / platform", "group": "Transport & Travel" },
-  { "german": "Fahrplan", "gender": "der", "english": "schedule / timetable", "group": "Transport & Travel" },
-  { "german": "Fahrt", "gender": "die", "english": "ride / journey", "group": "Transport & Travel" },
-  { "german": "Reise", "gender": "die", "english": "trip / journey", "group": "Transport & Travel" },
-  { "german": "Urlaub", "gender": "der", "english": "vacation / holiday", "group": "Transport & Travel" },
-  { "german": "Ferien", "gender": "die", "english": "holidays (school break)", "group": "Transport & Travel" },
-  { "german": "Koffer", "gender": "der", "english": "suitcase", "group": "Transport & Travel" },
-  { "german": "Gepäck", "gender": "das", "english": "luggage", "group": "Transport & Travel" },
-  { "german": "Reisepass", "gender": "der", "english": "passport", "group": "Transport & Travel" },
-  { "german": "Visum", "gender": "das", "english": "visa", "group": "Transport & Travel" },
-  { "german": "Ticket", "gender": "das", "english": "ticket", "group": "Transport & Travel" },
-  { "german": "Fahrkarte", "gender": "die", "english": "ticket (transport)", "group": "Transport & Travel" },
-  { "german": "Ausweis", "gender": "der", "english": "ID card", "group": "Transport & Travel" },
-  { "german": "Hotel", "gender": "das", "english": "hotel", "group": "Transport & Travel" },
-  { "german": "Unterkunft", "gender": "die", "english": "accommodation", "group": "Transport & Travel" },
-  { "german": "Jugendherberge", "gender": "die", "english": "youth hostel", "group": "Transport & Travel" },
-  { "german": "Pension", "gender": "die", "english": "guesthouse / pension", "group": "Transport & Travel" },
-  { "german": "Tour", "gender": "die", "english": "tour", "group": "Transport & Travel" },
-  { "german": "Ausflug", "gender": "der", "english": "excursion / trip", "group": "Transport & Travel" },
-  { "german": "Sehenswürdigkeit", "gender": "die", "english": "tourist attraction", "group": "Transport & Travel" },
-  { "german": "Tourist", "gender": "der", "english": "tourist (m)", "group": "Transport & Travel" },
-  { "german": "Reiseführer", "gender": "der", "english": "tour guide / guidebook", "group": "Transport & Travel" },
-  { "german": "Stau", "gender": "der", "english": "traffic jam", "group": "Transport & Travel" },
-
-  { "german": "Technik", "gender": "die", "english": "technology / technique", "group": "Technology" },
-  { "german": "Technologie", "gender": "die", "english": "technology", "group": "Technology" },
-  { "german": "Computer", "gender": "der", "english": "computer", "group": "Technology" },
-  { "german": "Laptop", "gender": "der", "english": "laptop", "group": "Technology" },
-  { "german": "Smartphone", "gender": "das", "english": "smartphone", "group": "Technology" },
-  { "german": "Handy", "gender": "das", "english": "cellphone / mobile", "group": "Technology" },
-  { "german": "Tablet", "gender": "das", "english": "tablet", "group": "Technology" },
-  { "german": "Tastatur", "gender": "die", "english": "keyboard", "group": "Technology" },
-  { "german": "Bildschirm", "gender": "der", "english": "screen", "group": "Technology" },
-  { "german": "Monitor", "gender": "der", "english": "monitor", "group": "Technology" },
-  { "german": "Drucker", "gender": "der", "english": "printer", "group": "Technology" },
-  { "german": "Lautsprecher", "gender": "der", "english": "speaker / loudspeaker", "group": "Technology" },
-  { "german": "Mikrofon", "gender": "das", "english": "microphone", "group": "Technology" },
-  { "german": "Kamera", "gender": "die", "english": "camera", "group": "Technology" },
-  { "german": "Festplatte", "gender": "die", "english": "hard drive", "group": "Technology" },
-  { "german": "Software", "gender": "die", "english": "software", "group": "Technology" },
-  { "german": "Hardware", "gender": "die", "english": "hardware", "group": "Technology" },
-  { "german": "Programm", "gender": "das", "english": "program", "group": "Technology" },
-  { "german": "Anwendung", "gender": "die", "english": "application", "group": "Technology" },
-  { "german": "App", "gender": "die", "english": "app", "group": "Technology" },
-  { "german": "Datei", "gender": "die", "english": "file", "group": "Technology" },
-  { "german": "Ordner", "gender": "der", "english": "folder", "group": "Technology" },
-  { "german": "Passwort", "gender": "das", "english": "password", "group": "Technology" },
-  { "german": "Benutzer", "gender": "der", "english": "user (m)", "group": "Technology" },
-  { "german": "Webseite", "gender": "die", "english": "website", "group": "Technology" },
-  { "german": "Internetseite", "gender": "die", "english": "web page", "group": "Technology" },
-  { "german": "E-Mail", "gender": "die", "english": "email", "group": "Technology" },
-  { "german": "Internet", "gender": "das", "english": "internet", "group": "Technology" },
-  { "german": "Netzwerk", "gender": "das", "english": "network", "group": "Technology" },
-  { "german": "Server", "gender": "der", "english": "server", "group": "Technology" },
-  { "german": "Cloud", "gender": "die", "english": "cloud", "group": "Technology" },
-  { "german": "WLAN", "gender": "das", "english": "Wi-Fi", "group": "Technology" },
-  { "german": "Akku", "gender": "der", "english": "battery (rechargeable)", "group": "Technology" },
-  { "german": "Batterie", "gender": "die", "english": "battery", "group": "Technology" },
-  { "german": "Ladegerät", "gender": "das", "english": "charger", "group": "Technology" },
-  { "german": "Stecker", "gender": "der", "english": "plug", "group": "Technology" },
-  { "german": "Steckdose", "gender": "die", "english": "socket / outlet", "group": "Technology" },
-  { "german": "Kabel", "gender": "das", "english": "cable", "group": "Technology" },
-  { "german": "Roboter", "gender": "der", "english": "robot", "group": "Technology" },
-  { "german": "Künstliche Intelligenz", "gender": "die", "english": "artificial intelligence", "group": "Technology" },
-  { "german": "Daten", "gender": "die", "english": "data (pl)", "group": "Technology" },
-  { "german": "Suche", "gender": "die", "english": "search", "group": "Technology" },
-  { "german": "Nachricht", "gender": "die", "english": "message / news", "group": "Technology" },
-  { "german": "Anruf", "gender": "der", "english": "phone call", "group": "Technology" },
-
-  { "german": "Sport", "gender": "der", "english": "sport", "group": "Sports & Hobbies" },
-  { "german": "Hobby", "gender": "das", "english": "hobby", "group": "Sports & Hobbies" },
-  { "german": "Fußball", "gender": "der", "english": "soccer / football", "group": "Sports & Hobbies" },
-  { "german": "Basketball", "gender": "der", "english": "basketball", "group": "Sports & Hobbies" },
-  { "german": "Volleyball", "gender": "der", "english": "volleyball", "group": "Sports & Hobbies" },
-  { "german": "Handball", "gender": "der", "english": "handball", "group": "Sports & Hobbies" },
-  { "german": "Tennis", "gender": "das", "english": "tennis", "group": "Sports & Hobbies" },
-  { "german": "Schwimmen", "gender": "das", "english": "swimming", "group": "Sports & Hobbies" },
-  { "german": "Joggen", "gender": "das", "english": "jogging", "group": "Sports & Hobbies" },
-  { "german": "Radfahren", "gender": "das", "english": "cycling", "group": "Sports & Hobbies" },
-  { "german": "Skifahren", "gender": "das", "english": "skiing", "group": "Sports & Hobbies" },
-  { "german": "Wandern", "gender": "das", "english": "hiking", "group": "Sports & Hobbies" },
-  { "german": "Yoga", "gender": "das", "english": "yoga", "group": "Sports & Hobbies" },
-  { "german": "Gymnastik", "gender": "die", "english": "gymnastics", "group": "Sports & Hobbies" },
-  { "german": "Mannschaft", "gender": "die", "english": "team", "group": "Sports & Hobbies" },
-  { "german": "Team", "gender": "das", "english": "team", "group": "Sports & Hobbies" },
-  { "german": "Spieler", "gender": "der", "english": "player (m)", "group": "Sports & Hobbies" },
-  { "german": "Trainer", "gender": "der", "english": "coach / trainer (m)", "group": "Sports & Hobbies" },
-  { "german": "Spielfeld", "gender": "das", "english": "playing field", "group": "Sports & Hobbies" },
-  { "german": "Stadion", "gender": "das", "english": "stadium", "group": "Sports & Hobbies" },
-  { "german": "Wettkampf", "gender": "der", "english": "competition", "group": "Sports & Hobbies" },
-  { "german": "Spiel", "gender": "das", "english": "game / match", "group": "Sports & Hobbies" },
-  { "german": "Ball", "gender": "der", "english": "ball", "group": "Sports & Hobbies" },
-  { "german": "Schläger", "gender": "der", "english": "racket / club", "group": "Sports & Hobbies" },
-  { "german": "Netz", "gender": "das", "english": "net", "group": "Sports & Hobbies" },
-  { "german": "Tor", "gender": "das", "english": "goal / gate", "group": "Sports & Hobbies" },
-  { "german": "Sieg", "gender": "der", "english": "victory", "group": "Sports & Hobbies" },
-  { "german": "Niederlage", "gender": "die", "english": "defeat", "group": "Sports & Hobbies" },
-  { "german": "Unentschieden", "gender": "das", "english": "draw / tie", "group": "Sports & Hobbies" },
-  { "german": "Meisterschaft", "gender": "die", "english": "championship", "group": "Sports & Hobbies" },
-  { "german": "Olympiade", "gender": "die", "english": "Olympics", "group": "Sports & Hobbies" },
-  { "german": "Medaille", "gender": "die", "english": "medal", "group": "Sports & Hobbies" },
-  { "german": "Pokal", "gender": "der", "english": "trophy", "group": "Sports & Hobbies" },
-  { "german": "Schiedsrichter", "gender": "der", "english": "referee", "group": "Sports & Hobbies" },
-  { "german": "Fan", "gender": "der", "english": "fan", "group": "Sports & Hobbies" },
-  { "german": "Zuschauer", "gender": "der", "english": "spectator", "group": "Sports & Hobbies" },
-  { "german": "Musik", "gender": "die", "english": "music", "group": "Sports & Hobbies" },
-  { "german": "Konzert", "gender": "das", "english": "concert", "group": "Sports & Hobbies" },
-  { "german": "Lied", "gender": "das", "english": "song", "group": "Sports & Hobbies" },
-  { "german": "Instrument", "gender": "das", "english": "instrument", "group": "Sports & Hobbies" },
-  { "german": "Gitarre", "gender": "die", "english": "guitar", "group": "Sports & Hobbies" },
-  { "german": "Klavier", "gender": "das", "english": "piano", "group": "Sports & Hobbies" },
-  { "german": "Geige", "gender": "die", "english": "violin", "group": "Sports & Hobbies" },
-  { "german": "Trommel", "gender": "die", "english": "drum", "group": "Sports & Hobbies" },
-  { "german": "Tanz", "gender": "der", "english": "dance", "group": "Sports & Hobbies" },
-  { "german": "Foto", "gender": "das", "english": "photo", "group": "Sports & Hobbies" },
-  { "german": "Fotografie", "gender": "die", "english": "photography", "group": "Sports & Hobbies" },
-  { "german": "Sammlung", "gender": "die", "english": "collection", "group": "Sports & Hobbies" },
-  { "german": "Brettspiel", "gender": "das", "english": "board game", "group": "Sports & Hobbies" },
-  { "german": "Kartenspiel", "gender": "das", "english": "card game", "group": "Sports & Hobbies" },
-
-  { "german": "Kultur", "gender": "die", "english": "culture", "group": "Culture & Arts" },
-  { "german": "Kunst", "gender": "die", "english": "art", "group": "Culture & Arts" },
-  { "german": "Bild", "gender": "das", "english": "picture / image", "group": "Culture & Arts" },
-  { "german": "Gemälde", "gender": "das", "english": "painting", "group": "Culture & Arts" },
-  { "german": "Zeichnung", "gender": "die", "english": "drawing", "group": "Culture & Arts" },
-  { "german": "Skulptur", "gender": "die", "english": "sculpture", "group": "Culture & Arts" },
-  { "german": "Statue", "gender": "die", "english": "statue", "group": "Culture & Arts" },
-  { "german": "Museum", "gender": "das", "english": "museum", "group": "Culture & Arts" },
-  { "german": "Galerie", "gender": "die", "english": "gallery", "group": "Culture & Arts" },
-  { "german": "Ausstellung", "gender": "die", "english": "exhibition", "group": "Culture & Arts" },
-  { "german": "Bibliothek", "gender": "die", "english": "library", "group": "Culture & Arts" },
-  { "german": "Roman", "gender": "der", "english": "novel", "group": "Culture & Arts" },
-  { "german": "Geschichte", "gender": "die", "english": "story / history", "group": "Culture & Arts" },
-  { "german": "Märchen", "gender": "das", "english": "fairytale", "group": "Culture & Arts" },
-  { "german": "Gedicht", "gender": "das", "english": "poem", "group": "Culture & Arts" },
-  { "german": "Schriftsteller", "gender": "der", "english": "writer", "group": "Culture & Arts" },
-  { "german": "Autor", "gender": "der", "english": "author (m)", "group": "Culture & Arts" },
-  { "german": "Künstler", "gender": "der", "english": "artist (m)", "group": "Culture & Arts" },
-  { "german": "Maler", "gender": "der", "english": "painter (m)", "group": "Culture & Arts" },
-  { "german": "Musiker", "gender": "der", "english": "musician (m)", "group": "Culture & Arts" },
-  { "german": "Schauspieler", "gender": "der", "english": "actor", "group": "Culture & Arts" },
-  { "german": "Schauspielerin", "gender": "die", "english": "actress", "group": "Culture & Arts" },
-  { "german": "Regisseur", "gender": "der", "english": "director (film)", "group": "Culture & Arts" },
-  { "german": "Theater", "gender": "das", "english": "theater", "group": "Culture & Arts" },
-  { "german": "Drama", "gender": "das", "english": "drama", "group": "Culture & Arts" },
-  { "german": "Stück", "gender": "das", "english": "play / piece", "group": "Culture & Arts" },
-  { "german": "Oper", "gender": "die", "english": "opera", "group": "Culture & Arts" },
-  { "german": "Ballett", "gender": "das", "english": "ballet", "group": "Culture & Arts" },
-  { "german": "Vorstellung", "gender": "die", "english": "performance / introduction", "group": "Culture & Arts" },
-  { "german": "Film", "gender": "der", "english": "movie / film", "group": "Culture & Arts" },
-  { "german": "Kino", "gender": "das", "english": "cinema", "group": "Culture & Arts" },
-  { "german": "Komödie", "gender": "die", "english": "comedy", "group": "Culture & Arts" },
-  { "german": "Tragödie", "gender": "die", "english": "tragedy", "group": "Culture & Arts" },
-  { "german": "Religion", "gender": "die", "english": "religion", "group": "Culture & Arts" },
-  { "german": "Kirche", "gender": "die", "english": "church", "group": "Culture & Arts" },
-  { "german": "Moschee", "gender": "die", "english": "mosque", "group": "Culture & Arts" },
-  { "german": "Synagoge", "gender": "die", "english": "synagogue", "group": "Culture & Arts" },
-  { "german": "Tempel", "gender": "der", "english": "temple", "group": "Culture & Arts" },
-  { "german": "Gott", "gender": "der", "english": "god", "group": "Culture & Arts" },
-  { "german": "Göttin", "gender": "die", "english": "goddess", "group": "Culture & Arts" },
-  { "german": "Glaube", "gender": "der", "english": "faith / belief", "group": "Culture & Arts" },
-  { "german": "Brauch", "gender": "der", "english": "custom", "group": "Culture & Arts" },
-  { "german": "Tradition", "gender": "die", "english": "tradition", "group": "Culture & Arts" },
-  { "german": "Fest", "gender": "das", "english": "festival / celebration", "group": "Culture & Arts" },
-  { "german": "Feier", "gender": "die", "english": "celebration", "group": "Culture & Arts" },
-  { "german": "Hochzeit", "gender": "die", "english": "wedding", "group": "Culture & Arts" },
-  { "german": "Taufe", "gender": "die", "english": "baptism", "group": "Culture & Arts" },
-  { "german": "Beerdigung", "gender": "die", "english": "funeral", "group": "Culture & Arts" },
-  { "german": "Sprache", "gender": "die", "english": "language", "group": "Culture & Arts" },
-  { "german": "Dialekt", "gender": "der", "english": "dialect", "group": "Culture & Arts" },
-
-  { "german": "Zeit", "gender": "die", "english": "time", "group": "Time & Numbers" },
-  { "german": "Stunde", "gender": "die", "english": "hour", "group": "Time & Numbers" },
-  { "german": "Minute", "gender": "die", "english": "minute", "group": "Time & Numbers" },
-  { "german": "Sekunde", "gender": "die", "english": "second", "group": "Time & Numbers" },
-  { "german": "Tag", "gender": "der", "english": "day", "group": "Time & Numbers" },
-  { "german": "Nacht", "gender": "die", "english": "night", "group": "Time & Numbers" },
-  { "german": "Morgen", "gender": "der", "english": "morning", "group": "Time & Numbers" },
-  { "german": "Mittag", "gender": "der", "english": "noon", "group": "Time & Numbers" },
-  { "german": "Nachmittag", "gender": "der", "english": "afternoon", "group": "Time & Numbers" },
-  { "german": "Woche", "gender": "die", "english": "week", "group": "Time & Numbers" },
-  { "german": "Wochenende", "gender": "das", "english": "weekend", "group": "Time & Numbers" },
-  { "german": "Monat", "gender": "der", "english": "month", "group": "Time & Numbers" },
-  { "german": "Jahr", "gender": "das", "english": "year", "group": "Time & Numbers" },
-  { "german": "Jahrhundert", "gender": "das", "english": "century", "group": "Time & Numbers" },
-  { "german": "Jahrzehnt", "gender": "das", "english": "decade", "group": "Time & Numbers" },
-  { "german": "Datum", "gender": "das", "english": "date", "group": "Time & Numbers" },
-  { "german": "Termin", "gender": "der", "english": "appointment", "group": "Time & Numbers" },
-  { "german": "Kalender", "gender": "der", "english": "calendar", "group": "Time & Numbers" },
-  { "german": "Uhrzeit", "gender": "die", "english": "time of day", "group": "Time & Numbers" },
-  { "german": "Anfang", "gender": "der", "english": "beginning", "group": "Time & Numbers" },
-  { "german": "Ende", "gender": "das", "english": "end", "group": "Time & Numbers" },
-  { "german": "Mitte", "gender": "die", "english": "middle", "group": "Time & Numbers" },
-  { "german": "Zukunft", "gender": "die", "english": "future", "group": "Time & Numbers" },
-  { "german": "Vergangenheit", "gender": "die", "english": "past", "group": "Time & Numbers" },
-  { "german": "Gegenwart", "gender": "die", "english": "present", "group": "Time & Numbers" },
-  { "german": "Zahl", "gender": "die", "english": "number", "group": "Time & Numbers" },
-  { "german": "Nummer", "gender": "die", "english": "number (label)", "group": "Time & Numbers" },
-  { "german": "Menge", "gender": "die", "english": "quantity / amount", "group": "Time & Numbers" },
-  { "german": "Hälfte", "gender": "die", "english": "half", "group": "Time & Numbers" },
-  { "german": "Viertel", "gender": "das", "english": "quarter", "group": "Time & Numbers" },
-  { "german": "Drittel", "gender": "das", "english": "third", "group": "Time & Numbers" },
-  { "german": "Dutzend", "gender": "das", "english": "dozen", "group": "Time & Numbers" },
-  { "german": "Paar", "gender": "das", "english": "pair / couple", "group": "Time & Numbers" },
-  { "german": "Maß", "gender": "das", "english": "measure", "group": "Time & Numbers" },
-  { "german": "Gewicht", "gender": "das", "english": "weight", "group": "Time & Numbers" },
-  { "german": "Länge", "gender": "die", "english": "length", "group": "Time & Numbers" },
-  { "german": "Breite", "gender": "die", "english": "width", "group": "Time & Numbers" },
-  { "german": "Höhe", "gender": "die", "english": "height", "group": "Time & Numbers" },
-  { "german": "Tiefe", "gender": "die", "english": "depth", "group": "Time & Numbers" },
-  { "german": "Meter", "gender": "der", "english": "meter", "group": "Time & Numbers" },
-  { "german": "Kilometer", "gender": "der", "english": "kilometer", "group": "Time & Numbers" },
-  { "german": "Kilogramm", "gender": "das", "english": "kilogram", "group": "Time & Numbers" },
-  { "german": "Gramm", "gender": "das", "english": "gram", "group": "Time & Numbers" },
-  { "german": "Liter", "gender": "der", "english": "liter", "group": "Time & Numbers" },
-  { "german": "Prozent", "gender": "das", "english": "percent", "group": "Time & Numbers" },
-
-  { "german": "Stadt", "gender": "die", "english": "city", "group": "City & Shopping" },
-  { "german": "Dorf", "gender": "das", "english": "village", "group": "City & Shopping" },
-  { "german": "Land", "gender": "das", "english": "country / land", "group": "City & Shopping" },
-  { "german": "Hauptstadt", "gender": "die", "english": "capital city", "group": "City & Shopping" },
-  { "german": "Zentrum", "gender": "das", "english": "center", "group": "City & Shopping" },
-  { "german": "Stadtteil", "gender": "der", "english": "district", "group": "City & Shopping" },
-  { "german": "Region", "gender": "die", "english": "region", "group": "City & Shopping" },
-  { "german": "Bezirk", "gender": "der", "english": "district / borough", "group": "City & Shopping" },
-  { "german": "Gebäude", "gender": "das", "english": "building", "group": "City & Shopping" },
-  { "german": "Wolkenkratzer", "gender": "der", "english": "skyscraper", "group": "City & Shopping" },
-  { "german": "Rathaus", "gender": "das", "english": "city hall", "group": "City & Shopping" },
-  { "german": "Schloss", "gender": "das", "english": "castle / palace", "group": "City & Shopping" },
-  { "german": "Burg", "gender": "die", "english": "castle / fortress", "group": "City & Shopping" },
-  { "german": "Denkmal", "gender": "das", "english": "monument", "group": "City & Shopping" },
-  { "german": "Platz", "gender": "der", "english": "square / place", "group": "City & Shopping" },
-  { "german": "Park", "gender": "der", "english": "park", "group": "City & Shopping" },
-  { "german": "Spielplatz", "gender": "der", "english": "playground", "group": "City & Shopping" },
-  { "german": "Markt", "gender": "der", "english": "market", "group": "City & Shopping" },
-  { "german": "Supermarkt", "gender": "der", "english": "supermarket", "group": "City & Shopping" },
-  { "german": "Laden", "gender": "der", "english": "shop / store", "group": "City & Shopping" },
-  { "german": "Geschäft", "gender": "das", "english": "store / business", "group": "City & Shopping" },
-  { "german": "Bäckerei", "gender": "die", "english": "bakery", "group": "City & Shopping" },
-  { "german": "Metzgerei", "gender": "die", "english": "butcher's shop", "group": "City & Shopping" },
-  { "german": "Konditorei", "gender": "die", "english": "pastry shop", "group": "City & Shopping" },
-  { "german": "Drogerie", "gender": "die", "english": "drugstore", "group": "City & Shopping" },
-  { "german": "Kaufhaus", "gender": "das", "english": "department store", "group": "City & Shopping" },
-  { "german": "Einkaufszentrum", "gender": "das", "english": "shopping center / mall", "group": "City & Shopping" },
-  { "german": "Boutique", "gender": "die", "english": "boutique", "group": "City & Shopping" },
-  { "german": "Kunde", "gender": "der", "english": "customer (m)", "group": "City & Shopping" },
-  { "german": "Verkäufer", "gender": "der", "english": "salesperson (m)", "group": "City & Shopping" },
-  { "german": "Verkäuferin", "gender": "die", "english": "salesperson (f)", "group": "City & Shopping" },
-  { "german": "Kasse", "gender": "die", "english": "cash register / checkout", "group": "City & Shopping" },
-  { "german": "Bon", "gender": "der", "english": "receipt", "group": "City & Shopping" },
-  { "german": "Quittung", "gender": "die", "english": "receipt", "group": "City & Shopping" },
-  { "german": "Preis", "gender": "der", "english": "price", "group": "City & Shopping" },
-  { "german": "Rabatt", "gender": "der", "english": "discount", "group": "City & Shopping" },
-  { "german": "Sonderangebot", "gender": "das", "english": "special offer", "group": "City & Shopping" },
-  { "german": "Tüte", "gender": "die", "english": "bag (paper/plastic)", "group": "City & Shopping" },
-  { "german": "Verpackung", "gender": "die", "english": "packaging", "group": "City & Shopping" },
-  { "german": "Ware", "gender": "die", "english": "merchandise / goods", "group": "City & Shopping" },
-  { "german": "Produkt", "gender": "das", "english": "product", "group": "City & Shopping" },
-  { "german": "Bestellung", "gender": "die", "english": "order", "group": "City & Shopping" },
-  { "german": "Lieferung", "gender": "die", "english": "delivery", "group": "City & Shopping" },
-  { "german": "Marke", "gender": "die", "english": "brand", "group": "City & Shopping" },
-  { "german": "Qualität", "gender": "die", "english": "quality", "group": "City & Shopping" },
-  { "german": "Werbung", "gender": "die", "english": "advertising", "group": "City & Shopping" },
-  { "german": "Reklame", "gender": "die", "english": "advert", "group": "City & Shopping" },
-
-  { "german": "Onkel", "gender": "der", "english": "uncle", "group": "Family" },
-  { "german": "Tante", "gender": "die", "english": "aunt", "group": "Family" },
-  { "german": "Neffe", "gender": "der", "english": "nephew", "group": "Family" },
-  { "german": "Nichte", "gender": "die", "english": "niece", "group": "Family" },
-  { "german": "Schwiegervater", "gender": "der", "english": "father-in-law", "group": "Family" },
-  { "german": "Schwiegermutter", "gender": "die", "english": "mother-in-law", "group": "Family" },
-  { "german": "Stiefvater", "gender": "der", "english": "stepfather", "group": "Family" },
-  { "german": "Stiefmutter", "gender": "die", "english": "stepmother", "group": "Family" },
-  { "german": "Ehe", "gender": "die", "english": "marriage", "group": "Family" },
-  { "german": "Ehemann", "gender": "der", "english": "husband", "group": "Family" },
-  { "german": "Ehefrau", "gender": "die", "english": "wife", "group": "Family" },
-  { "german": "Partner", "gender": "der", "english": "partner (m)", "group": "Family" },
-  { "german": "Freundschaft", "gender": "die", "english": "friendship", "group": "Family" },
-  { "german": "Liebe", "gender": "die", "english": "love", "group": "Family" }
+  {
+    "german": "Körper",
+    "gender": "der",
+    "english": "body",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Gesicht",
+    "gender": "das",
+    "english": "face",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Zunge",
+    "gender": "die",
+    "english": "tongue",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Lippe",
+    "gender": "die",
+    "english": "lip",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Ellbogen",
+    "gender": "der",
+    "english": "elbow",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Handgelenk",
+    "gender": "das",
+    "english": "wrist",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Daumen",
+    "gender": "der",
+    "english": "thumb",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Nagel",
+    "gender": "der",
+    "english": "nail",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Brust",
+    "gender": "die",
+    "english": "chest / breast",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Rücken",
+    "gender": "der",
+    "english": "back",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Hüfte",
+    "gender": "die",
+    "english": "hip",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Zehe",
+    "gender": "die",
+    "english": "toe",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Knöchel",
+    "gender": "der",
+    "english": "ankle",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Niere",
+    "gender": "die",
+    "english": "kidney",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Ader",
+    "gender": "die",
+    "english": "vein",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Schnupfen",
+    "gender": "der",
+    "english": "runny nose",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Verletzung",
+    "gender": "die",
+    "english": "injury",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Ärztin",
+    "gender": "die",
+    "english": "doctor (f)",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Klinik",
+    "gender": "die",
+    "english": "clinic",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Rezept",
+    "gender": "das",
+    "english": "prescription / recipe",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Operation",
+    "gender": "die",
+    "english": "operation / surgery",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Diät",
+    "gender": "die",
+    "english": "diet",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Gesundheit",
+    "gender": "die",
+    "english": "health",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Hygiene",
+    "gender": "die",
+    "english": "hygiene",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Patient",
+    "gender": "der",
+    "english": "patient (m)",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Notfall",
+    "gender": "der",
+    "english": "emergency",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Symptom",
+    "gender": "das",
+    "english": "symptom",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Diagnose",
+    "gender": "die",
+    "english": "diagnosis",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Therapie",
+    "gender": "die",
+    "english": "therapy",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Impfung",
+    "gender": "die",
+    "english": "vaccination",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Shorts",
+    "gender": "die",
+    "english": "shorts",
+    "group": "Clothing"
+  },
+  {
+    "german": "Strumpf",
+    "gender": "der",
+    "english": "stocking",
+    "group": "Clothing"
+  },
+  {
+    "german": "Brille",
+    "gender": "die",
+    "english": "glasses",
+    "group": "Clothing"
+  },
+  {
+    "german": "Sonnenbrille",
+    "gender": "die",
+    "english": "sunglasses",
+    "group": "Clothing"
+  },
+  {
+    "german": "Schmuck",
+    "gender": "der",
+    "english": "jewelry",
+    "group": "Clothing"
+  },
+  {
+    "german": "Ring",
+    "gender": "der",
+    "english": "ring",
+    "group": "Clothing"
+  },
+  {
+    "german": "Kette",
+    "gender": "die",
+    "english": "necklace / chain",
+    "group": "Clothing"
+  },
+  {
+    "german": "Ohrring",
+    "gender": "der",
+    "english": "earring",
+    "group": "Clothing"
+  },
+  {
+    "german": "Armband",
+    "gender": "das",
+    "english": "bracelet",
+    "group": "Clothing"
+  },
+  {
+    "german": "Knopf",
+    "gender": "der",
+    "english": "button",
+    "group": "Clothing"
+  },
+  {
+    "german": "Stoff",
+    "gender": "der",
+    "english": "fabric / cloth",
+    "group": "Clothing"
+  },
+  {
+    "german": "Mode",
+    "gender": "die",
+    "english": "fashion",
+    "group": "Clothing"
+  },
+  {
+    "german": "Bademantel",
+    "gender": "der",
+    "english": "bathrobe",
+    "group": "Clothing"
+  },
+  {
+    "german": "Schlafanzug",
+    "gender": "der",
+    "english": "pajamas",
+    "group": "Clothing"
+  },
+  {
+    "german": "Unterhose",
+    "gender": "die",
+    "english": "underpants",
+    "group": "Clothing"
+  },
+  {
+    "german": "Unterhemd",
+    "gender": "das",
+    "english": "undershirt",
+    "group": "Clothing"
+  },
+  {
+    "german": "Natur",
+    "gender": "die",
+    "english": "nature",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Klima",
+    "gender": "das",
+    "english": "climate",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Himmel",
+    "gender": "der",
+    "english": "sky",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Planet",
+    "gender": "der",
+    "english": "planet",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Gewitter",
+    "gender": "das",
+    "english": "thunderstorm",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Temperatur",
+    "gender": "die",
+    "english": "temperature",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Grad",
+    "gender": "der",
+    "english": "degree",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Blatt",
+    "gender": "das",
+    "english": "leaf / sheet",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Bach",
+    "gender": "der",
+    "english": "stream / brook",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Ozean",
+    "gender": "der",
+    "english": "ocean",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Küste",
+    "gender": "die",
+    "english": "coast",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Erde",
+    "gender": "die",
+    "english": "earth / soil",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Luft",
+    "gender": "die",
+    "english": "air",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Feuer",
+    "gender": "das",
+    "english": "fire",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Wurzel",
+    "gender": "die",
+    "english": "root",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Ast",
+    "gender": "der",
+    "english": "branch",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Welle",
+    "gender": "die",
+    "english": "wave",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Umwelt",
+    "gender": "die",
+    "english": "environment",
+    "group": "Nature & Weather"
+  },
+  {
+    "german": "Stier",
+    "gender": "der",
+    "english": "bull",
+    "group": "Animals"
+  },
+  {
+    "german": "Ente",
+    "gender": "die",
+    "english": "duck",
+    "group": "Animals"
+  },
+  {
+    "german": "Gans",
+    "gender": "die",
+    "english": "goose",
+    "group": "Animals"
+  },
+  {
+    "german": "Taube",
+    "gender": "die",
+    "english": "pigeon / dove",
+    "group": "Animals"
+  },
+  {
+    "german": "Spatz",
+    "gender": "der",
+    "english": "sparrow",
+    "group": "Animals"
+  },
+  {
+    "german": "Adler",
+    "gender": "der",
+    "english": "eagle",
+    "group": "Animals"
+  },
+  {
+    "german": "Eule",
+    "gender": "die",
+    "english": "owl",
+    "group": "Animals"
+  },
+  {
+    "german": "Hai",
+    "gender": "der",
+    "english": "shark",
+    "group": "Animals"
+  },
+  {
+    "german": "Delfin",
+    "gender": "der",
+    "english": "dolphin",
+    "group": "Animals"
+  },
+  {
+    "german": "Wal",
+    "gender": "der",
+    "english": "whale",
+    "group": "Animals"
+  },
+  {
+    "german": "Schildkröte",
+    "gender": "die",
+    "english": "turtle",
+    "group": "Animals"
+  },
+  {
+    "german": "Frosch",
+    "gender": "der",
+    "english": "frog",
+    "group": "Animals"
+  },
+  {
+    "german": "Kaninchen",
+    "gender": "das",
+    "english": "rabbit",
+    "group": "Animals"
+  },
+  {
+    "german": "Fuchs",
+    "gender": "der",
+    "english": "fox",
+    "group": "Animals"
+  },
+  {
+    "german": "Reh",
+    "gender": "das",
+    "english": "deer / roe deer",
+    "group": "Animals"
+  },
+  {
+    "german": "Hirsch",
+    "gender": "der",
+    "english": "stag",
+    "group": "Animals"
+  },
+  {
+    "german": "Giraffe",
+    "gender": "die",
+    "english": "giraffe",
+    "group": "Animals"
+  },
+  {
+    "german": "Zebra",
+    "gender": "das",
+    "english": "zebra",
+    "group": "Animals"
+  },
+  {
+    "german": "Käfer",
+    "gender": "der",
+    "english": "beetle",
+    "group": "Animals"
+  },
+  {
+    "german": "Schmetterling",
+    "gender": "der",
+    "english": "butterfly",
+    "group": "Animals"
+  },
+  {
+    "german": "Wurm",
+    "gender": "der",
+    "english": "worm",
+    "group": "Animals"
+  },
+  {
+    "german": "Kamel",
+    "gender": "das",
+    "english": "camel",
+    "group": "Animals"
+  },
+  {
+    "german": "Verkehr",
+    "gender": "der",
+    "english": "traffic",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Wagen",
+    "gender": "der",
+    "english": "car / vehicle",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Bahn",
+    "gender": "die",
+    "english": "railway",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Roller",
+    "gender": "der",
+    "english": "scooter",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Hubschrauber",
+    "gender": "der",
+    "english": "helicopter",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Fähre",
+    "gender": "die",
+    "english": "ferry",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Lastwagen",
+    "gender": "der",
+    "english": "truck / lorry",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Kreuzung",
+    "gender": "die",
+    "english": "intersection",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Verkehrsschild",
+    "gender": "das",
+    "english": "traffic sign",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Gleis",
+    "gender": "das",
+    "english": "track / platform",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Fahrt",
+    "gender": "die",
+    "english": "ride / journey",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Ferien",
+    "gender": "die",
+    "english": "holidays (school break)",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Koffer",
+    "gender": "der",
+    "english": "suitcase",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Gepäck",
+    "gender": "das",
+    "english": "luggage",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Reisepass",
+    "gender": "der",
+    "english": "passport",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Visum",
+    "gender": "das",
+    "english": "visa",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Ticket",
+    "gender": "das",
+    "english": "ticket",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Ausweis",
+    "gender": "der",
+    "english": "ID card",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Unterkunft",
+    "gender": "die",
+    "english": "accommodation",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Tour",
+    "gender": "die",
+    "english": "tour",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Ausflug",
+    "gender": "der",
+    "english": "excursion / trip",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Tourist",
+    "gender": "der",
+    "english": "tourist (m)",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Reiseführer",
+    "gender": "der",
+    "english": "tour guide / guidebook",
+    "group": "Transport & Travel"
+  },
+  {
+    "german": "Technik",
+    "gender": "die",
+    "english": "technology / technique",
+    "group": "Technology"
+  },
+  {
+    "german": "Technologie",
+    "gender": "die",
+    "english": "technology",
+    "group": "Technology"
+  },
+  {
+    "german": "Monitor",
+    "gender": "der",
+    "english": "monitor",
+    "group": "Technology"
+  },
+  {
+    "german": "Hardware",
+    "gender": "die",
+    "english": "hardware",
+    "group": "Technology"
+  },
+  {
+    "german": "Programm",
+    "gender": "das",
+    "english": "program",
+    "group": "Technology"
+  },
+  {
+    "german": "Anwendung",
+    "gender": "die",
+    "english": "application",
+    "group": "Technology"
+  },
+  {
+    "german": "Datei",
+    "gender": "die",
+    "english": "file",
+    "group": "Technology"
+  },
+  {
+    "german": "Benutzer",
+    "gender": "der",
+    "english": "user (m)",
+    "group": "Technology"
+  },
+  {
+    "german": "Internetseite",
+    "gender": "die",
+    "english": "web page",
+    "group": "Technology"
+  },
+  {
+    "german": "Cloud",
+    "gender": "die",
+    "english": "cloud",
+    "group": "Technology"
+  },
+  {
+    "german": "Batterie",
+    "gender": "die",
+    "english": "battery",
+    "group": "Technology"
+  },
+  {
+    "german": "Ladegerät",
+    "gender": "das",
+    "english": "charger",
+    "group": "Technology"
+  },
+  {
+    "german": "Stecker",
+    "gender": "der",
+    "english": "plug",
+    "group": "Technology"
+  },
+  {
+    "german": "Roboter",
+    "gender": "der",
+    "english": "robot",
+    "group": "Technology"
+  },
+  {
+    "german": "Künstliche Intelligenz",
+    "gender": "die",
+    "english": "artificial intelligence",
+    "group": "Technology"
+  },
+  {
+    "german": "Daten",
+    "gender": "die",
+    "english": "data (pl)",
+    "group": "Technology"
+  },
+  {
+    "german": "Suche",
+    "gender": "die",
+    "english": "search",
+    "group": "Technology"
+  },
+  {
+    "german": "Anruf",
+    "gender": "der",
+    "english": "phone call",
+    "group": "Technology"
+  },
+  {
+    "german": "Volleyball",
+    "gender": "der",
+    "english": "volleyball",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Handball",
+    "gender": "der",
+    "english": "handball",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Joggen",
+    "gender": "das",
+    "english": "jogging",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Radfahren",
+    "gender": "das",
+    "english": "cycling",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Skifahren",
+    "gender": "das",
+    "english": "skiing",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Wandern",
+    "gender": "das",
+    "english": "hiking",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Gymnastik",
+    "gender": "die",
+    "english": "gymnastics",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Spieler",
+    "gender": "der",
+    "english": "player (m)",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Trainer",
+    "gender": "der",
+    "english": "coach / trainer (m)",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Spielfeld",
+    "gender": "das",
+    "english": "playing field",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Stadion",
+    "gender": "das",
+    "english": "stadium",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Wettkampf",
+    "gender": "der",
+    "english": "competition",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Ball",
+    "gender": "der",
+    "english": "ball",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Schläger",
+    "gender": "der",
+    "english": "racket / club",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Netz",
+    "gender": "das",
+    "english": "net",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Sieg",
+    "gender": "der",
+    "english": "victory",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Niederlage",
+    "gender": "die",
+    "english": "defeat",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Unentschieden",
+    "gender": "das",
+    "english": "draw / tie",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Meisterschaft",
+    "gender": "die",
+    "english": "championship",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Olympiade",
+    "gender": "die",
+    "english": "Olympics",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Medaille",
+    "gender": "die",
+    "english": "medal",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Pokal",
+    "gender": "der",
+    "english": "trophy",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Schiedsrichter",
+    "gender": "der",
+    "english": "referee",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Fan",
+    "gender": "der",
+    "english": "fan",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Zuschauer",
+    "gender": "der",
+    "english": "spectator",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Lied",
+    "gender": "das",
+    "english": "song",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Instrument",
+    "gender": "das",
+    "english": "instrument",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Gitarre",
+    "gender": "die",
+    "english": "guitar",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Klavier",
+    "gender": "das",
+    "english": "piano",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Geige",
+    "gender": "die",
+    "english": "violin",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Trommel",
+    "gender": "die",
+    "english": "drum",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Foto",
+    "gender": "das",
+    "english": "photo",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Fotografie",
+    "gender": "die",
+    "english": "photography",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Sammlung",
+    "gender": "die",
+    "english": "collection",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Kartenspiel",
+    "gender": "das",
+    "english": "card game",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Bild",
+    "gender": "das",
+    "english": "picture / image",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Gemälde",
+    "gender": "das",
+    "english": "painting",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Zeichnung",
+    "gender": "die",
+    "english": "drawing",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Skulptur",
+    "gender": "die",
+    "english": "sculpture",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Statue",
+    "gender": "die",
+    "english": "statue",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Galerie",
+    "gender": "die",
+    "english": "gallery",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Ausstellung",
+    "gender": "die",
+    "english": "exhibition",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Märchen",
+    "gender": "das",
+    "english": "fairytale",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Gedicht",
+    "gender": "das",
+    "english": "poem",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Schriftsteller",
+    "gender": "der",
+    "english": "writer",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Autor",
+    "gender": "der",
+    "english": "author (m)",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Künstler",
+    "gender": "der",
+    "english": "artist (m)",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Maler",
+    "gender": "der",
+    "english": "painter (m)",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Musiker",
+    "gender": "der",
+    "english": "musician (m)",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Schauspieler",
+    "gender": "der",
+    "english": "actor",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Schauspielerin",
+    "gender": "die",
+    "english": "actress",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Regisseur",
+    "gender": "der",
+    "english": "director (film)",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Drama",
+    "gender": "das",
+    "english": "drama",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Stück",
+    "gender": "das",
+    "english": "play / piece",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Oper",
+    "gender": "die",
+    "english": "opera",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Ballett",
+    "gender": "das",
+    "english": "ballet",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Vorstellung",
+    "gender": "die",
+    "english": "performance / introduction",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Komödie",
+    "gender": "die",
+    "english": "comedy",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Tragödie",
+    "gender": "die",
+    "english": "tragedy",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Moschee",
+    "gender": "die",
+    "english": "mosque",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Synagoge",
+    "gender": "die",
+    "english": "synagogue",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Tempel",
+    "gender": "der",
+    "english": "temple",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Gott",
+    "gender": "der",
+    "english": "god",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Göttin",
+    "gender": "die",
+    "english": "goddess",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Glaube",
+    "gender": "der",
+    "english": "faith / belief",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Brauch",
+    "gender": "der",
+    "english": "custom",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Tradition",
+    "gender": "die",
+    "english": "tradition",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Fest",
+    "gender": "das",
+    "english": "festival / celebration",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Feier",
+    "gender": "die",
+    "english": "celebration",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Taufe",
+    "gender": "die",
+    "english": "baptism",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Dialekt",
+    "gender": "der",
+    "english": "dialect",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Nachmittag",
+    "gender": "der",
+    "english": "afternoon",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Jahrzehnt",
+    "gender": "das",
+    "english": "decade",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Uhrzeit",
+    "gender": "die",
+    "english": "time of day",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Anfang",
+    "gender": "der",
+    "english": "beginning",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Ende",
+    "gender": "das",
+    "english": "end",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Mitte",
+    "gender": "die",
+    "english": "middle",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Zukunft",
+    "gender": "die",
+    "english": "future",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Vergangenheit",
+    "gender": "die",
+    "english": "past",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Gegenwart",
+    "gender": "die",
+    "english": "present",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Zahl",
+    "gender": "die",
+    "english": "number",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Nummer",
+    "gender": "die",
+    "english": "number (label)",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Menge",
+    "gender": "die",
+    "english": "quantity / amount",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Hälfte",
+    "gender": "die",
+    "english": "half",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Viertel",
+    "gender": "das",
+    "english": "quarter",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Drittel",
+    "gender": "das",
+    "english": "third",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Dutzend",
+    "gender": "das",
+    "english": "dozen",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Paar",
+    "gender": "das",
+    "english": "pair / couple",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Maß",
+    "gender": "das",
+    "english": "measure",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Gewicht",
+    "gender": "das",
+    "english": "weight",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Länge",
+    "gender": "die",
+    "english": "length",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Breite",
+    "gender": "die",
+    "english": "width",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Höhe",
+    "gender": "die",
+    "english": "height",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Tiefe",
+    "gender": "die",
+    "english": "depth",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Meter",
+    "gender": "der",
+    "english": "meter",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Kilometer",
+    "gender": "der",
+    "english": "kilometer",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Kilogramm",
+    "gender": "das",
+    "english": "kilogram",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Gramm",
+    "gender": "das",
+    "english": "gram",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Liter",
+    "gender": "der",
+    "english": "liter",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Prozent",
+    "gender": "das",
+    "english": "percent",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Zentrum",
+    "gender": "das",
+    "english": "center",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Stadtteil",
+    "gender": "der",
+    "english": "district",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Region",
+    "gender": "die",
+    "english": "region",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Bezirk",
+    "gender": "der",
+    "english": "district / borough",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Gebäude",
+    "gender": "das",
+    "english": "building",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Wolkenkratzer",
+    "gender": "der",
+    "english": "skyscraper",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Rathaus",
+    "gender": "das",
+    "english": "city hall",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Denkmal",
+    "gender": "das",
+    "english": "monument",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Platz",
+    "gender": "der",
+    "english": "square / place",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Spielplatz",
+    "gender": "der",
+    "english": "playground",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Drogerie",
+    "gender": "die",
+    "english": "drugstore",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Kaufhaus",
+    "gender": "das",
+    "english": "department store",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Einkaufszentrum",
+    "gender": "das",
+    "english": "shopping center / mall",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Boutique",
+    "gender": "die",
+    "english": "boutique",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Verkäufer",
+    "gender": "der",
+    "english": "salesperson (m)",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Verkäuferin",
+    "gender": "die",
+    "english": "salesperson (f)",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Kasse",
+    "gender": "die",
+    "english": "cash register / checkout",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Bon",
+    "gender": "der",
+    "english": "receipt",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Sonderangebot",
+    "gender": "das",
+    "english": "special offer",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Tüte",
+    "gender": "die",
+    "english": "bag (paper/plastic)",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Verpackung",
+    "gender": "die",
+    "english": "packaging",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Ware",
+    "gender": "die",
+    "english": "merchandise / goods",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Produkt",
+    "gender": "das",
+    "english": "product",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Bestellung",
+    "gender": "die",
+    "english": "order",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Lieferung",
+    "gender": "die",
+    "english": "delivery",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Marke",
+    "gender": "die",
+    "english": "brand",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Qualität",
+    "gender": "die",
+    "english": "quality",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Werbung",
+    "gender": "die",
+    "english": "advertising",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Reklame",
+    "gender": "die",
+    "english": "advert",
+    "group": "City & Shopping"
+  }
 ]
