@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { shuffle, createPool, type Rng } from '../../src/data/pool'
+import { shuffle, createPool, type Rng, type FieldMatchers } from '../../src/data/pool'
 
 // Small seeded PRNG — deterministic, no Math.random patching, no vi.mock.
 function mulberry32(seed: number): Rng {
@@ -40,7 +40,10 @@ describe('shuffle', () => {
     expect(out).toEqual([3, 2, 4, 1, 0])
   })
 
-  it('is fair — uniform position frequencies over many runs (regression guard vs sort-bias)', () => {
+  it('is fair — uniform position frequencies (deterministic regression guard vs sort-bias)', () => {
+    // Deterministic: a fixed seed makes this a stable pin (no flake), while N is large
+    // enough that the biased `sort(() => Math.random() - 0.5)` this replaces would blow
+    // past the tolerance band. The seeded stream's max deviation here is ~85.
     const N = 10000
     const elems = [0, 1, 2, 3]
     // counts[element][position]
@@ -53,7 +56,7 @@ describe('shuffle', () => {
       })
     }
     const expected = N / elems.length // 2500
-    const tolerance = 300 // generous band to avoid flakiness
+    const tolerance = 300 // wide band; the seeded deviation (~85) sits well inside it
     for (const el of elems) {
       for (let pos = 0; pos < elems.length; pos++) {
         expect(Math.abs(counts[el][pos] - expected)).toBeLessThan(tolerance)
@@ -111,9 +114,28 @@ type ItemFilter = {
   kind?: readonly string[]
 }
 
-const matchers = {
+const matchers: FieldMatchers<Item, ItemFilter> = {
   level: (i: Item) => i.level,
   kind: (i: Item) => i.kind,
+}
+
+// Compile-time negative assertions (never executed) — pin the mapped-type contract
+// that is the whole point of FieldMatchers: a wrong matcher return and a missing
+// matcher key must both be rejected by vue-tsc. If either stops erroring, the
+// @ts-expect-error fires and the typecheck gate fails.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _fieldMatchersTypeGuards() {
+  const wrongReturn: FieldMatchers<Item, ItemFilter> = {
+    level: (i: Item) => i.level,
+    // @ts-expect-error — matcher must return the field's element type (string), not number
+    kind: () => 123,
+  }
+  // @ts-expect-error — every filter key needs a matcher; `kind` is missing
+  const missingKey: FieldMatchers<Item, ItemFilter> = {
+    level: (i: Item) => i.level,
+  }
+  void wrongReturn
+  void missingKey
 }
 
 function makePool(rng: Rng = Math.random) {
