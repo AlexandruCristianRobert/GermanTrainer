@@ -9508,5 +9508,971 @@
     "gender": "die",
     "english": "chest",
     "group": "Fantasy"
+  },
+  {
+    "german": "Wallis",
+    "gender": "das",
+    "english": "Valais (canton)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Tessin",
+    "gender": "das",
+    "english": "Ticino (canton)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Aargau",
+    "gender": "der",
+    "english": "Aargau (canton)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Engadin",
+    "gender": "das",
+    "english": "Engadine (valley)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Emmental",
+    "gender": "das",
+    "english": "Emmental (region)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Thurgau",
+    "gender": "der",
+    "english": "Thurgau (canton)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Jura",
+    "gender": "der",
+    "english": "Jura (canton/mountains)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Berner Oberland",
+    "gender": "das",
+    "english": "Bernese Oberland",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Graubünden",
+    "gender": "das",
+    "english": "Grisons (canton)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Appenzell",
+    "gender": "das",
+    "english": "Appenzell (canton)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Mittelland",
+    "gender": "das",
+    "english": "central plateau",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Goms",
+    "gender": "das",
+    "english": "Goms (valley)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Toggenburg",
+    "gender": "das",
+    "english": "Toggenburg (region)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Prättigau",
+    "gender": "das",
+    "english": "Prättigau (valley)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Surselva",
+    "gender": "die",
+    "english": "Surselva (region)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Matterhorn",
+    "gender": "das",
+    "english": "Matterhorn",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Säntis",
+    "gender": "der",
+    "english": "Säntis (peak)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Jungfraujoch",
+    "gender": "das",
+    "english": "Jungfraujoch",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Piz Bernina",
+    "gender": "der",
+    "english": "Piz Bernina (peak)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Eiger",
+    "gender": "der",
+    "english": "Eiger (peak)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Mönch",
+    "gender": "der",
+    "english": "Mönch (peak)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Jungfrau",
+    "gender": "die",
+    "english": "Jungfrau (peak)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Pilatus",
+    "gender": "der",
+    "english": "Pilatus (mountain)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Rigi",
+    "gender": "die",
+    "english": "Rigi (mountain)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Titlis",
+    "gender": "der",
+    "english": "Titlis (mountain)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Dom",
+    "gender": "der",
+    "english": "Dom (highest Swiss peak)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Weisshorn",
+    "gender": "das",
+    "english": "Weisshorn (peak)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Dufourspitze",
+    "gender": "die",
+    "english": "Dufourspitze (summit)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schilthorn",
+    "gender": "das",
+    "english": "Schilthorn (peak)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Hausberg",
+    "gender": "der",
+    "english": "local mountain",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bergsee",
+    "gender": "der",
+    "english": "mountain lake",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bergspitze",
+    "gender": "die",
+    "english": "mountain summit",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bergkette",
+    "gender": "die",
+    "english": "mountain range",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Genfersee",
+    "gender": "der",
+    "english": "Lake Geneva",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Vierwaldstättersee",
+    "gender": "der",
+    "english": "Lake Lucerne",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bodensee",
+    "gender": "der",
+    "english": "Lake Constance",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Zürichsee",
+    "gender": "der",
+    "english": "Lake Zurich",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Neuenburgersee",
+    "gender": "der",
+    "english": "Lake Neuchâtel",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Thunersee",
+    "gender": "der",
+    "english": "Lake Thun",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Brienzersee",
+    "gender": "der",
+    "english": "Lake Brienz",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Walensee",
+    "gender": "der",
+    "english": "Lake Walen",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Zugersee",
+    "gender": "der",
+    "english": "Lake Zug",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Lago Maggiore",
+    "gender": "der",
+    "english": "Lake Maggiore",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bergteich",
+    "gender": "der",
+    "english": "mountain pond",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Gotthard",
+    "gender": "der",
+    "english": "Gotthard (massif/pass)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Aletschgletscher",
+    "gender": "der",
+    "english": "Aletsch Glacier",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Rhonegletscher",
+    "gender": "der",
+    "english": "Rhône Glacier",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Aare",
+    "gender": "die",
+    "english": "Aare (river)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Reuss",
+    "gender": "die",
+    "english": "Reuss (river)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Furkapass",
+    "gender": "der",
+    "english": "Furka Pass",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Sustenpass",
+    "gender": "der",
+    "english": "Susten Pass",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Grimselpass",
+    "gender": "der",
+    "english": "Grimsel Pass",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Simplonpass",
+    "gender": "der",
+    "english": "Simplon Pass",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Julierpass",
+    "gender": "der",
+    "english": "Julier Pass",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Limmat",
+    "gender": "die",
+    "english": "Limmat (river)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Inn",
+    "gender": "der",
+    "english": "Inn (river)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Rheinfall",
+    "gender": "der",
+    "english": "Rhine Falls",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bergpass",
+    "gender": "der",
+    "english": "mountain pass",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Gletscherspalte",
+    "gender": "die",
+    "english": "glacier crevasse",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Gornergrat",
+    "gender": "der",
+    "english": "Gornergrat (ridge)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Fondue",
+    "gender": "das",
+    "english": "fondue",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Raclette",
+    "gender": "das",
+    "english": "raclette",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Rösti",
+    "gender": "die",
+    "english": "rösti",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Cervelat",
+    "gender": "der",
+    "english": "cervelat sausage",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Emmentaler",
+    "gender": "der",
+    "english": "Emmental cheese",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Greyerzer",
+    "gender": "der",
+    "english": "Gruyère cheese",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Birchermüesli",
+    "gender": "das",
+    "english": "bircher muesli",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bündnerfleisch",
+    "gender": "das",
+    "english": "air-dried beef",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schoggi",
+    "gender": "die",
+    "english": "chocolate (Swiss)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Rivella",
+    "gender": "das",
+    "english": "Rivella (soft drink)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Zopf",
+    "gender": "der",
+    "english": "braided bread",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Läckerli",
+    "gender": "das",
+    "english": "Basel honey biscuit",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Älplermagronen",
+    "gender": "die",
+    "english": "alpine macaroni",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Appenzeller",
+    "gender": "der",
+    "english": "Appenzeller cheese",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Sbrinz",
+    "gender": "der",
+    "english": "Sbrinz cheese",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Tilsiter",
+    "gender": "der",
+    "english": "Tilsiter cheese",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Vacherin",
+    "gender": "der",
+    "english": "Vacherin cheese",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schweizerkäse",
+    "gender": "der",
+    "english": "Swiss cheese",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Käsefondue",
+    "gender": "das",
+    "english": "cheese fondue",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Fonduegabel",
+    "gender": "die",
+    "english": "fondue fork",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Caquelon",
+    "gender": "das",
+    "english": "fondue pot",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schabziger",
+    "gender": "der",
+    "english": "Sap sago (green cheese)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Meringue",
+    "gender": "die",
+    "english": "meringue",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Nidelzältli",
+    "gender": "das",
+    "english": "cream caramel",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schoggistängeli",
+    "gender": "das",
+    "english": "chocolate stick",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Zwetschgenwähe",
+    "gender": "die",
+    "english": "plum tart",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Tirggel",
+    "gender": "der",
+    "english": "Zurich honey biscuit",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Magenbrot",
+    "gender": "das",
+    "english": "spiced biscuit",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Aromat",
+    "gender": "das",
+    "english": "Aromat seasoning",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Ovomaltine",
+    "gender": "die",
+    "english": "Ovaltine",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Älplermakkaroni",
+    "gender": "die",
+    "english": "alpine macaroni (var.)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Capuns",
+    "gender": "die",
+    "english": "Capuns (chard rolls)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Pizzoccheri",
+    "gender": "die",
+    "english": "buckwheat pasta",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Polenta",
+    "gender": "die",
+    "english": "polenta (Ticino)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Alphorn",
+    "gender": "das",
+    "english": "alphorn",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Edelweiss",
+    "gender": "das",
+    "english": "edelweiss",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Jodel",
+    "gender": "der",
+    "english": "yodel",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schwingen",
+    "gender": "das",
+    "english": "Swiss wrestling",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Hornussen",
+    "gender": "das",
+    "english": "hornussen (sport)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Sennenhund",
+    "gender": "der",
+    "english": "mountain dog",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Fasnacht",
+    "gender": "die",
+    "english": "Carnival",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Trychel",
+    "gender": "die",
+    "english": "cowbell (large)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schwingerkönig",
+    "gender": "der",
+    "english": "wrestling champion",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Eidgenössische",
+    "gender": "das",
+    "english": "federal wrestling fest",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Senn",
+    "gender": "der",
+    "english": "alpine herdsman",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Älpler",
+    "gender": "der",
+    "english": "alpine farmer",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Alpabzug",
+    "gender": "der",
+    "english": "cattle descent",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Alpaufzug",
+    "gender": "der",
+    "english": "cattle ascent",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Sennerei",
+    "gender": "die",
+    "english": "alpine dairy",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Sennenkappe",
+    "gender": "die",
+    "english": "herdsman cap",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Kuhglocke",
+    "gender": "die",
+    "english": "cowbell",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bergführer",
+    "gender": "der",
+    "english": "mountain guide",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bergbahn",
+    "gender": "die",
+    "english": "mountain railway",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Standseilbahn",
+    "gender": "die",
+    "english": "funicular",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Luftseilbahn",
+    "gender": "die",
+    "english": "cable car",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bergrestaurant",
+    "gender": "das",
+    "english": "mountain restaurant",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Berghütte",
+    "gender": "die",
+    "english": "mountain hut",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Chalet",
+    "gender": "das",
+    "english": "chalet",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schwyzerörgeli",
+    "gender": "das",
+    "english": "Swiss accordion",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Älplerfest",
+    "gender": "das",
+    "english": "alpine festival",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Sechseläuten",
+    "gender": "das",
+    "english": "Zurich spring festival",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Böögg",
+    "gender": "der",
+    "english": "Sechseläuten effigy",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schwinger",
+    "gender": "der",
+    "english": "Swiss wrestler",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Steinstossen",
+    "gender": "das",
+    "english": "stone throwing",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Unspunnenstein",
+    "gender": "der",
+    "english": "Unspunnen stone",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Fahnenschwingen",
+    "gender": "das",
+    "english": "flag throwing",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bergkristall",
+    "gender": "der",
+    "english": "rock crystal",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Murmeltier",
+    "gender": "das",
+    "english": "marmot",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Steinbock",
+    "gender": "der",
+    "english": "ibex",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Alpenrose",
+    "gender": "die",
+    "english": "alpenrose",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schweizerkreuz",
+    "gender": "das",
+    "english": "Swiss cross",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Sackmesser",
+    "gender": "das",
+    "english": "pocket knife",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Taschenmesser",
+    "gender": "das",
+    "english": "Swiss army knife",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Eidgenossenschaft",
+    "gender": "die",
+    "english": "confederation",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Eidgenosse",
+    "gender": "der",
+    "english": "confederate",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Kanton",
+    "gender": "der",
+    "english": "canton",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Nationalrat",
+    "gender": "der",
+    "english": "National Council",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Ständerat",
+    "gender": "der",
+    "english": "Council of States",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bundesrat",
+    "gender": "der",
+    "english": "Federal Council",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bundesplatz",
+    "gender": "der",
+    "english": "Federal Square (Bern)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schweizerfranken",
+    "gender": "der",
+    "english": "Swiss franc",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Rütli",
+    "gender": "das",
+    "english": "Rütli meadow",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Helvetia",
+    "gender": "die",
+    "english": "Helvetia (allegory)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Landsgemeinde",
+    "gender": "die",
+    "english": "open-air assembly",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bundesbahn",
+    "gender": "die",
+    "english": "federal railways",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Postauto",
+    "gender": "das",
+    "english": "postal bus",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bundeshaus",
+    "gender": "das",
+    "english": "Federal Palace",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Halbkanton",
+    "gender": "der",
+    "english": "half-canton",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Volksabstimmung",
+    "gender": "die",
+    "english": "popular vote",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Volksinitiative",
+    "gender": "die",
+    "english": "popular initiative",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Referendum",
+    "gender": "das",
+    "english": "referendum",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bundesverfassung",
+    "gender": "die",
+    "english": "federal constitution",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Neutralität",
+    "gender": "die",
+    "english": "neutrality",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Rappen",
+    "gender": "der",
+    "english": "rappen (centime)",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Fünfliber",
+    "gender": "der",
+    "english": "five-franc coin",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schweizergarde",
+    "gender": "die",
+    "english": "Swiss Guard",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Postauto-Halt",
+    "gender": "der",
+    "english": "postal-bus stop",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Bundespräsident",
+    "gender": "der",
+    "english": "federal president",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Wilhelm Tell",
+    "gender": "der",
+    "english": "William Tell",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Tellskapelle",
+    "gender": "die",
+    "english": "Tell Chapel",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Schweizerpass",
+    "gender": "der",
+    "english": "Swiss passport",
+    "group": "Switzerland"
   }
 ]

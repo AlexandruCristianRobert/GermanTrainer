@@ -33,4 +33,8 @@ describe('nouns.seed.json integrity', () => {
   it('has at least 100 Fantasy nouns', () => {
     expect(entries.filter(e => e.group === 'Fantasy').length).toBeGreaterThanOrEqual(100)
   })
+
+  it('has at least 100 Switzerland nouns', () => {
+    expect(entries.filter(e => e.group === 'Switzerland').length).toBeGreaterThanOrEqual(100)
+  })
 })
