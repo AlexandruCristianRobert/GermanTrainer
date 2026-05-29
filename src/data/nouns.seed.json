@@ -12082,5 +12082,545 @@
     "gender": "der",
     "english": "pixel",
     "group": "Technology"
+  },
+  {
+    "german": "Turnen",
+    "gender": "das",
+    "english": "gymnastics",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Reiten",
+    "gender": "das",
+    "english": "horse riding",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Klettern",
+    "gender": "das",
+    "english": "climbing",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Angeln",
+    "gender": "das",
+    "english": "fishing (hobby)",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Segeln",
+    "gender": "das",
+    "english": "sailing",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Rudern",
+    "gender": "das",
+    "english": "rowing",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Leichtathletik",
+    "gender": "die",
+    "english": "athletics/track and field",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Boxen",
+    "gender": "das",
+    "english": "boxing",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Tischtennis",
+    "gender": "das",
+    "english": "table tennis",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Skateboard",
+    "gender": "das",
+    "english": "skateboard",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Mountainbike",
+    "gender": "das",
+    "english": "mountain bike",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Turnier",
+    "gender": "das",
+    "english": "tournament",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Verein",
+    "gender": "der",
+    "english": "club/association",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Halbzeit",
+    "gender": "die",
+    "english": "half-time",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Rekord",
+    "gender": "der",
+    "english": "record",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Training",
+    "gender": "das",
+    "english": "training",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Anstoß",
+    "gender": "der",
+    "english": "kick-off",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Schach",
+    "gender": "das",
+    "english": "chess",
+    "group": "Sports & Hobbies"
+  },
+  {
+    "german": "Staffelei",
+    "gender": "die",
+    "english": "easel",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Leinwand",
+    "gender": "die",
+    "english": "canvas/screen",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Rahmen",
+    "gender": "der",
+    "english": "frame",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Melodie",
+    "gender": "die",
+    "english": "melody",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Rhythmus",
+    "gender": "der",
+    "english": "rhythm",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Chor",
+    "gender": "der",
+    "english": "choir",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Orchester",
+    "gender": "das",
+    "english": "orchestra",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Bühne",
+    "gender": "die",
+    "english": "stage",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Publikum",
+    "gender": "das",
+    "english": "audience",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Erzählung",
+    "gender": "die",
+    "english": "story/narrative",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Verlag",
+    "gender": "der",
+    "english": "publisher",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Kapitel",
+    "gender": "das",
+    "english": "chapter",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Vers",
+    "gender": "der",
+    "english": "verse",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Lyrik",
+    "gender": "die",
+    "english": "poetry/lyric",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Architektur",
+    "gender": "die",
+    "english": "architecture",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Festival",
+    "gender": "das",
+    "english": "festival",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Karneval",
+    "gender": "der",
+    "english": "carnival",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Komponist",
+    "gender": "der",
+    "english": "composer",
+    "group": "Culture & Arts"
+  },
+  {
+    "german": "Augenblick",
+    "gender": "der",
+    "english": "moment/instant",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Zeitraum",
+    "gender": "der",
+    "english": "period of time",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Dauer",
+    "gender": "die",
+    "english": "duration",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Verspätung",
+    "gender": "die",
+    "english": "delay",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Pünktlichkeit",
+    "gender": "die",
+    "english": "punctuality",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Mitternacht",
+    "gender": "die",
+    "english": "midnight",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Epoche",
+    "gender": "die",
+    "english": "epoch/era",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Saison",
+    "gender": "die",
+    "english": "season",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Ziffer",
+    "gender": "die",
+    "english": "digit/numeral",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Summe",
+    "gender": "die",
+    "english": "sum/total",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Anzahl",
+    "gender": "die",
+    "english": "quantity/number of",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Durchschnitt",
+    "gender": "der",
+    "english": "average",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Bruchteil",
+    "gender": "der",
+    "english": "fraction",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Million",
+    "gender": "die",
+    "english": "million",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Milliarde",
+    "gender": "die",
+    "english": "billion",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Tonne",
+    "gender": "die",
+    "english": "tonne",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Zentimeter",
+    "gender": "der",
+    "english": "centimetre",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Millimeter",
+    "gender": "der",
+    "english": "millimetre",
+    "group": "Time & Numbers"
+  },
+  {
+    "german": "Fußgängerzone",
+    "gender": "die",
+    "english": "pedestrian zone",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Brunnen",
+    "gender": "der",
+    "english": "fountain/well",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Vorort",
+    "gender": "der",
+    "english": "suburb",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Gasse",
+    "gender": "die",
+    "english": "alley/lane",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Allee",
+    "gender": "die",
+    "english": "avenue",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Bushaltestelle",
+    "gender": "die",
+    "english": "bus stop",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Buchhandlung",
+    "gender": "die",
+    "english": "bookshop",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Schaufenster",
+    "gender": "das",
+    "english": "shop window",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Einkaufswagen",
+    "gender": "der",
+    "english": "shopping cart",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Warteschlange",
+    "gender": "die",
+    "english": "queue",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Umtausch",
+    "gender": "der",
+    "english": "exchange/return",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Gutschein",
+    "gender": "der",
+    "english": "voucher/coupon",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Schnäppchen",
+    "gender": "das",
+    "english": "bargain",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Auswahl",
+    "gender": "die",
+    "english": "selection/choice",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Auslage",
+    "gender": "die",
+    "english": "display (of goods)",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Innenstadt",
+    "gender": "die",
+    "english": "city centre/downtown",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Sortiment",
+    "gender": "das",
+    "english": "assortment/range",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Stadtmauer",
+    "gender": "die",
+    "english": "city wall",
+    "group": "City & Shopping"
+  },
+  {
+    "german": "Zweifel",
+    "gender": "der",
+    "english": "doubt",
+    "group": "Other"
+  },
+  {
+    "german": "Mut",
+    "gender": "der",
+    "english": "courage",
+    "group": "Other"
+  },
+  {
+    "german": "Geduld",
+    "gender": "die",
+    "english": "patience",
+    "group": "Other"
+  },
+  {
+    "german": "Neugier",
+    "gender": "die",
+    "english": "curiosity",
+    "group": "Other"
+  },
+  {
+    "german": "Vertrauen",
+    "gender": "das",
+    "english": "trust",
+    "group": "Other"
+  },
+  {
+    "german": "Vorteil",
+    "gender": "der",
+    "english": "advantage",
+    "group": "Other"
+  },
+  {
+    "german": "Nachteil",
+    "gender": "der",
+    "english": "disadvantage",
+    "group": "Other"
+  },
+  {
+    "german": "Bedeutung",
+    "gender": "die",
+    "english": "meaning/significance",
+    "group": "Other"
+  },
+  {
+    "german": "Ursache",
+    "gender": "die",
+    "english": "cause",
+    "group": "Other"
+  },
+  {
+    "german": "Folge",
+    "gender": "die",
+    "english": "consequence",
+    "group": "Other"
+  },
+  {
+    "german": "Beispiel",
+    "gender": "das",
+    "english": "example",
+    "group": "Other"
+  },
+  {
+    "german": "Unterschied",
+    "gender": "der",
+    "english": "difference",
+    "group": "Other"
+  },
+  {
+    "german": "Vorschlag",
+    "gender": "der",
+    "english": "suggestion",
+    "group": "Other"
+  },
+  {
+    "german": "Lösung",
+    "gender": "die",
+    "english": "solution",
+    "group": "Other"
+  },
+  {
+    "german": "Eimer",
+    "gender": "der",
+    "english": "bucket",
+    "group": "Other"
+  },
+  {
+    "german": "Leiter",
+    "gender": "die",
+    "english": "ladder",
+    "group": "Other"
+  },
+  {
+    "german": "Schachtel",
+    "gender": "die",
+    "english": "box",
+    "group": "Other"
+  },
+  {
+    "german": "Deckel",
+    "gender": "der",
+    "english": "lid",
+    "group": "Other"
   }
 ]
