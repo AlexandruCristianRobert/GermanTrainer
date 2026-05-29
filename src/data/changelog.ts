@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.04'
+export const APP_VERSION = '1.11.05'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.05', date: '2026-05-29', kind: 'polish',
+    title: 'Noun result: instant, keyboard-driven retry modal',
+    notes: [
+      'When a noun quiz finishes <em>with</em> wrong answers, a focused modal now pops up the moment the result page loads. Press <strong>Enter</strong> to launch a fresh round on just the missed nouns, or <strong>Esc</strong> to dismiss it and review the full list. The modal grabs keyboard focus on open, so the whole retry loop is playable without touching the mouse.',
+      'An all-correct round never triggers the modal (you still get the <em>Alles richtig! 🎉</em> banner), and the inline <em>Retry N wrong</em> button stays available after you dismiss it.'
+    ]
+  },
   {
     version: '1.11.04', date: '2026-05-29', kind: 'polish',
     title: 'Noun retry-wrong loop · Fantasy & Switzerland categories · bigger, cleaner seed',
