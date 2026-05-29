@@ -9662,7 +9662,7 @@
   {
     "german": "Dom",
     "gender": "der",
-    "english": "Dom (highest Swiss peak)",
+    "english": "Dom (peak; highest entirely in Switzerland)",
     "group": "Switzerland"
   },
   {
@@ -9998,7 +9998,7 @@
   {
     "german": "Schabziger",
     "gender": "der",
-    "english": "Sap sago (green cheese)",
+    "english": "Sapsago / Schabziger (green herb cheese)",
     "group": "Switzerland"
   },
   {
@@ -10050,21 +10050,9 @@
     "group": "Switzerland"
   },
   {
-    "german": "Älplermakkaroni",
-    "gender": "die",
-    "english": "alpine macaroni (var.)",
-    "group": "Switzerland"
-  },
-  {
-    "german": "Capuns",
-    "gender": "die",
-    "english": "Capuns (chard rolls)",
-    "group": "Switzerland"
-  },
-  {
-    "german": "Pizzoccheri",
-    "gender": "die",
-    "english": "buckwheat pasta",
+    "german": "Capun",
+    "gender": "der",
+    "english": "chard roll (Grisons dish)",
     "group": "Switzerland"
   },
   {
