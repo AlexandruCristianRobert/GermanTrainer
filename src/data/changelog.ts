@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.05'
+export const APP_VERSION = '1.11.06'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.06', date: '2026-05-29', kind: 'polish',
+    title: 'Prepositions: full standard set · 400 two-way drills · retry modal everywhere · one-per-view case quiz',
+    notes: [
+      '<strong>Complete preposition set.</strong> Grew the list from 37 to <strong>69</strong> — added the full standard German dative tail (<em>entgegen, gemäß, samt, nebst, zuwider</em>) and the long genitive tail (<em>oberhalb, unterhalb, diesseits, jenseits, anlässlich, anstelle, zugunsten, anhand, angesichts, bezüglich, hinsichtlich, infolge, mittels, kraft, zwecks, ungeachtet, abseits, längs, unweit, seitens, mangels, einschließlich, inmitten, zeit…</em>), each with example sentences. (The 9 two-way <em>Wechselpräpositionen</em> were already the complete set.)',
+      '<strong>Two-way decision drill: 108 → 400 examples.</strong> One exercise for every Switzerland noun (Matterhorn, Fondue, Alphorn, the cantons…) plus a balanced spread of everyday motion-vs-location sentences across all nine two-way prepositions. Globally de-duplicated and gender-checked.',
+      '<strong>Retry your wrong answers — now in prepositions too.</strong> Finishing any preposition quiz (case, article-fill, or two-way) with misses pops a focused modal: <em>Enter</em> re-runs a round of just the ones you got wrong, <em>Esc</em> dismisses to review — repeating until none are left. Retry rounds are practice only and are not written to history. Same modal as the noun quizzes (now shared).',
+      '<strong>"Which case?" quiz is one preposition per view.</strong> Instead of a long sheet of every preposition at once, you now get one card at a time with <code>1</code>–<code>4</code> keys and instant ✓/✗ feedback — matching the noun-quiz rhythm.'
+    ]
+  },
   {
     version: '1.11.05', date: '2026-05-29', kind: 'polish',
     title: 'Noun result: instant, keyboard-driven retry modal',
