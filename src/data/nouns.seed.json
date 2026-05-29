@@ -10462,5 +10462,545 @@
     "gender": "der",
     "english": "Swiss passport",
     "group": "Switzerland"
+  },
+  {
+    "german": "Aktenordner",
+    "gender": "der",
+    "english": "binder / file folder",
+    "group": "Office"
+  },
+  {
+    "german": "Schreibmappe",
+    "gender": "die",
+    "english": "writing folder / portfolio",
+    "group": "Office"
+  },
+  {
+    "german": "Sammelmappe",
+    "gender": "die",
+    "english": "document folder",
+    "group": "Office"
+  },
+  {
+    "german": "Hängeregistratur",
+    "gender": "die",
+    "english": "suspension filing",
+    "group": "Office"
+  },
+  {
+    "german": "Karteikarte",
+    "gender": "die",
+    "english": "index card",
+    "group": "Office"
+  },
+  {
+    "german": "Aktenvernichter",
+    "gender": "der",
+    "english": "paper shredder",
+    "group": "Office"
+  },
+  {
+    "german": "Bürostempel",
+    "gender": "der",
+    "english": "office stamp",
+    "group": "Office"
+  },
+  {
+    "german": "Stempelkissen",
+    "gender": "das",
+    "english": "ink pad",
+    "group": "Office"
+  },
+  {
+    "german": "Briefablage",
+    "gender": "die",
+    "english": "letter tray",
+    "group": "Office"
+  },
+  {
+    "german": "Zettelkasten",
+    "gender": "der",
+    "english": "card index box",
+    "group": "Office"
+  },
+  {
+    "german": "Faxgerät",
+    "gender": "das",
+    "english": "fax machine",
+    "group": "Office"
+  },
+  {
+    "german": "Tischrechner",
+    "gender": "der",
+    "english": "desktop calculator",
+    "group": "Office"
+  },
+  {
+    "german": "Korrekturband",
+    "gender": "das",
+    "english": "correction tape",
+    "group": "Office"
+  },
+  {
+    "german": "Locherzange",
+    "gender": "die",
+    "english": "hole-punch pliers",
+    "group": "Office"
+  },
+  {
+    "german": "Schreibblock",
+    "gender": "der",
+    "english": "writing pad",
+    "group": "Office"
+  },
+  {
+    "german": "Posteingang",
+    "gender": "der",
+    "english": "mail inbox",
+    "group": "Office"
+  },
+  {
+    "german": "Wandkalender",
+    "gender": "der",
+    "english": "wall calendar",
+    "group": "Office"
+  },
+  {
+    "german": "Druckerständer",
+    "gender": "der",
+    "english": "printer stand",
+    "group": "Office"
+  },
+  {
+    "german": "Arbeitsplatz",
+    "gender": "der",
+    "english": "workplace / workstation",
+    "group": "Work"
+  },
+  {
+    "german": "Arbeitszeugnis",
+    "gender": "das",
+    "english": "reference letter",
+    "group": "Work"
+  },
+  {
+    "german": "Arbeitsamt",
+    "gender": "das",
+    "english": "employment office",
+    "group": "Work"
+  },
+  {
+    "german": "Tagegeld",
+    "gender": "das",
+    "english": "daily allowance / per diem",
+    "group": "Work"
+  },
+  {
+    "german": "Aufstieg",
+    "gender": "der",
+    "english": "advancement / promotion",
+    "group": "Work"
+  },
+  {
+    "german": "Anstellung",
+    "gender": "die",
+    "english": "employment",
+    "group": "Work"
+  },
+  {
+    "german": "Vergütung",
+    "gender": "die",
+    "english": "remuneration",
+    "group": "Work"
+  },
+  {
+    "german": "Zulage",
+    "gender": "die",
+    "english": "bonus / supplement",
+    "group": "Work"
+  },
+  {
+    "german": "Provision",
+    "gender": "die",
+    "english": "commission",
+    "group": "Work"
+  },
+  {
+    "german": "Kündigungsfrist",
+    "gender": "die",
+    "english": "notice period",
+    "group": "Work"
+  },
+  {
+    "german": "Tätigkeit",
+    "gender": "die",
+    "english": "activity / occupation",
+    "group": "Work"
+  },
+  {
+    "german": "Zuständigkeit",
+    "gender": "die",
+    "english": "responsibility / remit",
+    "group": "Work"
+  },
+  {
+    "german": "Vorgang",
+    "gender": "der",
+    "english": "process / case",
+    "group": "Work"
+  },
+  {
+    "german": "Bilanz",
+    "gender": "die",
+    "english": "balance sheet",
+    "group": "Work"
+  },
+  {
+    "german": "Auftraggeber",
+    "gender": "der",
+    "english": "client / principal",
+    "group": "Work"
+  },
+  {
+    "german": "Geschäftspartner",
+    "gender": "der",
+    "english": "business partner",
+    "group": "Work"
+  },
+  {
+    "german": "Sachbearbeiter",
+    "gender": "der",
+    "english": "clerk / case handler",
+    "group": "Work"
+  },
+  {
+    "german": "Auszubildende",
+    "gender": "der",
+    "english": "apprentice / trainee",
+    "group": "Work"
+  },
+  {
+    "german": "Eckschrank",
+    "gender": "der",
+    "english": "corner cabinet",
+    "group": "Furniture"
+  },
+  {
+    "german": "Garderobenschrank",
+    "gender": "der",
+    "english": "wardrobe / coat cabinet",
+    "group": "Furniture"
+  },
+  {
+    "german": "Garderobenständer",
+    "gender": "der",
+    "english": "coat stand",
+    "group": "Furniture"
+  },
+  {
+    "german": "Schirmständer",
+    "gender": "der",
+    "english": "umbrella stand",
+    "group": "Furniture"
+  },
+  {
+    "german": "Schreibsekretär",
+    "gender": "der",
+    "english": "writing bureau / secretary desk",
+    "group": "Furniture"
+  },
+  {
+    "german": "Wäschetruhe",
+    "gender": "die",
+    "english": "laundry chest / hamper",
+    "group": "Furniture"
+  },
+  {
+    "german": "Anrichte",
+    "gender": "die",
+    "english": "sideboard / dresser",
+    "group": "Furniture"
+  },
+  {
+    "german": "Frisierkommode",
+    "gender": "die",
+    "english": "dressing table",
+    "group": "Furniture"
+  },
+  {
+    "german": "Servierwagen",
+    "gender": "der",
+    "english": "serving trolley",
+    "group": "Furniture"
+  },
+  {
+    "german": "Beistelltisch",
+    "gender": "der",
+    "english": "side table",
+    "group": "Furniture"
+  },
+  {
+    "german": "Klapptisch",
+    "gender": "der",
+    "english": "folding table",
+    "group": "Furniture"
+  },
+  {
+    "german": "Polsterstuhl",
+    "gender": "der",
+    "english": "upholstered chair",
+    "group": "Furniture"
+  },
+  {
+    "german": "Klappstuhl",
+    "gender": "der",
+    "english": "folding chair",
+    "group": "Furniture"
+  },
+  {
+    "german": "Drehstuhl",
+    "gender": "der",
+    "english": "swivel chair",
+    "group": "Furniture"
+  },
+  {
+    "german": "Sitzbank",
+    "gender": "die",
+    "english": "bench seat",
+    "group": "Furniture"
+  },
+  {
+    "german": "Schlafsofa",
+    "gender": "das",
+    "english": "sofa bed",
+    "group": "Furniture"
+  },
+  {
+    "german": "Ottomane",
+    "gender": "die",
+    "english": "ottoman / chaise",
+    "group": "Furniture"
+  },
+  {
+    "german": "Wickelkommode",
+    "gender": "die",
+    "english": "changing table",
+    "group": "Furniture"
+  },
+  {
+    "german": "Außenwand",
+    "gender": "die",
+    "english": "exterior wall",
+    "group": "House"
+  },
+  {
+    "german": "Innenwand",
+    "gender": "die",
+    "english": "interior wall",
+    "group": "House"
+  },
+  {
+    "german": "Tragwerk",
+    "gender": "das",
+    "english": "load-bearing structure",
+    "group": "House"
+  },
+  {
+    "german": "Dachstuhl",
+    "gender": "der",
+    "english": "roof truss",
+    "group": "House"
+  },
+  {
+    "german": "Giebel",
+    "gender": "der",
+    "english": "gable",
+    "group": "House"
+  },
+  {
+    "german": "Traufe",
+    "gender": "die",
+    "english": "eaves",
+    "group": "House"
+  },
+  {
+    "german": "Estrich",
+    "gender": "der",
+    "english": "screed / floor base",
+    "group": "House"
+  },
+  {
+    "german": "Sockel",
+    "gender": "der",
+    "english": "plinth / base",
+    "group": "House"
+  },
+  {
+    "german": "Vordach",
+    "gender": "das",
+    "english": "canopy / porch roof",
+    "group": "House"
+  },
+  {
+    "german": "Lichtschacht",
+    "gender": "der",
+    "english": "light well",
+    "group": "House"
+  },
+  {
+    "german": "Regenrinne",
+    "gender": "die",
+    "english": "rain gutter",
+    "group": "House"
+  },
+  {
+    "german": "Sickergrube",
+    "gender": "die",
+    "english": "soakaway / cesspit",
+    "group": "House"
+  },
+  {
+    "german": "Zisterne",
+    "gender": "die",
+    "english": "cistern",
+    "group": "House"
+  },
+  {
+    "german": "Heizungsrohr",
+    "gender": "das",
+    "english": "heating pipe",
+    "group": "House"
+  },
+  {
+    "german": "Stromzähler",
+    "gender": "der",
+    "english": "electricity meter",
+    "group": "House"
+  },
+  {
+    "german": "Sprechanlage",
+    "gender": "die",
+    "english": "intercom",
+    "group": "House"
+  },
+  {
+    "german": "Vorgarten",
+    "gender": "der",
+    "english": "front garden",
+    "group": "House"
+  },
+  {
+    "german": "Gartenzaun",
+    "gender": "der",
+    "english": "garden fence",
+    "group": "House"
+  },
+  {
+    "german": "Empfangsraum",
+    "gender": "der",
+    "english": "reception room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Aufenthaltsraum",
+    "gender": "der",
+    "english": "common / lounge room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Lesezimmer",
+    "gender": "das",
+    "english": "reading room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Nähzimmer",
+    "gender": "das",
+    "english": "sewing room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Bügelzimmer",
+    "gender": "das",
+    "english": "ironing room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Trockenraum",
+    "gender": "der",
+    "english": "drying room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Bügelkammer",
+    "gender": "die",
+    "english": "ironing closet",
+    "group": "Rooms"
+  },
+  {
+    "german": "Rumpelkammer",
+    "gender": "die",
+    "english": "junk room / box room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Dachstube",
+    "gender": "die",
+    "english": "attic room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Vorzimmer",
+    "gender": "das",
+    "english": "anteroom / antechamber",
+    "group": "Rooms"
+  },
+  {
+    "german": "Empore",
+    "gender": "die",
+    "english": "gallery / loft",
+    "group": "Rooms"
+  },
+  {
+    "german": "Lichthof",
+    "gender": "der",
+    "english": "atrium / light court",
+    "group": "Rooms"
+  },
+  {
+    "german": "Verbindungsgang",
+    "gender": "der",
+    "english": "connecting corridor",
+    "group": "Rooms"
+  },
+  {
+    "german": "Flügelzimmer",
+    "gender": "das",
+    "english": "wing room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Mansardenzimmer",
+    "gender": "das",
+    "english": "attic / mansard room",
+    "group": "Rooms"
+  },
+  {
+    "german": "Salon",
+    "gender": "der",
+    "english": "parlour / salon",
+    "group": "Rooms"
+  },
+  {
+    "german": "Vorhalle",
+    "gender": "die",
+    "english": "vestibule / entrance hall",
+    "group": "Rooms"
+  },
+  {
+    "german": "Lagerkeller",
+    "gender": "der",
+    "english": "storage cellar",
+    "group": "Rooms"
   }
 ]
