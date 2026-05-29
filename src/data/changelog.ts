@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.03'
+export const APP_VERSION = '1.11.04'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.04', date: '2026-05-29', kind: 'polish',
+    title: 'Noun retry-wrong loop · Fantasy & Switzerland categories · bigger, cleaner seed',
+    notes: [
+      '<strong>Retry your wrong answers.</strong> After finishing a noun quiz (gender <em>or</em> translation), the result page now offers <em>Retry N wrong</em> — it re-runs only the nouns you missed, reshuffled, and keeps re-offering after each round until none are left, then shows <em>Alles richtig! 🎉</em>. Retry rounds are practice only and are <strong>not</strong> written to your history, so they never skew your stats.',
+      '<strong>Two new categories.</strong> <em>Fantasy</em> (178 nouns — <em>der Drache, die Hexe, der Zauberer, das Schwert, der Ritter, die Burg, das Einhorn</em>…) and <em>Switzerland</em> (159 nouns — cantons, peaks &amp; lakes, <em>das Fondue, die Rösti, das Alphorn, der Nationalrat</em>…). Both appear in the noun-quiz setup automatically.',
+      '<strong>Bigger, cleaner seed.</strong> Added ~18 new nouns to every existing category (≈360 total) so even the thinnest groups are well-stocked, and stripped <strong>263 duplicate</strong> entries that had crept into the seed. The noun set is now <strong>2,104</strong> unique words, each with a verified <code>der/die/das</code> gender.',
+      '<strong>Under the hood.</strong> New nouns reach existing installs via a schema <code>version(7)</code> top-up migration (any nouns you added yourself are left untouched), guarded by a test that fails on any duplicate or mis-categorised entry.'
+    ]
+  },
   {
     version: '1.11.03', date: '2026-05-25', kind: 'polish',
     title: 'History overhaul · AI level assessment · per-module stats',
