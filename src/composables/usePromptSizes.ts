@@ -32,11 +32,11 @@ export const PROMPT_SIZE_SPECS = {
   noun: {
     cssVar: '--noun-prompt-size',
     storageKey: 'gt:nounPromptSize',
-    default: 48,
-    min: 48,
+    default: 24,
+    min: 24,
     max: 140,
     presets: [
-      { label: 'Compact', value: 48 },
+      { label: 'Compact', value: 24 },
       { label: 'Medium', value: 92 },
       { label: 'Large', value: 120 }
     ]

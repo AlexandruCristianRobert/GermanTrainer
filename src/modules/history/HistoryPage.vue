@@ -20,12 +20,15 @@ import TypeDistribution from '../../components/charts/TypeDistribution.vue'
 import TypeAccuracyRadar from '../../components/charts/TypeAccuracyRadar.vue'
 import TypeBreakdown from '../../components/charts/TypeBreakdown.vue'
 import MetaAccuracyBar from '../../components/charts/MetaAccuracyBar.vue'
-import StudyHeatmap from '../../components/charts/StudyHeatmap.vue'
 import DurationHistogram from '../../components/charts/DurationHistogram.vue'
 import CountVsAccuracyScatter from '../../components/charts/CountVsAccuracyScatter.vue'
 import ScoreTrendChart from '../../components/charts/ScoreTrendChart.vue'
-import ActivityHeatmap30 from '../../components/charts/ActivityHeatmap30.vue'
 import RunCountByType from '../../components/charts/RunCountByType.vue'
+import LevelAssessmentPanel from '../../components/charts/LevelAssessmentPanel.vue'
+import KonjunktivStats from '../../components/charts/KonjunktivStats.vue'
+import PassivStats from '../../components/charts/PassivStats.vue'
+import WritingStats from '../../components/charts/WritingStats.vue'
+import SimulatorStats from '../../components/charts/SimulatorStats.vue'
 
 const router = useRouter()
 
@@ -277,40 +280,29 @@ function summariseMeta(it: QuizHistoryEntry): string {
         </div>
       </div>
 
-      <div class="chart-row">
-        <div class="chart-panel">
-          <div class="chart-panel-title">
-            <span class="chart-numeral">I</span>
-            <div>
-              <div class="chart-panel-de">Fortschritt</div>
-              <div class="chart-panel-en">Score over time</div>
-            </div>
+      <div class="chart-panel chart-panel-wide">
+        <div class="chart-panel-title">
+          <span class="chart-numeral">I</span>
+          <div>
+            <div class="chart-panel-de">Fortschritt</div>
+            <div class="chart-panel-en">Score over time</div>
           </div>
-          <ScoreTrendChart :items="items" />
         </div>
-
-        <div class="chart-panel">
-          <div class="chart-panel-title">
-            <span class="chart-numeral">II</span>
-            <div>
-              <div class="chart-panel-de">Aktivität</div>
-              <div class="chart-panel-en">Last 30 days</div>
-            </div>
-          </div>
-          <ActivityHeatmap30 :items="items" />
-        </div>
-
-        <div class="chart-panel">
-          <div class="chart-panel-title">
-            <span class="chart-numeral">III</span>
-            <div>
-              <div class="chart-panel-de">Verteilung</div>
-              <div class="chart-panel-en">By quiz type</div>
-            </div>
-          </div>
-          <RunCountByType :items="items" />
-        </div>
+        <ScoreTrendChart :items="items" />
       </div>
+
+      <div class="chart-panel chart-panel-wide">
+        <div class="chart-panel-title">
+          <span class="chart-numeral">II</span>
+          <div>
+            <div class="chart-panel-de">Verteilung</div>
+            <div class="chart-panel-en">By quiz type</div>
+          </div>
+        </div>
+        <RunCountByType :items="items" />
+      </div>
+
+      <LevelAssessmentPanel :stats="stats" :history-entries="items" />
 
       <div class="charts-section-mark">Statistiken · Charts</div>
 
@@ -373,14 +365,19 @@ function summariseMeta(it: QuizHistoryEntry): string {
         :top-n="8"
       />
 
-      <StudyHeatmap :stats="stats" />
-
       <div class="chart-grid-2">
         <DurationHistogram :stats="stats" />
         <SpeedTrend :stats="stats" />
       </div>
 
       <CountVsAccuracyScatter :stats="stats" />
+
+      <div class="charts-section-mark">Module · Per-module breakdown</div>
+
+      <KonjunktivStats :items="items" />
+      <PassivStats :items="items" />
+      <WritingStats :items="items" />
+      <SimulatorStats :items="items" />
 
       <div class="charts-section-mark">Verlauf · Sessions</div>
     </template>
@@ -599,5 +596,15 @@ function summariseMeta(it: QuizHistoryEntry): string {
   color: var(--ink-soft);
   margin-top: 4px;
   letter-spacing: 0.04em;
+}
+
+/* Wide hero panels — Fortschritt + Verteilung sit full-width above
+   the editorial chart grid below, so the score-over-time line has
+   room to breathe (was previously cramped in a 3-col row). */
+.chart-panel-wide {
+  margin-top: 24px;
+}
+.chart-panel-wide:first-of-type {
+  margin-top: 32px;
 }
 </style>

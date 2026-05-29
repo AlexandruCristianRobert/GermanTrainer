@@ -60,14 +60,40 @@ const RESPONSE_SCHEMA = {
   required: ['sentences']
 }
 
+// Pool of one-line angles. A small subset is injected per batch so the same
+// adjective doesn't always land in the same canonical sentence.
+const ADJECTIVE_ANGLE_POOL = [
+  'set the scene on a Saturday morning',
+  'place the action in a noisy café',
+  'use a first-person plural subject',
+  'use a child as the subject',
+  'set it during a thunderstorm',
+  'use a workplace context',
+  'set it on a train ride',
+  'use a question form',
+  'open with an adverb of time',
+  'put the verb in the perfect tense',
+  'use a 2nd-person informal subject',
+  'set it at a flea market',
+  'use a future intention',
+  'frame it as an overheard remark'
+] as const
+
 export async function generateAdjectiveSentences(
   client: AiClient,
   opts: GenerateOptions
 ): Promise<GenerateResult> {
+  const angles = [...ADJECTIVE_ANGLE_POOL]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, Math.max(3, Math.min(6, opts.adjectives.length)))
+  const seed = Math.floor(Math.random() * 1_000_000).toString(36)
+
   const userMsg =
     'Generate one German sentence for each of these words. Use the word in an inflected ' +
     'form appropriate to the sentence, and let each word\'s category guide the sentence ' +
-    'context:\n' +
+    'context. Vary the sentence framing across the batch — draw inspiration from these ' +
+    `rotating angles (do not echo them as text): ${angles.join(' · ')}. ` +
+    `Batch variation seed: ${seed}.\n` +
     opts.adjectives
       .map(a => `- ${a.german} (${a.english})${a.group ? ` — group: ${a.group}` : ''}`)
       .join('\n')
@@ -78,7 +104,9 @@ export async function generateAdjectiveSentences(
     config: {
       systemInstruction: SYSTEM_PROMPT,
       responseMimeType: 'application/json',
-      responseSchema: RESPONSE_SCHEMA
+      responseSchema: RESPONSE_SCHEMA,
+      temperature: 0.9,
+      topP: 0.95
     }
   })
 

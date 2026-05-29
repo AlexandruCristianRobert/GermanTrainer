@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.07.03'
+export const APP_VERSION = '1.11.03'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,75 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.03', date: '2026-05-25', kind: 'polish',
+    title: 'History overhaul · AI level assessment · per-module stats',
+    notes: [
+      '<strong>Layout.</strong> The <em>Fortschritt</em> score-over-time line was cramped in a 3-column row — it now gets its own full-width hero panel above the editorial chart grid. Same for the <em>Verteilung</em> by-quiz-type panel. The redundant <em>"Aktivität · Last 30 days"</em> heatmap was removed (the full <em>Aktivität</em> calendar below covers the same ground), and the <em>"Rhythmus"</em> day-of-week × hour heatmap was removed entirely.',
+      '<strong>AI Level Assessment.</strong> New panel between the top charts and the editorial grid. Click <em>Assess my level</em> and Gemini reviews your full history — runs per type, accuracy per CEFR level, per-module performance — and returns a CEFR estimate (A1–C2) with confidence, a German one-line summary, 3–5 strengths, 3–5 weaknesses, 3–5 next steps, and a per-module score breakdown. Cached in <code>localStorage</code> with a history signature so re-opening the page doesn\'t re-spend the API call; <em>Refresh</em> button when the cache is stale. Requires ≥3 finished quizzes.',
+      '<strong>Per-module stats.</strong> Four new panels below the editorial grid surface metrics that were hidden in raw <code>meta</code> fields: <em>Konjunktiv I</em> (accuracy by difficulty + per-topic bars), <em>Passiv</em> (per-transformation-type bars built from <code>passivPerTypeCorrect</code> — finally shows which of the six transformations is your weak spot), <em>Writing</em> (drafts graded, avg/best score, band distribution chips, per-task-type avg score, score-over-time when ≥2 graded drafts), <em>Simulator C1</em> (attempts, pass rate, avg combined, T1-vs-T2 comparison, last-5-attempts table).',
+      '<strong>Score thresholds.</strong> Accuracy charts colour at sage ≥80% · ochre 50–79% · clay below. Writing / simulator score charts use the passing-mark thresholds instead: sage ≥60 · ochre 40–59 · clay below.'
+    ]
+  },
+  {
+    version: '1.11.02', date: '2026-05-25', kind: 'polish',
+    title: 'AI randomizer extended to the last missed generator',
+    notes: [
+      'Audited every Gemini call in the codebase. Four sentence generators were already randomized in <code>1.11.01</code>; one was missed: the <em>"Upgrade paragraph"</em> action in the Writing editor / Simulator C1 review.',
+      'That call now picks 3 random rhetorical strategies per click from a pool of twelve (Nominalisierung · Hypotaxe · Funktionsverbgefüge · Passiv · Partizipialphrasen · gehobene Synonyme · fachregisterspezifische Lexik · Genitivattribute · …) plus a unique variation seed, and runs at <code>temperature: 0.75</code> / <code>topP: 0.95</code> (was <code>0.2</code> / no seed).',
+      'Effect: clicking <em>Upgrade</em> twice on the same paragraph now produces two genuinely different C1 rewrites instead of nearly identical ones — useful when the first variant feels stylistically off.'
+    ]
+  },
+  {
+    version: '1.11.01', date: '2026-05-25', kind: 'polish',
+    title: 'AI randomizer · sticky header · smaller noun min · seed-data growth',
+    notes: [
+      'AI sentence generators (declension article-fill, Konjunktiv I, Passiv, adjective sentences) now seed every batch with a random scenario / subject / domain pool and a unique variation token. Temperature bumped to <code>0.85–0.9</code> with <code>topP=0.95</code>, so two consecutive runs at the same difficulty produce visibly different sentences instead of the same templated set.',
+      'Sticky header now actually sticks on mobile: <code>html, body { overflow-x: hidden }</code> was creating a scroll containing block that trapped <code>position: sticky</code>. Switched to <code>overflow-x: clip</code>, which keeps overflowing children clipped without breaking the sticky nav.',
+      'Noun runner minimum prompt size dropped from <code>48</code>px to <code>24</code>px (default also moved to 24, Compact preset retuned). Long compound nouns like <em>Sehenswürdigkeiten</em> now fit on a single line on a 360 px phone instead of breaking onto two.',
+      'Seed-data expansion: prepositions <strong>96 → 400</strong> themed example sentences across office / sport / eating / dieting / vacations / work / corporate. Declension article-fill <strong>80 → 500</strong> across vacation / work / food / sport / eating / fantasy / office / climbing / Switzerland themes.'
+    ]
+  },
+  {
+    version: '1.11.00', date: '2026-05-25', kind: 'module',
+    title: 'Simulator C1 · Goethe Schreiben mock exam',
+    notes: [
+      'Full 75-minute timed simulator wrapping two writing tasks (<em>Forumsbeitrag</em> + <em>formelle E-Mail</em>) under one countdown — the Goethe-Zertifikat C1 Schreiben module on paper.',
+      'Run page: side-by-side tabs, per-task autosave, single Submit button that grades both drafts at once (or auto-submits the moment the timer expires).',
+      'Result page: per-task score + band, combined score weighted <code>0.6 / 0.4</code>, pass mark <code>60 / 100</code>, durable history-saved flag so re-opening the result page doesn\'t double-log to history.',
+      'Home tile shows in-progress / submitted / graded / abandoned sessions and lets you resume, abandon, or start a fresh exam.'
+    ]
+  },
+  {
+    version: '1.10.00', date: '2026-05-25', kind: 'module',
+    title: 'Writing module · LLM-graded drafts',
+    notes: [
+      '<strong>Six task types</strong>: Forumsbeitrag (Goethe C1, ~230 W) · formelle E-Mail (Goethe C1, ~120 W) · argumentativer Aufsatz · Grafik-Beschreibung (telc C1) · Zusammenfassung · Stellungnahme.',
+      '12 seeded prompts (2 per task type) with full task context, target word counts, and suggested minutes.',
+      'Editor surface with draft autosave + grade trigger; review mode shows the rubric panel, inline criterion notes, and per-paragraph upgrade suggestions.',
+      'Goethe C1 + telc C1 rubrics built in. Draft comparison page diffs two drafts side-by-side so you can see exactly what changed between revisions.'
+    ]
+  },
+  {
+    version: '1.09.00', date: '2026-05-25', kind: 'module',
+    title: 'Passiv module · six transformation types',
+    notes: [
+      'Active → passive (and passive-alternative) drill. Six target types: <em>Vorgangspassiv</em> (werden + Part. II) · <em>Zustandspassiv</em> (sein + Part. II) · <em>sich-lassen</em> + Inf. · <em>sein + zu</em> + Inf. · <em>-bar/-lich</em> Adjektiv · <em>man-Konstruktion</em>.',
+      'Difficulty: <em>Easy · B1</em> (simple transitive present) · <em>Medium · B2</em> (past tenses, dative, separables) · <em>Hard · C1</em> (subordinate clauses, modals, sich-lassen/man focus).',
+      'Generator declares which transformations are <code>legalTypes</code> for each source verb; the target the learner must produce is chosen from that legal set. LLM judge identifies which type the learner actually produced and flags type mismatches as <em>partially correct</em>.',
+      'Per-type breakdown on the result page so you can see where you confused Vorgangspassiv with Zustandspassiv.'
+    ]
+  },
+  {
+    version: '1.08.00', date: '2026-05-25', kind: 'module',
+    title: 'Konjunktiv I module · Indirekte Rede',
+    notes: [
+      'Quote-rewrite drill: read a direct quotation (<code>Der Minister sagte: „…"</code>), produce the indirect-speech form with Konjunktiv I (or the Konjunktiv II fallback when K-I collides with the indicative — typical for plurals and 1st-person).',
+      'Difficulty: <em>Easy · B1</em> (simple SVO, er/sie/es) · <em>Medium · B2</em> (mixed subjects forcing K-II fallback) · <em>Hard · C1</em> (news register, subordinate clauses, modals, time shifts).',
+      'Topics: Politik · Wirtschaft · Wissenschaft · Sport · Kultur — pick a subset or take a mix.',
+      'LLM judge reports the mood the learner actually used (<code>K1 / K2 / indicative / other</code>) plus whether that choice was appropriate, so wrong-mood answers get explained, not just marked wrong.'
+    ]
+  },
   {
     version: '1.07.03', date: '2026-05-24', kind: 'polish',
     title: 'Default prompt sizes lowered to the minimum',

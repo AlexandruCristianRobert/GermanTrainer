@@ -80,15 +80,48 @@ export interface GeminiClient {
 
 // ── Prompt builder ──────────────────────────────────────────────
 
+// Subject/reporting-verb pools rotated per call so the batch isn't always
+// "Der Minister sagte / Die Forscherin erklärte". A small random subset
+// gets injected as seed inspiration.
+const KI_SUBJECT_POOL = [
+  'der Außenminister', 'die Bürgermeisterin', 'der CEO', 'die Klimaforscherin',
+  'der Bundestrainer', 'die Regisseurin', 'der Notenbankchef', 'die Astronautin',
+  'der Schiedsrichter', 'die Chefredakteurin', 'der Dirigent', 'die Sprecherin',
+  'der Whistleblower', 'die Anwältin', 'der Trainer', 'die Aktivistin',
+  'der Wirtschaftsminister', 'die Pilotin', 'der Vorstandschef', 'die Linguistin'
+] as const
+
+const KI_REPORTING_VERB_POOL = [
+  'sagte', 'erklärte', 'behauptete', 'betonte', 'meinte', 'wies darauf hin',
+  'dementierte', 'konstatierte', 'fügte hinzu', 'kündigte an', 'gab bekannt',
+  'bestritt', 'räumte ein', 'warnte', 'versprach', 'argumentierte'
+] as const
+
+function pickFrom<T>(pool: readonly T[], count: number, rng: () => number): T[] {
+  const copy = [...pool]
+  const out: T[] = []
+  const n = Math.min(count, copy.length)
+  for (let i = 0; i < n; i++) {
+    const idx = Math.floor(rng() * copy.length)
+    out.push(copy.splice(idx, 1)[0])
+  }
+  return out
+}
+
 export function buildKiGeneratorPrompt(
   count: number,
   difficulty: KiDifficulty,
-  topics?: readonly KiTopic[]
+  topics?: readonly KiTopic[],
+  rng: () => number = Math.random
 ): string {
   const topicLine =
     topics && topics.length > 0 && topics.length < KI_TOPICS.length
       ? `Bias topics toward: ${topics.join(', ')}.`
       : 'Mix topics across the batch.'
+
+  const subjectSeed = pickFrom(KI_SUBJECT_POOL, Math.max(4, Math.min(8, count)), rng)
+  const verbSeed = pickFrom(KI_REPORTING_VERB_POOL, Math.max(4, Math.min(8, count)), rng)
+  const seed = Math.floor(rng() * 1_000_000).toString(36)
 
   return `Generate ${count} German direct-speech quote / indirect-speech rewrite pairs
 for a Konjunktiv I drill.
@@ -112,7 +145,10 @@ REQUIREMENTS for every entry:
   chosen mood applies — especially the K-I/K-II collision rule when relevant.
 - "difficulty" is exactly "${difficulty}".
 - ${topicLine}
-- Vary reporting verbs and subjects across the batch.
+- Vary reporting verbs and subjects across the batch. Draw inspiration from
+  these seed pools (use as a starting point — paraphrase / extend, do not just
+  echo): subjects = ${subjectSeed.join(' · ')}; reporting verbs = ${verbSeed.join(' · ')}.
+- Batch variation seed (do not echo): ${seed}.
 - About 30–40% of entries SHOULD deliberately require the K-II fallback so the
   drill reinforces the collision rule.
 
@@ -155,7 +191,8 @@ export async function generateKiQuestions(
       config: {
         responseMimeType: 'application/json',
         responseSchema: KI_GENERATOR_SCHEMA as unknown as Record<string, unknown>,
-        temperature: 0.4
+        temperature: 0.9,
+        topP: 0.95
       }
     })
 

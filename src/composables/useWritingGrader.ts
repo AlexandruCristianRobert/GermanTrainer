@@ -282,6 +282,23 @@ const UPGRADE_SYSTEM_INSTRUCTION =
   'idiomatische Kollokationen. Bedeutung und Aussage bleiben erhalten. ' +
   'Antworte ausschließlich als JSON nach dem responseSchema, ohne Prosa.'
 
+// Rhetorical strategies — a random subset is picked per call so re-clicking
+// "Upgrade" on the same paragraph yields a different rewrite each time.
+const UPGRADE_ANGLE_POOL = [
+  'starke Nominalisierung der Hauptverben',
+  'hypotaktische Umstellung mit Konzessivnebensätzen',
+  'idiomatische Kollokationen ersetzen Allerweltsverben',
+  'formelle Konnektoren (mithin, insofern als, folglich) einsetzen',
+  'Funktionsverbgefüge statt einfacher Verben',
+  'Passivkonstruktionen für Sachlichkeit',
+  'attributive Partizipialphrasen statt Relativsätze',
+  'gehobene Synonyme für umgangssprachliche Wendungen',
+  'fachregisterspezifische Lexik des Aufgabentyps',
+  'Genitivattribute statt von-Konstruktionen',
+  'sprachökonomische Verdichtung statt Wiederholung',
+  'modale Hilfsverben mit hypothetischer Färbung'
+] as const
+
 export async function upgradeParagraph(
   client: GeminiClient,
   model: string,
@@ -289,10 +306,17 @@ export async function upgradeParagraph(
   paragraphText: string,
   _rubric: RubricSystem
 ): Promise<{ upgradedText: string; rationaleDe: string }> {
+  const angles = [...UPGRADE_ANGLE_POOL]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3)
+  const seed = Math.floor(Math.random() * 1_000_000).toString(36)
+
   const user =
     `AUFGABENTYP: ${prompt.type}\n` +
     `URSPRÜNGLICHER ABSATZ:\n${paragraphText}\n\n` +
-    'Formuliere diesen Absatz in höherem C1-Register um.'
+    'Formuliere diesen Absatz in höherem C1-Register um. Setze für diese ' +
+    `Variante einen besonderen Schwerpunkt auf: ${angles.join(' · ')}. ` +
+    `Bedeutung und Aussage bleiben unverändert. (Variations-Seed: ${seed}.)`
 
   const response = await client.models.generateContent({
     model,
@@ -301,7 +325,8 @@ export async function upgradeParagraph(
       systemInstruction: UPGRADE_SYSTEM_INSTRUCTION,
       responseMimeType: 'application/json',
       responseSchema: PARAGRAPH_UPGRADE_SCHEMA as unknown as Record<string, unknown>,
-      temperature: 0.2
+      temperature: 0.75,
+      topP: 0.95
     }
   })
   const text = response.text ?? ''

@@ -1775,8 +1775,11 @@ code, .mono {
    Mobile refinements — overflow control + density pass
    ───────────────────────────────────────────────────── */
 
-/* Prevent any single rogue child from pushing the layout wider than the viewport */
-html, body { overflow-x: hidden; }
+/* Prevent any single rogue child from pushing the layout wider than the viewport.
+   Use overflow-x: clip (not hidden) on body so position: sticky still works on
+   descendants — hidden creates a scrolling containing block that traps sticky. */
+html { overflow-x: clip; }
+body { overflow-x: clip; }
 .app-shell, #app { max-width: 100vw; }
 .page { max-width: 100%; min-width: 0; }
 .page > * { min-width: 0; }

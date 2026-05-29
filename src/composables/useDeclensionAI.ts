@@ -75,10 +75,43 @@ const DIFFICULTY_BRIEF: Record<Difficulty, string> = {
   hard: 'CEFR B2–C1 vocabulary. 3–4 blanks per sentence. Includes genitive constructions (wegen, trotz, während, des … es) and subordinate clauses. Less common nouns and idiomatic verb constructions.'
 }
 
-export function buildPrompt(count: number, difficulty: Difficulty, focusedCases?: DeclCase[]): string {
+// Scenario pool — a random subset is injected per call so every batch
+// gets fresh contexts instead of the LLM defaulting to the same templates.
+const SCENARIO_POOL = [
+  'morning routine', 'public transport', 'grocery shopping', 'family dinner',
+  'weekend trip', 'job interview', 'hiking in the Alps', 'a Berlin café',
+  'a university lecture', 'fixing a bike', 'cooking pasta', 'a thunderstorm',
+  'an art museum', 'a soccer match', 'an old library', 'a winter market',
+  'gardening', 'a road trip', 'a wedding', 'a concert',
+  'apartment hunting', 'a yoga class', 'a baker at dawn', 'a video call',
+  'a power outage', 'a beekeeper', 'a marathon', 'a chess tournament',
+  'an antique shop', 'a midnight train', 'a film set', 'a tailor',
+  'a hospital ward', 'a fishing village', 'a rainy commute', 'a flea market'
+] as const
+
+function pickScenarios(count: number, rng: () => number): string[] {
+  const pool = [...SCENARIO_POOL]
+  const out: string[] = []
+  const n = Math.min(count, pool.length)
+  for (let i = 0; i < n; i++) {
+    const idx = Math.floor(rng() * pool.length)
+    out.push(pool.splice(idx, 1)[0])
+  }
+  return out
+}
+
+export function buildPrompt(
+  count: number,
+  difficulty: Difficulty,
+  focusedCases?: DeclCase[],
+  rng: () => number = Math.random
+): string {
   const caseFocus = focusedCases && focusedCases.length > 0 && focusedCases.length < DECL_CASES.length
     ? `Bias the cases toward: ${focusedCases.join(', ')}.`
     : 'Use a mix of cases across the batch.'
+
+  const scenarios = pickScenarios(Math.max(4, Math.min(8, count)), rng)
+  const seed = Math.floor(rng() * 1_000_000).toString(36)
 
   return `Generate ${count} German sentences for a declension article-fill drill.
 
@@ -97,6 +130,9 @@ REQUIREMENTS for every sentence:
   * Indefinite: nom = ein/eine/ein (no plural), acc = einen/eine/ein, dat = einem/einer/einem, gen = eines/einer/eines
 - ${caseFocus}
 - Vary noun gender across the batch.
+- Draw each sentence from a DIFFERENT scenario in this seed list — do not reuse a scenario twice in the batch and do not default to school/family templates: ${scenarios.join(' · ')}.
+- Vary verbs, subjects, and time-of-day across the batch; avoid the "Der Mann/Die Frau/Das Kind" opening unless the case strictly calls for it.
+- Batch variation seed (use it as inspiration, do not echo): ${seed}.
 - "rationale" is a short English explanation of WHY this case applies (e.g. "Dativ: indirect object of geben").
 - "gloss" is a natural English translation of the full sentence.
 
@@ -182,7 +218,8 @@ export async function generateDeclensionArticles(
       config: {
         responseMimeType: 'application/json',
         responseSchema: RESPONSE_SCHEMA,
-        temperature: 0.3
+        temperature: 0.85,
+        topP: 0.95
       }
     })
 

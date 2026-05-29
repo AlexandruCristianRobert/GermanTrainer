@@ -87,14 +87,42 @@ export interface GeminiClient {
   }
 }
 
+// Domain pool — drawn from each call to keep the verbs varied instead of
+// the LLM defaulting to "Das Gerät / Das Buch / Das Auto" templates.
+const PASSIV_DOMAIN_POOL = [
+  'industrial production', 'medical procedures', 'culinary techniques',
+  'IT and software', 'construction site', 'newsroom journalism',
+  'civic administration', 'scientific research', 'live theatre',
+  'logistics and shipping', 'gardening', 'classroom teaching',
+  'orchestra rehearsal', 'firefighting', 'museum curation',
+  'sports broadcasting', 'restaurant kitchen', 'archaeology',
+  'banking and finance', 'film post-production', 'animal welfare',
+  'urban planning', 'aviation', 'haute couture'
+] as const
+
+function pickDomains(count: number, rng: () => number): string[] {
+  const pool = [...PASSIV_DOMAIN_POOL]
+  const out: string[] = []
+  const n = Math.min(count, pool.length)
+  for (let i = 0; i < n; i++) {
+    const idx = Math.floor(rng() * pool.length)
+    out.push(pool.splice(idx, 1)[0])
+  }
+  return out
+}
+
 export function buildPassivGeneratorPrompt(
   count: number,
   difficulty: PassivDifficulty,
-  focusedTypes?: readonly TransformationType[]
+  focusedTypes?: readonly TransformationType[],
+  rng: () => number = Math.random
 ): string {
   const focus = focusedTypes && focusedTypes.length > 0 && focusedTypes.length < TRANSFORMATION_TYPES.length
     ? `Bias the chosen "target" toward: ${focusedTypes.join(', ')}.`
     : 'Distribute "target" choices across the six transformation types.'
+
+  const domains = pickDomains(Math.max(4, Math.min(8, count)), rng)
+  const seed = Math.floor(rng() * 1_000_000).toString(36)
 
   return `Generate ${count} active German sentences for a Passiv transformation drill.
 
@@ -122,7 +150,10 @@ REQUIREMENTS for every entry:
   transformation is appropriate and how the form is built.
 - "difficulty" is exactly "${difficulty}".
 - ${focus}
-- Vary verbs across the batch.
+- Vary verbs across the batch — draw each sentence from a DIFFERENT domain in
+  this rotating pool (do not reuse a domain twice, do not default to generic
+  "Das Gerät" templates): ${domains.join(' · ')}.
+- Batch variation seed (use as inspiration, do not echo): ${seed}.
 
 Return ONLY valid JSON matching the schema. No prose. No markdown fences.`
 }
@@ -161,7 +192,8 @@ export async function generatePassivQuestions(
       config: {
         responseMimeType: 'application/json',
         responseSchema: PASSIV_GENERATOR_SCHEMA as unknown as Record<string, unknown>,
-        temperature: 0.4
+        temperature: 0.9,
+        topP: 0.95
       }
     })
 
