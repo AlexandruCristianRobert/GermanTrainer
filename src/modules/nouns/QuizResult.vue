@@ -13,7 +13,7 @@ const props = defineProps<{
 
 const pagination = usePagination(() => props.questions, 25)
 
-defineEmits<{ (e: 'restart'): void }>()
+defineEmits<{ (e: 'restart'): void; (e: 'retry-wrong'): void }>()
 
 const pct = computed(() => props.total === 0 ? 0 : Math.round((props.score / props.total) * 100))
 const wrongCount = computed(() => props.total - props.score)
@@ -43,10 +43,16 @@ function expectedAnswer(q: NounQuestion): string {
         <p class="section-subtitle">{{ summary }}</p>
       </div>
       <div class="result-actions">
-        <button class="btn btn-ghost" type="button" @click="$emit('restart')">Setup another</button>
-        <button class="btn btn-accent" type="button" @click="$emit('restart')">
-          Start another quiz <span aria-hidden="true">→</span>
+        <button
+          v-if="wrongCount > 0"
+          class="btn btn-accent"
+          type="button"
+          @click="$emit('retry-wrong')"
+        >
+          Retry {{ wrongCount }} wrong <span aria-hidden="true">→</span>
         </button>
+        <span v-else class="all-correct-banner">Alles richtig! 🎉</span>
+        <button class="btn btn-ghost" type="button" @click="$emit('restart')">Setup another</button>
       </div>
     </header>
 
@@ -123,6 +129,14 @@ function expectedAnswer(q: NounQuestion): string {
 }
 
 .vrs-pct-suffix { font-size: 18px; color: var(--mute); margin-left: 2px; }
+
+.all-correct-banner {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--success);
+  align-self: center;
+}
 
 @media (max-width: 720px) {
   .result-actions { flex-direction: column; align-items: stretch; }
