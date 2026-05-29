@@ -74,8 +74,7 @@ function retryWrong() {
   if (!quiz.value) return
   const wrong = wrongNouns(quiz.value.questions.value)
   if (wrong.length === 0) return
-  nouns.value = shuffle(wrong)
-  quiz.value = useNounQuiz(nouns.value, mode.value)
+  quiz.value = useNounQuiz(shuffle(wrong), mode.value)
 }
 
 function restart() { router.push({ name: 'nouns-quiz' }) }
