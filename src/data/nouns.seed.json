@@ -11002,5 +11002,545 @@
     "gender": "der",
     "english": "storage cellar",
     "group": "Rooms"
+  },
+  {
+    "german": "Großeltern",
+    "gender": "die",
+    "english": "grandparents",
+    "group": "Family"
+  },
+  {
+    "german": "Enkelkind",
+    "gender": "das",
+    "english": "grandchild",
+    "group": "Family"
+  },
+  {
+    "german": "Urenkel",
+    "gender": "der",
+    "english": "great-grandchild",
+    "group": "Family"
+  },
+  {
+    "german": "Urgroßeltern",
+    "gender": "die",
+    "english": "great-grandparents",
+    "group": "Family"
+  },
+  {
+    "german": "Geliebte",
+    "gender": "die",
+    "english": "beloved/mistress",
+    "group": "Family"
+  },
+  {
+    "german": "Spross",
+    "gender": "der",
+    "english": "offspring/scion",
+    "group": "Family"
+  },
+  {
+    "german": "Pflegekind",
+    "gender": "das",
+    "english": "foster child",
+    "group": "Family"
+  },
+  {
+    "german": "Pflegemutter",
+    "gender": "die",
+    "english": "foster mother",
+    "group": "Family"
+  },
+  {
+    "german": "Pflegevater",
+    "gender": "der",
+    "english": "foster father",
+    "group": "Family"
+  },
+  {
+    "german": "Stiefkind",
+    "gender": "das",
+    "english": "stepchild",
+    "group": "Family"
+  },
+  {
+    "german": "Stiefschwester",
+    "gender": "die",
+    "english": "stepsister",
+    "group": "Family"
+  },
+  {
+    "german": "Stiefbruder",
+    "gender": "der",
+    "english": "stepbrother",
+    "group": "Family"
+  },
+  {
+    "german": "Großtante",
+    "gender": "die",
+    "english": "great-aunt",
+    "group": "Family"
+  },
+  {
+    "german": "Großonkel",
+    "gender": "der",
+    "english": "great-uncle",
+    "group": "Family"
+  },
+  {
+    "german": "Nesthäkchen",
+    "gender": "das",
+    "english": "youngest child/baby of the family",
+    "group": "Family"
+  },
+  {
+    "german": "Sippe",
+    "gender": "die",
+    "english": "clan/kin",
+    "group": "Family"
+  },
+  {
+    "german": "Lebensgefährtin",
+    "gender": "die",
+    "english": "life partner (female)",
+    "group": "Family"
+  },
+  {
+    "german": "Verwandtschaft",
+    "gender": "die",
+    "english": "relatives/kinship",
+    "group": "Family"
+  },
+  {
+    "german": "Schulranzen",
+    "gender": "der",
+    "english": "school satchel",
+    "group": "School"
+  },
+  {
+    "german": "Schulzeugnis",
+    "gender": "das",
+    "english": "school report card",
+    "group": "School"
+  },
+  {
+    "german": "Klassenfahrt",
+    "gender": "die",
+    "english": "class trip",
+    "group": "School"
+  },
+  {
+    "german": "Schulpflicht",
+    "gender": "die",
+    "english": "compulsory schooling",
+    "group": "School"
+  },
+  {
+    "german": "Nachhilfe",
+    "gender": "die",
+    "english": "tutoring",
+    "group": "School"
+  },
+  {
+    "german": "Vertretung",
+    "gender": "die",
+    "english": "substitute teaching",
+    "group": "School"
+  },
+  {
+    "german": "Lehrplan",
+    "gender": "der",
+    "english": "curriculum",
+    "group": "School"
+  },
+  {
+    "german": "Studiengang",
+    "gender": "der",
+    "english": "course of study/degree program",
+    "group": "School"
+  },
+  {
+    "german": "Vorlesungssaal",
+    "gender": "der",
+    "english": "lecture hall",
+    "group": "School"
+  },
+  {
+    "german": "Hörsaal",
+    "gender": "der",
+    "english": "lecture theatre",
+    "group": "School"
+  },
+  {
+    "german": "Schreibheft",
+    "gender": "das",
+    "english": "writing notebook",
+    "group": "School"
+  },
+  {
+    "german": "Geodreieck",
+    "gender": "das",
+    "english": "set square/protractor triangle",
+    "group": "School"
+  },
+  {
+    "german": "Studiengebühr",
+    "gender": "die",
+    "english": "tuition fee",
+    "group": "School"
+  },
+  {
+    "german": "Füller",
+    "gender": "der",
+    "english": "fountain pen",
+    "group": "School"
+  },
+  {
+    "german": "Buntstift",
+    "gender": "der",
+    "english": "colored pencil",
+    "group": "School"
+  },
+  {
+    "german": "Tintenfass",
+    "gender": "das",
+    "english": "inkwell",
+    "group": "School"
+  },
+  {
+    "german": "Stipendium",
+    "gender": "das",
+    "english": "scholarship",
+    "group": "School"
+  },
+  {
+    "german": "Schulanfang",
+    "gender": "der",
+    "english": "start of school",
+    "group": "School"
+  },
+  {
+    "german": "Anleihe",
+    "gender": "die",
+    "english": "bond",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Dividende",
+    "gender": "die",
+    "english": "dividend",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Inflation",
+    "gender": "die",
+    "english": "inflation",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Rendite",
+    "gender": "die",
+    "english": "yield/return",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Tilgung",
+    "gender": "die",
+    "english": "repayment/amortization",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Bonität",
+    "gender": "die",
+    "english": "creditworthiness",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Wechsel",
+    "gender": "der",
+    "english": "bill of exchange",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Sparbuch",
+    "gender": "das",
+    "english": "savings book",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Bankfiliale",
+    "gender": "die",
+    "english": "bank branch",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Tresor",
+    "gender": "der",
+    "english": "safe/vault",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Bankleitzahl",
+    "gender": "die",
+    "english": "bank sort code",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Verwendungszweck",
+    "gender": "der",
+    "english": "payment reference",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Ratenzahlung",
+    "gender": "die",
+    "english": "installment payment",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Bürgschaft",
+    "gender": "die",
+    "english": "guarantee/surety",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Mahnung",
+    "gender": "die",
+    "english": "reminder/dunning notice",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Guthaben",
+    "gender": "das",
+    "english": "credit balance",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Pfändung",
+    "gender": "die",
+    "english": "attachment/garnishment",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Wucher",
+    "gender": "der",
+    "english": "usury",
+    "group": "Bank & Money"
+  },
+  {
+    "german": "Quitte",
+    "gender": "die",
+    "english": "quince",
+    "group": "Food"
+  },
+  {
+    "german": "Maracuja",
+    "gender": "die",
+    "english": "passion fruit",
+    "group": "Food"
+  },
+  {
+    "german": "Pinienkern",
+    "gender": "der",
+    "english": "pine nut",
+    "group": "Food"
+  },
+  {
+    "german": "Pistazie",
+    "gender": "die",
+    "english": "pistachio",
+    "group": "Food"
+  },
+  {
+    "german": "Cashewkern",
+    "gender": "der",
+    "english": "cashew nut",
+    "group": "Food"
+  },
+  {
+    "german": "Hirse",
+    "gender": "die",
+    "english": "millet",
+    "group": "Food"
+  },
+  {
+    "german": "Buchweizen",
+    "gender": "der",
+    "english": "buckwheat",
+    "group": "Food"
+  },
+  {
+    "german": "Graupe",
+    "gender": "die",
+    "english": "pearl barley",
+    "group": "Food"
+  },
+  {
+    "german": "Grieß",
+    "gender": "der",
+    "english": "semolina",
+    "group": "Food"
+  },
+  {
+    "german": "Mangold",
+    "gender": "der",
+    "english": "chard",
+    "group": "Food"
+  },
+  {
+    "german": "Chicorée",
+    "gender": "der",
+    "english": "chicory/endive",
+    "group": "Food"
+  },
+  {
+    "german": "Rucola",
+    "gender": "der",
+    "english": "arugula/rocket",
+    "group": "Food"
+  },
+  {
+    "german": "Pastinake",
+    "gender": "die",
+    "english": "parsnip",
+    "group": "Food"
+  },
+  {
+    "german": "Steckrübe",
+    "gender": "die",
+    "english": "swede/rutabaga",
+    "group": "Food"
+  },
+  {
+    "german": "Wirsing",
+    "gender": "der",
+    "english": "savoy cabbage",
+    "group": "Food"
+  },
+  {
+    "german": "Rosenkohl",
+    "gender": "der",
+    "english": "Brussels sprouts",
+    "group": "Food"
+  },
+  {
+    "german": "Kabeljau",
+    "gender": "der",
+    "english": "cod",
+    "group": "Food"
+  },
+  {
+    "german": "Makrele",
+    "gender": "die",
+    "english": "mackerel",
+    "group": "Food"
+  },
+  {
+    "german": "Wade",
+    "gender": "die",
+    "english": "calf (of leg)",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Oberschenkel",
+    "gender": "der",
+    "english": "thigh",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Schienbein",
+    "gender": "das",
+    "english": "shin",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Achsel",
+    "gender": "die",
+    "english": "armpit",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Handfläche",
+    "gender": "die",
+    "english": "palm",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Augenbraue",
+    "gender": "die",
+    "english": "eyebrow",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Wimper",
+    "gender": "die",
+    "english": "eyelash",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Schläfe",
+    "gender": "die",
+    "english": "temple (of head)",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Kinn",
+    "gender": "das",
+    "english": "chin",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Wirbelsäule",
+    "gender": "die",
+    "english": "spine",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Rippe",
+    "gender": "die",
+    "english": "rib",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Sehne",
+    "gender": "die",
+    "english": "tendon",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Bauchspeicheldrüse",
+    "gender": "die",
+    "english": "pancreas",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Schilddrüse",
+    "gender": "die",
+    "english": "thyroid gland",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Speiseröhre",
+    "gender": "die",
+    "english": "esophagus",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Entzündung",
+    "gender": "die",
+    "english": "inflammation",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Übelkeit",
+    "gender": "die",
+    "english": "nausea",
+    "group": "Body & Health"
+  },
+  {
+    "german": "Genesung",
+    "gender": "die",
+    "english": "recovery/convalescence",
+    "group": "Body & Health"
   }
 ]
