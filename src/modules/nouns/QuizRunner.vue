@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, shallowRef, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useNouns } from '../../composables/useNouns'
-import { useNounQuiz, type NounQuizMode } from '../../composables/useNounQuiz'
+import { useNounQuiz, wrongNouns, type NounQuizMode } from '../../composables/useNounQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import GenderQuiz from './GenderQuiz.vue'
 import TranslationQuiz from './TranslationQuiz.vue'
 import QuizResult from './QuizResult.vue'
 import { NOUN_GROUPS, type Noun, type NounGroup } from '../../db/types'
+import { shuffle } from '../../data/pool'
 
 const route = useRoute()
 const router = useRouter()
@@ -21,8 +22,7 @@ const startedAtMs = ref<number>(0)
 const selectedGroups = ref<NounGroup[]>([])
 const historySaved = ref(false)
 
-let quiz: ReturnType<typeof useNounQuiz> | null = null
-const ready = ref(false)
+const quiz = shallowRef<ReturnType<typeof useNounQuiz> | null>(null)
 
 function parseGroupsQuery(raw: unknown): NounGroup[] {
   if (typeof raw !== 'string' || raw.length === 0) return []
@@ -46,8 +46,7 @@ onMounted(async () => {
     if (nouns.value.length === 0) {
       error.value = 'No nouns available.'
     } else {
-      quiz = useNounQuiz(nouns.value, m)
-      ready.value = true
+      quiz.value = useNounQuiz(nouns.value, m)
       startedAtMs.value = Date.now()
     }
   } catch (err) {
@@ -57,19 +56,27 @@ onMounted(async () => {
   }
 })
 
-const current = computed(() => (ready.value, quiz?.current.value ?? null))
-const finished = computed(() => (ready.value, quiz?.finished.value ?? false))
-const questions = computed(() => (ready.value, quiz?.questions.value ?? []))
-const score = computed(() => (ready.value, quiz?.score.value ?? 0))
-const total = computed(() => (ready.value, quiz?.total.value ?? 0))
-const currentIndex = computed(() => (ready.value, quiz?.currentIndex.value ?? 0))
+const current = computed(() => quiz.value?.current.value ?? null)
+const finished = computed(() => quiz.value?.finished.value ?? false)
+const questions = computed(() => quiz.value?.questions.value ?? [])
+const score = computed(() => quiz.value?.score.value ?? 0)
+const total = computed(() => quiz.value?.total.value ?? 0)
+const currentIndex = computed(() => quiz.value?.currentIndex.value ?? 0)
 
 function onAnswered(_correct: boolean, answer: string) {
-  if (!quiz) return
-  quiz.submit(answer)
+  if (!quiz.value) return
+  quiz.value.submit(answer)
 }
 
-function onNext() { quiz?.advance() }
+function onNext() { quiz.value?.advance() }
+
+function retryWrong() {
+  if (!quiz.value) return
+  const wrong = wrongNouns(quiz.value.questions.value)
+  if (wrong.length === 0) return
+  nouns.value = shuffle(wrong)
+  quiz.value = useNounQuiz(nouns.value, mode.value)
+}
 
 function restart() { router.push({ name: 'nouns-quiz' }) }
 
@@ -111,6 +118,7 @@ watch(finished, (now) => {
     :total="total"
     :mode="mode"
     @restart="restart"
+    @retry-wrong="retryWrong"
   />
   <template v-else-if="current">
     <div class="page">
