@@ -8,13 +8,14 @@ export type VerbFilter = {
   cases?: VerbCase[]
 }
 
-const matchers: FieldMatchers<Verb, VerbFilter> = {
-  levels: v => v.level,
-  types: v => v.type,
-  cases: v => v.case,
-}
-
-const verbPool = createPool<Verb, VerbFilter>(VERBS, matchers)
+const verbPool = createPool<Verb, VerbFilter>(
+  VERBS,
+  {
+    levels: v => v.level,
+    types: v => v.type,
+    cases: v => v.case,
+  } satisfies FieldMatchers<Verb, VerbFilter>
+)
 
 export function useVerbs() {
   function all(): Verb[] {
