@@ -29,4 +29,8 @@ describe('nouns.seed.json integrity', () => {
     const bad = entries.filter(e => !e.german?.trim() || !e.english?.trim()).map(e => e.german)
     expect(bad).toEqual([])
   })
+
+  it('has at least 100 Fantasy nouns', () => {
+    expect(entries.filter(e => e.group === 'Fantasy').length).toBeGreaterThanOrEqual(100)
+  })
 })

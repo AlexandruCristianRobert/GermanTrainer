@@ -8440,5 +8440,1073 @@
     "gender": "die",
     "english": "advert",
     "group": "City & Shopping"
+  },
+  {
+    "german": "Drache",
+    "gender": "der",
+    "english": "dragon",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Hexe",
+    "gender": "die",
+    "english": "witch",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zwerg",
+    "gender": "der",
+    "english": "dwarf",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Elf",
+    "gender": "der",
+    "english": "elf",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Elfe",
+    "gender": "die",
+    "english": "female elf/fairy",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Ork",
+    "gender": "der",
+    "english": "orc",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Troll",
+    "gender": "der",
+    "english": "troll",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Kobold",
+    "gender": "der",
+    "english": "goblin/imp",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Einhorn",
+    "gender": "das",
+    "english": "unicorn",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Riese",
+    "gender": "der",
+    "english": "giant",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Riesin",
+    "gender": "die",
+    "english": "giantess",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Fee",
+    "gender": "die",
+    "english": "fairy",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Vampir",
+    "gender": "der",
+    "english": "vampire",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Werwolf",
+    "gender": "der",
+    "english": "werewolf",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Meerjungfrau",
+    "gender": "die",
+    "english": "mermaid",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zentaur",
+    "gender": "der",
+    "english": "centaur",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Greif",
+    "gender": "der",
+    "english": "griffin",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Basilisk",
+    "gender": "der",
+    "english": "basilisk",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Goblin",
+    "gender": "der",
+    "english": "goblin",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Dämon",
+    "gender": "der",
+    "english": "demon",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Lindwurm",
+    "gender": "der",
+    "english": "wyrm/dragon serpent",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Nymphe",
+    "gender": "die",
+    "english": "nymph",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Gnom",
+    "gender": "der",
+    "english": "gnome",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Fabelwesen",
+    "gender": "das",
+    "english": "mythical creature",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Phönix",
+    "gender": "der",
+    "english": "phoenix",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Hydra",
+    "gender": "die",
+    "english": "hydra",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zyklop",
+    "gender": "der",
+    "english": "cyclops",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Minotaurus",
+    "gender": "der",
+    "english": "minotaur",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Gespenst",
+    "gender": "das",
+    "english": "ghost",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Geist",
+    "gender": "der",
+    "english": "spirit/ghost",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zombie",
+    "gender": "der",
+    "english": "zombie",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Skelett",
+    "gender": "das",
+    "english": "skeleton",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Untote",
+    "gender": "der",
+    "english": "undead",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Golem",
+    "gender": "der",
+    "english": "golem",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Sphinx",
+    "gender": "die",
+    "english": "sphinx",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Wyvern",
+    "gender": "die",
+    "english": "wyvern",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Pegasus",
+    "gender": "der",
+    "english": "pegasus",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Gargoyle",
+    "gender": "der",
+    "english": "gargoyle",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Banshee",
+    "gender": "die",
+    "english": "banshee",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Ghul",
+    "gender": "der",
+    "english": "ghoul",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Imp",
+    "gender": "der",
+    "english": "imp",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Oger",
+    "gender": "der",
+    "english": "ogre",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Salamander",
+    "gender": "der",
+    "english": "fire salamander",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Werbär",
+    "gender": "der",
+    "english": "werebear",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Höllenhund",
+    "gender": "der",
+    "english": "hellhound",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Seeschlange",
+    "gender": "die",
+    "english": "sea serpent",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Kraken",
+    "gender": "der",
+    "english": "kraken",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Faun",
+    "gender": "der",
+    "english": "faun",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Harpyie",
+    "gender": "die",
+    "english": "harpy",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Chimäre",
+    "gender": "die",
+    "english": "chimera",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Magie",
+    "gender": "die",
+    "english": "magic",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zauber",
+    "gender": "der",
+    "english": "spell/magic",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zauberspruch",
+    "gender": "der",
+    "english": "incantation/spell",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zaubertrank",
+    "gender": "der",
+    "english": "magic potion",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zauberstab",
+    "gender": "der",
+    "english": "magic wand",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Beschwörung",
+    "gender": "die",
+    "english": "summoning/conjuration",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Fluch",
+    "gender": "der",
+    "english": "curse",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Verwandlung",
+    "gender": "die",
+    "english": "transformation",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Prophezeiung",
+    "gender": "die",
+    "english": "prophecy",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Ritual",
+    "gender": "das",
+    "english": "ritual",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Alchemie",
+    "gender": "die",
+    "english": "alchemy",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zauberbuch",
+    "gender": "das",
+    "english": "spellbook",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zauberei",
+    "gender": "die",
+    "english": "sorcery",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Hexerei",
+    "gender": "die",
+    "english": "witchcraft",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Verzauberung",
+    "gender": "die",
+    "english": "enchantment",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Trank",
+    "gender": "der",
+    "english": "potion",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Heiltrank",
+    "gender": "der",
+    "english": "healing potion",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Mana",
+    "gender": "das",
+    "english": "mana",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Bann",
+    "gender": "der",
+    "english": "ban/binding spell",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Vision",
+    "gender": "die",
+    "english": "vision",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Wahrsagerei",
+    "gender": "die",
+    "english": "fortune-telling/divination",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Hellsehen",
+    "gender": "das",
+    "english": "clairvoyance",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Levitation",
+    "gender": "die",
+    "english": "levitation",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Feuerball",
+    "gender": "der",
+    "english": "fireball",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Energie",
+    "gender": "die",
+    "english": "energy",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zauberer",
+    "gender": "der",
+    "english": "wizard",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zauberin",
+    "gender": "die",
+    "english": "sorceress",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Hexer",
+    "gender": "der",
+    "english": "warlock",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Magier",
+    "gender": "der",
+    "english": "mage",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Ritter",
+    "gender": "der",
+    "english": "knight",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Held",
+    "gender": "der",
+    "english": "hero",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Heldin",
+    "gender": "die",
+    "english": "heroine",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Schurke",
+    "gender": "der",
+    "english": "rogue/villain",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Barbar",
+    "gender": "der",
+    "english": "barbarian",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Druide",
+    "gender": "der",
+    "english": "druid",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Paladin",
+    "gender": "der",
+    "english": "paladin",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Waldläufer",
+    "gender": "der",
+    "english": "ranger",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Barde",
+    "gender": "der",
+    "english": "bard",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Nekromant",
+    "gender": "der",
+    "english": "necromancer",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Schamane",
+    "gender": "der",
+    "english": "shaman",
+    "group": "Fantasy"
+  },
+  {
+    "german": "König",
+    "gender": "der",
+    "english": "king",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Königin",
+    "gender": "die",
+    "english": "queen",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Prinz",
+    "gender": "der",
+    "english": "prince",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Prinzessin",
+    "gender": "die",
+    "english": "princess",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Kaiser",
+    "gender": "der",
+    "english": "emperor",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Krieger",
+    "gender": "der",
+    "english": "warrior",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Kriegerin",
+    "gender": "die",
+    "english": "female warrior",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Söldner",
+    "gender": "der",
+    "english": "mercenary",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Abenteurer",
+    "gender": "der",
+    "english": "adventurer",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Schmied",
+    "gender": "der",
+    "english": "blacksmith",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Wache",
+    "gender": "die",
+    "english": "guard",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Dieb",
+    "gender": "der",
+    "english": "thief",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Attentäter",
+    "gender": "der",
+    "english": "assassin",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Wahrsager",
+    "gender": "der",
+    "english": "soothsayer/fortune teller",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Alchemist",
+    "gender": "der",
+    "english": "alchemist",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Herrscher",
+    "gender": "der",
+    "english": "ruler",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Tyrann",
+    "gender": "der",
+    "english": "tyrant",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Knappe",
+    "gender": "der",
+    "english": "squire",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Wächter",
+    "gender": "der",
+    "english": "guardian/warden",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Schwert",
+    "gender": "das",
+    "english": "sword",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Dolch",
+    "gender": "der",
+    "english": "dagger",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Klinge",
+    "gender": "die",
+    "english": "blade",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Axt",
+    "gender": "die",
+    "english": "axe",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Streitkolben",
+    "gender": "der",
+    "english": "mace",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Bogen",
+    "gender": "der",
+    "english": "bow",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Pfeil",
+    "gender": "der",
+    "english": "arrow",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Armbrust",
+    "gender": "die",
+    "english": "crossbow",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Schild",
+    "gender": "der",
+    "english": "shield",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Rüstung",
+    "gender": "die",
+    "english": "armour",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Kettenhemd",
+    "gender": "das",
+    "english": "chainmail",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Streitaxt",
+    "gender": "die",
+    "english": "battle axe",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Lanze",
+    "gender": "die",
+    "english": "lance",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Speer",
+    "gender": "der",
+    "english": "spear",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Hellebarde",
+    "gender": "die",
+    "english": "halberd",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Köcher",
+    "gender": "der",
+    "english": "quiver",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Kampfhammer",
+    "gender": "der",
+    "english": "war hammer",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Visier",
+    "gender": "das",
+    "english": "visor",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Harnisch",
+    "gender": "der",
+    "english": "breastplate/cuirass",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Sturmhaube",
+    "gender": "die",
+    "english": "helmet/sallet",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Festung",
+    "gender": "die",
+    "english": "fortress",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Turm",
+    "gender": "der",
+    "english": "tower",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Verlies",
+    "gender": "das",
+    "english": "dungeon",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Kerker",
+    "gender": "der",
+    "english": "dungeon/jail",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Königreich",
+    "gender": "das",
+    "english": "kingdom",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Thron",
+    "gender": "der",
+    "english": "throne",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Krone",
+    "gender": "die",
+    "english": "crown",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zepter",
+    "gender": "das",
+    "english": "sceptre",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Amulett",
+    "gender": "das",
+    "english": "amulet",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Talisman",
+    "gender": "der",
+    "english": "talisman",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Schriftrolle",
+    "gender": "die",
+    "english": "scroll",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Kristall",
+    "gender": "der",
+    "english": "crystal",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Drachenhort",
+    "gender": "der",
+    "english": "dragon hoard",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Portal",
+    "gender": "das",
+    "english": "portal",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Drachentöter",
+    "gender": "der",
+    "english": "dragon slayer",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Goldschatz",
+    "gender": "der",
+    "english": "gold treasure",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Runenstein",
+    "gender": "der",
+    "english": "rune stone",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zwergenbau",
+    "gender": "der",
+    "english": "dwarven mine/burrow",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Elfenwald",
+    "gender": "der",
+    "english": "elven forest",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zauberwald",
+    "gender": "der",
+    "english": "enchanted forest",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Höhle",
+    "gender": "die",
+    "english": "cave",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Ruine",
+    "gender": "die",
+    "english": "ruin",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Wirtshaus",
+    "gender": "das",
+    "english": "tavern/inn",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Taverne",
+    "gender": "die",
+    "english": "tavern",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Schatztruhe",
+    "gender": "die",
+    "english": "treasure chest",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zauberkessel",
+    "gender": "der",
+    "english": "cauldron",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Rune",
+    "gender": "die",
+    "english": "rune",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Edelstein",
+    "gender": "der",
+    "english": "gemstone",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zaubertruhe",
+    "gender": "die",
+    "english": "magic chest",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Banner",
+    "gender": "das",
+    "english": "banner",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Wappen",
+    "gender": "das",
+    "english": "coat of arms",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Sage",
+    "gender": "die",
+    "english": "legend/saga",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Legende",
+    "gender": "die",
+    "english": "legend",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Quest",
+    "gender": "die",
+    "english": "quest",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Heldentat",
+    "gender": "die",
+    "english": "heroic deed",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Verbündete",
+    "gender": "der",
+    "english": "ally",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Schlacht",
+    "gender": "die",
+    "english": "battle",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Belagerung",
+    "gender": "die",
+    "english": "siege",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zugbrücke",
+    "gender": "die",
+    "english": "drawbridge",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Burgmauer",
+    "gender": "die",
+    "english": "castle wall",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Burggraben",
+    "gender": "der",
+    "english": "moat",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Zinne",
+    "gender": "die",
+    "english": "battlement",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Schwur",
+    "gender": "der",
+    "english": "oath",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Orden",
+    "gender": "der",
+    "english": "order (knightly)",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Gilde",
+    "gender": "die",
+    "english": "guild",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Drachenei",
+    "gender": "das",
+    "english": "dragon egg",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Wandteppich",
+    "gender": "der",
+    "english": "tapestry",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Fackel",
+    "gender": "die",
+    "english": "torch",
+    "group": "Fantasy"
+  },
+  {
+    "german": "Truhe",
+    "gender": "die",
+    "english": "chest",
+    "group": "Fantasy"
   }
 ]
