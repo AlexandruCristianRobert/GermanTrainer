@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, shallowRef, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { sampleTwoWayExamples } from '../../composables/usePrepositions'
-import { useTwoWayQuiz, type TwoWayPick } from '../../composables/usePrepositionQuiz'
+import { useTwoWayQuiz, wrongTwoWayPairs, type TwoWayPick } from '../../composables/usePrepositionQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
+import { shuffle } from '../../data/pool'
+import RetryModal from '../../components/RetryModal.vue'
 import type { Preposition, PrepositionExample } from '../../data/prepositions'
 
 const route = useRoute()
@@ -11,8 +13,7 @@ const router = useRouter()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
-let quiz: ReturnType<typeof useTwoWayQuiz> | null = null
-const ready = ref(false)
+const quiz = shallowRef<ReturnType<typeof useTwoWayQuiz> | null>(null)
 const startedAt = ref<number>(0)
 const historySaved = ref(false)
 const submitted = ref(false)
@@ -24,8 +25,7 @@ onMounted(() => {
     if (pairs.length === 0) {
       error.value = 'No two-way examples available.'
     } else {
-      quiz = useTwoWayQuiz(pairs)
-      ready.value = true
+      quiz.value = useTwoWayQuiz(pairs)
       startedAt.value = Date.now()
     }
   } catch (e) {
@@ -36,31 +36,38 @@ onMounted(() => {
 })
 
 const current = computed<{ prep: Preposition; example: PrepositionExample } | null>(() => {
-  if (!ready.value || !quiz) return null
-  const q = quiz.current.value
+  const q = quiz.value?.current.value
   return q ? { prep: q.prep, example: q.example } : null
 })
 
-const finished = computed(() => ready.value && quiz?.finished.value === true)
-const currentIsCorrect = computed(() => {
-  if (!ready.value || !quiz) return null
-  return quiz.current.value?.isCorrect ?? null
-})
+const finished = computed(() => quiz.value?.finished.value === true)
+const currentIsCorrect = computed(() => quiz.value?.current.value?.isCorrect ?? null)
+const wrongCount = computed(() => quiz.value ? wrongTwoWayPairs(quiz.value.questions.value).length : 0)
 
 function pick(value: TwoWayPick) {
-  if (!quiz || submitted.value) return
-  quiz.pick(value)
+  if (!quiz.value || submitted.value) return
+  quiz.value.pick(value)
   submitted.value = true
 }
 function next() {
-  if (!quiz) return
-  quiz.advance()
+  if (!quiz.value) return
+  quiz.value.advance()
   submitted.value = false
 }
 
-// Save history once when finished.
+// Rebuild the quiz in place with only the missed sentences (reshuffled), so the
+// retry loop repeats until none are wrong. History is not re-saved (guard below).
+function retryWrong() {
+  if (!quiz.value) return
+  const wrong = wrongTwoWayPairs(quiz.value.questions.value)
+  if (wrong.length === 0) return
+  quiz.value = useTwoWayQuiz(shuffle(wrong))
+  submitted.value = false
+}
+
+// Save history once when the FIRST round finishes; retry rounds are not saved.
 watch(finished, (now) => {
-  if (!now || !quiz || historySaved.value) return
+  if (!now || !quiz.value || historySaved.value) return
   historySaved.value = true
   const finishedAt = Date.now()
   saveQuizRun({
@@ -68,8 +75,8 @@ watch(finished, (now) => {
     startedAt: new Date(startedAt.value).toISOString(),
     finishedAt: new Date(finishedAt).toISOString(),
     durationMs: finishedAt - startedAt.value,
-    count: quiz.total.value,
-    correct: quiz.score.value,
+    count: quiz.value.total.value,
+    correct: quiz.value.score.value,
     meta: {}
   })
 })
@@ -98,8 +105,11 @@ function endQuiz() { router.push({ name: 'prepositions-twoway' }) }
         </p>
       </div>
       <div class="result-actions">
+        <button v-if="wrongCount > 0" class="btn btn-accent" type="button" @click="retryWrong">
+          Retry {{ wrongCount }} wrong <span aria-hidden="true">→</span>
+        </button>
+        <span v-else class="all-correct-banner">Alles richtig! 🎉</span>
         <button class="btn btn-ghost" type="button" @click="restart">Setup another</button>
-        <button class="btn btn-accent" type="button" @click="restart">Start another quiz <span aria-hidden="true">→</span></button>
       </div>
     </header>
 
@@ -123,6 +133,8 @@ function endQuiz() { router.push({ name: 'prepositions-twoway' }) }
         </div>
       </div>
     </div>
+
+    <RetryModal :wrong-count="wrongCount" item-label="sentences" @retry="retryWrong" />
   </div>
 
   <div v-else-if="current && quiz" class="page">
@@ -183,7 +195,13 @@ function endQuiz() { router.push({ name: 'prepositions-twoway' }) }
 <style scoped>
 .loading-state { text-align: center; padding-top: 120px; }
 .result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.result-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.all-correct-banner {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--success);
+}
 
 .quiz-card { max-width: 720px; margin: 0 auto; }
 .quiz-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 32px; }

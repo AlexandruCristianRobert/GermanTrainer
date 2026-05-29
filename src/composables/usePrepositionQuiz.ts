@@ -41,22 +41,24 @@ export interface CaseQuestion {
 
 export function useCaseQuiz(preps: Preposition[]) {
   const questions = ref<CaseQuestion[]>(preps.map(p => ({ prep: p, picked: null, isCorrect: null })))
+  const currentIndex = ref(0)
 
-  function pick(i: number, value: PrepCase) {
-    const q = questions.value[i]
+  function pick(value: PrepCase) {
+    const q = questions.value[currentIndex.value]
     if (!q) return
     q.picked = value
+    q.isCorrect = checkCase(value, q.prep.case)
   }
 
-  function grade() {
-    for (const q of questions.value) {
-      q.isCorrect = checkCase(q.picked, q.prep.case)
-    }
+  function advance() {
+    currentIndex.value += 1
   }
 
+  const current = computed(() => questions.value[currentIndex.value] ?? null)
+  const finished = computed(() => currentIndex.value >= questions.value.length)
   const score = computed(() => questions.value.filter(q => q.isCorrect === true).length)
   const total = computed(() => questions.value.length)
-  return { questions, pick, grade, score, total }
+  return { questions, currentIndex, current, finished, pick, advance, score, total }
 }
 
 export interface ArticleQuestion {
@@ -119,4 +121,21 @@ export function useTwoWayQuiz(pairs: Array<{ prep: Preposition; example: Preposi
   const score = computed(() => questions.value.filter(q => q.isCorrect === true).length)
   const total = computed(() => questions.value.length)
   return { questions, currentIndex, current, finished, pick, advance, score, total }
+}
+
+// ── Retry-wrong helpers: extract the items answered incorrectly ──
+// (used to rebuild a focused round of only the missed questions)
+
+type PrepExamplePair = { prep: Preposition; example: PrepositionExample }
+
+export function wrongCasePreps(questions: CaseQuestion[]): Preposition[] {
+  return questions.filter(q => q.isCorrect === false).map(q => q.prep)
+}
+
+export function wrongArticlePairs(questions: ArticleQuestion[]): PrepExamplePair[] {
+  return questions.filter(q => q.isCorrect === false).map(q => ({ prep: q.prep, example: q.example }))
+}
+
+export function wrongTwoWayPairs(questions: TwoWayQuestion[]): PrepExamplePair[] {
+  return questions.filter(q => q.isCorrect === false).map(q => ({ prep: q.prep, example: q.example }))
 }

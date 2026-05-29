@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, nextTick, ref } from 'vue'
+import { computed } from 'vue'
 import { wrongNouns, type NounQuestion, type NounQuizMode } from '../../composables/useNounQuiz'
 import { usePagination } from '../../composables/usePagination'
 import Pagination from '../../components/Pagination.vue'
+import RetryModal from '../../components/RetryModal.vue'
 
 const props = defineProps<{
   questions: NounQuestion[]
@@ -13,7 +14,7 @@ const props = defineProps<{
 
 const pagination = usePagination(() => props.questions, 25)
 
-const emit = defineEmits<{ (e: 'restart'): void; (e: 'retry-wrong'): void }>()
+defineEmits<{ (e: 'restart'): void; (e: 'retry-wrong'): void }>()
 
 const pct = computed(() => props.total === 0 ? 0 : Math.round((props.score / props.total) * 100))
 // Derive from wrongNouns (isCorrect === false) so the "Retry N wrong" label and the
@@ -32,46 +33,6 @@ const correctLabel = computed(() => props.mode === 'gender' ? 'RICHTIG' : 'EXPEC
 function expectedAnswer(q: NounQuestion): string {
   return props.mode === 'gender' ? q.noun.gender : q.noun.english
 }
-
-// Wrong-answers modal: pops instantly when the result page loads with misses,
-// grabs focus, and is keyboard-driven — Enter retries the missed nouns, Esc
-// dismisses to review the list. (Shown once per round; an all-correct round
-// has wrongCount === 0 and never opens it.)
-const showRetryModal = ref(false)
-const retryDialog = ref<HTMLElement | null>(null)
-
-function startRetry(): void {
-  if (!showRetryModal.value) return
-  showRetryModal.value = false
-  emit('retry-wrong')
-}
-
-function dismissModal(): void {
-  showRetryModal.value = false
-}
-
-function onModalKey(e: KeyboardEvent): void {
-  if (!showRetryModal.value) return
-  if (e.key === 'Enter') {
-    e.preventDefault()
-    startRetry()
-  } else if (e.key === 'Escape') {
-    e.preventDefault()
-    dismissModal()
-  }
-}
-
-onMounted(() => {
-  if (wrongCount.value > 0) {
-    showRetryModal.value = true
-    window.addEventListener('keydown', onModalKey)
-    nextTick(() => retryDialog.value?.focus())
-  }
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', onModalKey)
-})
 </script>
 
 <template>
@@ -157,33 +118,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <div v-if="showRetryModal" class="retry-modal-overlay" @click.self="dismissModal">
-      <div
-        ref="retryDialog"
-        class="retry-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="retry-modal-title"
-        tabindex="-1"
-      >
-        <div class="retry-modal-eyebrow">Auswertung</div>
-        <h2 id="retry-modal-title" class="retry-modal-title">
-          {{ wrongCount }} {{ wrongCount === 1 ? 'noun' : 'nouns' }} to nail down
-        </h2>
-        <p class="retry-modal-text">
-          Run a focused round on just the ones you missed — repeat until they're all in your bones.
-        </p>
-        <div class="retry-modal-actions">
-          <button class="btn btn-accent" type="button" @click="startRetry">
-            Retry {{ wrongCount }} wrong <span aria-hidden="true">→</span>
-          </button>
-          <button class="btn btn-ghost" type="button" @click="dismissModal">Review instead</button>
-        </div>
-        <div class="retry-modal-hint">
-          <span class="retry-kbd">Enter</span> retry · <span class="retry-kbd">Esc</span> review
-        </div>
-      </div>
-    </div>
+    <RetryModal :wrong-count="wrongCount" item-label="nouns" @retry="$emit('retry-wrong')" />
   </div>
 </template>
 
@@ -208,76 +143,8 @@ onBeforeUnmount(() => {
   align-self: center;
 }
 
-/* ── Wrong-answers modal ───────────────────────────────── */
-.retry-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(0, 0, 0, 0.45);
-}
-.retry-modal {
-  width: 100%;
-  max-width: 440px;
-  padding: 32px;
-  text-align: center;
-  background: var(--paper-card, var(--paper, #fff));
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
-  outline: none;
-}
-.retry-modal:focus-visible { outline: 1px dotted var(--rule); outline-offset: 6px; }
-.retry-modal-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--mute);
-}
-.retry-modal-title {
-  font-family: var(--font-display);
-  font-size: 26px;
-  line-height: 1.2;
-  color: var(--ink);
-  margin: 10px 0 8px;
-}
-.retry-modal-text {
-  font-family: var(--font-body);
-  font-size: 15px;
-  color: var(--ink-soft);
-  margin: 0 0 24px;
-}
-.retry-modal-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.retry-modal-hint {
-  margin-top: 20px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--mute);
-}
-.retry-kbd {
-  display: inline-block;
-  padding: 1px 6px;
-  font-size: 10px;
-  color: var(--ink-soft);
-  background: var(--paper);
-  border: 1px solid var(--hairline, var(--rule));
-  border-radius: 2px;
-}
-
 @media (max-width: 720px) {
   .result-actions { flex-direction: column; align-items: stretch; }
   .result-actions .btn { justify-content: center; }
-  .retry-modal-actions { flex-direction: column; }
-  .retry-modal-actions .btn { justify-content: center; }
 }
 </style>

@@ -25,7 +25,6 @@ const routes: RouteRecordRaw[] = [
   { path: '/prepositions/list', name: 'prepositions-list', component: () => import('./modules/prepositions/ListPrepositions.vue') },
   { path: '/prepositions/case-quiz', name: 'prepositions-case', component: () => import('./modules/prepositions/CaseQuizSetup.vue') },
   { path: '/prepositions/case-quiz/run', name: 'prepositions-case-run', component: () => import('./modules/prepositions/CaseQuizRunner.vue') },
-  { path: '/prepositions/case-quiz/result', name: 'prepositions-case-result', component: () => import('./modules/prepositions/CaseQuizResult.vue') },
   { path: '/prepositions/article-quiz', name: 'prepositions-article', component: () => import('./modules/prepositions/ArticleQuizSetup.vue') },
   { path: '/prepositions/article-quiz/run', name: 'prepositions-article-run', component: () => import('./modules/prepositions/ArticleQuizRunner.vue') },
   { path: '/prepositions/two-way-quiz', name: 'prepositions-twoway', component: () => import('./modules/prepositions/TwoWayQuizSetup.vue') },

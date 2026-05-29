@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, shallowRef, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { sampleExamples } from '../../composables/usePrepositions'
-import { useArticleQuiz } from '../../composables/usePrepositionQuiz'
+import { useArticleQuiz, wrongArticlePairs } from '../../composables/usePrepositionQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
+import { shuffle } from '../../data/pool'
+import RetryModal from '../../components/RetryModal.vue'
 import {
   PREPOSITION_LEVELS, PREPOSITION_CASES,
   type Preposition, type PrepositionExample,
@@ -15,8 +17,7 @@ const router = useRouter()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
-let quiz: ReturnType<typeof useArticleQuiz> | null = null
-const ready = ref(false)
+const quiz = shallowRef<ReturnType<typeof useArticleQuiz> | null>(null)
 const startedAt = ref<number>(0)
 const historySaved = ref(false)
 
@@ -41,8 +42,7 @@ onMounted(() => {
     if (pairs.length === 0) {
       error.value = 'No sentences match the selected filters.'
     } else {
-      quiz = useArticleQuiz(pairs)
-      ready.value = true
+      quiz.value = useArticleQuiz(pairs)
       startedAt.value = Date.now()
       nextTick(() => inputRef.value?.focus())
     }
@@ -54,12 +54,12 @@ onMounted(() => {
 })
 
 const current = computed<{ prep: Preposition; example: PrepositionExample } | null>(() => {
-  if (!ready.value || !quiz) return null
-  const q = quiz.current.value
+  const q = quiz.value?.current.value
   return q ? { prep: q.prep, example: q.example } : null
 })
 
-const finished = computed(() => ready.value && quiz?.finished.value === true)
+const finished = computed(() => quiz.value?.finished.value === true)
+const wrongCount = computed(() => quiz.value ? wrongArticlePairs(quiz.value.questions.value).length : 0)
 
 function caseHintLabel(prep: Preposition): string {
   if (prep.case === 'two-way') return 'two-way · acc. (motion) or dat. (location)'
@@ -67,23 +67,35 @@ function caseHintLabel(prep: Preposition): string {
 }
 
 function submit() {
-  if (!quiz || submitted.value) return
-  quiz.submit(userInput.value)
-  const cur = quiz.questions.value[quiz.currentIndex.value]
+  if (!quiz.value || submitted.value) return
+  quiz.value.submit(userInput.value)
+  const cur = quiz.value.questions.value[quiz.value.currentIndex.value]
   isCorrectFeedback.value = cur?.isCorrect === true
   submitted.value = true
   nextTick(() => nextBtnRef.value?.focus())
 }
 
 function next() {
-  if (!quiz) return
-  quiz.advance()
+  if (!quiz.value) return
+  quiz.value.advance()
   userInput.value = ''
   submitted.value = false
   isCorrectFeedback.value = false
-  if (!quiz.finished.value) {
+  if (!quiz.value.finished.value) {
     nextTick(() => inputRef.value?.focus())
   }
+}
+
+// Rebuild in place with only the missed sentences (reshuffled); history not re-saved.
+function retryWrong() {
+  if (!quiz.value) return
+  const wrong = wrongArticlePairs(quiz.value.questions.value)
+  if (wrong.length === 0) return
+  quiz.value = useArticleQuiz(shuffle(wrong))
+  userInput.value = ''
+  submitted.value = false
+  isCorrectFeedback.value = false
+  nextTick(() => inputRef.value?.focus())
 }
 
 function onEnter(e: KeyboardEvent) {
@@ -94,7 +106,7 @@ function onEnter(e: KeyboardEvent) {
 
 // Save history once when finished.
 watch(finished, (now) => {
-  if (!now || !quiz || historySaved.value) return
+  if (!now || !quiz.value || historySaved.value) return
   historySaved.value = true
   const finishedAt = Date.now()
   saveQuizRun({
@@ -102,8 +114,8 @@ watch(finished, (now) => {
     startedAt: new Date(startedAt.value).toISOString(),
     finishedAt: new Date(finishedAt).toISOString(),
     durationMs: finishedAt - startedAt.value,
-    count: quiz.total.value,
-    correct: quiz.score.value,
+    count: quiz.value.total.value,
+    correct: quiz.value.score.value,
     meta: {
       prepLevels: csvFilter<PrepLevel>(route.query.levels, PREPOSITION_LEVELS),
       prepCases: csvFilter<PrepCase>(route.query.cases, PREPOSITION_CASES)
@@ -135,8 +147,11 @@ function endQuiz() { router.push({ name: 'prepositions-article' }) }
         </p>
       </div>
       <div class="result-actions">
+        <button v-if="wrongCount > 0" class="btn btn-accent" type="button" @click="retryWrong">
+          Retry {{ wrongCount }} wrong <span aria-hidden="true">→</span>
+        </button>
+        <span v-else class="all-correct-banner">Alles richtig! 🎉</span>
         <button class="btn btn-ghost" type="button" @click="restart">Setup another</button>
-        <button class="btn btn-accent" type="button" @click="restart">Start another quiz <span aria-hidden="true">→</span></button>
       </div>
     </header>
 
@@ -161,6 +176,8 @@ function endQuiz() { router.push({ name: 'prepositions-article' }) }
         </div>
       </div>
     </div>
+
+    <RetryModal :wrong-count="wrongCount" item-label="sentences" @retry="retryWrong" />
   </div>
 
   <div v-else-if="current && quiz" class="page">
@@ -230,7 +247,13 @@ function endQuiz() { router.push({ name: 'prepositions-article' }) }
 <style scoped>
 .loading-state { text-align: center; padding-top: 120px; }
 .result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.result-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.all-correct-banner {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--success);
+}
 
 .quiz-card { max-width: 720px; margin: 0 auto; }
 .quiz-meta {

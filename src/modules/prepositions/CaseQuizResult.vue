@@ -1,57 +1,45 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import type { CaseQuestion } from '../../composables/usePrepositionQuiz'
+import { computed } from 'vue'
+import { wrongCasePreps, type CaseQuestion } from '../../composables/usePrepositionQuiz'
+import RetryModal from '../../components/RetryModal.vue'
 
-interface Stashed { questions: CaseQuestion[]; score: number; total: number }
+const props = defineProps<{
+  questions: CaseQuestion[]
+  score: number
+  total: number
+}>()
 
-const router = useRouter()
-const data = ref<Stashed | null>(null)
+defineEmits<{ (e: 'restart'): void; (e: 'retry-wrong'): void }>()
 
-onMounted(() => {
-  try {
-    const raw = sessionStorage.getItem('gt:lastPrepCase')
-    if (raw) data.value = JSON.parse(raw) as Stashed
-  } catch { /* ignore */ }
-})
-
-const pct = computed(() => {
-  const d = data.value
-  if (!d || d.total === 0) return 0
-  return Math.round((d.score / d.total) * 100)
-})
+const pct = computed(() => props.total === 0 ? 0 : Math.round((props.score / props.total) * 100))
+const wrongCount = computed(() => wrongCasePreps(props.questions).length)
 
 const summary = computed(() => {
   if (pct.value >= 80) return 'Stark. The case rules are sticking.'
   if (pct.value >= 50) return 'Solid. The two-way ones are the trickiest — keep at them.'
   return 'Worth another pass. Memorise the four lists from /prepositions/list.'
 })
-
-function restart() { router.push({ name: 'prepositions-case' }) }
-function home() { router.push({ name: 'prepositions' }) }
 </script>
 
 <template>
-  <div v-if="!data" class="page">
-    <div class="alert alert-info">No recent quiz result to show.</div>
-    <button class="btn btn-accent" @click="restart">Start a new quiz →</button>
-  </div>
-
-  <div v-else class="page result-page">
+  <div class="page result-page">
     <header class="section-header">
       <div>
         <div class="breadcrumb">Auswertung · Kasus</div>
-        <div class="result-score">{{ data.score }}<span class="denom"> / {{ data.total }}</span></div>
+        <div class="result-score">{{ score }}<span class="denom"> / {{ total }}</span></div>
         <p class="section-subtitle">{{ summary }}</p>
       </div>
       <div class="result-actions">
-        <button class="btn btn-ghost" type="button" @click="home">← Prepositions</button>
-        <button class="btn btn-accent" type="button" @click="restart">Start another <span aria-hidden="true">→</span></button>
+        <button v-if="wrongCount > 0" class="btn btn-accent" type="button" @click="$emit('retry-wrong')">
+          Retry {{ wrongCount }} wrong <span aria-hidden="true">→</span>
+        </button>
+        <span v-else class="all-correct-banner">Alles richtig! 🎉</span>
+        <button class="btn btn-ghost" type="button" @click="$emit('restart')">Setup another</button>
       </div>
     </header>
 
     <div class="result-list">
-      <div v-for="(q, i) in data.questions" :key="i" class="result-row">
+      <div v-for="(q, i) in questions" :key="i" class="result-row">
         <div class="german">
           <span class="prep-result-german">{{ q.prep.german }}</span>
           <div class="prep-result-en">{{ q.prep.english }}</div>
@@ -69,12 +57,20 @@ function home() { router.push({ name: 'prepositions' }) }
         </div>
       </div>
     </div>
+
+    <RetryModal :wrong-count="wrongCount" item-label="prepositions" @retry="$emit('retry-wrong')" />
   </div>
 </template>
 
 <style scoped>
 .result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.result-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.all-correct-banner {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--success);
+}
 .prep-result-german {
   font-family: var(--font-display);
   font-weight: 500;
