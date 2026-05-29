@@ -37,4 +37,11 @@ describe('nouns.seed.json integrity', () => {
   it('has at least 100 Switzerland nouns', () => {
     expect(entries.filter(e => e.group === 'Switzerland').length).toBeGreaterThanOrEqual(100)
   })
+
+  it('every category is well-populated (>= 50 nouns)', () => {
+    const counts = new Map<string, number>()
+    for (const e of entries) counts.set(e.group, (counts.get(e.group) ?? 0) + 1)
+    const thin = NOUN_GROUPS.filter(g => (counts.get(g) ?? 0) < 50)
+    expect(thin).toEqual([])
+  })
 })
