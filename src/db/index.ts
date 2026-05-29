@@ -81,6 +81,37 @@ export class GermanTrainerDb extends Dexie {
       writingDrafts: '&id, promptId, gradedAt, createdAt',
       simulatorSessions: '&id, status, startedAt'
     })
+    this.version(7).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt'
+    }).upgrade(async tx => {
+      // Top up new seed entries (new Fantasy/Switzerland categories + per-category
+      // additions) for existing users, who never re-run seedIfEmpty. Same approach
+      // as version(4): add missing germans, re-group where the seed changed it,
+      // leave user-added nouns untouched.
+      const table = tx.table<Noun>('nouns')
+      const existing = await table.toArray()
+      const byGerman = new Map<string, Noun>()
+      for (const n of existing) byGerman.set(n.german, n)
+
+      const now = Date.now()
+      const seedDeduped = dedupeNouns(nounsSeed as NounSeedEntry[])
+      const toAdd: Array<Omit<Noun, 'id'>> = []
+      const toUpdate: Array<{ id: number; group: NounGroup }> = []
+      for (const seed of seedDeduped) {
+        const current = byGerman.get(seed.german)
+        if (!current) {
+          toAdd.push({ ...seed, createdAt: now })
+        } else if (current.group !== seed.group && current.id != null) {
+          toUpdate.push({ id: current.id, group: seed.group })
+        }
+      }
+      if (toAdd.length > 0) await table.bulkAdd(toAdd)
+      for (const u of toUpdate) await table.update(u.id, { group: u.group })
+    })
   }
 }
 
