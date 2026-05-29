@@ -1,7 +1,6 @@
 import type { Verb, VerbLevel, VerbType, VerbCase } from '../data/verbs'
 import { VERBS } from '../data/verbs'
-import { createPool } from '../data/pool'
-import type { FieldMatchers } from '../data/pool'
+import { createPool, type FieldMatchers } from '../data/pool'
 
 export type VerbFilter = {
   levels?: VerbLevel[]
