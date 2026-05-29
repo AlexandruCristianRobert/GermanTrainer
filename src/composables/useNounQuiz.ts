@@ -9,6 +9,11 @@ export interface NounQuestion {
   isCorrect: boolean | null
 }
 
+/** The nouns from a finished round whose answer was incorrect (excludes unanswered/null). */
+export function wrongNouns(questions: NounQuestion[]): Noun[] {
+  return questions.filter(q => q.isCorrect === false).map(q => q.noun)
+}
+
 function normalizeAnswer(s: string): string {
   return s.trim().toLowerCase()
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { useNounQuiz } from '../../src/composables/useNounQuiz'
+import { useNounQuiz, wrongNouns, type NounQuestion } from '../../src/composables/useNounQuiz'
 import type { Noun } from '../../src/db/types'
 
 const sample: Noun[] = [
@@ -72,5 +72,29 @@ describe('useNounQuiz — translation mode', () => {
     const q = useNounQuiz(sample, 'translation')
     q.submit('')
     expect(q.questions.value[0].isCorrect).toBe(false)
+  })
+})
+
+function nounFixture(german: string): Noun {
+  return { german, gender: 'der', english: german, group: 'Other', createdAt: 0 }
+}
+function qFixture(german: string, isCorrect: boolean | null): NounQuestion {
+  return { noun: nounFixture(german), userAnswer: null, isCorrect }
+}
+
+describe('wrongNouns', () => {
+  it('returns exactly the nouns whose answer was incorrect', () => {
+    const questions = [qFixture('A', true), qFixture('B', false), qFixture('C', true), qFixture('D', false)]
+    expect(wrongNouns(questions).map(n => n.german)).toEqual(['B', 'D'])
+  })
+
+  it('returns [] when every answer is correct (loop terminates)', () => {
+    const questions = [qFixture('A', true), qFixture('B', true)]
+    expect(wrongNouns(questions)).toEqual([])
+  })
+
+  it('treats unanswered (null) as not-wrong (only false counts)', () => {
+    const questions = [qFixture('A', null), qFixture('B', false)]
+    expect(wrongNouns(questions).map(n => n.german)).toEqual(['B'])
   })
 })
