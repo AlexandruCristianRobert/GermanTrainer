@@ -153,7 +153,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
           <h1 class="section-title">Übersetzung<em>.</em></h1>
           <p class="section-subtitle">
             Type the English meaning of each verb. "to" is optional. Press Enter to jump to the next line.
-            <em class="hint-aside">Doppelklick auf ein Verb für einen Tipp auf Deutsch.</em>
+            <em class="hint-aside">Double-click a verb for an English hint that nudges you toward the meaning.</em>
           </p>
         </div>
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
@@ -187,7 +187,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
               <span
                 class="test-verb"
                 :class="{ 'with-tip': showTip[i] }"
-                :title="showTip[i] ? 'Doppelklick zeigt das Verb' : 'Doppelklick für einen Tipp auf Deutsch'"
+                :title="showTip[i] ? 'Double-click to show the verb' : 'Double-click for an English hint'"
                 @dblclick="toggleTip(i)"
               >{{ showTip[i] ? getVerbTip(verb.german) : verb.german }}</span>
               <span class="test-chips">

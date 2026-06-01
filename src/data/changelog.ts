@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.06'
+export const APP_VERSION = '1.11.07'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.07', date: '2026-06-01', kind: 'polish',
+    title: 'Verb translation hints are now in English',
+    notes: [
+      '<strong>Double-click hints, now in English.</strong> In the verb <em>Übersetzung</em> test, double-clicking a verb still swaps it for a hint — but the hint now reads in English instead of German. Double-click again to flip back to the verb. All <strong>378</strong> verbs have one.',
+      '<strong>A clue, not the answer.</strong> Each hint reads like a crossword clue: it evokes the meaning through synonyms and context but never contains the verb’s own English translation, so it nudges your memory without handing you the word.'
+    ]
+  },
   {
     version: '1.11.06', date: '2026-05-29', kind: 'polish',
     title: 'Prepositions: full standard set · 400 two-way drills · retry modal everywhere · one-per-view case quiz',
