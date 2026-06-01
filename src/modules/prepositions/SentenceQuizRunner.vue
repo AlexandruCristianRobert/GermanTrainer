@@ -3,18 +3,15 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
 import { useSettings } from '../../composables/useSettings'
-import { useLoading } from '../../composables/useLoading'
-import { useToast } from '../../composables/useToast'
 import { makeGeminiClient } from '../../composables/useClaude'
 import { gradeSentences, type GeneratedSentence, type SentenceVerdict, type GradeInput } from '../../composables/useSentenceQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import RetryModal from '../../components/RetryModal.vue'
+import QuizProgress from '../../components/QuizProgress.vue'
 
 const STASH_KEY = 'gt:lastPrepSentenceQuiz'
 const router = useRouter()
 const { settings, load: loadSettings } = useSettings()
-const loading = useLoading()
-const toast = useToast()
 
 interface Stash {
   sentences: GeneratedSentence[]
@@ -27,12 +24,19 @@ const ready = ref(false)
 const error = ref<string | null>(null)
 const deck = ref<GeneratedSentence[]>([])
 const answers = ref<string[]>([])
-const inputRefs = ref<HTMLInputElement[]>([])
-const startedAt = ref(0)
-const finished = ref(false)
 const verdicts = ref<Map<number, SentenceVerdict>>(new Map())
+const startedAt = ref(0)
 const historySaved = ref(false)
 const meta = ref<{ cases: string[]; groups: string[]; nounsPer: 1 | 2 | 'mix' }>({ cases: [], groups: [], nounsPer: 'mix' })
+
+// Per-card state
+const index = ref(0)
+const userInput = ref('')
+const phase = ref<'input' | 'graded'>('input')
+const grading = ref(false)
+const finished = ref(false)
+const inputRef = ref<HTMLInputElement | null>(null)
+const nextBtnRef = ref<HTMLButtonElement | null>(null)
 
 function caseTagClass(c: string): string {
   if (c === 'dative') return 'tag-clay'
@@ -41,14 +45,20 @@ function caseTagClass(c: string): string {
   if (c === 'two-way') return 'tag-accent'
   return ''
 }
+function caseHintLabel(c: string): string {
+  return c === 'two-way' ? 'two-way · acc. (motion) or dat. (location)' : c
+}
 
 function loadDeck(items: GeneratedSentence[]) {
   deck.value = items
   answers.value = items.map(() => '')
   verdicts.value = new Map()
+  index.value = 0
+  userInput.value = ''
+  phase.value = 'input'
   finished.value = false
   startedAt.value = Date.now()
-  nextTick(() => inputRefs.value[0]?.focus())
+  nextTick(() => inputRef.value?.focus())
 }
 
 onMounted(async () => {
@@ -74,50 +84,51 @@ onMounted(async () => {
   }
 })
 
-function setAnswer(i: number, v: string) { answers.value[i] = v }
-
-const filledCount = computed(() => answers.value.filter(a => a.trim().length > 0).length)
 const total = computed(() => deck.value.length)
+const current = computed<GeneratedSentence | null>(() => deck.value[index.value] ?? null)
+const currentVerdict = computed(() => verdicts.value.get(index.value) ?? null)
 const correctCount = computed(() => {
   let n = 0
   for (const v of verdicts.value.values()) if (v.correct) n++
   return n
 })
+const wrongAnswered = computed(() => {
+  let n = 0
+  for (const v of verdicts.value.values()) if (!v.correct) n++
+  return n
+})
 const wrongCount = computed(() => total.value - correctCount.value)
 const allCorrect = computed(() => finished.value && wrongCount.value === 0)
+const isLast = computed(() => index.value + 1 >= total.value)
 
-function onEnter(i: number) {
-  if (i + 1 < deck.value.length) inputRefs.value[i + 1]?.focus()
-  else document.getElementById('submit-all-btn')?.focus()
+async function submit() {
+  if (!current.value || phase.value !== 'input' || grading.value) return
+  if (userInput.value.trim().length === 0) return
+  grading.value = true
+  const i = index.value
+  const s = current.value
+  const input: GradeInput = {
+    index: i, english: s.english, german: s.german,
+    prepGerman: s.prepGerman, case: s.case, answer: userInput.value
+  }
+  let verdict: SentenceVerdict
+  try {
+    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const result = await gradeSentences(client, settings.value.model, [input])
+    verdict = result.get(i) ?? { index: i, correct: false, feedback: '', correction: s.german }
+  } catch {
+    verdict = { index: i, correct: false, feedback: '', correction: s.german }
+  }
+  answers.value[i] = userInput.value
+  verdicts.value.set(i, verdict)
+  verdicts.value = new Map(verdicts.value) // trigger reactivity
+  phase.value = 'graded'
+  grading.value = false
+  nextTick(() => nextBtnRef.value?.focus())
 }
 
-async function submitAll() {
-  if (filledCount.value === 0 || finished.value) return
-  const inputs: GradeInput[] = deck.value.map((s, i) => ({
-    index: i,
-    english: s.english,
-    german: s.german,
-    prepGerman: s.prepGerman,
-    case: s.case,
-    answer: answers.value[i] ?? ''
-  }))
-  try {
-    const result = await loading.wrap(
-      async () => {
-        const client = makeGeminiClient(settings.value.geminiApiKey)
-        return await gradeSentences(client, settings.value.model, inputs)
-      },
-      { title: 'Grading your translations', subtitle: 'The AI is checking meaning, preposition and case — a few seconds.' }
-    )
-    verdicts.value = result
-  } catch (e) {
-    toast.error('Grading failed', { description: e instanceof Error ? e.message : String(e) })
-    return
-  }
-
+function finishQuiz() {
   finished.value = true
-
-  // Save to history once — retry rounds are practice only.
   if (!historySaved.value) {
     historySaved.value = true
     const finishedAt = Date.now()
@@ -131,6 +142,22 @@ async function submitAll() {
       meta: { sentenceCases: meta.value.cases, sentenceGroups: meta.value.groups, nounsPerSentence: meta.value.nounsPer }
     })
   }
+}
+
+function next() {
+  if (phase.value !== 'graded') return
+  if (isLast.value) { finishQuiz(); return }
+  index.value++
+  userInput.value = ''
+  phase.value = 'input'
+  nextTick(() => inputRef.value?.focus())
+}
+
+function onEnter(e: KeyboardEvent) {
+  e.preventDefault()
+  if (grading.value) return
+  if (phase.value === 'input') submit()
+  else next()
 }
 
 function retryWrong() {
@@ -199,62 +226,68 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
     <RetryModal :wrong-count="wrongCount" item-label="sentences" @retry="retryWrong" />
   </div>
 
-  <!-- ───────────────────────── Quiz sheet ───────────────────────── -->
-  <div v-else class="page">
-    <div class="test-sheet">
-      <header class="section-header" style="margin-bottom: 0">
-        <div>
-          <div class="breadcrumb">Kapitel IV · Satzübersetzung · {{ total }} Sätze</div>
-          <h1 class="section-title">Übersetzung<em>.</em></h1>
-          <p class="section-subtitle">
-            Read the English sentence and type the German translation. Press Enter to jump to the next line.
-            <em class="hint-aside">Each sentence hides a preposition — get the case right.</em>
-          </p>
-        </div>
+  <!-- ───────────────────── One sentence per step ───────────────────── -->
+  <div v-else-if="current" class="page">
+    <div class="quiz-card">
+      <div class="quiz-meta">
+        <span class="quiz-counter">Satz {{ index + 1 }} · von {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
-      </header>
-
-      <div class="test-sheet-header">
-        <span class="filled-count"><strong>{{ filledCount }}</strong> · von {{ total }} ausgefüllt</span>
-        <div class="quiz-progress-bar test-progress">
-          <div v-for="(_, i) in deck" :key="i" class="pip" :class="{ current: !!answers[i]?.trim() }" />
-        </div>
       </div>
 
-      <div class="test-rows">
-        <div v-for="(s, i) in deck" :key="i" class="test-row">
-          <div class="test-num"><strong>{{ String(i + 1).padStart(2, '0') }}.</strong></div>
-          <div class="test-content">
-            <div class="test-prompt-row">
-              <span class="test-verb">{{ s.english }}</span>
-            </div>
-            <input
-              :ref="(el) => { if (el) inputRefs[i] = el as HTMLInputElement }"
-              class="test-input"
-              type="text"
-              placeholder="Deutsch…"
-              :value="answers[i]"
-              @input="setAnswer(i, ($event.target as HTMLInputElement).value)"
-              @keydown.enter.prevent="onEnter(i)"
-              autocomplete="off"
-              spellcheck="false"
-            />
-          </div>
-        </div>
+      <QuizProgress
+        class="sentence-progress"
+        :correct="correctCount"
+        :wrong="wrongAnswered"
+        :total="total"
+        :current-index="index"
+      />
+
+      <div class="prompt-card">
+        <div class="en-sentence">{{ current.english }}</div>
+        <div class="en-hint">Translate into German.</div>
       </div>
 
-      <div class="test-sheet-footer">
-        <span class="filled-count"><strong>{{ filledCount }}</strong> filled · {{ total - filledCount }} remaining</span>
+      <form class="prep-input-wrap" @submit.prevent="submit">
+        <input
+          ref="inputRef"
+          class="input prep-input"
+          type="text"
+          placeholder="Deutsch…"
+          v-model="userInput"
+          :readonly="phase === 'graded'"
+          autocomplete="off"
+          spellcheck="false"
+          @keydown.enter="onEnter"
+          :style="phase === 'graded' ? {
+            color: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)',
+            borderBottomColor: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)'
+          } : undefined"
+        />
         <button
-          id="submit-all-btn"
-          class="btn btn-accent btn-meta"
+          v-if="phase === 'input'"
+          type="submit"
+          class="btn btn-accent"
+          :disabled="userInput.trim().length === 0 || grading"
+        >{{ grading ? 'Checking…' : 'Submit' }}</button>
+        <button
+          v-else
+          ref="nextBtnRef"
           type="button"
-          :disabled="filledCount === 0"
-          @click="submitAll"
-        >
-          <span class="bm-main">Submit all <span aria-hidden="true">→</span></span>
-          <span class="bm-sub">{{ total }} sentences</span>
-        </button>
+          class="btn btn-accent"
+          @click="next"
+        >{{ isLast ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
+      </form>
+
+      <div v-if="phase === 'graded' && currentVerdict" class="prep-feedback">
+        <span
+          class="prep-feedback-mark"
+          :class="currentVerdict.correct ? 'prep-feedback-ok' : 'prep-feedback-bad'"
+        >{{ currentVerdict.correct ? '✓ Richtig.' : '✗ Nicht ganz.' }}</span>
+        <span class="prep-feedback-full">{{ currentVerdict.correction || current.german }}</span>
+        <span v-if="currentVerdict.feedback" class="prep-feedback-note">{{ currentVerdict.feedback }}</span>
+        <span class="prep-feedback-tags">
+          <span class="tag" :class="caseTagClass(current.case)">{{ current.prepGerman }} · {{ caseHintLabel(current.case) }}</span>
+        </span>
       </div>
     </div>
   </div>
@@ -262,8 +295,80 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
 
 <style scoped>
 .loading-state { text-align: center; padding-top: 120px; }
-.test-progress { flex: 1; max-width: 280px; margin: 0 0 0 24px; }
 
+.quiz-card { max-width: 720px; margin: 0 auto; }
+.quiz-meta {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 16px;
+}
+.quiz-counter {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.sentence-progress { margin-bottom: 36px; }
+
+.prompt-card { text-align: center; }
+.en-sentence {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+.en-hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-top: 14px;
+}
+
+.prep-input-wrap {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-top: 36px;
+}
+.prep-input {
+  flex: 1;
+  text-align: center;
+  font-size: 22px;
+  border: 0;
+  border-bottom: 2px solid var(--rule);
+  padding: 8px 0;
+}
+.prep-input:focus { border-bottom-color: var(--accent); outline: none; }
+
+.prep-feedback {
+  margin-top: 18px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.prep-feedback-mark { font-family: var(--font-display); font-style: italic; font-size: 17px; }
+.prep-feedback-ok { color: var(--success); }
+.prep-feedback-bad { color: var(--danger); }
+.prep-feedback-full {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--ink);
+}
+.prep-feedback-note {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--mute);
+}
+.prep-feedback-tags { margin-top: 4px; }
+
+/* Result list */
+.result-page { max-width: 880px; }
 .result-rows { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
 .result-row {
   border: 1px solid var(--rule);
