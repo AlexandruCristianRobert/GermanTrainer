@@ -47,6 +47,7 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'prep-case':        { label: 'Preposition · case', de: 'Präposition · Kasus',      module: 'Prepositions' },
   'prep-article':     { label: 'Preposition · article', de: 'Präposition · Artikel', module: 'Prepositions' },
   'prep-two-way':     { label: 'Preposition · two-way', de: 'Präposition · Wechsel', module: 'Prepositions' },
+  'prep-sentence':    { label: 'Preposition · sentence (AI)', de: 'Präposition · Satz (KI)', module: 'Prepositions' },
   'decl-table':     { label: 'Declension · table', de: 'Deklination · Tabelle', module: 'Declension' },
   'decl-article':   { label: 'Declension · article', de: 'Deklination · Artikel', module: 'Declension' },
   'decl-adjective': { label: 'Declension · adj. ending', de: 'Deklination · Endung', module: 'Declension' },

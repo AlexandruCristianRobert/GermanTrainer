@@ -10,6 +10,7 @@ export type QuizHistoryType =
   | 'prep-case'
   | 'prep-article'
   | 'prep-two-way'
+  | 'prep-sentence'
   | 'decl-table'
   | 'decl-article'
   | 'decl-adjective'
@@ -30,6 +31,11 @@ export interface QuizHistoryMeta {
   tenses?: string[]
   prepLevels?: string[]
   prepCases?: string[]
+
+  // Preposition sentence-translation (AI)
+  sentenceCases?: string[]
+  sentenceGroups?: string[]
+  nounsPerSentence?: 1 | 2 | 'mix'
   declLevels?: string[]
   declCases?: string[]
   declDeterminers?: string[]

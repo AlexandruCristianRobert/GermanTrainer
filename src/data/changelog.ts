@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.07'
+export const APP_VERSION = '1.11.08'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.08', date: '2026-06-01', kind: 'module',
+    title: 'Prepositions: AI sentence-translation quiz',
+    notes: [
+      '<strong>New drill — Satzübersetzung (AI).</strong> A fifth preposition exercise: pick the case(s) to drill and a <em>noun theme</em> (the same groups the noun quizzes use), choose how many sentences (<strong>10 / 15 / 20 / 25 / custom</strong>) and whether each sentence is built from <strong>1, 2, or a mix</strong> of nouns. The app picks that many prepositions at random (the same shuffler as everywhere else, repeating when you ask for more than exist), hands each one or two nouns from your theme, and Gemini writes an English + German sentence pair for it.',
+      '<strong>You translate, the AI grades.</strong> You see the English sentence and type the German on a single submit-all sheet. On submit, the AI judges each answer on meaning <em>and</em> correct preposition + case — accepting valid rewordings, flagging wrong case — and shows a one-line note plus the reference translation for every miss. If the AI is unreachable, grading falls back to an exact match so the quiz always finishes.',
+      '<strong>Retry-wrong loop + history.</strong> Finishing with misses pops the same focused retry modal as the other quizzes (<em>Enter</em> re-runs just the wrong ones, <em>Esc</em> reviews); retry rounds are practice only and are not written to history. Completed runs are logged under <em>Präposition · Satz (KI)</em>. Requires a Gemini API key in Settings.'
+    ]
+  },
   {
     version: '1.11.07', date: '2026-06-01', kind: 'polish',
     title: 'Verb translation hints are now in English',

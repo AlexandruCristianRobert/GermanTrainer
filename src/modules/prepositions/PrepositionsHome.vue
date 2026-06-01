@@ -36,6 +36,12 @@ const cards: Card[] = [
     title: 'Two-way decision', de: 'Wechsel · Akk. oder Dat.',
     desc: 'For the nine Wechselpräpositionen, decide whether the sentence uses accusative or dative.',
     cta: 'Start'
+  },
+  {
+    numeral: 'E', route: 'prepositions-sentence',
+    title: 'Sentence translation', de: 'Satzübersetzung · KI',
+    desc: 'AI writes a sentence per random preposition using nouns from a theme you pick. Read the English, type the German.',
+    cta: 'Start'
   }
 ]
 </script>
@@ -49,7 +55,7 @@ const cards: Card[] = [
         <p class="section-subtitle">
           German prepositions govern case — and the case is the difference between
           <em>auf dem Tisch</em> (on the table) and <em>auf den Tisch</em> (onto the table).
-          Three focused drills, one rule each.
+          Focused drills plus an AI-built sentence-translation test.
         </p>
       </div>
     </header>
