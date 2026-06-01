@@ -5,8 +5,9 @@
 // sentence. We sample that many prepositions at random (the same `shuffle`
 // randomizer used everywhere else), assign 1–2 random nouns from the chosen
 // groups to each, then ask Gemini to write an English+German sentence pair per
-// preposition. The learner is shown the English and types the German; an AI
-// pass grades each answer (with an exact-match fallback if the AI is down).
+// preposition. The learner is shown the English and types the German; the
+// answer is checked locally against the German reference generated up front
+// (exact, but ignoring case, punctuation and extra whitespace).
 
 import { shuffle } from '../data/pool'
 import type { AiClient } from './useClaude'
@@ -43,7 +44,7 @@ export interface GeneratedSentence extends SentenceSpec {
 export interface SentenceVerdict {
   index: number
   correct: boolean
-  feedback: string
+  /** The reference German translation — shown when the answer is wrong. */
   correction: string
 }
 
@@ -56,6 +57,17 @@ export function normalizeGerman(s: string): string {
     .replace(/[.,!?;:„“"»«()]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+/**
+ * Check a typed answer against the reference German generated up front.
+ * The match is exact apart from forgiving formatting: extra whitespace is
+ * collapsed, punctuation (.,!?;: and quotes) is ignored, and case is ignored.
+ * A blank answer is never correct.
+ */
+export function checkSentence(input: string, reference: string): boolean {
+  const a = normalizeGerman(input)
+  return a.length > 0 && a === normalizeGerman(reference)
 }
 
 // Common preposition contractions (prep + article). Used to recognise that a
@@ -293,129 +305,4 @@ export async function generateSentences(
     .filter(s => accepted.has(s.index))
     .map(s => accepted.get(s.index) as GeneratedSentence)
   return { sentences, rejected, attempts }
-}
-
-// ────────────────────────────── AI grading ────────────────────────────
-
-const GRADE_SYSTEM =
-  'Du bist ein fairer, aber genauer Deutschlehrer. Für jede Aufgabe bekommst du den ' +
-  'englischen Satz, eine deutsche Referenzübersetzung, die Zielpräposition mit ihrem ' +
-  'Kasus und die Antwort des Lernenden. Beurteile, ob die Antwort die englische ' +
-  'Bedeutung korrekt wiedergibt UND die Zielpräposition im richtigen Kasus verwendet. ' +
-  'Abweichungen in Wortstellung, Synonymen oder Artikeln, die trotzdem korrektes Deutsch ' +
-  'ergeben, sind erlaubt — werte sie als korrekt. Tippfehler und falscher Kasus sind ' +
-  'nicht korrekt. Gib eine sehr kurze Rückmeldung auf Deutsch (eine Zeile) und die beste ' +
-  'korrekte Fassung. Antworte als JSON: {"items":[{"index":<number>,"correct":<bool>,' +
-  '"feedback":"...","correction":"..."}]}.'
-
-const GRADE_SCHEMA = {
-  type: 'object',
-  properties: {
-    items: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          index: { type: 'integer' },
-          correct: { type: 'boolean' },
-          feedback: { type: 'string' },
-          correction: { type: 'string' }
-        },
-        required: ['index', 'correct', 'feedback', 'correction']
-      }
-    }
-  },
-  required: ['items']
-}
-
-export interface GradeInput {
-  index: number
-  english: string
-  german: string   // reference
-  prepGerman: string
-  case: PrepCase
-  answer: string
-}
-
-export function buildGradePrompt(inputs: readonly GradeInput[]): string {
-  const blocks = inputs.map(i =>
-    `#${i.index}\n` +
-    `English: ${i.english}\n` +
-    `Reference German: ${i.german}\n` +
-    `Target preposition: "${i.prepGerman}" — ${caseLabel(i.case)}\n` +
-    `Learner answer: ${i.answer || '(blank)'}`
-  )
-  return `Grade these ${inputs.length} answer(s):\n\n` + blocks.join('\n\n')
-}
-
-function fallbackVerdict(i: GradeInput): SentenceVerdict {
-  return {
-    index: i.index,
-    correct: i.answer.trim().length > 0 && normalizeGerman(i.answer) === normalizeGerman(i.german),
-    feedback: '',
-    correction: i.german
-  }
-}
-
-/**
- * Grade all answers in a single AI call. Falls back to exact (normalized)
- * matching against the reference for any item the AI fails to return — and for
- * the whole batch if the AI errors or returns malformed JSON, so a quiz can
- * always be completed even offline.
- */
-export async function gradeSentences(
-  client: AiClient,
-  model: string,
-  inputs: GradeInput[]
-): Promise<Map<number, SentenceVerdict>> {
-  const out = new Map<number, SentenceVerdict>()
-  if (inputs.length === 0) return out
-
-  let text = ''
-  try {
-    const res = await client.models.generateContent({
-      model,
-      contents: buildGradePrompt(inputs),
-      config: {
-        systemInstruction: GRADE_SYSTEM,
-        responseMimeType: 'application/json',
-        responseSchema: GRADE_SCHEMA,
-        temperature: 0
-      }
-    })
-    text = res.text ?? ''
-  } catch {
-    for (const i of inputs) out.set(i.index, fallbackVerdict(i))
-    return out
-  }
-
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(text)
-  } catch {
-    for (const i of inputs) out.set(i.index, fallbackVerdict(i))
-    return out
-  }
-
-  const items = (parsed as { items?: unknown }).items
-  if (Array.isArray(items)) {
-    for (const raw of items) {
-      const r = raw as Record<string, unknown>
-      const idx = typeof r.index === 'number' ? r.index : NaN
-      const input = inputs.find(i => i.index === idx)
-      if (!input) continue
-      out.set(idx, {
-        index: idx,
-        correct: r.correct === true,
-        feedback: typeof r.feedback === 'string' ? r.feedback : '',
-        correction: typeof r.correction === 'string' && r.correction.trim().length > 0
-          ? r.correction.trim()
-          : input.german
-      })
-    }
-  }
-
-  // Backfill anything the AI skipped.
-  for (const i of inputs) if (!out.has(i.index)) out.set(i.index, fallbackVerdict(i))
-  return out
 }

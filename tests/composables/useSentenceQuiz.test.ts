@@ -3,17 +3,15 @@ import type { Preposition } from '../../src/data/prepositions'
 import type { AiClient } from '../../src/composables/useClaude'
 import {
   normalizeGerman,
+  checkSentence,
   prepUsed,
   pickPrepositions,
   buildSpecs,
   validateSentencePair,
   buildGeneratePrompt,
-  buildGradePrompt,
   generateSentences,
-  gradeSentences,
   type NounRef,
-  type SentenceSpec,
-  type GradeInput
+  type SentenceSpec
 } from '../../src/composables/useSentenceQuiz'
 
 // ── A small deterministic RNG so shuffle-based fns are testable ──
@@ -43,6 +41,34 @@ describe('normalizeGerman', () => {
   })
   test('handles German quote marks', () => {
     expect(normalizeGerman('„Hallo“')).toBe('hallo')
+  })
+})
+
+// ───────────────────────────── checkSentence ──────────────────────────
+describe('checkSentence', () => {
+  const ref = 'Ich arbeite mit dem Tisch.'
+  test('accepts an exact match', () => {
+    expect(checkSentence('Ich arbeite mit dem Tisch.', ref)).toBe(true)
+  })
+  test('ignores trailing or missing punctuation (.?!)', () => {
+    expect(checkSentence('Ich arbeite mit dem Tisch', ref)).toBe(true)
+    expect(checkSentence('Ich arbeite mit dem Tisch?', ref)).toBe(true)
+  })
+  test('collapses accidental double spaces', () => {
+    expect(checkSentence('Ich  arbeite   mit dem Tisch', ref)).toBe(true)
+  })
+  test('ignores case', () => {
+    expect(checkSentence('ich arbeite mit dem tisch', ref)).toBe(true)
+  })
+  test('rejects a different sentence', () => {
+    expect(checkSentence('Ich arbeite mit dem Stuhl.', ref)).toBe(false)
+  })
+  test('rejects wrong word order (exact match only)', () => {
+    expect(checkSentence('Mit dem Tisch arbeite ich.', ref)).toBe(false)
+  })
+  test('rejects a blank answer', () => {
+    expect(checkSentence('', ref)).toBe(false)
+    expect(checkSentence('   ', ref)).toBe(false)
   })
 })
 
@@ -153,15 +179,6 @@ describe('prompt builders', () => {
     expect(p).toContain('der Tisch')
     expect(p).toContain('A2–B1')
   })
-  test('buildGradePrompt includes the learner answer and reference', () => {
-    const inputs: GradeInput[] = [{
-      index: 0, english: 'I work with the table.', german: 'Ich arbeite mit dem Tisch.',
-      prepGerman: 'mit', case: 'dative', answer: 'Ich arbeite mit dem Tisch.'
-    }]
-    const p = buildGradePrompt(inputs)
-    expect(p).toContain('Reference German: Ich arbeite mit dem Tisch.')
-    expect(p).toContain('Learner answer: Ich arbeite mit dem Tisch.')
-  })
 })
 
 // ── Fake AI client helpers ──
@@ -222,57 +239,5 @@ describe('generateSentences', () => {
     const res = await generateSentences(client, { model: 'm', specs: SPECS, maxRetries: 1 })
     expect(res.sentences).toHaveLength(0)
     expect(res.attempts).toBe(2) // initial + 1 retry
-  })
-})
-
-// ──────────────────────────── gradeSentences ──────────────────────────
-const GRADE_INPUTS: GradeInput[] = [
-  { index: 0, english: 'I go with him.', german: 'Ich gehe mit ihm.', prepGerman: 'mit', case: 'dative', answer: 'Ich gehe mit ihm.' },
-  { index: 1, english: 'We walk through the park.', german: 'Wir gehen durch den Park.', prepGerman: 'durch', case: 'accusative', answer: 'falsch' }
-]
-
-describe('gradeSentences', () => {
-  test('maps AI verdicts back by index', async () => {
-    const client = fakeClient(() => JSON.stringify({
-      items: [
-        { index: 0, correct: true, feedback: 'Richtig.', correction: 'Ich gehe mit ihm.' },
-        { index: 1, correct: false, feedback: 'Falscher Satz.', correction: 'Wir gehen durch den Park.' }
-      ]
-    }))
-    const verdicts = await gradeSentences(client, 'm', GRADE_INPUTS)
-    expect(verdicts.get(0)?.correct).toBe(true)
-    expect(verdicts.get(1)?.correct).toBe(false)
-    expect(verdicts.get(1)?.correction).toBe('Wir gehen durch den Park.')
-  })
-
-  test('falls back to exact-match when AI returns malformed JSON', async () => {
-    const client = fakeClient(() => 'broken')
-    const verdicts = await gradeSentences(client, 'm', GRADE_INPUTS)
-    // index 0 answer equals reference (exact) -> correct; index 1 differs -> wrong
-    expect(verdicts.get(0)?.correct).toBe(true)
-    expect(verdicts.get(1)?.correct).toBe(false)
-  })
-
-  test('falls back when the AI call throws', async () => {
-    const client: AiClient = {
-      models: { async generateContent() { throw new Error('network') } }
-    }
-    const verdicts = await gradeSentences(client, 'm', GRADE_INPUTS)
-    expect(verdicts.size).toBe(2)
-    expect(verdicts.get(0)?.correct).toBe(true)
-  })
-
-  test('backfills items the AI skipped', async () => {
-    const client = fakeClient(() => JSON.stringify({
-      items: [{ index: 0, correct: true, feedback: 'ok', correction: 'Ich gehe mit ihm.' }]
-    }))
-    const verdicts = await gradeSentences(client, 'm', GRADE_INPUTS)
-    expect(verdicts.size).toBe(2)
-    expect(verdicts.has(1)).toBe(true)
-  })
-
-  test('empty input yields empty map', async () => {
-    const client = fakeClient(() => '{}')
-    expect((await gradeSentences(client, 'm', [])).size).toBe(0)
   })
 })

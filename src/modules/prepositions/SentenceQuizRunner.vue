@@ -2,16 +2,13 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
-import { useSettings } from '../../composables/useSettings'
-import { makeGeminiClient } from '../../composables/useClaude'
-import { gradeSentences, type GeneratedSentence, type SentenceVerdict, type GradeInput } from '../../composables/useSentenceQuiz'
+import { checkSentence, type GeneratedSentence, type SentenceVerdict } from '../../composables/useSentenceQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import RetryModal from '../../components/RetryModal.vue'
 import QuizProgress from '../../components/QuizProgress.vue'
 
 const STASH_KEY = 'gt:lastPrepSentenceQuiz'
 const router = useRouter()
-const { settings, load: loadSettings } = useSettings()
 
 interface Stash {
   sentences: GeneratedSentence[]
@@ -33,7 +30,6 @@ const meta = ref<{ cases: string[]; groups: string[]; nounsPer: 1 | 2 | 'mix' }>
 const index = ref(0)
 const userInput = ref('')
 const phase = ref<'input' | 'graded'>('input')
-const grading = ref(false)
 const finished = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 const nextBtnRef = ref<HTMLButtonElement | null>(null)
@@ -61,8 +57,7 @@ function loadDeck(items: GeneratedSentence[]) {
   nextTick(() => inputRef.value?.focus())
 }
 
-onMounted(async () => {
-  await loadSettings()
+onMounted(() => {
   try {
     const raw = sessionStorage.getItem(STASH_KEY)
     if (!raw) { error.value = 'No generated sentences in this session. Go back to setup and generate a quiz.'; return }
@@ -101,29 +96,20 @@ const wrongCount = computed(() => total.value - correctCount.value)
 const allCorrect = computed(() => finished.value && wrongCount.value === 0)
 const isLast = computed(() => index.value + 1 >= total.value)
 
-async function submit() {
-  if (!current.value || phase.value !== 'input' || grading.value) return
+function submit() {
+  if (!current.value || phase.value !== 'input') return
   if (userInput.value.trim().length === 0) return
-  grading.value = true
   const i = index.value
   const s = current.value
-  const input: GradeInput = {
-    index: i, english: s.english, german: s.german,
-    prepGerman: s.prepGerman, case: s.case, answer: userInput.value
-  }
-  let verdict: SentenceVerdict
-  try {
-    const client = makeGeminiClient(settings.value.geminiApiKey)
-    const result = await gradeSentences(client, settings.value.model, [input])
-    verdict = result.get(i) ?? { index: i, correct: false, feedback: '', correction: s.german }
-  } catch {
-    verdict = { index: i, correct: false, feedback: '', correction: s.german }
+  const verdict: SentenceVerdict = {
+    index: i,
+    correct: checkSentence(userInput.value, s.german),
+    correction: s.german
   }
   answers.value[i] = userInput.value
   verdicts.value.set(i, verdict)
   verdicts.value = new Map(verdicts.value) // trigger reactivity
   phase.value = 'graded'
-  grading.value = false
   nextTick(() => nextBtnRef.value?.focus())
 }
 
@@ -155,7 +141,6 @@ function next() {
 
 function onEnter(e: KeyboardEvent) {
   e.preventDefault()
-  if (grading.value) return
   if (phase.value === 'input') submit()
   else next()
 }
@@ -209,7 +194,6 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
         <div v-if="!verdicts.get(i)?.correct" class="rr-ref">
           <span class="rr-label">Answer</span> {{ verdicts.get(i)?.correction || s.german }}
         </div>
-        <div v-if="verdicts.get(i)?.feedback" class="rr-fb">{{ verdicts.get(i)?.feedback }}</div>
       </div>
     </div>
 
@@ -267,8 +251,8 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           v-if="phase === 'input'"
           type="submit"
           class="btn btn-accent"
-          :disabled="userInput.trim().length === 0 || grading"
-        >{{ grading ? 'Checking…' : 'Submit' }}</button>
+          :disabled="userInput.trim().length === 0"
+        >Submit</button>
         <button
           v-else
           ref="nextBtnRef"
@@ -284,7 +268,6 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           :class="currentVerdict.correct ? 'prep-feedback-ok' : 'prep-feedback-bad'"
         >{{ currentVerdict.correct ? '✓ Richtig.' : '✗ Nicht ganz.' }}</span>
         <span class="prep-feedback-full">{{ currentVerdict.correction || current.german }}</span>
-        <span v-if="currentVerdict.feedback" class="prep-feedback-note">{{ currentVerdict.feedback }}</span>
         <span class="prep-feedback-tags">
           <span class="tag" :class="caseTagClass(current.case)">{{ current.prepGerman }} · {{ caseHintLabel(current.case) }}</span>
         </span>
@@ -359,12 +342,6 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
   font-size: 18px;
   color: var(--ink);
 }
-.prep-feedback-note {
-  font-family: var(--font-body);
-  font-style: italic;
-  font-size: 14px;
-  color: var(--mute);
-}
 .prep-feedback-tags { margin-top: 4px; }
 
 /* Result list */
@@ -392,7 +369,6 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
   font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--mute);
 }
-.rr-fb { margin-top: 6px; font-family: var(--font-body); font-size: 13px; color: var(--mute); font-style: italic; }
 
 .setup-actions {
   display: flex; justify-content: space-between; align-items: center;
