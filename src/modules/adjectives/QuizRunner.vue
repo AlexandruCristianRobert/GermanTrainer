@@ -3,9 +3,9 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdjectives } from '../../composables/useAdjectives'
 import { useSettings } from '../../composables/useSettings'
+import { resolveAiClient } from '../../composables/localClaude'
 import {
   generateAdjectiveSentences,
-  makeGeminiClient,
   type SentenceItem
 } from '../../composables/useClaude'
 import { useAdjectiveQuiz } from '../../composables/useAdjectiveQuiz'
@@ -48,7 +48,7 @@ async function generate(): Promise<SentenceItem[]> {
     ? await sampleByGroups(groups, c)
     : await sample(c)
   if (adjectives.length === 0) throw new Error('No adjectives available.')
-  const client = makeGeminiClient(settings.value.geminiApiKey)
+  const client = resolveAiClient(settings.value)
   let res = await generateAdjectiveSentences(client, {
     model: settings.value.model,
     adjectives: adjectives.map(a => ({ german: a.german, english: a.english, group: a.group }))

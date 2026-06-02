@@ -13,7 +13,7 @@ import {
 } from '../../composables/useSimulatorC1'
 import type { SimulatorSession } from '../../data/simulatorC1'
 import { useSettings } from '../../composables/useSettings'
-import { makeGeminiClient } from '../../composables/useClaude'
+import { resolveAiClient } from '../../composables/localClaude'
 import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
 import { gradeAndPersist, GraderError } from '../../composables/useWritingGrader'
@@ -23,7 +23,7 @@ const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const loading = useLoading()
-const { settings, hasApiKey, load: loadSettings } = useSettings()
+const { settings, canUseAi, load: loadSettings } = useSettings()
 
 const sessionId = computed(() => route.params.sessionId as string)
 const session = ref<SimulatorSession | null>(null)
@@ -85,7 +85,7 @@ const canSubmit = computed(() => {
   if (!session.value || !prompt1.value || !prompt2.value || sessionLocked.value) return false
   const floor1 = Math.floor(prompt1.value.targetWords.min * 0.6)
   const floor2 = Math.floor(prompt2.value.targetWords.min * 0.6)
-  return hasApiKey.value && wordCount1.value >= floor1 && wordCount2.value >= floor2 && !submitting.value
+  return canUseAi.value && wordCount1.value >= floor1 && wordCount2.value >= floor2 && !submitting.value
 })
 
 onMounted(async () => {
@@ -157,8 +157,13 @@ watch(timeUp, async (up) => {
 
 async function doSubmit(auto: boolean) {
   if (!session.value || !prompt1.value || !prompt2.value) return
-  if (!hasApiKey.value) {
-    toast.error('Gemini API key required', { description: 'Bitte API-Key in den Einstellungen setzen.' })
+  if (!canUseAi.value) {
+    toast.error(
+      settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
+      { description: settings.value.aiProvider === 'local-claude'
+          ? 'Run the app with npm run dev, or switch to Gemini in Settings.'
+          : 'Bitte API-Key in den Einstellungen setzen.' }
+    )
     if (auto && session.value && session.value.status === 'in_progress') {
       // Timer ran out but no key — at least mark the session as submitted
       // so the result page can offer a "Bewerten" retry once the user sets a key.
@@ -195,7 +200,7 @@ async function doSubmit(auto: boolean) {
     const promptForDraft = draft.id === session.value!.task1DraftId
       ? prompt1.value!
       : prompt2.value!
-    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const client = resolveAiClient(settings.value)
     return await gradeAndPersist(client, settings.value.model, promptForDraft, draft, 'goethe-c1', { recordHistory: false })
   }
 
@@ -256,9 +261,9 @@ function backHome() { router.push({ name: 'simulator-c1' }) }
       Bewertungen sind indikativ; offizielle Modellsätze bleiben die maßgebliche Quelle.
     </div>
 
-    <div v-if="!hasApiKey" class="alert alert-warning">
-      <span class="alert-label">Required</span>
-      Setze deinen Gemini-API-Key unter <router-link :to="{ name: 'settings' }">Settings</router-link>, sonst kann die Bewertung am Ende nicht laufen.
+    <div v-if="!canUseAi" class="alert alert-warning">
+      <span class="alert-label">AI access needed</span>
+      Set a Gemini API key, or pick <em>Local Claude (dev)</em>, unter <router-link :to="{ name: 'settings' }">Settings</router-link>, sonst kann die Bewertung am Ende nicht laufen.
     </div>
 
     <div class="simulator-tabs">

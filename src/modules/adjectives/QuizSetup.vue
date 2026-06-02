@@ -9,7 +9,7 @@ const STORAGE_KEY = 'adjectiveQuizSetup'
 const LEGACY_GROUPS_KEY = 'adjectiveQuizGroups'
 
 const { countsByGroup } = useAdjectives()
-const { hasApiKey, load: loadSettings } = useSettings()
+const { canUseAi, load: loadSettings } = useSettings()
 const router = useRouter()
 
 const counts = ref<Record<AdjectiveGroup, number>>(
@@ -91,7 +91,7 @@ const effective = computed(() => {
 })
 
 function start() {
-  if (selected.value.length === 0 || totalAvailable.value === 0 || !hasApiKey.value) return
+  if (selected.value.length === 0 || totalAvailable.value === 0 || !canUseAi.value) return
   router.push({
     name: 'adjectives-quiz-run',
     query: {
@@ -114,9 +114,9 @@ function start() {
       </div>
     </header>
 
-    <div v-if="!hasApiKey" class="alert alert-warning">
-      <span class="alert-label">API key required</span>
-      Set your Gemini API key in <router-link :to="{ name: 'settings' }">Settings</router-link> first. Everything else runs offline.
+    <div v-if="!canUseAi" class="alert alert-warning">
+      <span class="alert-label">AI access needed</span>
+      Set a Gemini API key, or pick <em>Local Claude (dev)</em>, in <router-link :to="{ name: 'settings' }">Settings</router-link>. Everything else runs offline.
     </div>
 
     <div class="field">
@@ -184,7 +184,7 @@ function start() {
       <button
         class="btn btn-accent btn-meta"
         type="button"
-        :disabled="selected.length === 0 || totalAvailable === 0 || !hasApiKey"
+        :disabled="selected.length === 0 || totalAvailable === 0 || !canUseAi"
         @click="start"
       >
         <span class="bm-main">Generate &amp; start <span aria-hidden="true">→</span></span>

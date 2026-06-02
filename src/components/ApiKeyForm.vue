@@ -4,7 +4,8 @@ import {
   NForm, NFormItem, NInput, NButton, NSelect, NSpace, NAlert, useMessage
 } from 'naive-ui'
 import { useSettings } from '../composables/useSettings'
-import { makeGeminiClient, generateAdjectiveSentences } from '../composables/useClaude'
+import { generateAdjectiveSentences } from '../composables/useClaude'
+import { resolveAiClient } from '../composables/localClaude'
 
 const { settings, load, save } = useSettings()
 const message = useMessage()
@@ -30,7 +31,7 @@ async function onTest() {
   testResult.value = null
   testError.value = ''
   try {
-    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const client = resolveAiClient(settings.value)
     await generateAdjectiveSentences(client, {
       model: settings.value.model,
       adjectives: [{ german: 'schön', english: 'beautiful' }]

@@ -6,7 +6,7 @@ import type { WritingDraft, WritingPrompt, RubricSystem } from '../../data/writi
 import { getPromptById } from '../../composables/useWritingPrompts'
 import { RUBRICS } from '../../data/rubrics'
 import { useSettings } from '../../composables/useSettings'
-import { makeGeminiClient } from '../../composables/useClaude'
+import { resolveAiClient } from '../../composables/localClaude'
 import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
 import { gradeAndPersist, GraderError, upgradeParagraph } from '../../composables/useWritingGrader'
@@ -16,7 +16,7 @@ const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const loading = useLoading()
-const { settings, hasApiKey, load: loadSettings } = useSettings()
+const { settings, canUseAi, load: loadSettings } = useSettings()
 
 const promptId = computed(() => route.params.promptId as string)
 const draftIdParam = computed(() => route.params.draftId as string | undefined)
@@ -53,7 +53,7 @@ const bandColor = computed<BandColor>(() => {
 })
 
 const canGrade = computed(() =>
-  hasApiKey.value && wordCount.value >= Math.floor((targetBand.value.min || 1) * 0.6) && !grading.value && !draft.value?.result
+  canUseAi.value && wordCount.value >= Math.floor((targetBand.value.min || 1) * 0.6) && !grading.value && !draft.value?.result
 )
 
 const isGraded = computed(() => !!draft.value?.result)
@@ -122,8 +122,13 @@ onUnmounted(() => {
 
 async function gradeNow() {
   if (!prompt.value || !draft.value) return
-  if (!hasApiKey.value) {
-    toast.error('Gemini API key required', { description: 'Set your API key in Settings before grading.' })
+  if (!canUseAi.value) {
+    toast.error(
+      settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
+      { description: settings.value.aiProvider === 'local-claude'
+          ? 'Run the app with npm run dev, or switch to Gemini in Settings.'
+          : 'Set your API key in Settings before using AI.' }
+    )
     return
   }
   grading.value = true
@@ -145,7 +150,7 @@ async function gradeNow() {
   try {
     const updated = await loading.wrap(
       async () => {
-        const client = makeGeminiClient(settings.value.geminiApiKey)
+        const client = resolveAiClient(settings.value)
         return await gradeAndPersist(client, settings.value.model, prompt.value!, pinned, rubricSystem.value)
       },
       {
@@ -244,7 +249,7 @@ async function runParagraphUpgrade(idx: number) {
       toast.error('Paragraph not found in draft text.')
       return
     }
-    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const client = resolveAiClient(settings.value)
     const { upgradedText } = await upgradeParagraph(
       client, settings.value.model, prompt.value, paragraphText, draft.value.rubric
     )
@@ -320,9 +325,9 @@ function paragraphTextAt(idx: number): string {
       </div>
     </div>
 
-    <div v-if="!hasApiKey" class="alert alert-warning">
-      <span class="alert-label">Required</span>
-      Set your Gemini API key in <router-link :to="{ name: 'settings' }">Settings</router-link> before grading. Drafting still works.
+    <div v-if="!canUseAi" class="alert alert-warning">
+      <span class="alert-label">AI access needed</span>
+      Set a Gemini API key, or pick <em>Local Claude (dev)</em>, in <router-link :to="{ name: 'settings' }">Settings</router-link> before grading. Drafting still works.
     </div>
 
     <div class="editor-wrapper" :data-band="bandColor">

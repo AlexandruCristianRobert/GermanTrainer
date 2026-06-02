@@ -13,7 +13,7 @@ import {
 import type { SimulatorSession } from '../../data/simulatorC1'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
-import { makeGeminiClient } from '../../composables/useClaude'
+import { resolveAiClient } from '../../composables/localClaude'
 import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
 import { gradeAndPersist } from '../../composables/useWritingGrader'
@@ -23,7 +23,7 @@ const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const loading = useLoading()
-const { settings, hasApiKey, load: loadSettings } = useSettings()
+const { settings, canUseAi, load: loadSettings } = useSettings()
 
 const sessionId = computed(() => route.params.sessionId as string)
 const session = ref<SimulatorSession | null>(null)
@@ -87,15 +87,20 @@ async function load() {
 
 async function tryGradeMissing() {
   if (!session.value || !prompt1.value || !prompt2.value) return
-  if (!hasApiKey.value) {
-    toast.error('Gemini API key required', { description: 'Bitte API-Key in den Einstellungen setzen.' })
+  if (!canUseAi.value) {
+    toast.error(
+      settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
+      { description: settings.value.aiProvider === 'local-claude'
+          ? 'Run the app with npm run dev, or switch to Gemini in Settings.'
+          : 'Bitte API-Key in den Einstellungen setzen.' }
+    )
     return
   }
   retrying.value = true
   try {
     const grader: GradeFn = async (draft) => {
       const p = draft.id === session.value!.task1DraftId ? prompt1.value! : prompt2.value!
-      const client = makeGeminiClient(settings.value.geminiApiKey)
+      const client = resolveAiClient(settings.value)
       return await gradeAndPersist(client, settings.value.model, p, draft, 'goethe-c1', { recordHistory: false })
     }
     await loading.wrap(

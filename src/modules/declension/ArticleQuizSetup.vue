@@ -12,7 +12,7 @@ import {
 } from '../../composables/useDeclensionAI'
 import { DIFFICULTIES, DIFFICULTY_LABEL, type Difficulty } from '../../data/declension-ai'
 import { useSettings } from '../../composables/useSettings'
-import { makeGeminiClient } from '../../composables/useClaude'
+import { resolveAiClient } from '../../composables/localClaude'
 import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
 
@@ -26,7 +26,7 @@ const difficulty = ref<Difficulty>('medium')
 const aiCount = ref<number>(10)
 const aiFocusCases = ref<DeclCase[]>([...DECL_CASES])
 
-const { settings, hasApiKey, load: loadSettings } = useSettings()
+const { settings, canUseAi, load: loadSettings } = useSettings()
 onMounted(loadSettings)
 
 const aiGenerating = ref(false)
@@ -153,10 +153,13 @@ const loading = useLoading()
 const toast = useToast()
 
 async function startAI() {
-  if (!hasApiKey.value) {
-    toast.error('Gemini API key required', {
-      description: 'Set your API key in Settings before using AI mode.'
-    })
+  if (!canUseAi.value) {
+    toast.error(
+      settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
+      { description: settings.value.aiProvider === 'local-claude'
+          ? 'Run the app with npm run dev, or switch to Gemini in Settings.'
+          : 'Set your API key in Settings before using AI.' }
+    )
     return
   }
   aiGenerating.value = true
@@ -165,7 +168,7 @@ async function startAI() {
   try {
     const result = await loading.wrap(
       async () => {
-        const client = makeGeminiClient(settings.value.geminiApiKey)
+        const client = resolveAiClient(settings.value)
         const focusedCases = aiFocusCases.value.length > 0 && aiFocusCases.value.length < DECL_CASES.length
           ? aiFocusCases.value
           : undefined
@@ -343,9 +346,9 @@ function back() { router.push({ name: 'declension' }) }
     </template>
 
     <template v-else>
-      <div v-if="!hasApiKey" class="alert alert-warning">
-        <span class="alert-label">Required</span>
-        Set your Gemini API key in <router-link :to="{ name: 'settings' }">Settings</router-link> first.
+      <div v-if="!canUseAi" class="alert alert-warning">
+        <span class="alert-label">AI access needed</span>
+        Set a Gemini API key, or pick <em>Local Claude (dev)</em>, in <router-link :to="{ name: 'settings' }">Settings</router-link>.
       </div>
 
       <div class="field">
@@ -433,7 +436,7 @@ function back() { router.push({ name: 'declension' }) }
         v-else
         class="btn btn-accent btn-meta"
         type="button"
-        :disabled="!hasApiKey || aiGenerating || aiFocusCases.length === 0"
+        :disabled="!canUseAi || aiGenerating || aiFocusCases.length === 0"
         @click="startAI"
       >
         <span class="bm-main">{{ aiGenerating ? 'Generating…' : 'Generate &amp; start' }} <span v-if="!aiGenerating" aria-hidden="true">→</span></span>

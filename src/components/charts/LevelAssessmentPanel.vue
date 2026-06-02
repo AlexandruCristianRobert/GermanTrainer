@@ -6,7 +6,7 @@ import type { QuizHistoryEntry } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
 import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
-import { makeGeminiClient } from '../../composables/useClaude'
+import { resolveAiClient } from '../../composables/localClaude'
 import {
   ASSESSMENT_MODULES,
   assessLevel,
@@ -22,7 +22,7 @@ const props = defineProps<{
   historyEntries: QuizHistoryEntry[]
 }>()
 
-const { settings, hasApiKey, load: loadSettings } = useSettings()
+const { settings, canUseAi, load: loadSettings } = useSettings()
 const loading = useLoading()
 const toast = useToast()
 
@@ -120,8 +120,13 @@ function fmtRelTime(ts: number): string {
 }
 
 async function runAssessment(): Promise<void> {
-  if (!hasApiKey.value) {
-    toast.error('Gemini API key missing', { description: 'Add your key in Settings first.' })
+  if (!canUseAi.value) {
+    toast.error(
+      settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
+      { description: settings.value.aiProvider === 'local-claude'
+          ? 'Run the app with npm run dev, or switch to Gemini in Settings.'
+          : 'Set your API key in Settings before using AI.' }
+    )
     return
   }
   loading.show(
@@ -129,7 +134,7 @@ async function runAssessment(): Promise<void> {
     `Gemini is reviewing ${props.stats.totalRuns} run${props.stats.totalRuns === 1 ? '' : 's'}`
   )
   try {
-    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const client = resolveAiClient(settings.value)
     const fresh = await assessLevel(client, settings.value.model, props.stats)
     fresh.historySignature = currentSignature.value
     persistAssessment(fresh)
@@ -158,10 +163,10 @@ async function runAssessment(): Promise<void> {
       based on the actual numbers in your history.
     </div>
 
-    <!-- Has runs but no API key -->
-    <div v-else-if="settingsLoaded && !hasApiKey" class="alert alert-warning la-alert">
-      <span class="alert-label">Required</span>
-      Set your Gemini API key in
+    <!-- Has runs but no AI access -->
+    <div v-else-if="settingsLoaded && !canUseAi" class="alert alert-warning la-alert">
+      <span class="alert-label">AI access needed</span>
+      Set a Gemini API key, or pick <em>Local Claude (dev)</em>, in
       <router-link :to="{ name: 'settings' }">Settings</router-link>
       to enable the AI level assessment.
     </div>
@@ -192,7 +197,7 @@ async function runAssessment(): Promise<void> {
             class="btn"
             :class="result ? 'btn-ghost' : 'btn-accent'"
             type="button"
-            :disabled="settingsLoaded && !hasApiKey"
+            :disabled="settingsLoaded && !canUseAi"
             @click="runAssessment"
           >
             {{ ctaLabel }}

@@ -10,7 +10,7 @@ import {
   type TransformationType
 } from '../../data/passiv'
 import { judgePassiv } from '../../composables/usePassivQuiz'
-import { makeGeminiClient } from '../../composables/useClaude'
+import { resolveAiClient } from '../../composables/localClaude'
 import { useSettings } from '../../composables/useSettings'
 import { useToast } from '../../composables/useToast'
 
@@ -84,7 +84,7 @@ async function submit() {
   if (!q || q.submitted || q.judging) return
   q.judging = true
   try {
-    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const client = resolveAiClient(settings.value)
     q.judgement = await judgePassiv(client, settings.value.model, q.entry, q.userInput)
     q.submitted = true
   } catch (err) {

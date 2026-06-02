@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { KiDifficulty, KiJudgeResult, KiQuestion, KiTopic } from '../../data/konjunktiv'
 import { judgeKi } from '../../composables/useKonjunktivQuiz'
-import { makeGeminiClient } from '../../composables/useClaude'
+import { resolveAiClient } from '../../composables/localClaude'
 import { useSettings } from '../../composables/useSettings'
 import { useToast } from '../../composables/useToast'
 
@@ -76,7 +76,7 @@ async function submit() {
   if (!q || q.submitted || q.judging) return
   q.judging = true
   try {
-    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const client = resolveAiClient(settings.value)
     q.judgement = await judgeKi(client, settings.value.model, q.entry, q.userInput)
     q.submitted = true
   } catch (err) {

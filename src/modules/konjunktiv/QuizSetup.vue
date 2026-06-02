@@ -14,7 +14,7 @@ import {
   type KiGenerateResult
 } from '../../composables/useKonjunktivQuiz'
 import { useSettings } from '../../composables/useSettings'
-import { makeGeminiClient } from '../../composables/useClaude'
+import { resolveAiClient } from '../../composables/localClaude'
 import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
 
@@ -25,7 +25,7 @@ const difficulty = ref<KiDifficulty>('medium')
 const count = ref<number>(10)
 const topics = ref<KiTopic[]>([...KI_TOPICS])
 
-const { settings, hasApiKey, load: loadSettings } = useSettings()
+const { settings, canUseAi, load: loadSettings } = useSettings()
 onMounted(loadSettings)
 
 const generating = ref(false)
@@ -69,10 +69,13 @@ const loading = useLoading()
 const toast = useToast()
 
 async function start() {
-  if (!hasApiKey.value) {
-    toast.error('Gemini API key required', {
-      description: 'Set your API key in Settings before starting a session.'
-    })
+  if (!canUseAi.value) {
+    toast.error(
+      settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
+      { description: settings.value.aiProvider === 'local-claude'
+          ? 'Run the app with npm run dev, or switch to Gemini in Settings.'
+          : 'Set your API key in Settings before using AI.' }
+    )
     return
   }
   generating.value = true
@@ -81,7 +84,7 @@ async function start() {
   try {
     const result = await loading.wrap(
       async () => {
-        const client = makeGeminiClient(settings.value.geminiApiKey)
+        const client = resolveAiClient(settings.value)
         const focusTopics = topics.value.length > 0 && topics.value.length < KI_TOPICS.length
           ? topics.value
           : undefined
@@ -141,9 +144,9 @@ function back() { router.push({ name: 'konjunktiv' }) }
       </div>
     </header>
 
-    <div v-if="!hasApiKey" class="alert alert-warning">
-      <span class="alert-label">Required</span>
-      Set your Gemini API key in <router-link :to="{ name: 'settings' }">Settings</router-link> first.
+    <div v-if="!canUseAi" class="alert alert-warning">
+      <span class="alert-label">AI access needed</span>
+      Set a Gemini API key, or pick <em>Local Claude (dev)</em>, in <router-link :to="{ name: 'settings' }">Settings</router-link>.
     </div>
 
     <div class="field">
@@ -211,7 +214,7 @@ function back() { router.push({ name: 'konjunktiv' }) }
       <button
         class="btn btn-accent btn-meta"
         type="button"
-        :disabled="!hasApiKey || generating || topics.length === 0"
+        :disabled="!canUseAi || generating || topics.length === 0"
         @click="start"
       >
         <span class="bm-main">{{ generating ? 'Generating…' : 'Generate &amp; start' }} <span v-if="!generating" aria-hidden="true">→</span></span>
