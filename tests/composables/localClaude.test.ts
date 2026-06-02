@@ -1,7 +1,8 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   extractClaudeText, buildClaudeArgs,
-  LOCAL_AI_HEALTH_PATH, LOCAL_AI_GENERATE_PATH
+  LOCAL_AI_HEALTH_PATH, LOCAL_AI_GENERATE_PATH,
+  makeLocalClaudeClient, resolveAiClient, localClaudeAvailable, probeLocalClaude
 } from '../../src/composables/localClaude'
 
 describe('extractClaudeText', () => {
@@ -38,5 +39,52 @@ describe('path constants', () => {
   test('are under /api/ai', () => {
     expect(LOCAL_AI_HEALTH_PATH).toBe('/api/ai/health')
     expect(LOCAL_AI_GENERATE_PATH).toBe('/api/ai/generate')
+  })
+})
+
+describe('makeLocalClaudeClient', () => {
+  afterEach(() => { vi.unstubAllGlobals() })
+  test('POSTs contents+systemInstruction and returns { text }', async () => {
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ text: '{"items":[]}' }) }))
+    vi.stubGlobal('fetch', fetchMock)
+    const client = makeLocalClaudeClient()
+    const out = await client.models.generateContent({
+      model: 'ignored', contents: 'Translate X', config: { systemInstruction: 'Be terse' }
+    })
+    expect(out.text).toBe('{"items":[]}')
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body.contents).toBe('Translate X')
+    expect(body.systemInstruction).toBe('Be terse')
+  })
+  test('throws with the endpoint error message on non-ok', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 500, json: async () => ({ error: 'not logged in' }) })))
+    const client = makeLocalClaudeClient()
+    await expect(client.models.generateContent({ contents: 'x' })).rejects.toThrow('not logged in')
+  })
+})
+
+describe('resolveAiClient', () => {
+  test('returns a local client when aiProvider is local-claude', () => {
+    const c = resolveAiClient({ aiProvider: 'local-claude', geminiApiKey: '' })
+    expect(typeof c.models.generateContent).toBe('function')
+  })
+  test('returns a gemini client otherwise', () => {
+    const c = resolveAiClient({ aiProvider: 'gemini', geminiApiKey: 'AIzaTest' })
+    expect(typeof c.models.generateContent).toBe('function')
+  })
+})
+
+describe('probeLocalClaude', () => {
+  beforeEach(() => { localClaudeAvailable.value = false })
+  afterEach(() => { vi.unstubAllGlobals() })
+  test('sets availability true when health responds ok', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true })))
+    expect(await probeLocalClaude({ force: true })).toBe(true)
+    expect(localClaudeAvailable.value).toBe(true)
+  })
+  test('sets availability false when health throws', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('no server') }))
+    expect(await probeLocalClaude({ force: true })).toBe(false)
+    expect(localClaudeAvailable.value).toBe(false)
   })
 })
