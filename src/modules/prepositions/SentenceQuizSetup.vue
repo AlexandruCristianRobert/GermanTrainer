@@ -8,7 +8,7 @@ import { useNouns } from '../../composables/useNouns'
 import { useSettings } from '../../composables/useSettings'
 import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
-import { makeGeminiClient } from '../../composables/useClaude'
+import { resolveAiClient } from '../../composables/localClaude'
 import {
   pickPrepositions, buildSpecs, nounToRef, generateSentences,
   type NounsPerSentence
@@ -19,7 +19,7 @@ const STASH_KEY = 'gt:lastPrepSentenceQuiz'
 const router = useRouter()
 
 const { sampleByGroups, countsByGroup } = useNouns()
-const { settings, hasApiKey, load: loadSettings } = useSettings()
+const { settings, canUseAi, load: loadSettings } = useSettings()
 const loading = useLoading()
 const toast = useToast()
 
@@ -85,7 +85,7 @@ const effective = computed(() => count.value === 'custom' ? Math.max(1, customCo
 const selectedNounTotal = computed(() => groups.value.reduce((sum, g) => sum + (nounCounts.value[g] ?? 0), 0))
 
 const canStart = computed(() =>
-  hasApiKey.value && cases.value.length > 0 && availablePreps.value > 0 && selectedNounTotal.value > 0 && !generating.value
+  canUseAi.value && cases.value.length > 0 && availablePreps.value > 0 && selectedNounTotal.value > 0 && !generating.value
 )
 
 function toggle<T>(set: T[], v: T): T[] {
@@ -94,8 +94,13 @@ function toggle<T>(set: T[], v: T): T[] {
 }
 
 async function start() {
-  if (!hasApiKey.value) {
-    toast.error('Gemini API key required', { description: 'Set your API key in Settings before generating sentences.' })
+  if (!canUseAi.value) {
+    toast.error(
+      settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
+      { description: settings.value.aiProvider === 'local-claude'
+          ? 'Run the app with npm run dev, or switch to Gemini in Settings.'
+          : 'Set your API key in Settings before generating sentences.' }
+    )
     return
   }
   if (!canStart.value) return
@@ -104,7 +109,7 @@ async function start() {
     const n = effective.value
     const result = await loading.wrap(
       async () => {
-        const client = makeGeminiClient(settings.value.geminiApiKey)
+        const client = resolveAiClient(settings.value)
         const nounPool = (await sampleByGroups(groups.value, 100000)).map(nounToRef)
         const pool = filterPrepositions({ cases: cases.value })
         const chosen = pickPrepositions(pool, n)
@@ -140,7 +145,6 @@ async function start() {
 }
 
 function back() { router.push({ name: 'prepositions' }) }
-function goSettings() { router.push({ name: 'settings' }) }
 </script>
 
 <template>
@@ -156,10 +160,9 @@ function goSettings() { router.push({ name: 'settings' }) }
       </div>
     </header>
 
-    <div v-if="!hasApiKey" class="alert alert-warning">
-      <span class="alert-label">API key needed</span>
-      This quiz generates sentences with Gemini. Add your API key in
-      <button class="link-btn" type="button" @click="goSettings">Settings</button> first.
+    <div v-if="!canUseAi" class="alert alert-warning">
+      <span class="alert-label">AI access needed</span>
+      Set a Gemini API key, or pick <em>Local Claude (dev)</em>, in Settings.
     </div>
 
     <div class="field">
