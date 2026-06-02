@@ -61,12 +61,18 @@ export interface Adjective {
 }
 
 export type AiProvider = 'gemini' | 'local-claude'
+export type LocalClaudeModel = 'sonnet' | 'haiku' | 'opus'
+export type LocalClaudeEffort = 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 
 export interface Settings {
   id: 'singleton'
   geminiApiKey: string
   model: string
   aiProvider: AiProvider
+  /** Local-Claude only: which Claude model the dev endpoint runs. */
+  localClaudeModel: LocalClaudeModel
+  /** Local-Claude only: effort/speed tradeoff for the dev endpoint. */
+  localClaudeEffort: LocalClaudeEffort
 }
 
 export const DEFAULT_MODEL = 'gemini-2.5-flash'

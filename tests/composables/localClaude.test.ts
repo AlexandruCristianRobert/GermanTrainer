@@ -27,11 +27,29 @@ describe('extractClaudeText', () => {
 })
 
 describe('buildClaudeArgs', () => {
-  test('base args request headless JSON', () => {
-    expect(buildClaudeArgs({})).toEqual(['-p', '--output-format', 'json'])
+  test('base args run a lean headless JSON call (no session, no MCP, lean system prompt, effort low)', () => {
+    const a = buildClaudeArgs({})
+    expect(a.slice(0, 3)).toEqual(['-p', '--output-format', 'json'])
+    expect(a).toContain('--no-session-persistence')
+    expect(a).toContain('--strict-mcp-config')
+    expect(a).toContain('--system-prompt')
+    expect(a[a.indexOf('--effort') + 1]).toBe('low') // default effort
+    expect(a).not.toContain('--model')               // no model by default
   })
-  test('adds --model only when provided', () => {
-    expect(buildClaudeArgs({ model: 'sonnet' })).toEqual(['-p', '--output-format', 'json', '--model', 'sonnet'])
+  test('uses a valid effort level', () => {
+    expect(buildClaudeArgs({ effort: 'high' })[buildClaudeArgs({ effort: 'high' }).indexOf('--effort') + 1]).toBe('high')
+  })
+  test('falls back to effort low for an invalid level', () => {
+    const a = buildClaudeArgs({ effort: 'turbo' })
+    expect(a[a.indexOf('--effort') + 1]).toBe('low')
+  })
+  test('adds --model only for an allow-listed alias', () => {
+    const a = buildClaudeArgs({ model: 'opus' })
+    expect(a[a.indexOf('--model') + 1]).toBe('opus')
+  })
+  test('rejects a non-allow-listed model (gemini id or injection attempt)', () => {
+    expect(buildClaudeArgs({ model: 'gemini-2.5-flash' })).not.toContain('--model')
+    expect(buildClaudeArgs({ model: 'x & calc' })).not.toContain('--model')
   })
 })
 
@@ -60,6 +78,15 @@ describe('makeLocalClaudeClient', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 500, json: async () => ({ error: 'not logged in' }) })))
     const client = makeLocalClaudeClient()
     await expect(client.models.generateContent({ contents: 'x' })).rejects.toThrow('not logged in')
+  })
+  test('forwards model + effort in the request body', async () => {
+    const fetchMock = vi.fn(async (_url: string, _init: RequestInit) => ({ ok: true, json: async () => ({ text: '{}' }) }))
+    vi.stubGlobal('fetch', fetchMock)
+    const client = makeLocalClaudeClient({ model: 'opus', effort: 'high' })
+    await client.models.generateContent({ contents: 'x' })
+    const body = JSON.parse(fetchMock.mock.calls[0]![1].body as string)
+    expect(body.model).toBe('opus')
+    expect(body.effort).toBe('high')
   })
 })
 

@@ -24,10 +24,35 @@ export function extractClaudeText(stdout: string): string {
   return text
 }
 
-/** Fixed CLI flags for a one-shot headless JSON generation (no untrusted args). */
-export function buildClaudeArgs(opts: { model?: string }): string[] {
-  const args = ['-p', '--output-format', 'json']
-  if (opts.model) args.push('--model', opts.model)
+// A minimal system prompt that REPLACES Claude Code's default agentic prompt,
+// so a generation call behaves like a plain, fast LLM (no CLAUDE.md / tool /
+// agent overhead). Fixed ASCII — safe on argv even under shell:true on Windows.
+export const LEAN_SYSTEM_PROMPT = 'Output only what the user asks. No preamble and no markdown code fences.'
+export const CLAUDE_EFFORT_LEVELS = ['low', 'medium', 'high', 'xhigh', 'max'] as const
+export const CLAUDE_MODELS = ['sonnet', 'haiku', 'opus'] as const
+export type ClaudeEffort = (typeof CLAUDE_EFFORT_LEVELS)[number]
+export type ClaudeModel = (typeof CLAUDE_MODELS)[number]
+
+/**
+ * CLI args for a lean, fast, one-shot structured generation. Effort and model
+ * are validated against allow-lists HERE — the security boundary, so nothing
+ * untrusted ever reaches argv — and an absent/invalid effort falls back to
+ * 'low'. Skips MCP servers, session persistence, and the agentic system prompt
+ * (the prompt + the caller's instructions come in via stdin).
+ */
+export function buildClaudeArgs(opts: { model?: string; effort?: string }): string[] {
+  const effort = opts.effort && (CLAUDE_EFFORT_LEVELS as readonly string[]).includes(opts.effort)
+    ? opts.effort
+    : 'low'
+  const args = [
+    '-p', '--output-format', 'json',
+    '--no-session-persistence', '--strict-mcp-config',
+    '--system-prompt', LEAN_SYSTEM_PROMPT,
+    '--effort', effort
+  ]
+  if (opts.model && (CLAUDE_MODELS as readonly string[]).includes(opts.model)) {
+    args.push('--model', opts.model)
+  }
   return args
 }
 
@@ -48,7 +73,7 @@ export async function probeLocalClaude(opts: { force?: boolean } = {}): Promise<
 }
 
 /** AiClient that brokers generation through the dev-only /api/ai/generate endpoint. */
-export function makeLocalClaudeClient(): AiClient {
+export function makeLocalClaudeClient(opts: { model?: string; effort?: string } = {}): AiClient {
   return {
     models: {
       async generateContent(params: Record<string, unknown>) {
@@ -59,7 +84,12 @@ export function makeLocalClaudeClient(): AiClient {
         const res = await fetch(aiUrl(LOCAL_AI_GENERATE_PATH), {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ contents, systemInstruction: config.systemInstruction })
+          body: JSON.stringify({
+            contents,
+            systemInstruction: config.systemInstruction,
+            model: opts.model,
+            effort: opts.effort
+          })
         })
         if (!res.ok) {
           const e = await res.json().catch(() => ({} as { error?: string }))
@@ -73,8 +103,13 @@ export function makeLocalClaudeClient(): AiClient {
 }
 
 /** Pick the AI client based on the chosen provider. */
-export function resolveAiClient(settings: { aiProvider?: string; geminiApiKey: string }): AiClient {
+export function resolveAiClient(settings: {
+  aiProvider?: string
+  geminiApiKey: string
+  localClaudeModel?: string
+  localClaudeEffort?: string
+}): AiClient {
   return settings.aiProvider === 'local-claude'
-    ? makeLocalClaudeClient()
+    ? makeLocalClaudeClient({ model: settings.localClaudeModel, effort: settings.localClaudeEffort })
     : makeGeminiClient(settings.geminiApiKey)
 }

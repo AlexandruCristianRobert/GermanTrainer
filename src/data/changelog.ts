@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.09'
+export const APP_VERSION = '1.11.10'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.10', date: '2026-06-02', kind: 'fix',
+    title: 'Local Claude: faster, reliable generation + model & effort controls',
+    notes: [
+      '<strong>Fixed the timeouts and malformed responses.</strong> The local endpoint had been running the full Claude Code agent on every call (default system prompt, CLAUDE.md discovery, MCP servers, hooks, auto-memory) — slow enough to time out and variable enough to sometimes return the wrong JSON shape. It now runs <code>claude</code> lean: a minimal system prompt replacing the agentic one, MCP servers skipped (<code>--strict-mcp-config</code>), no session persistence, and a request timeout that returns a clear error instead of hanging. Typical generations dropped from ~12–14s to ~4–6s.',
+      '<strong>Pick the model and effort.</strong> Settings → API → Local Claude now lets you choose the Claude model (<em>haiku</em> fastest · <em>sonnet</em> balanced · <em>opus</em> most capable) and an effort level (<em>low</em> … <em>max</em>) to trade speed for thoroughness. Both are validated against an allow-list before reaching the CLI, so nothing untrusted hits the command line.'
+    ]
+  },
   {
     version: '1.11.09', date: '2026-06-02', kind: 'module',
     title: 'Local Claude AI provider (dev only)',

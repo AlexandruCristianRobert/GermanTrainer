@@ -64,6 +64,26 @@ async function onTest() {
         <code>claude</code> CLI logged in; the deployed site can't use it.
         <button type="button" class="btn btn-quiet" @click="recheckLocal">Re-check</button>
       </div>
+
+      <div class="field">
+        <label class="field-label" for="lc-model">Claude model</label>
+        <select id="lc-model" class="select" v-model="settings.localClaudeModel">
+          <option value="haiku">haiku — fastest</option>
+          <option value="sonnet">sonnet — balanced</option>
+          <option value="opus">opus — most capable</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="lc-effort">Effort — faster vs. more thorough</label>
+        <select id="lc-effort" class="select" v-model="settings.localClaudeEffort">
+          <option value="low">low — fastest</option>
+          <option value="medium">medium</option>
+          <option value="high">high</option>
+          <option value="xhigh">xhigh</option>
+          <option value="max">max — slowest, most thorough</option>
+        </select>
+      </div>
     </template>
 
     <template v-if="settings.aiProvider === 'gemini'">
