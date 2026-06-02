@@ -4,6 +4,16 @@ import { makeGeminiClient, type AiClient } from './useClaude'
 export const LOCAL_AI_HEALTH_PATH = '/api/ai/health'
 export const LOCAL_AI_GENERATE_PATH = '/api/ai/generate'
 
+/**
+ * Resolve an API path under Vite's configured base (e.g. "/GermanTrainer/"),
+ * since Vite's dev server rejects requests outside the base. In tests the base
+ * is "/" so this is a no-op.
+ */
+export function aiUrl(path: string): string {
+  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+  return base + path
+}
+
 /** Parse the `claude -p --output-format json` envelope and return clean text. */
 export function extractClaudeText(stdout: string): string {
   const env = JSON.parse(stdout) as { result?: unknown }
@@ -29,7 +39,7 @@ export async function probeLocalClaude(opts: { force?: boolean } = {}): Promise<
   if (probed && !opts.force) return localClaudeAvailable.value
   probed = true
   try {
-    const res = await fetch(LOCAL_AI_HEALTH_PATH, { method: 'GET' })
+    const res = await fetch(aiUrl(LOCAL_AI_HEALTH_PATH), { method: 'GET' })
     localClaudeAvailable.value = !!res.ok
   } catch {
     localClaudeAvailable.value = false
@@ -46,7 +56,7 @@ export function makeLocalClaudeClient(): AiClient {
           ? params.contents
           : JSON.stringify(params.contents ?? '')
         const config = (params.config ?? {}) as { systemInstruction?: string }
-        const res = await fetch(LOCAL_AI_GENERATE_PATH, {
+        const res = await fetch(aiUrl(LOCAL_AI_GENERATE_PATH), {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ contents, systemInstruction: config.systemInstruction })

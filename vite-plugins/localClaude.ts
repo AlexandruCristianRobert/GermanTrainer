@@ -5,17 +5,33 @@ import {
   LOCAL_AI_HEALTH_PATH, LOCAL_AI_GENERATE_PATH
 } from '../src/composables/localClaude'
 
+/**
+ * Dev-only endpoint that brokers AI generation through the local `claude` CLI
+ * (the user's Claude Code subscription — no API key). Absent from production
+ * builds (`apply: 'serve'`). The browser calls these under Vite's base
+ * (e.g. /GermanTrainer/api/ai/...) and Vite does NOT strip the base before
+ * middlewares run, so we match the base-prefixed paths here.
+ */
 export function localClaudePlugin(): Plugin {
   return {
     name: 'local-claude-dev',
-    apply: 'serve', // dev server only — absent from `vite build`
+    apply: 'serve',
     configureServer(server) {
-      server.middlewares.use(LOCAL_AI_HEALTH_PATH, (_req, res) => {
-        res.setHeader('content-type', 'application/json')
-        res.end(JSON.stringify({ ok: true }))
-      })
+      const base = (server.config.base || '/').replace(/\/$/, '')
+      const healthPath = base + LOCAL_AI_HEALTH_PATH
+      const generatePath = base + LOCAL_AI_GENERATE_PATH
 
-      server.middlewares.use(LOCAL_AI_GENERATE_PATH, (req, res) => {
+      server.middlewares.use((req, res, next) => {
+        const url = (req.url || '').split('?')[0]
+
+        if (url === healthPath) {
+          res.setHeader('content-type', 'application/json')
+          res.end(JSON.stringify({ ok: true }))
+          return
+        }
+
+        if (url !== generatePath) { next(); return }
+
         if (req.method !== 'POST') { res.statusCode = 405; res.end(); return }
         let raw = ''
         req.on('data', c => { raw += c })
