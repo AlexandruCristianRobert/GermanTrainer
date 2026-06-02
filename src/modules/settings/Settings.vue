@@ -21,7 +21,7 @@ const TABS: TabSpec[] = [
     numeral: 'I',
     titleDe: 'Schlüssel',
     titleEn: 'API · Gemini',
-    blurb: 'Set your Gemini API key and pick a model. Required only for the Adjectives quiz.'
+    blurb: 'Choose an AI provider — your Gemini API key, or local Claude when running in dev.'
   },
   {
     id: 'display',

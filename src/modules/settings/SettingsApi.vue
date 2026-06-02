@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useSettings } from '../../composables/useSettings'
-import { makeGeminiClient, generateAdjectiveSentences } from '../../composables/useClaude'
+import { generateAdjectiveSentences } from '../../composables/useClaude'
+import { resolveAiClient, localClaudeAvailable, probeLocalClaude } from '../../composables/localClaude'
 
 const { settings, load, save } = useSettings()
 
@@ -10,7 +11,10 @@ const testState = ref<'idle' | 'testing' | 'ok' | 'error'>('idle')
 const testError = ref('')
 const savedFlash = ref(false)
 
-onMounted(load)
+onMounted(async () => {
+  await load()
+  await probeLocalClaude({ force: true })
+})
 
 async function onSave() {
   await save()
@@ -18,12 +22,14 @@ async function onSave() {
   setTimeout(() => { savedFlash.value = false }, 2000)
 }
 
+async function recheckLocal() { await probeLocalClaude({ force: true }) }
+
 async function onTest() {
-  if (!settings.value.geminiApiKey.trim()) return
+  if (settings.value.aiProvider === 'gemini' && !settings.value.geminiApiKey.trim()) return
   testState.value = 'testing'
   testError.value = ''
   try {
-    const client = makeGeminiClient(settings.value.geminiApiKey)
+    const client = resolveAiClient(settings.value)
     await generateAdjectiveSentences(client, {
       model: settings.value.model,
       adjectives: [{ german: 'schön', english: 'beautiful' }]
@@ -38,43 +44,67 @@ async function onTest() {
 
 <template>
   <section>
-    <div class="alert alert-warning">
-      <span class="alert-label">Privacy</span>
-      Your API key is stored only in this browser. It is sent directly to Google's Gemini API and to nobody else.
-    </div>
-
     <div class="field">
-      <label class="field-label" for="gemini-key">Gemini API key</label>
-      <div class="key-row">
-        <input
-          id="gemini-key"
-          class="input key-input"
-          :type="showKey ? 'text' : 'password'"
-          placeholder="AIzaSy…"
-          v-model="settings.geminiApiKey"
-          autocomplete="off"
-        />
-        <button type="button" class="btn btn-quiet" @click="showKey = !showKey">
-          {{ showKey ? 'Hide' : 'Show' }}
-        </button>
+      <div class="field-label">AI provider</div>
+      <div class="segmented">
+        <button :class="{ active: settings.aiProvider === 'gemini' }" @click="settings.aiProvider = 'gemini'">Gemini (API key)</button>
+        <button :class="{ active: settings.aiProvider === 'local-claude' }" @click="settings.aiProvider = 'local-claude'">Local Claude (dev)</button>
       </div>
     </div>
 
-    <div class="field">
-      <label class="field-label" for="gemini-model">Model</label>
-      <select id="gemini-model" class="select" v-model="settings.model">
-        <option value="gemini-2.5-flash">gemini-2.5-flash — default, free tier</option>
-        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite — cheapest</option>
-        <option value="gemini-2.5-pro">gemini-2.5-pro — most capable</option>
-      </select>
-    </div>
+    <template v-if="settings.aiProvider === 'local-claude'">
+      <div v-if="localClaudeAvailable" class="alert alert-info">
+        <span class="alert-label">Local endpoint detected</span>
+        Generation runs through your Claude Code login on this machine — no API key needed.
+        Works only while the app runs via <code>npm run dev</code>.
+      </div>
+      <div v-else class="alert alert-warning">
+        <span class="alert-label">Not reachable</span>
+        No local endpoint. This only works when you run the app with <code>npm run dev</code> and have the
+        <code>claude</code> CLI logged in; the deployed site can't use it.
+        <button type="button" class="btn btn-quiet" @click="recheckLocal">Re-check</button>
+      </div>
+    </template>
+
+    <template v-if="settings.aiProvider === 'gemini'">
+      <div class="alert alert-warning">
+        <span class="alert-label">Privacy</span>
+        Your API key is stored only in this browser. It is sent directly to Google's Gemini API and to nobody else.
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="gemini-key">Gemini API key</label>
+        <div class="key-row">
+          <input
+            id="gemini-key"
+            class="input key-input"
+            :type="showKey ? 'text' : 'password'"
+            placeholder="AIzaSy…"
+            v-model="settings.geminiApiKey"
+            autocomplete="off"
+          />
+          <button type="button" class="btn btn-quiet" @click="showKey = !showKey">
+            {{ showKey ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="gemini-model">Model</label>
+        <select id="gemini-model" class="select" v-model="settings.model">
+          <option value="gemini-2.5-flash">gemini-2.5-flash — default, free tier</option>
+          <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite — cheapest</option>
+          <option value="gemini-2.5-pro">gemini-2.5-pro — most capable</option>
+        </select>
+      </div>
+    </template>
 
     <div class="settings-actions">
       <button type="button" class="btn btn-accent" @click="onSave">Save</button>
       <button
         type="button"
         class="btn btn-ghost"
-        :disabled="!settings.geminiApiKey.trim() || testState === 'testing'"
+        :disabled="(settings.aiProvider === 'gemini' && !settings.geminiApiKey.trim()) || (settings.aiProvider === 'local-claude' && !localClaudeAvailable) || testState === 'testing'"
         @click="onTest"
       >
         {{ testState === 'testing' ? 'Testing…' : 'Test connection' }}
