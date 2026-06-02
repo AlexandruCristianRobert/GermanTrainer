@@ -60,10 +60,13 @@ export interface Adjective {
   createdAt: number
 }
 
+export type AiProvider = 'gemini' | 'local-claude'
+
 export interface Settings {
   id: 'singleton'
   geminiApiKey: string
   model: string
+  aiProvider: AiProvider
 }
 
 export const DEFAULT_MODEL = 'gemini-2.5-flash'

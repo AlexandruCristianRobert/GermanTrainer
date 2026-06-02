@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, test } from 'vitest'
 import { db } from '../../src/db'
 import { useSettings } from '../../src/composables/useSettings'
+import { localClaudeAvailable } from '../../src/composables/localClaude'
 
 describe('useSettings', () => {
   beforeEach(async () => {
@@ -63,4 +64,24 @@ describe('useSettings', () => {
     expect(settings.value.geminiApiKey).toBe('')
     expect(settings.value.model).toBe('gemini-2.5-flash')
   })
+})
+
+test('defaults aiProvider to gemini and computes canUseAi from the key', () => {
+  const { settings, hasApiKey, canUseAi } = useSettings()
+  settings.value.aiProvider = 'gemini'
+  settings.value.geminiApiKey = ''
+  expect(canUseAi.value).toBe(false)
+  settings.value.geminiApiKey = 'AIzaTest'
+  expect(hasApiKey.value).toBe(true)
+  expect(canUseAi.value).toBe(true)
+})
+
+test('under local-claude, canUseAi follows endpoint availability not the key', () => {
+  const { settings, canUseAi } = useSettings()
+  settings.value.aiProvider = 'local-claude'
+  settings.value.geminiApiKey = ''
+  localClaudeAvailable.value = false
+  expect(canUseAi.value).toBe(false)
+  localClaudeAvailable.value = true
+  expect(canUseAi.value).toBe(true)
 })

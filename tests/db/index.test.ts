@@ -38,7 +38,7 @@ describe('db', () => {
   })
 
   it('stores singleton settings row', async () => {
-    await db.settings.put({ id: 'singleton', geminiApiKey: 'AIzaTest', model: 'gemini-2.5-flash' })
+    await db.settings.put({ id: 'singleton', geminiApiKey: 'AIzaTest', model: 'gemini-2.5-flash', aiProvider: 'gemini' })
     const s = await db.settings.get('singleton')
     expect(s?.geminiApiKey).toBe('AIzaTest')
   })

@@ -1,12 +1,14 @@
 import { computed, ref } from 'vue'
 import { db } from '../db'
 import { DEFAULT_MODEL, type Settings } from '../db/types'
+import { localClaudeAvailable, probeLocalClaude } from './localClaude'
 
 export function useSettings() {
   const settings = ref<Settings>({
     id: 'singleton',
     geminiApiKey: '',
-    model: DEFAULT_MODEL
+    model: DEFAULT_MODEL,
+    aiProvider: 'gemini'
   })
 
   async function load(): Promise<void> {
@@ -17,9 +19,11 @@ export function useSettings() {
       settings.value = {
         id: 'singleton',
         geminiApiKey: stored.geminiApiKey ?? (legacyKey && legacyKey.startsWith('AIza') ? legacyKey : ''),
-        model: modelOk ? stored.model : DEFAULT_MODEL
+        model: modelOk ? stored.model : DEFAULT_MODEL,
+        aiProvider: stored.aiProvider === 'local-claude' ? 'local-claude' : 'gemini'
       }
     }
+    void probeLocalClaude()
   }
 
   async function save(): Promise<void> {
@@ -27,6 +31,9 @@ export function useSettings() {
   }
 
   const hasApiKey = computed(() => settings.value.geminiApiKey.trim().length > 0)
+  const canUseAi = computed(() =>
+    settings.value.aiProvider === 'local-claude' ? localClaudeAvailable.value : hasApiKey.value
+  )
 
-  return { settings, hasApiKey, load, save }
+  return { settings, hasApiKey, canUseAi, load, save }
 }
