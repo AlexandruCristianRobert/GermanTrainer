@@ -45,14 +45,14 @@ describe('path constants', () => {
 describe('makeLocalClaudeClient', () => {
   afterEach(() => { vi.unstubAllGlobals() })
   test('POSTs contents+systemInstruction and returns { text }', async () => {
-    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ text: '{"items":[]}' }) }))
+    const fetchMock = vi.fn(async (_url: string, _init: RequestInit) => ({ ok: true, json: async () => ({ text: '{"items":[]}' }) }))
     vi.stubGlobal('fetch', fetchMock)
     const client = makeLocalClaudeClient()
     const out = await client.models.generateContent({
       model: 'ignored', contents: 'Translate X', config: { systemInstruction: 'Be terse' }
     })
     expect(out.text).toBe('{"items":[]}')
-    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    const body = JSON.parse(fetchMock.mock.calls[0]![1].body as string)
     expect(body.contents).toBe('Translate X')
     expect(body.systemInstruction).toBe('Be terse')
   })
