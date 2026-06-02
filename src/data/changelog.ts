@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.08'
+export const APP_VERSION = '1.11.09'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.09', date: '2026-06-02', kind: 'module',
+    title: 'Local Claude AI provider (dev only)',
+    notes: [
+      '<strong>Run the AI features through your Claude Code login — no API key.</strong> Settings → API now has an <em>AI provider</em> choice: <em>Gemini (API key)</em> or <em>Local Claude (dev)</em>. Pick Local Claude and every AI feature (sentence quiz, adjective sentences, declension-AI, Konjunktiv, Passiv, writing grader, level assessment, simulator) routes through a small local endpoint that runs the <code>claude</code> CLI on your machine — no key pasted anywhere.',
+      '<strong>Dev-only by nature.</strong> The local endpoint only exists while you run the app with <code>npm run dev</code> (it’s a Vite dev-server middleware). The deployed site is a static bundle with no server, so it stays on Gemini — there the Local Claude option simply shows as <em>not reachable</em>. Selection is manual; nothing auto-switches.',
+      '<strong>Under the hood.</strong> The browser talks only to <code>localhost</code>; the dev middleware runs <code>claude -p --output-format json</code> with your existing subscription (the API key is stripped from its environment to force subscription auth), and the prompt is piped via stdin so nothing untrusted reaches the command line.'
+    ]
+  },
   {
     version: '1.11.08', date: '2026-06-01', kind: 'module',
     title: 'Prepositions: AI sentence-translation quiz',
