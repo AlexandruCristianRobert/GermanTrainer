@@ -36,7 +36,7 @@ export function localClaudePlugin(): Plugin {
         let raw = ''
         req.on('data', c => { raw += c })
         req.on('end', () => {
-          let body: { contents?: string; systemInstruction?: string; model?: string }
+          let body: { contents?: string; systemInstruction?: string }
           try { body = JSON.parse(raw || '{}') }
           catch { res.statusCode = 400; res.end(JSON.stringify({ error: 'invalid JSON body' })); return }
 
@@ -49,7 +49,10 @@ export function localClaudePlugin(): Plugin {
           const env = { ...process.env }
           delete env.ANTHROPIC_API_KEY // force subscription auth
 
-          const child = spawn('claude', buildClaudeArgs({ model: body.model }), {
+          // No untrusted input ever reaches argv: the prompt goes via stdin, and
+          // we never forward a caller-supplied model (avoids shell injection on
+          // Windows where spawn runs with shell: true). The CLI uses its default model.
+          const child = spawn('claude', buildClaudeArgs({}), {
             env,
             shell: process.platform === 'win32' // .cmd shim needs a shell on Windows
           })
