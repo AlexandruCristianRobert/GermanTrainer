@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.10'
+export const APP_VERSION = '1.11.11'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.11', date: '2026-06-05', kind: 'polish',
+    title: 'Prepositions · sentence quiz: both directions + AI grading with tips',
+    notes: [
+      '<strong>Translate either way.</strong> The AI sentence-translation drill (<em>Satzübersetzung</em>) now lets you pick the direction in Setup: <em>English → German</em> (read the English, type the German — as before) or the new <em>German → English</em> (read the German, type the English). One direction per quiz.',
+      '<strong>Choose how answers are graded.</strong> A new <em>Grading</em> switch offers <em>Exact match</em> — the instant local check that forgives only case, punctuation and spacing — or <em>AI</em>, where the model judges each answer, accepts valid alternative phrasings, and adds a short <em>tip</em> pinpointing what went wrong when you miss. The two switches are independent, so all four combinations work.',
+      '<strong>Graceful under failure.</strong> AI grading runs one quick check per answer (with a brief <em>Checking…</em> state); if the grader is ever unreachable it silently falls back to the exact-match check so the quiz never stalls. Your chosen direction and grading mode are recorded in quiz history.'
+    ]
+  },
   {
     version: '1.11.10', date: '2026-06-02', kind: 'fix',
     title: 'Local Claude: faster, reliable generation + model & effort controls',
