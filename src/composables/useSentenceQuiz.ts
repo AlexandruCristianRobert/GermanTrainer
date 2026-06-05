@@ -25,6 +25,20 @@ export interface NounRef {
 
 export type NounsPerSentence = 1 | 2 | 'mix'
 
+/**
+ * Which way the learner translates:
+ *  - 'en-de': shown the English, types the German.
+ *  - 'de-en': shown the German, types the English.
+ */
+export type Direction = 'en-de' | 'de-en'
+
+/**
+ * How a typed answer is judged:
+ *  - 'ai':    sent to the model for a lenient, meaning-aware grade (+ a coaching tip).
+ *  - 'exact': checked locally against the reference (case/punctuation/whitespace forgiving).
+ */
+export type GradingMode = 'ai' | 'exact'
+
 /** A preposition + its assigned noun(s), before the AI writes the sentence. */
 export interface SentenceSpec {
   index: number
@@ -46,6 +60,8 @@ export interface SentenceVerdict {
   correct: boolean
   /** The reference German translation — shown when the answer is wrong. */
   correction: string
+  /** A short coaching note from the AI grader pinpointing the mistake (when wrong). */
+  tip?: string
 }
 
 // ───────────────────────────── Pure helpers ───────────────────────────
@@ -305,4 +321,154 @@ export async function generateSentences(
     .filter(s => accepted.has(s.index))
     .map(s => accepted.get(s.index) as GeneratedSentence)
   return { sentences, rejected, attempts }
+}
+
+// ──────────────────────────── AI grading ──────────────────────────────
+//
+// When the learner picks AI grading, the typed answer is judged for *meaning*
+// rather than exact-matched against the reference. We send the source sentence,
+// the reference translation, the target preposition + its case, and the
+// learner's answer, and ask the model to return JSON {correct, tip}. On a wrong
+// answer the model returns ONE short English coaching tip pinpointing the
+// mistake (wrong case, wrong/missing preposition, wrong word, meaning drift).
+// The call mirrors useWritingGrader's gradeDraft: temperature 0, JSON schema,
+// JSON.parse + pure validation, with a single retry. If both attempts fail it
+// THROWS so the Runner can fall back to a local exact check — we never invent a
+// default grade.
+
+export interface GradeAnswerOptions {
+  model: string
+  direction: Direction
+  english: string      // reference English sentence (generated up front)
+  german: string       // reference German sentence (generated up front)
+  prepGerman: string   // target preposition, e.g. "mit"
+  prepEnglish: string  // its English gloss, e.g. "with"
+  case: PrepCase       // 'accusative' | 'dative' | 'genitive' | 'two-way'
+  userAnswer: string   // what the learner typed
+}
+
+export interface AnswerGrade {
+  correct: boolean
+  tip?: string
+}
+
+const GRADE_SCHEMA = {
+  type: 'object',
+  properties: {
+    correct: { type: 'boolean' },
+    tip: { type: 'string' }
+  },
+  required: ['correct']
+}
+
+/**
+ * Build the (pure, testable) system + user prompt for grading one answer.
+ * The instructions and labelling depend on the translation direction.
+ */
+export function buildGradePrompt(opts: GradeAnswerOptions): { system: string; user: string } {
+  const caseName = caseLabel(opts.case)
+  const common =
+    'You are a German teacher grading one translation exercise. Respond ONLY as ' +
+    'JSON matching the schema {"correct": boolean, "tip": string} — no prose, no ' +
+    'markdown fences. Set "correct" to true when the learner\'s answer is an ' +
+    'acceptable translation, false otherwise. If "correct" is false, set "tip" to ' +
+    'ONE short English sentence pinpointing the specific mistake (wrong case, ' +
+    'wrong or missing preposition, wrong word, or a drift in meaning). When ' +
+    '"correct" is true, "tip" may be an empty string.'
+
+  if (opts.direction === 'en-de') {
+    const system =
+      common +
+      ' The learner was shown the ENGLISH sentence and typed a GERMAN translation. ' +
+      'Judge whether the German is a correct, grammatical translation of the English ' +
+      `that uses the target preposition "${opts.prepGerman}" in the ${caseName}. ` +
+      'Accept natural alternative phrasings and word order — do not require an exact ' +
+      'match to the reference.'
+    const user =
+      `ENGLISH (source shown to the learner): ${opts.english}\n` +
+      `GERMAN (reference translation): ${opts.german}\n` +
+      `TARGET PREPOSITION: "${opts.prepGerman}" (${opts.prepEnglish}), governs ${caseName}.\n` +
+      `LEARNER'S GERMAN ANSWER: ${opts.userAnswer}`
+    return { system, user }
+  }
+
+  // direction === 'de-en'
+  const system =
+    common +
+    ' The learner was shown the GERMAN sentence and typed an ENGLISH translation. ' +
+    'Judge whether the learner\'s English correctly conveys the meaning of the ' +
+    'German sentence. Accept paraphrases and synonyms — meaning matters, not an ' +
+    'exact match to the reference.'
+  const user =
+    `GERMAN (source shown to the learner): ${opts.german}\n` +
+    `ENGLISH (reference translation): ${opts.english}\n` +
+    `TARGET PREPOSITION: "${opts.prepGerman}" (${opts.prepEnglish}), governs ${caseName}.\n` +
+    `LEARNER'S ENGLISH ANSWER: ${opts.userAnswer}`
+  return { system, user }
+}
+
+/**
+ * Pure validator for the grader's JSON. Returns null for non-objects or when
+ * `correct` is not a boolean. On success returns `{ correct, tip }`, with `tip`
+ * included only when it is a non-empty string after trimming.
+ */
+export function parseGrade(raw: unknown): AnswerGrade | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  if (typeof r.correct !== 'boolean') return null
+  const grade: AnswerGrade = { correct: r.correct }
+  if (typeof r.tip === 'string') {
+    const tip = r.tip.trim()
+    if (tip.length > 0) grade.tip = tip
+  }
+  return grade
+}
+
+/**
+ * Grade one typed answer with the AI. Mirrors gradeDraft's retry loop (one
+ * retry). Throws if both attempts fail to produce valid JSON — the caller is
+ * expected to fall back to a local check rather than trust a default grade.
+ */
+export async function gradeAnswer(
+  client: AiClient,
+  opts: GradeAnswerOptions
+): Promise<AnswerGrade> {
+  const { system, user } = buildGradePrompt(opts)
+  const maxRetries = 1
+  let attempts = 0
+  let lastError = 'no attempts'
+
+  while (attempts <= maxRetries) {
+    attempts++
+    try {
+      const response = await client.models.generateContent({
+        model: opts.model,
+        contents: user,
+        config: {
+          systemInstruction: system,
+          responseMimeType: 'application/json',
+          responseSchema: GRADE_SCHEMA,
+          temperature: 0
+        }
+      })
+      let parsed: unknown
+      try {
+        parsed = JSON.parse(response.text ?? '')
+      } catch {
+        lastError = 'malformed JSON'
+        continue
+      }
+      const grade = parseGrade(parsed)
+      if (grade === null) {
+        lastError = 'validation failed'
+        continue
+      }
+      return grade
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : String(err)
+      continue
+    }
+  }
+
+  throw new Error(`gradeAnswer exhausted ${attempts} attempts. Last error: ${lastError}`)
 }

@@ -10,8 +10,12 @@ import {
   validateSentencePair,
   buildGeneratePrompt,
   generateSentences,
+  buildGradePrompt,
+  parseGrade,
+  gradeAnswer,
   type NounRef,
-  type SentenceSpec
+  type SentenceSpec,
+  type GradeAnswerOptions
 } from '../../src/composables/useSentenceQuiz'
 
 // ── A small deterministic RNG so shuffle-based fns are testable ──
@@ -239,5 +243,102 @@ describe('generateSentences', () => {
     const res = await generateSentences(client, { model: 'm', specs: SPECS, maxRetries: 1 })
     expect(res.sentences).toHaveLength(0)
     expect(res.attempts).toBe(2) // initial + 1 retry
+  })
+})
+
+// ─────────────────────────── buildGradePrompt ─────────────────────────
+const EN_DE_OPTS: GradeAnswerOptions = {
+  model: 'm',
+  direction: 'en-de',
+  english: 'I work with the table.',
+  german: 'Ich arbeite mit dem Tisch.',
+  prepGerman: 'mit',
+  prepEnglish: 'with',
+  case: 'dative',
+  userAnswer: 'Ich arbeite mit dem Tisch.'
+}
+
+const DE_EN_OPTS: GradeAnswerOptions = {
+  ...EN_DE_OPTS,
+  direction: 'de-en',
+  userAnswer: 'I work with the table.'
+}
+
+describe('buildGradePrompt', () => {
+  test('en-de: user mentions English source, German reference, prep and answer', () => {
+    const { user, system } = buildGradePrompt(EN_DE_OPTS)
+    expect(user).toContain('I work with the table.') // English source / reference
+    expect(user).toContain('Ich arbeite mit dem Tisch.') // German reference / answer
+    expect(user).toContain('mit') // target preposition
+    expect(user).toContain('dative') // case (via caseLabel)
+    expect(system).toContain('tip') // instructs returning a tip on a wrong answer
+  })
+
+  test('en-de: system instructs JSON-only and tip-on-miss; case is mentioned', () => {
+    const { system } = buildGradePrompt(EN_DE_OPTS)
+    expect(system.toLowerCase()).toContain('json')
+    expect(system).toContain('tip')
+  })
+
+  test('de-en: prompt makes clear the learner typed English / must convey the German', () => {
+    const { user, system } = buildGradePrompt(DE_EN_OPTS)
+    // The German is the source the learner had to convey.
+    expect(user).toContain('Ich arbeite mit dem Tisch.')
+    // The learner's English answer is present.
+    expect(user).toContain('I work with the table.')
+    // System should communicate that English conveys the German meaning.
+    expect(system.toLowerCase()).toContain('english')
+    expect(system.toLowerCase()).toContain('mean')
+  })
+})
+
+// ───────────────────────────── parseGrade ─────────────────────────────
+describe('parseGrade', () => {
+  test('accepts {correct:true} with no tip', () => {
+    expect(parseGrade({ correct: true })).toEqual({ correct: true })
+  })
+  test('accepts {correct:false, tip} and includes the tip', () => {
+    expect(parseGrade({ correct: false, tip: 'Use dative here.' }))
+      .toEqual({ correct: false, tip: 'Use dative here.' })
+  })
+  test('trims a tip', () => {
+    expect(parseGrade({ correct: false, tip: '  Use dative here.  ' }))
+      .toEqual({ correct: false, tip: 'Use dative here.' })
+  })
+  test('drops an empty / whitespace-only tip', () => {
+    expect(parseGrade({ correct: true, tip: '   ' })).toEqual({ correct: true })
+    expect(parseGrade({ correct: false, tip: '' })).toEqual({ correct: false })
+  })
+  test('returns null for null', () => {
+    expect(parseGrade(null)).toBeNull()
+  })
+  test('returns null for a string', () => {
+    expect(parseGrade('nope')).toBeNull()
+  })
+  test('returns null when correct is missing or non-boolean', () => {
+    expect(parseGrade({})).toBeNull()
+    expect(parseGrade({ correct: 'yes' })).toBeNull()
+    expect(parseGrade({ correct: 1 })).toBeNull()
+  })
+})
+
+// ───────────────────────────── gradeAnswer ────────────────────────────
+describe('gradeAnswer', () => {
+  test('happy path returns the parsed grade', async () => {
+    const client = fakeClient(() => JSON.stringify({ correct: true, tip: '' }))
+    const grade = await gradeAnswer(client, EN_DE_OPTS)
+    expect(grade).toEqual({ correct: true })
+  })
+
+  test('returns the tip on a wrong answer', async () => {
+    const client = fakeClient(() =>
+      JSON.stringify({ correct: false, tip: 'Wrong case: use dative.' }))
+    const grade = await gradeAnswer(client, EN_DE_OPTS)
+    expect(grade).toEqual({ correct: false, tip: 'Wrong case: use dative.' })
+  })
+
+  test('throws after retrying when the client always returns non-JSON', async () => {
+    const client = fakeClient(() => 'not json')
+    await expect(gradeAnswer(client, EN_DE_OPTS)).rejects.toThrow()
   })
 })
