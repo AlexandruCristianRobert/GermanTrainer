@@ -11,7 +11,7 @@ import { useToast } from '../../composables/useToast'
 import { resolveAiClient } from '../../composables/localClaude'
 import {
   pickPrepositions, buildSpecs, nounToRef, generateSentences,
-  type NounsPerSentence
+  type NounsPerSentence, type Direction, type GradingMode
 } from '../../composables/useSentenceQuiz'
 
 const STORAGE_KEY = 'prepSentenceSetup'
@@ -29,6 +29,8 @@ type CountPreset = 10 | 15 | 20 | 25 | 'custom'
 const count = ref<CountPreset>(10)
 const customCount = ref(15)
 const nounsPer = ref<NounsPerSentence>('mix')
+const direction = ref<Direction>('en-de')
+const gradingMode = ref<GradingMode>('exact')
 
 const nounCounts = ref<Record<NounGroup, number>>(
   Object.fromEntries(NOUN_GROUPS.map(g => [g, 0])) as Record<NounGroup, number>
@@ -41,6 +43,8 @@ interface Stored {
   count?: CountPreset
   customCount?: number
   nounsPer?: NounsPerSentence
+  direction?: Direction
+  gradingMode?: GradingMode
 }
 
 function loadStored(): Stored | null {
@@ -55,7 +59,8 @@ function saveStored(): void {
   try {
     const payload: Stored = {
       cases: [...cases.value], groups: [...groups.value],
-      count: count.value, customCount: customCount.value, nounsPer: nounsPer.value
+      count: count.value, customCount: customCount.value, nounsPer: nounsPer.value,
+      direction: direction.value, gradingMode: gradingMode.value
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   } catch { /* ignore */ }
@@ -72,13 +77,15 @@ onMounted(async () => {
     if (s.count !== undefined) count.value = s.count
     if (typeof s.customCount === 'number' && s.customCount > 0) customCount.value = s.customCount
     if (s.nounsPer === 1 || s.nounsPer === 2 || s.nounsPer === 'mix') nounsPer.value = s.nounsPer
+    if (s.direction === 'en-de' || s.direction === 'de-en') direction.value = s.direction
+    if (s.gradingMode === 'ai' || s.gradingMode === 'exact') gradingMode.value = s.gradingMode
   }
   // Default theme: every group that actually has nouns.
   if (groups.value.length === 0) {
     groups.value = NOUN_GROUPS.filter(g => (nounCounts.value[g] ?? 0) > 0)
   }
 })
-watch([cases, groups, count, customCount, nounsPer], saveStored, { deep: true })
+watch([cases, groups, count, customCount, nounsPer, direction, gradingMode], saveStored, { deep: true })
 
 const availablePreps = computed(() => filterPrepositions({ cases: cases.value }).length)
 const effective = computed(() => count.value === 'custom' ? Math.max(1, customCount.value) : count.value)
@@ -134,7 +141,9 @@ async function start() {
       sentences: result.sentences,
       cases: cases.value,
       groups: groups.value,
-      nounsPer: nounsPer.value
+      nounsPer: nounsPer.value,
+      direction: direction.value,
+      gradingMode: gradingMode.value
     }))
     router.push({ name: 'prepositions-sentence-run' })
   } catch (err) {
@@ -206,6 +215,27 @@ function back() { router.push({ name: 'prepositions' }) }
     </div>
 
     <div class="field">
+      <div class="field-label">Direction</div>
+      <div class="segmented">
+        <button :class="{ active: direction === 'en-de' }" @click="direction = 'en-de'">English → German</button>
+        <button :class="{ active: direction === 'de-en' }" @click="direction = 'de-en'">German → English</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Grading</div>
+      <div class="segmented">
+        <button :class="{ active: gradingMode === 'ai' }" @click="gradingMode = 'ai'">AI</button>
+        <button :class="{ active: gradingMode === 'exact' }" @click="gradingMode = 'exact'">Exact match</button>
+      </div>
+      <p class="micro-mark grading-hint">
+        {{ gradingMode === 'ai'
+          ? 'An AI judges each answer, accepts valid alternatives, and gives a tip when you\'re wrong.'
+          : 'Your answer must exactly match the reference translation (case, punctuation and spacing are ignored).' }}
+      </p>
+    </div>
+
+    <div class="field">
       <div class="field-label">Nouns per sentence</div>
       <div class="segmented">
         <button :class="{ active: nounsPer === 1 }" @click="nounsPer = 1">1</button>
@@ -248,8 +278,13 @@ function back() { router.push({ name: 'prepositions' }) }
     <div class="alert alert-info">
       <span class="alert-label">How this drill works</span>
       We pick {{ effective }} preposition{{ effective === 1 ? '' : 's' }} at random (repeating if needed),
-      hand each 1–2 nouns from your theme, and Gemini writes a sentence pair. You'll see the English and
-      type the German; the AI grades each answer.
+      hand each 1–2 nouns from your theme, and the AI writes a sentence pair.
+      {{ direction === 'en-de'
+        ? 'You\'ll read the English and type the German.'
+        : 'You\'ll read the German and type the English.' }}
+      {{ gradingMode === 'ai'
+        ? 'An AI grades each answer and accepts valid alternatives.'
+        : 'Answers are checked by exact match against the reference.' }}
     </div>
 
     <div class="setup-actions">
@@ -274,6 +309,7 @@ function back() { router.push({ name: 'prepositions' }) }
 .count-row { align-items: center; gap: 12px; }
 .custom-count { width: 80px; font-size: 17px; padding: 4px 0; }
 .count-avail { margin-left: auto; }
+.grading-hint { margin: 8px 0 0; }
 .chip-count {
   margin-left: 6px;
   font-family: var(--font-mono);
