@@ -2,19 +2,26 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
-import { checkSentence, type GeneratedSentence, type SentenceVerdict } from '../../composables/useSentenceQuiz'
+import { checkSentence, gradeAnswer, type GeneratedSentence, type SentenceVerdict, type Direction, type GradingMode } from '../../composables/useSentenceQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
+import { useSettings } from '../../composables/useSettings'
+import { resolveAiClient } from '../../composables/localClaude'
+import { useToast } from '../../composables/useToast'
 import RetryModal from '../../components/RetryModal.vue'
 import QuizProgress from '../../components/QuizProgress.vue'
 
 const STASH_KEY = 'gt:lastPrepSentenceQuiz'
 const router = useRouter()
+const { settings, load: loadSettings } = useSettings()
+const toast = useToast()
 
 interface Stash {
   sentences: GeneratedSentence[]
   cases?: string[]
   groups?: string[]
   nounsPer?: 1 | 2 | 'mix'
+  direction?: Direction
+  gradingMode?: GradingMode
 }
 
 const ready = ref(false)
@@ -25,11 +32,13 @@ const verdicts = ref<Map<number, SentenceVerdict>>(new Map())
 const startedAt = ref(0)
 const historySaved = ref(false)
 const meta = ref<{ cases: string[]; groups: string[]; nounsPer: 1 | 2 | 'mix' }>({ cases: [], groups: [], nounsPer: 'mix' })
+const direction = ref<Direction>('en-de')
+const gradingMode = ref<GradingMode>('exact')
 
 // Per-card state
 const index = ref(0)
 const userInput = ref('')
-const phase = ref<'input' | 'graded'>('input')
+const phase = ref<'input' | 'checking' | 'graded'>('input')
 const finished = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 const nextBtnRef = ref<HTMLButtonElement | null>(null)
@@ -57,7 +66,8 @@ function loadDeck(items: GeneratedSentence[]) {
   nextTick(() => inputRef.value?.focus())
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await loadSettings()
   try {
     const raw = sessionStorage.getItem(STASH_KEY)
     if (!raw) { error.value = 'No generated sentences in this session. Go back to setup and generate a quiz.'; return }
@@ -71,6 +81,8 @@ onMounted(() => {
       groups: Array.isArray(s.groups) ? s.groups : [],
       nounsPer: s.nounsPer ?? 'mix'
     }
+    direction.value = s.direction === 'de-en' ? 'de-en' : 'en-de'
+    gradingMode.value = s.gradingMode === 'ai' ? 'ai' : 'exact'
     loadDeck(s.sentences)
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load.'
@@ -96,16 +108,45 @@ const wrongCount = computed(() => total.value - correctCount.value)
 const allCorrect = computed(() => finished.value && wrongCount.value === 0)
 const isLast = computed(() => index.value + 1 >= total.value)
 
-function submit() {
+// What is SHOWN (source) and what the learner must PRODUCE / the reference (target).
+function sourceText(s: GeneratedSentence): string {
+  return direction.value === 'en-de' ? s.english : s.german
+}
+function targetText(s: GeneratedSentence): string {
+  return direction.value === 'en-de' ? s.german : s.english
+}
+
+async function submit() {
   if (!current.value || phase.value !== 'input') return
   if (userInput.value.trim().length === 0) return
   const i = index.value
   const s = current.value
-  const verdict: SentenceVerdict = {
-    index: i,
-    correct: checkSentence(userInput.value, s.german),
-    correction: s.german
+  const target = targetText(s)
+
+  let verdict: SentenceVerdict
+  if (gradingMode.value === 'ai') {
+    phase.value = 'checking'
+    try {
+      const grade = await gradeAnswer(resolveAiClient(settings.value), {
+        model: settings.value.model,
+        direction: direction.value,
+        english: s.english,
+        german: s.german,
+        prepGerman: s.prepGerman,
+        prepEnglish: s.prepEnglish,
+        case: s.case,
+        userAnswer: userInput.value
+      })
+      verdict = { index: i, correct: grade.correct, correction: target, tip: grade.tip }
+    } catch {
+      // Fall back to local exact check when the grader is unreachable.
+      verdict = { index: i, correct: checkSentence(userInput.value, target), correction: target }
+      toast.info('Graded offline', { description: 'The AI grader was unreachable, so this answer was checked by exact match.' })
+    }
+  } else {
+    verdict = { index: i, correct: checkSentence(userInput.value, target), correction: target }
   }
+
   answers.value[i] = userInput.value
   verdicts.value.set(i, verdict)
   verdicts.value = new Map(verdicts.value) // trigger reactivity
@@ -125,7 +166,13 @@ function finishQuiz() {
       durationMs: finishedAt - startedAt.value,
       count: total.value,
       correct: correctCount.value,
-      meta: { sentenceCases: meta.value.cases, sentenceGroups: meta.value.groups, nounsPerSentence: meta.value.nounsPer }
+      meta: {
+        sentenceCases: meta.value.cases,
+        sentenceGroups: meta.value.groups,
+        nounsPerSentence: meta.value.nounsPer,
+        sentenceDirection: direction.value,
+        sentenceGrading: gradingMode.value
+      }
     })
   }
 }
@@ -183,7 +230,7 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
       >
         <div class="rr-head">
           <span class="rr-mark">{{ verdicts.get(i)?.correct ? '✓' : '✗' }}</span>
-          <span class="rr-en">{{ s.english }}</span>
+          <span class="rr-en">{{ sourceText(s) }}</span>
           <span class="rr-tags">
             <span class="tag" :class="caseTagClass(s.case)">{{ s.case }}</span>
           </span>
@@ -192,7 +239,10 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           <span class="rr-label">You</span> {{ answers[i]?.trim() || '— (blank)' }}
         </div>
         <div v-if="!verdicts.get(i)?.correct" class="rr-ref">
-          <span class="rr-label">Answer</span> {{ verdicts.get(i)?.correction || s.german }}
+          <span class="rr-label">Answer</span> {{ verdicts.get(i)?.correction || targetText(s) }}
+        </div>
+        <div v-if="!verdicts.get(i)?.correct && verdicts.get(i)?.tip" class="rr-tip">
+          <span class="rr-label">Tip</span> {{ verdicts.get(i)?.tip }}
         </div>
       </div>
     </div>
@@ -227,8 +277,8 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
       />
 
       <div class="prompt-card">
-        <div class="en-sentence">{{ current.english }}</div>
-        <div class="en-hint">Translate into German.</div>
+        <div class="en-sentence">{{ sourceText(current) }}</div>
+        <div class="en-hint">{{ direction === 'en-de' ? 'Translate into German.' : 'Translate into English.' }}</div>
       </div>
 
       <form class="prep-input-wrap" @submit.prevent="submit">
@@ -236,9 +286,9 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           ref="inputRef"
           class="input prep-input"
           type="text"
-          placeholder="Deutsch…"
+          :placeholder="direction === 'en-de' ? 'Deutsch…' : 'English…'"
           v-model="userInput"
-          :readonly="phase === 'graded'"
+          :readonly="phase !== 'input'"
           autocomplete="off"
           spellcheck="false"
           @keydown.enter="onEnter"
@@ -254,6 +304,12 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           :disabled="userInput.trim().length === 0"
         >Submit</button>
         <button
+          v-else-if="phase === 'checking'"
+          type="button"
+          class="btn btn-accent"
+          disabled
+        >Checking…</button>
+        <button
           v-else
           ref="nextBtnRef"
           type="button"
@@ -267,7 +323,8 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           class="prep-feedback-mark"
           :class="currentVerdict.correct ? 'prep-feedback-ok' : 'prep-feedback-bad'"
         >{{ currentVerdict.correct ? '✓ Richtig.' : '✗ Nicht ganz.' }}</span>
-        <span class="prep-feedback-full">{{ currentVerdict.correction || current.german }}</span>
+        <span class="prep-feedback-full">{{ currentVerdict.correction || targetText(current) }}</span>
+        <span v-if="currentVerdict.tip" class="prep-feedback-tip">💡 {{ currentVerdict.tip }}</span>
         <span class="prep-feedback-tags">
           <span class="tag" :class="caseTagClass(current.case)">{{ current.prepGerman }} · {{ caseHintLabel(current.case) }}</span>
         </span>
@@ -342,6 +399,10 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
   font-size: 18px;
   color: var(--ink);
 }
+.prep-feedback-tip {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
 .prep-feedback-tags { margin-top: 4px; }
 
 /* Result list */
@@ -361,7 +422,7 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
 .result-row.bad .rr-mark { color: var(--clay, #b5654a); }
 .rr-en { flex: 1; font-family: var(--font-body); color: var(--ink); }
 .rr-tags { margin-left: auto; }
-.rr-you, .rr-ref { font-family: var(--font-mono); font-size: 14px; margin-top: 6px; color: var(--ink-soft); }
+.rr-you, .rr-ref, .rr-tip { font-family: var(--font-mono); font-size: 14px; margin-top: 6px; color: var(--ink-soft); }
 .rr-you-empty { opacity: 0.6; }
 .rr-ref { color: var(--ink); }
 .rr-label {
