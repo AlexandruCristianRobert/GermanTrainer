@@ -31,6 +31,7 @@ const customCount = ref(15)
 const nounsPer = ref<NounsPerSentence>('mix')
 const direction = ref<Direction>('en-de')
 const gradingMode = ref<GradingMode>('exact')
+const wordHints = ref(true)
 
 const nounCounts = ref<Record<NounGroup, number>>(
   Object.fromEntries(NOUN_GROUPS.map(g => [g, 0])) as Record<NounGroup, number>
@@ -45,6 +46,7 @@ interface Stored {
   nounsPer?: NounsPerSentence
   direction?: Direction
   gradingMode?: GradingMode
+  wordHints?: boolean
 }
 
 function loadStored(): Stored | null {
@@ -60,7 +62,7 @@ function saveStored(): void {
     const payload: Stored = {
       cases: [...cases.value], groups: [...groups.value],
       count: count.value, customCount: customCount.value, nounsPer: nounsPer.value,
-      direction: direction.value, gradingMode: gradingMode.value
+      direction: direction.value, gradingMode: gradingMode.value, wordHints: wordHints.value
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   } catch { /* ignore */ }
@@ -79,13 +81,14 @@ onMounted(async () => {
     if (s.nounsPer === 1 || s.nounsPer === 2 || s.nounsPer === 'mix') nounsPer.value = s.nounsPer
     if (s.direction === 'en-de' || s.direction === 'de-en') direction.value = s.direction
     if (s.gradingMode === 'ai' || s.gradingMode === 'exact') gradingMode.value = s.gradingMode
+    if (typeof s.wordHints === 'boolean') wordHints.value = s.wordHints
   }
   // Default theme: every group that actually has nouns.
   if (groups.value.length === 0) {
     groups.value = NOUN_GROUPS.filter(g => (nounCounts.value[g] ?? 0) > 0)
   }
 })
-watch([cases, groups, count, customCount, nounsPer, direction, gradingMode], saveStored, { deep: true })
+watch([cases, groups, count, customCount, nounsPer, direction, gradingMode, wordHints], saveStored, { deep: true })
 
 const availablePreps = computed(() => filterPrepositions({ cases: cases.value }).length)
 const effective = computed(() => count.value === 'custom' ? Math.max(1, customCount.value) : count.value)
@@ -143,7 +146,8 @@ async function start() {
       groups: groups.value,
       nounsPer: nounsPer.value,
       direction: direction.value,
-      gradingMode: gradingMode.value
+      gradingMode: gradingMode.value,
+      wordHints: wordHints.value
     }))
     router.push({ name: 'prepositions-sentence-run' })
   } catch (err) {
@@ -232,6 +236,19 @@ function back() { router.push({ name: 'prepositions' }) }
         {{ gradingMode === 'ai'
           ? 'An AI judges each answer, accepts valid alternatives, and gives a tip when you\'re wrong.'
           : 'Your answer must exactly match the reference translation (case, punctuation and spacing are ignored).' }}
+      </p>
+    </div>
+
+    <div v-if="direction === 'en-de'" class="field">
+      <div class="field-label">Word hints</div>
+      <div class="segmented">
+        <button :class="{ active: wordHints }" @click="wordHints = true">On</button>
+        <button :class="{ active: !wordHints }" @click="wordHints = false">Off</button>
+      </div>
+      <p class="micro-mark grading-hint">
+        {{ wordHints
+          ? 'Highlights the preposition and your theme nouns in the English prompt — hover or tap a highlight to reveal the German.'
+          : 'No highlights — translate the full sentence unaided.' }}
       </p>
     </div>
 
