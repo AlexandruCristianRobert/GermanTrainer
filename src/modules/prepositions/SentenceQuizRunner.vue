@@ -2,7 +2,7 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
-import { checkSentence, gradeAnswer, type GeneratedSentence, type SentenceVerdict, type Direction, type GradingMode } from '../../composables/useSentenceQuiz'
+import { checkSentence, gradeAnswer, buildHintSegments, type GeneratedSentence, type SentenceVerdict, type Direction, type GradingMode, type HintSegment, type HintInput } from '../../composables/useSentenceQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
 import { resolveAiClient } from '../../composables/localClaude'
@@ -22,6 +22,7 @@ interface Stash {
   nounsPer?: 1 | 2 | 'mix'
   direction?: Direction
   gradingMode?: GradingMode
+  wordHints?: boolean
 }
 
 const ready = ref(false)
@@ -34,6 +35,8 @@ const historySaved = ref(false)
 const meta = ref<{ cases: string[]; groups: string[]; nounsPer: 1 | 2 | 'mix' }>({ cases: [], groups: [], nounsPer: 'mix' })
 const direction = ref<Direction>('en-de')
 const gradingMode = ref<GradingMode>('exact')
+const wordHints = ref(true)
+const hintsActive = computed(() => direction.value === 'en-de' && wordHints.value)
 
 // Per-card state
 const index = ref(0)
@@ -42,6 +45,14 @@ const phase = ref<'input' | 'checking' | 'graded'>('input')
 const finished = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 const nextBtnRef = ref<HTMLButtonElement | null>(null)
+
+// Tap-to-toggle reveal state for word hints, keyed by segment index.
+const revealed = ref<Set<number>>(new Set())
+function toggleReveal(i: number) {
+  const next = new Set(revealed.value)
+  next.has(i) ? next.delete(i) : next.add(i)
+  revealed.value = next
+}
 
 function caseTagClass(c: string): string {
   if (c === 'dative') return 'tag-clay'
@@ -63,6 +74,7 @@ function loadDeck(items: GeneratedSentence[]) {
   phase.value = 'input'
   finished.value = false
   startedAt.value = Date.now()
+  revealed.value = new Set()
   nextTick(() => inputRef.value?.focus())
 }
 
@@ -83,6 +95,7 @@ onMounted(async () => {
     }
     direction.value = s.direction === 'de-en' ? 'de-en' : 'en-de'
     gradingMode.value = s.gradingMode === 'ai' ? 'ai' : 'exact'
+    wordHints.value = s.wordHints !== false
     loadDeck(s.sentences)
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load.'
@@ -115,6 +128,21 @@ function sourceText(s: GeneratedSentence): string {
 function targetText(s: GeneratedSentence): string {
   return direction.value === 'en-de' ? s.german : s.english
 }
+
+// Ordered plain/highlighted segments of the current prompt. When hints are off
+// (or de→en), this is a single plain segment so the template renders unchanged.
+const currentSegments = computed<HintSegment[]>(() => {
+  const s = current.value
+  if (!s) return []
+  if (!hintsActive.value) return [{ text: sourceText(s) }]
+  const hints: HintInput[] = []
+  if (s.prepSpanEn) hints.push({ surface: s.prepSpanEn, kind: 'prep', reveal: s.prepGerman })
+  ;(s.nounSpansEn ?? []).forEach((surf, i) => {
+    const n = s.nouns[i]
+    if (surf && n) hints.push({ surface: surf, kind: 'noun', reveal: `${n.article} ${n.german}` })
+  })
+  return buildHintSegments(s.english, hints)
+})
 
 async function submit() {
   if (!current.value || phase.value !== 'input') return
@@ -171,7 +199,8 @@ function finishQuiz() {
         sentenceGroups: meta.value.groups,
         nounsPerSentence: meta.value.nounsPer,
         sentenceDirection: direction.value,
-        sentenceGrading: gradingMode.value
+        sentenceGrading: gradingMode.value,
+        sentenceHints: hintsActive.value
       }
     })
   }
@@ -183,6 +212,7 @@ function next() {
   index.value++
   userInput.value = ''
   phase.value = 'input'
+  revealed.value = new Set()
   nextTick(() => inputRef.value?.focus())
 }
 
@@ -277,7 +307,20 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
       />
 
       <div class="prompt-card">
-        <div class="en-sentence">{{ sourceText(current) }}</div>
+        <div v-if="!hintsActive" class="en-sentence">{{ sourceText(current) }}</div>
+        <div v-else class="en-sentence">
+          <template v-for="(seg, i) in currentSegments" :key="i"><span
+            v-if="seg.hint"
+            class="hint"
+            :class="['hint-' + seg.hint.kind, { revealed: revealed.has(i) }]"
+            tabindex="0"
+            role="button"
+            :aria-label="(seg.hint.kind === 'prep' ? 'preposition hint: ' : 'noun hint: ') + seg.hint.reveal"
+            @click="toggleReveal(i)"
+            @keydown.enter.prevent="toggleReveal(i)"
+            @keydown.space.prevent="toggleReveal(i)"
+          >{{ seg.text }}<span class="hint-pop">{{ seg.hint.reveal }}</span></span><template v-else>{{ seg.text }}</template></template>
+        </div>
         <div class="en-hint">{{ direction === 'en-de' ? 'Translate into German.' : 'Translate into English.' }}</div>
       </div>
 
@@ -366,6 +409,56 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
   text-transform: uppercase;
   color: var(--mute);
   margin-top: 14px;
+}
+
+/* Word hints — preposition / noun highlights inside the English prompt. */
+.hint {
+  position: relative;
+  cursor: help;
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+  border-radius: 2px;
+  padding: 0 1px;
+  transition: background-color 120ms ease;
+  outline: none;
+}
+.hint-prep { text-decoration-color: var(--accent); }
+.hint-prep:hover,
+.hint-prep:focus-visible,
+.hint-prep.revealed { background-color: var(--accent-tint); }
+.hint-noun { text-decoration-color: var(--cobalt); }
+.hint-noun:hover,
+.hint-noun:focus-visible,
+.hint-noun.revealed { background-color: var(--cobalt-tint); }
+
+.hint-pop {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--paper-card, #fff);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms ease;
+  z-index: 2;
+}
+.hint:hover .hint-pop,
+.hint:focus-visible .hint-pop,
+.hint.revealed .hint-pop {
+  opacity: 1;
+  visibility: visible;
 }
 
 .prep-input-wrap {

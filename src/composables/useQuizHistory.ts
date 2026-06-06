@@ -38,6 +38,7 @@ export interface QuizHistoryMeta {
   nounsPerSentence?: 1 | 2 | 'mix'
   sentenceDirection?: 'en-de' | 'de-en'
   sentenceGrading?: 'ai' | 'exact'
+  sentenceHints?: boolean
   declLevels?: string[]
   declCases?: string[]
   declDeterminers?: string[]
