@@ -13,9 +13,11 @@ import {
   buildGradePrompt,
   parseGrade,
   gradeAnswer,
+  buildHintSegments,
   type NounRef,
   type SentenceSpec,
-  type GradeAnswerOptions
+  type GradeAnswerOptions,
+  type HintInput
 } from '../../src/composables/useSentenceQuiz'
 
 // ── A small deterministic RNG so shuffle-based fns are testable ──
@@ -168,6 +170,73 @@ describe('validateSentencePair', () => {
     expect(validateSentencePair(null, spec)).toBeNull()
     expect(validateSentencePair('nope', spec)).toBeNull()
   })
+  test('accepts and stores valid prepSpanEn + nounSpansEn', () => {
+    const got = validateSentencePair(
+      {
+        index: 0,
+        english: 'I work with the table.',
+        german: 'Ich arbeite mit dem Tisch.',
+        prepSpanEn: 'with',
+        nounSpansEn: ['table']
+      },
+      spec
+    )
+    expect(got).not.toBeNull()
+    expect(got?.prepSpanEn).toBe('with')
+    expect(got?.nounSpansEn).toEqual(['table'])
+  })
+  test('accepts a pair with NO span fields (fields undefined)', () => {
+    const got = validateSentencePair(
+      { index: 0, english: 'I work with the table.', german: 'Ich arbeite mit dem Tisch.' },
+      spec
+    )
+    expect(got).not.toBeNull()
+    expect(got?.prepSpanEn).toBeUndefined()
+    expect(got?.nounSpansEn).toBeUndefined()
+  })
+  test('ignores malformed span fields (prepSpanEn: number, nounSpansEn: string)', () => {
+    const got = validateSentencePair(
+      {
+        index: 0,
+        english: 'I work with the table.',
+        german: 'Ich arbeite mit dem Tisch.',
+        prepSpanEn: 123,
+        nounSpansEn: 'x'
+      },
+      spec
+    )
+    expect(got).not.toBeNull()
+    expect(got?.prepSpanEn).toBeUndefined()
+    expect(got?.nounSpansEn).toBeUndefined()
+  })
+  test('drops non-string entries inside nounSpansEn and trims kept ones', () => {
+    const got = validateSentencePair(
+      {
+        index: 0,
+        english: 'I work with the table.',
+        german: 'Ich arbeite mit dem Tisch.',
+        prepSpanEn: '  with  ',
+        nounSpansEn: ['  table  ', 5, null, 'chair']
+      },
+      spec
+    )
+    expect(got).not.toBeNull()
+    expect(got?.prepSpanEn).toBe('with')
+    expect(got?.nounSpansEn).toEqual(['table', 'chair'])
+  })
+  test('omits an empty/whitespace-only prepSpanEn', () => {
+    const got = validateSentencePair(
+      {
+        index: 0,
+        english: 'I work with the table.',
+        german: 'Ich arbeite mit dem Tisch.',
+        prepSpanEn: '   '
+      },
+      spec
+    )
+    expect(got).not.toBeNull()
+    expect(got?.prepSpanEn).toBeUndefined()
+  })
 })
 
 // ───────────────────────── prompt builders ────────────────────────────
@@ -182,6 +251,89 @@ describe('prompt builders', () => {
     expect(p).toContain('"mit"')
     expect(p).toContain('der Tisch')
     expect(p).toContain('A2–B1')
+  })
+  test('buildGeneratePrompt mentions prepSpanEn and nounSpansEn', () => {
+    const specs: SentenceSpec[] = [{
+      index: 0, prepId: 'mit', prepGerman: 'mit', prepEnglish: 'with',
+      case: 'dative', nouns: [{ german: 'Tisch', article: 'der', english: 'table' }]
+    }]
+    const p = buildGeneratePrompt(specs, 'A2–B1')
+    expect(p).toContain('prepSpanEn')
+    expect(p).toContain('nounSpansEn')
+  })
+})
+
+// ─────────────────────────── buildHintSegments ────────────────────────
+describe('buildHintSegments', () => {
+  test('locates a prep and a noun, segments in sentence order with kind + reveal', () => {
+    const english = 'I work with the table.'
+    const hints: HintInput[] = [
+      { surface: 'with', kind: 'prep', reveal: 'mit' },
+      { surface: 'table', kind: 'noun', reveal: 'der Tisch' }
+    ]
+    const segs = buildHintSegments(english, hints)
+    // joined text round-trips exactly
+    expect(segs.map(s => s.text).join('')).toBe(english)
+    const hinted = segs.filter(s => s.hint)
+    expect(hinted).toHaveLength(2)
+    // sentence order: prep ("with") before noun ("table")
+    expect(hinted[0].text).toBe('with')
+    expect(hinted[0].hint).toEqual({ kind: 'prep', reveal: 'mit' })
+    expect(hinted[1].text).toBe('table')
+    expect(hinted[1].hint).toEqual({ kind: 'noun', reveal: 'der Tisch' })
+  })
+
+  test('is case-insensitive and preserves original casing in the segment text', () => {
+    const english = 'Onto the table the cat jumps.'
+    const segs = buildHintSegments(english, [
+      { surface: 'onto', kind: 'prep', reveal: 'auf' }
+    ])
+    expect(segs.map(s => s.text).join('')).toBe(english)
+    const hinted = segs.filter(s => s.hint)
+    expect(hinted).toHaveLength(1)
+    expect(hinted[0].text).toBe('Onto') // original casing preserved
+    expect(hinted[0].hint).toEqual({ kind: 'prep', reveal: 'auf' })
+  })
+
+  test('respects word boundaries: "on" does not highlight inside "onto"', () => {
+    const english = 'The cat jumps onto the table.'
+    const segs = buildHintSegments(english, [
+      { surface: 'on', kind: 'prep', reveal: 'auf' }
+    ])
+    // No range anchors -> single plain segment.
+    expect(segs).toEqual([{ text: english }])
+  })
+
+  test('orders by position even when the prep appears AFTER the noun', () => {
+    const english = 'The table is covered with a cloth.'
+    const hints: HintInput[] = [
+      { surface: 'with', kind: 'prep', reveal: 'mit' },
+      { surface: 'table', kind: 'noun', reveal: 'der Tisch' }
+    ]
+    const segs = buildHintSegments(english, hints)
+    expect(segs.map(s => s.text).join('')).toBe(english)
+    const hinted = segs.filter(s => s.hint)
+    expect(hinted.map(s => s.text)).toEqual(['table', 'with']) // noun first by position
+    expect(hinted[0].hint).toEqual({ kind: 'noun', reveal: 'der Tisch' })
+    expect(hinted[1].hint).toEqual({ kind: 'prep', reveal: 'mit' })
+  })
+
+  test('skips a surface that is not present (quiz-safe), keeps the rest', () => {
+    const english = 'I work with the table.'
+    const hints: HintInput[] = [
+      { surface: 'with', kind: 'prep', reveal: 'mit' },
+      { surface: 'chair', kind: 'noun', reveal: 'der Stuhl' } // absent
+    ]
+    const segs = buildHintSegments(english, hints)
+    expect(segs.map(s => s.text).join('')).toBe(english)
+    const hinted = segs.filter(s => s.hint)
+    expect(hinted).toHaveLength(1)
+    expect(hinted[0].text).toBe('with')
+  })
+
+  test('returns a single plain segment for empty hints', () => {
+    const english = 'I work with the table.'
+    expect(buildHintSegments(english, [])).toEqual([{ text: english }])
   })
 })
 

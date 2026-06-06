@@ -53,6 +53,10 @@ export interface SentenceSpec {
 export interface GeneratedSentence extends SentenceSpec {
   english: string
   german: string
+  /** Exact English word(s) the AI used to express the preposition (verbatim, for highlighting). */
+  prepSpanEn?: string
+  /** Exact English word(s) used for each assigned noun, in the same order as `nouns`. */
+  nounSpansEn?: string[]
 }
 
 export interface SentenceVerdict {
@@ -187,7 +191,104 @@ export function validateSentencePair(
   const german = typeof e.german === 'string' ? e.german.trim() : ''
   if (english.length < 3 || german.length < 3) return null
   if (!prepUsed(german, spec.prepGerman)) return null
-  return { ...spec, english, german }
+
+  const out: GeneratedSentence = { ...spec, english, german }
+
+  // Optional highlight surfaces — tolerated, never a reason to reject. A
+  // missing/malformed field is simply omitted (left undefined); the runner
+  // copes with absent spans.
+  if (typeof e.prepSpanEn === 'string') {
+    const trimmed = e.prepSpanEn.trim()
+    if (trimmed.length > 0) out.prepSpanEn = trimmed
+  }
+  if (Array.isArray(e.nounSpansEn)) {
+    out.nounSpansEn = e.nounSpansEn
+      .filter((x): x is string => typeof x === 'string')
+      .map(x => x.trim())
+  }
+
+  return out
+}
+
+// ─────────────────────────── Hint rendering ───────────────────────────
+//
+// To highlight the preposition and assigned nouns inside the English prompt
+// (hover/tap reveals the German), we split the sentence into ordered segments:
+// plain text and "hint" spans. Each hint carries the German to reveal. We locate
+// each surface by the FIRST case-insensitive, word-bounded match (so "on" never
+// fires inside "onto"), keep only non-overlapping ranges, and preserve the
+// sentence's original casing in every segment. Surfaces that are empty or not
+// found are dropped — a hint we cannot anchor simply doesn't render, so the quiz
+// stays usable. The concatenation of all segment texts equals the input exactly.
+
+export type HintKind = 'prep' | 'noun'
+
+/** One slice of the prompt sentence: plain text, or a highlighted hint span. */
+export interface HintSegment {
+  text: string
+  hint?: { kind: HintKind; reveal: string }
+}
+
+/** A surface to find in the sentence and the German to reveal for it. */
+export interface HintInput {
+  surface: string
+  kind: HintKind
+  reveal: string
+}
+
+/** Escape a string for safe use as a literal inside a RegExp. */
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * Split `english` into ordered plain/highlighted segments by locating each
+ * hint's `surface` (first case-insensitive, word-bounded match). Overlapping
+ * matches are resolved greedily by start position; un-anchorable hints are
+ * skipped. The joined `.text` of the result always equals `english`.
+ */
+export function buildHintSegments(english: string, hints: readonly HintInput[]): HintSegment[] {
+  interface Range { start: number; end: number; kind: HintKind; reveal: string }
+  const found: Range[] = []
+
+  for (const h of hints) {
+    const surface = h.surface?.trim()
+    if (!surface) continue
+    let re: RegExp
+    try {
+      re = new RegExp(`\\b${escapeRegExp(surface)}\\b`, 'i')
+    } catch {
+      continue
+    }
+    const m = re.exec(english)
+    if (!m) continue
+    found.push({ start: m.index, end: m.index + m[0].length, kind: h.kind, reveal: h.reveal })
+  }
+
+  // Sort by start, then greedily keep non-overlapping ranges.
+  found.sort((a, b) => a.start - b.start)
+  const kept: Range[] = []
+  let lastEnd = -1
+  for (const r of found) {
+    if (r.start < lastEnd) continue
+    kept.push(r)
+    lastEnd = r.end
+  }
+
+  if (kept.length === 0) return [{ text: english }]
+
+  const segments: HintSegment[] = []
+  let cursor = 0
+  for (const r of kept) {
+    if (r.start > cursor) segments.push({ text: english.slice(cursor, r.start) })
+    segments.push({
+      text: english.slice(r.start, r.end),
+      hint: { kind: r.kind, reveal: r.reveal }
+    })
+    cursor = r.end
+  }
+  if (cursor < english.length) segments.push({ text: english.slice(cursor) })
+  return segments
 }
 
 // ──────────────────────────── AI generation ───────────────────────────
@@ -210,7 +311,14 @@ const GEN_SYSTEM =
   'contain the preposition (a contracted form such as "im" or "am" is fine). Keep ' +
   'sentences concise (6–14 words) and at the requested CEFR level. Return JSON of the ' +
   'form {"items":[{"index":<number>,"english":"...","german":"..."}]} with exactly one ' +
-  'entry per requested index.'
+  'entry per requested index. ' +
+  'Also return, per item, "prepSpanEn" = the exact word(s) in YOUR English sentence that ' +
+  'express the given preposition, copied verbatim from the sentence (the preposition itself, ' +
+  'WITHOUT a surrounding article), and "nounSpansEn" = an array with one entry per given noun ' +
+  'in the SAME order, each the exact word(s) you used for that noun copied verbatim (the noun ' +
+  'head, WITHOUT its article). These MUST be exact substrings of your English sentence so they ' +
+  'can be located, and there must be exactly one "nounSpansEn" entry per given noun (use an ' +
+  'empty array when no nouns were given).'
 
 const GEN_SCHEMA = {
   type: 'object',
@@ -222,9 +330,11 @@ const GEN_SCHEMA = {
         properties: {
           index: { type: 'integer' },
           english: { type: 'string' },
-          german: { type: 'string' }
+          german: { type: 'string' },
+          prepSpanEn: { type: 'string' },
+          nounSpansEn: { type: 'array', items: { type: 'string' } }
         },
-        required: ['index', 'english', 'german']
+        required: ['index', 'english', 'german', 'prepSpanEn', 'nounSpansEn']
       }
     }
   },
@@ -241,7 +351,8 @@ export function buildGeneratePrompt(specs: readonly SentenceSpec[], level: strin
   return (
     `Target CEFR level: ${level}.\n` +
     `Write one German sentence and its English translation for each of the following ${specs.length} item(s):\n` +
-    lines.join('\n')
+    lines.join('\n') +
+    `\nAlso return prepSpanEn and nounSpansEn (one per listed noun, in order), each an exact substring of your English sentence.`
   )
 }
 
