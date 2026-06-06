@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.11'
+export const APP_VERSION = '1.11.12'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.12', date: '2026-06-06', kind: 'polish',
+    title: 'Prepositions · sentence quiz: word hints with hover-to-reveal',
+    notes: [
+      '<strong>See what to translate.</strong> In the <em>Satzübersetzung</em> drill (English → German), the English prompt now highlights the <em>preposition</em> and your <em>theme nouns</em> in two distinct colours — so you can see at a glance which words the sentence is testing.',
+      '<strong>Reveal the German on demand.</strong> Hover a highlight (or tap it on touch, or focus it with the keyboard) to reveal its German: the bare preposition (<code>auf</code>) or the noun’s dictionary form with its article (<code>der Tisch</code>). It’s a scaffold, not the answer — you still apply the case yourself (<em>auf den Tisch</em>).',
+      '<strong>On by default, switch it off for a challenge.</strong> A new <em>Word hints</em> toggle on Setup (English → German only) is on by default; turn it off to translate unaided. Whether hints were on is recorded with each run in your history.'
+    ]
+  },
   {
     version: '1.11.11', date: '2026-06-05', kind: 'polish',
     title: 'Prepositions · sentence quiz: both directions + AI grading with tips',
