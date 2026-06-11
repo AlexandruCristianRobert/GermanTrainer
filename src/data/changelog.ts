@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.12'
+export const APP_VERSION = '1.11.13'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.13', date: '2026-06-11', kind: 'module',
+    title: 'Prepositions · weak-point tracking + remedial drill',
+    notes: [
+      '<strong>See which prepositions and nouns trip you up.</strong> The AI sentence-translation drill (English → German) now records, per sentence, the <em>preposition</em> and the <em>theme nouns</em> it tested and whether you got them right. Your <em>History</em> page gains a <em>Weakest prepositions / Weakest nouns</em> chart, and the Prepositions home shows a <em>Your weak points</em> card — both ranked by a score that weights your miss-rate by how often you’ve seen each word, so a single slip doesn’t dominate.',
+      '<strong>Know <em>why</em> an answer was wrong.</strong> With <em>AI</em> grading, each missed sentence is tagged with what actually went wrong — <em>preposition</em> (wrong or missing word), <em>case</em> (the right preposition but the wrong governed case), <em>noun</em> (wrong word, gender or form), or <em>typo</em> (a slip elsewhere) — shown as chips and rolled up across your history. (Exact-match grading still records what you missed, just without the breakdown.)',
+      '<strong>New drill — Schwachstellen (remedial).</strong> A generated mixed-format practice session aimed squarely at your weak points: case fill-ins, der/die/das + translation noun cards, and AI sentence translations, blended in proportion to your recent mistakes and seeded from the prepositions and nouns you miss most. Its own answers feed back into your weak-point tracking, so the list shrinks as you improve. (English → German; needs AI access.)'
+    ]
+  },
   {
     version: '1.11.12', date: '2026-06-06', kind: 'polish',
     title: 'Prepositions · sentence quiz: word hints with hover-to-reveal',
