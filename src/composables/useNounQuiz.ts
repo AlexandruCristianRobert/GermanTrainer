@@ -18,7 +18,7 @@ function normalizeAnswer(s: string): string {
   return s.trim().toLowerCase()
 }
 
-function checkTranslation(input: string, expected: string): boolean {
+export function checkTranslation(input: string, expected: string): boolean {
   const i = normalizeAnswer(input)
   if (i.length === 0) return false
   return expected.split('/').some(seg => normalizeAnswer(seg) === i)

@@ -11,6 +11,18 @@ import type {
   PrepDrillItem,
   QuizHistoryEntry
 } from './useQuizHistory'
+import type { PrepCase, PrepositionExample } from '../data/prepositions'
+import type { Noun } from '../db/types'
+import type { GeneratedSentence } from './useSentenceQuiz'
+
+// ── Remedial question (one card in a mixed drill deck) ───────────────
+// A serializable union stashed to sessionStorage between setup and runner.
+
+export type RemedialQuestion =
+  | { format: 'case-fill'; prepId: string; prepGerman: string; prepEnglish: string; case: PrepCase; example: PrepositionExample }
+  | { format: 'noun-gender'; noun: Noun }
+  | { format: 'noun-translation'; noun: Noun }
+  | { format: 'sentence'; sentence: GeneratedSentence }
 
 // ── Weak points ─────────────────────────────────────────────────────
 
