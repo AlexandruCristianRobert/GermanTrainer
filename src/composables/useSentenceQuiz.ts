@@ -13,7 +13,7 @@ import { shuffle } from '../data/pool'
 import type { AiClient } from './useClaude'
 import type { Preposition, PrepCase } from '../data/prepositions'
 import type { Gender, Noun } from '../db/types'
-import type { PrepErrorTag } from './useQuizHistory'
+import type { PrepErrorTag, PrepDrillItem } from './useQuizHistory'
 
 // ─────────────────────────────── Types ────────────────────────────────
 
@@ -67,6 +67,8 @@ export interface SentenceVerdict {
   correction: string
   /** A short coaching note from the AI grader pinpointing the mistake (when wrong). */
   tip?: string
+  /** Error categories from the AI grader (en→de only); used for weak-point tracking. */
+  tags?: PrepErrorTag[]
 }
 
 // ───────────────────────────── Pure helpers ───────────────────────────
@@ -604,4 +606,20 @@ export async function gradeAnswer(
   }
 
   throw new Error(`gradeAnswer exhausted ${attempts} attempts. Last error: ${lastError}`)
+}
+
+/** Build the per-item record stored in run meta for one graded sentence. */
+export function buildDrillItem(
+  s: GeneratedSentence,
+  correct: boolean,
+  tags?: PrepErrorTag[]
+): PrepDrillItem {
+  const item: PrepDrillItem = {
+    prepId: s.prepId,
+    prepGerman: s.prepGerman,
+    nounKeys: s.nouns.map(n => n.german),
+    correct
+  }
+  if (tags && tags.length > 0) item.tags = tags
+  return item
 }

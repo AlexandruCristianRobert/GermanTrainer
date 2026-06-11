@@ -14,8 +14,10 @@ import {
   parseGrade,
   gradeAnswer,
   buildHintSegments,
+  buildDrillItem,
   type NounRef,
   type SentenceSpec,
+  type GeneratedSentence,
   type GradeAnswerOptions,
   type HintInput
 } from '../../src/composables/useSentenceQuiz'
@@ -503,6 +505,68 @@ describe('parseGrade', () => {
   })
   test('correct:true still parses with no tags', () => {
     expect(parseGrade({ correct: true })).toEqual({ correct: true })
+  })
+})
+
+// ──────────────────────────── buildDrillItem ──────────────────────────
+describe('buildDrillItem', () => {
+  function gen(over: Partial<GeneratedSentence> = {}): GeneratedSentence {
+    return {
+      index: 0,
+      prepId: 'mit',
+      prepGerman: 'mit',
+      prepEnglish: 'with',
+      case: 'dative',
+      nouns: [{ german: 'Tisch', article: 'der', english: 'table' }],
+      english: 'I work with the table.',
+      german: 'Ich arbeite mit dem Tisch.',
+      ...over
+    }
+  }
+
+  test('wrong sentence with tags records prep, nounKeys, correct:false and tags', () => {
+    const item = buildDrillItem(gen(), false, ['case'])
+    expect(item).toEqual({
+      prepId: 'mit',
+      prepGerman: 'mit',
+      nounKeys: ['Tisch'],
+      correct: false,
+      tags: ['case']
+    })
+  })
+
+  test('correct sentence with no tags omits the tags field', () => {
+    const item = buildDrillItem(gen(), true)
+    expect(item).toEqual({
+      prepId: 'mit',
+      prepGerman: 'mit',
+      nounKeys: ['Tisch'],
+      correct: true
+    })
+    expect(item.tags).toBeUndefined()
+  })
+
+  test('empty tags array does not add a tags field', () => {
+    const item = buildDrillItem(gen(), false, [])
+    expect(item.tags).toBeUndefined()
+  })
+
+  test('two nouns yield both germans in order', () => {
+    const item = buildDrillItem(
+      gen({
+        nouns: [
+          { german: 'Tisch', article: 'der', english: 'table' },
+          { german: 'Lampe', article: 'die', english: 'lamp' }
+        ]
+      }),
+      true
+    )
+    expect(item.nounKeys).toEqual(['Tisch', 'Lampe'])
+  })
+
+  test('empty nouns yield an empty nounKeys array', () => {
+    const item = buildDrillItem(gen({ nouns: [] }), true)
+    expect(item.nounKeys).toEqual([])
   })
 })
 
