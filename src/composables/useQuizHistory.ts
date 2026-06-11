@@ -11,6 +11,7 @@ export type QuizHistoryType =
   | 'prep-article'
   | 'prep-two-way'
   | 'prep-sentence'
+  | 'prep-remedial'
   | 'decl-table'
   | 'decl-article'
   | 'decl-adjective'
@@ -21,6 +22,17 @@ export type QuizHistoryType =
   | 'passiv-transform'
   | 'writing-grade'
   | 'simulator-c1'
+
+export type PrepErrorTag = 'preposition' | 'case' | 'noun' | 'typo'
+
+/** One recorded answer in a prep-sentence or prep-remedial run. */
+export interface PrepDrillItem {
+  prepId?: string        // present for sentence + case-fill items
+  prepGerman?: string    // denormalized for display
+  nounKeys?: string[]    // german surfaces of assigned theme nouns involved
+  correct: boolean
+  tags?: PrepErrorTag[]  // why wrong; absent under Exact grading / when correct
+}
 
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation'
@@ -39,6 +51,7 @@ export interface QuizHistoryMeta {
   sentenceDirection?: 'en-de' | 'de-en'
   sentenceGrading?: 'ai' | 'exact'
   sentenceHints?: boolean
+  sentenceItems?: PrepDrillItem[]
   declLevels?: string[]
   declCases?: string[]
   declDeterminers?: string[]

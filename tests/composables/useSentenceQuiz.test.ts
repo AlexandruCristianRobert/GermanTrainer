@@ -442,6 +442,21 @@ describe('buildGradePrompt', () => {
     expect(system.toLowerCase()).toContain('english')
     expect(system.toLowerCase()).toContain('mean')
   })
+
+  test('en-de: system requests errorTags and names the categories', () => {
+    const { system } = buildGradePrompt(EN_DE_OPTS)
+    expect(system).toContain('errorTags')
+    expect(system).toContain('preposition')
+    expect(system).toContain('case')
+    expect(system).toContain('noun')
+    expect(system).toContain('typo')
+  })
+
+  test('de-en: does NOT request errorTags', () => {
+    const { system, user } = buildGradePrompt(DE_EN_OPTS)
+    expect(system).not.toContain('errorTags')
+    expect(user).not.toContain('errorTags')
+  })
 })
 
 // ───────────────────────────── parseGrade ─────────────────────────────
@@ -471,6 +486,23 @@ describe('parseGrade', () => {
     expect(parseGrade({})).toBeNull()
     expect(parseGrade({ correct: 'yes' })).toBeNull()
     expect(parseGrade({ correct: 1 })).toBeNull()
+  })
+  test('maps valid errorTags onto tags', () => {
+    expect(parseGrade({ correct: false, tip: 'x', errorTags: ['case', 'noun'] }))
+      .toEqual({ correct: false, tip: 'x', tags: ['case', 'noun'] })
+  })
+  test('filters out invalid errorTags values', () => {
+    expect(parseGrade({ correct: false, tip: 'x', errorTags: ['case', 'bogus'] }))
+      .toEqual({ correct: false, tip: 'x', tags: ['case'] })
+  })
+  test('leaves tags undefined for empty / absent / all-invalid errorTags', () => {
+    expect(parseGrade({ correct: false, tip: 'x' })?.tags).toBeUndefined()
+    expect(parseGrade({ correct: false, tip: 'x', errorTags: [] })?.tags).toBeUndefined()
+    expect(parseGrade({ correct: false, tip: 'x', errorTags: ['bogus'] })?.tags).toBeUndefined()
+    expect(parseGrade({ correct: false, tip: 'x', errorTags: 'case' })?.tags).toBeUndefined()
+  })
+  test('correct:true still parses with no tags', () => {
+    expect(parseGrade({ correct: true })).toEqual({ correct: true })
   })
 })
 
