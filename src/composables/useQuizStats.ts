@@ -15,6 +15,7 @@ import {
   type QuizHistoryEntry,
   type QuizHistoryType
 } from './useQuizHistory'
+import { computeWeakPoints, type WeakPoints } from './usePrepRemedial'
 
 export interface BucketStat {
   correct: number
@@ -75,6 +76,7 @@ export interface StatsBundle {
     finishedAt: string
   }>
   bestRunByType: Partial<Record<QuizHistoryType, QuizHistoryEntry>>
+  prepWeakPoints: WeakPoints
 }
 
 // ── helpers ─────────────────────────────────────────────────────────
@@ -208,7 +210,8 @@ export function computeStats(entries: QuizHistoryEntry[]): StatsBundle {
       calendarHeatmap: [],
       durationBuckets: DURATION_BUCKETS.map(b => ({ label: b.label, count: 0 })),
       countVsAccuracy: [],
-      bestRunByType: {}
+      bestRunByType: {},
+      prepWeakPoints: computeWeakPoints([])
     }
   }
 
@@ -399,7 +402,8 @@ export function computeStats(entries: QuizHistoryEntry[]): StatsBundle {
       count: durationBucketCounts[i]
     })),
     countVsAccuracy,
-    bestRunByType
+    bestRunByType,
+    prepWeakPoints: computeWeakPoints(entries)
   }
 }
 

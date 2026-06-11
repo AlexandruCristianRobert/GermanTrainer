@@ -26,6 +26,7 @@ import ScoreTrendChart from '../../components/charts/ScoreTrendChart.vue'
 import RunCountByType from '../../components/charts/RunCountByType.vue'
 import LevelAssessmentPanel from '../../components/charts/LevelAssessmentPanel.vue'
 import KonjunktivStats from '../../components/charts/KonjunktivStats.vue'
+import PrepWeakPoints from '../../components/charts/PrepWeakPoints.vue'
 import PassivStats from '../../components/charts/PassivStats.vue'
 import WritingStats from '../../components/charts/WritingStats.vue'
 import SimulatorStats from '../../components/charts/SimulatorStats.vue'
@@ -377,6 +378,10 @@ function summariseMeta(it: QuizHistoryEntry): string {
 
       <div class="charts-section-mark">Module · Per-module breakdown</div>
 
+      <PrepWeakPoints
+        v-if="stats.runsByType['prep-sentence'] + stats.runsByType['prep-remedial'] > 0"
+        :stats="stats"
+      />
       <KonjunktivStats :items="items" />
       <PassivStats :items="items" />
       <WritingStats :items="items" />
