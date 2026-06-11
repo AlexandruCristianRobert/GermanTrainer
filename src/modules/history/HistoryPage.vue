@@ -26,6 +26,7 @@ import ScoreTrendChart from '../../components/charts/ScoreTrendChart.vue'
 import RunCountByType from '../../components/charts/RunCountByType.vue'
 import LevelAssessmentPanel from '../../components/charts/LevelAssessmentPanel.vue'
 import KonjunktivStats from '../../components/charts/KonjunktivStats.vue'
+import PrepWeakPoints from '../../components/charts/PrepWeakPoints.vue'
 import PassivStats from '../../components/charts/PassivStats.vue'
 import WritingStats from '../../components/charts/WritingStats.vue'
 import SimulatorStats from '../../components/charts/SimulatorStats.vue'
@@ -48,6 +49,7 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'prep-article':     { label: 'Preposition · article', de: 'Präposition · Artikel', module: 'Prepositions' },
   'prep-two-way':     { label: 'Preposition · two-way', de: 'Präposition · Wechsel', module: 'Prepositions' },
   'prep-sentence':    { label: 'Preposition · sentence (AI)', de: 'Präposition · Satz (KI)', module: 'Prepositions' },
+  'prep-remedial':    { label: 'Preposition · remedial', de: 'Präposition · Schwachstellen', module: 'Prepositions' },
   'decl-table':     { label: 'Declension · table', de: 'Deklination · Tabelle', module: 'Declension' },
   'decl-article':   { label: 'Declension · article', de: 'Deklination · Artikel', module: 'Declension' },
   'decl-adjective': { label: 'Declension · adj. ending', de: 'Deklination · Endung', module: 'Declension' },
@@ -64,6 +66,7 @@ const typeOrder: QuizHistoryType[] = [
   'noun-gender', 'noun-translation', 'adjective',
   'verb-translation', 'verb-conjugation',
   'prep-case', 'prep-article', 'prep-two-way',
+  'prep-sentence', 'prep-remedial',
   'decl-table', 'decl-article', 'decl-adjective',
   'decl-pronoun', 'decl-case-recognition',
   'decl-article-ai',
@@ -375,6 +378,10 @@ function summariseMeta(it: QuizHistoryEntry): string {
 
       <div class="charts-section-mark">Module · Per-module breakdown</div>
 
+      <PrepWeakPoints
+        v-if="stats.runsByType['prep-sentence'] + stats.runsByType['prep-remedial'] > 0"
+        :stats="stats"
+      />
       <KonjunktivStats :items="items" />
       <PassivStats :items="items" />
       <WritingStats :items="items" />

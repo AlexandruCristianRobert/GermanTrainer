@@ -32,6 +32,18 @@ _Avoid_: target noun, chosen noun
 A noun the AI introduces to make a generated sentence natural (e.g. the subject "the cat"). Not selected by the drill, not tested, and never hinted.
 _Avoid_: extra noun, filler noun
 
+**Error tag**:
+A classification the grader assigns to a wrong sentence-translation answer, naming *what* went wrong. One of: `preposition` (wrong or missing preposition word), `case` (the right preposition but the wrong governed case — a mis-inflected article/ending), `noun` (a wrong assigned theme noun — wrong word, gender, or form), `typo` (a slip elsewhere in the sentence, not on the preposition, case, or assigned noun). A single answer may carry several. Assigned only for `EN→DE` sentence translation.
+_Avoid_: error type, mistake category, error reason
+
+**Weak point**:
+A preposition or assigned theme noun the learner fails disproportionately often, surfaced from recorded sentence-translation attempts. The basis for suggesting targeted remedial practice.
+_Avoid_: weakness, problem area, trouble word
+
+**Remedial drill**:
+A generated practice session aimed at the learner's weak points. Unlike the regular sentence-translation drill (random prepositions), it draws from the learner's weakest prepositions and nouns and blends several question formats — case fill-ins, noun cards, sentence translations — in proportion to the learner's recent error tags. Its own answers feed back into weak-point tracking.
+_Avoid_: practice mode, review quiz, custom quiz
+
 ### Vocabulary forms
 
 **Dictionary form**:

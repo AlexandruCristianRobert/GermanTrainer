@@ -2,7 +2,7 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
-import { checkSentence, gradeAnswer, buildHintSegments, type GeneratedSentence, type SentenceVerdict, type Direction, type GradingMode, type HintSegment, type HintInput } from '../../composables/useSentenceQuiz'
+import { checkSentence, gradeAnswer, buildHintSegments, buildDrillItem, type GeneratedSentence, type SentenceVerdict, type Direction, type GradingMode, type HintSegment, type HintInput } from '../../composables/useSentenceQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
 import { resolveAiClient } from '../../composables/localClaude'
@@ -165,7 +165,7 @@ async function submit() {
         case: s.case,
         userAnswer: userInput.value
       })
-      verdict = { index: i, correct: grade.correct, correction: target, tip: grade.tip }
+      verdict = { index: i, correct: grade.correct, correction: target, tip: grade.tip, tags: grade.tags }
     } catch {
       // Fall back to local exact check when the grader is unreachable.
       verdict = { index: i, correct: checkSentence(userInput.value, target), correction: target }
@@ -187,6 +187,12 @@ function finishQuiz() {
   if (!historySaved.value) {
     historySaved.value = true
     const finishedAt = Date.now()
+    // Only EN→DE runs record per-item drill data for weak-point tracking;
+    // DE→EN runs omit the field entirely.
+    const sentenceItems = direction.value === 'en-de'
+      ? deck.value.map((s, i) =>
+          buildDrillItem(s, verdicts.value.get(i)?.correct ?? false, verdicts.value.get(i)?.tags))
+      : undefined
     saveQuizRun({
       type: 'prep-sentence',
       startedAt: new Date(startedAt.value).toISOString(),
@@ -200,7 +206,8 @@ function finishQuiz() {
         nounsPerSentence: meta.value.nounsPer,
         sentenceDirection: direction.value,
         sentenceGrading: gradingMode.value,
-        sentenceHints: hintsActive.value
+        sentenceHints: hintsActive.value,
+        ...(sentenceItems ? { sentenceItems } : {})
       }
     })
   }
@@ -263,6 +270,7 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           <span class="rr-en">{{ sourceText(s) }}</span>
           <span class="rr-tags">
             <span class="tag" :class="caseTagClass(s.case)">{{ s.case }}</span>
+            <span v-for="t in verdicts.get(i)?.tags" :key="t" class="tag tag-error">{{ t }}</span>
           </span>
         </div>
         <div class="rr-you" :class="{ 'rr-you-empty': !answers[i]?.trim() }">
@@ -370,6 +378,7 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
         <span v-if="currentVerdict.tip" class="prep-feedback-tip">💡 {{ currentVerdict.tip }}</span>
         <span class="prep-feedback-tags">
           <span class="tag" :class="caseTagClass(current.case)">{{ current.prepGerman }} · {{ caseHintLabel(current.case) }}</span>
+          <span v-for="t in currentVerdict.tags" :key="t" class="tag tag-error">{{ t }}</span>
         </span>
       </div>
     </div>
@@ -496,7 +505,8 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
   font-size: 14px;
   color: var(--ink-soft);
 }
-.prep-feedback-tags { margin-top: 4px; }
+.prep-feedback-tags { margin-top: 4px; display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.tag.tag-error { background: var(--danger-tint); color: var(--danger); }
 
 /* Result list */
 .result-page { max-width: 880px; }
@@ -514,7 +524,7 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
 .result-row.good .rr-mark { color: var(--sage, #6b8e6b); }
 .result-row.bad .rr-mark { color: var(--clay, #b5654a); }
 .rr-en { flex: 1; font-family: var(--font-body); color: var(--ink); }
-.rr-tags { margin-left: auto; }
+.rr-tags { margin-left: auto; display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .rr-you, .rr-ref, .rr-tip { font-family: var(--font-mono); font-size: 14px; margin-top: 6px; color: var(--ink-soft); }
 .rr-you-empty { opacity: 0.6; }
 .rr-ref { color: var(--ink); }

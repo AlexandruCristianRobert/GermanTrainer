@@ -15,6 +15,7 @@ import {
   type QuizHistoryEntry,
   type QuizHistoryType
 } from './useQuizHistory'
+import { computeWeakPoints, type WeakPoints } from './usePrepRemedial'
 
 export interface BucketStat {
   correct: number
@@ -75,6 +76,7 @@ export interface StatsBundle {
     finishedAt: string
   }>
   bestRunByType: Partial<Record<QuizHistoryType, QuizHistoryEntry>>
+  prepWeakPoints: WeakPoints
 }
 
 // ── helpers ─────────────────────────────────────────────────────────
@@ -94,6 +96,7 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'prep-article': 0,
     'prep-two-way': 0,
     'prep-sentence': 0,
+    'prep-remedial': 0,
     'decl-table': 0,
     'decl-article': 0,
     'decl-adjective': 0,
@@ -118,6 +121,7 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'prep-article': emptyBucket(),
     'prep-two-way': emptyBucket(),
     'prep-sentence': emptyBucket(),
+    'prep-remedial': emptyBucket(),
     'decl-table': emptyBucket(),
     'decl-article': emptyBucket(),
     'decl-adjective': emptyBucket(),
@@ -206,7 +210,8 @@ export function computeStats(entries: QuizHistoryEntry[]): StatsBundle {
       calendarHeatmap: [],
       durationBuckets: DURATION_BUCKETS.map(b => ({ label: b.label, count: 0 })),
       countVsAccuracy: [],
-      bestRunByType: {}
+      bestRunByType: {},
+      prepWeakPoints: computeWeakPoints([])
     }
   }
 
@@ -397,7 +402,8 @@ export function computeStats(entries: QuizHistoryEntry[]): StatsBundle {
       count: durationBucketCounts[i]
     })),
     countVsAccuracy,
-    bestRunByType
+    bestRunByType,
+    prepWeakPoints: computeWeakPoints(entries)
   }
 }
 

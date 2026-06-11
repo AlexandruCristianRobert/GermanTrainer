@@ -13,6 +13,7 @@ import { shuffle } from '../data/pool'
 import type { AiClient } from './useClaude'
 import type { Preposition, PrepCase } from '../data/prepositions'
 import type { Gender, Noun } from '../db/types'
+import type { PrepErrorTag, PrepDrillItem } from './useQuizHistory'
 
 // ─────────────────────────────── Types ────────────────────────────────
 
@@ -66,6 +67,8 @@ export interface SentenceVerdict {
   correction: string
   /** A short coaching note from the AI grader pinpointing the mistake (when wrong). */
   tip?: string
+  /** Error categories from the AI grader (en→de only); used for weak-point tracking. */
+  tags?: PrepErrorTag[]
 }
 
 // ───────────────────────────── Pure helpers ───────────────────────────
@@ -461,16 +464,23 @@ export interface GradeAnswerOptions {
 export interface AnswerGrade {
   correct: boolean
   tip?: string
+  tags?: PrepErrorTag[]
 }
 
 const GRADE_SCHEMA = {
   type: 'object',
   properties: {
     correct: { type: 'boolean' },
-    tip: { type: 'string' }
+    tip: { type: 'string' },
+    errorTags: {
+      type: 'array',
+      items: { type: 'string', enum: ['preposition', 'case', 'noun', 'typo'] }
+    }
   },
   required: ['correct']
 }
+
+const PREP_ERROR_TAGS: readonly PrepErrorTag[] = ['preposition', 'case', 'noun', 'typo']
 
 /**
  * Build the (pure, testable) system + user prompt for grading one answer.
@@ -494,7 +504,15 @@ export function buildGradePrompt(opts: GradeAnswerOptions): { system: string; us
       'Judge whether the German is a correct, grammatical translation of the English ' +
       `that uses the target preposition "${opts.prepGerman}" in the ${caseName}. ` +
       'Accept natural alternative phrasings and word order — do not require an exact ' +
-      'match to the reference.'
+      'match to the reference. ' +
+      'When "correct" is false, ALSO return "errorTags": an array naming every way the ' +
+      'answer is wrong, drawn from exactly these values: "preposition" (a wrong or missing ' +
+      'preposition word), "case" (the correct preposition but the WRONG governed case — ' +
+      'e.g. "mit den Bus" instead of "mit dem Bus", a mis-inflected article or ending), ' +
+      '"noun" (a wrong assigned theme noun — wrong word, gender, or form), "typo" (a slip ' +
+      'elsewhere in the sentence, not on the preposition, its case, or an assigned noun). ' +
+      'You may include several tags when several things are wrong. When "correct" is true, ' +
+      '"errorTags" may be omitted or left empty.'
     const user =
       `ENGLISH (source shown to the learner): ${opts.english}\n` +
       `GERMAN (reference translation): ${opts.german}\n` +
@@ -531,6 +549,12 @@ export function parseGrade(raw: unknown): AnswerGrade | null {
   if (typeof r.tip === 'string') {
     const tip = r.tip.trim()
     if (tip.length > 0) grade.tip = tip
+  }
+  if (Array.isArray(r.errorTags)) {
+    const tags = r.errorTags.filter(
+      (t): t is PrepErrorTag => typeof t === 'string' && (PREP_ERROR_TAGS as readonly string[]).includes(t)
+    )
+    if (tags.length > 0) grade.tags = tags
   }
   return grade
 }
@@ -582,4 +606,20 @@ export async function gradeAnswer(
   }
 
   throw new Error(`gradeAnswer exhausted ${attempts} attempts. Last error: ${lastError}`)
+}
+
+/** Build the per-item record stored in run meta for one graded sentence. */
+export function buildDrillItem(
+  s: GeneratedSentence,
+  correct: boolean,
+  tags?: PrepErrorTag[]
+): PrepDrillItem {
+  const item: PrepDrillItem = {
+    prepId: s.prepId,
+    prepGerman: s.prepGerman,
+    nounKeys: s.nouns.map(n => n.german),
+    correct
+  }
+  if (tags && tags.length > 0) item.tags = tags
+  return item
 }

@@ -95,6 +95,7 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'prep-article': 'preposition · article',
   'prep-two-way': 'preposition · two-way',
   'prep-sentence': 'preposition · sentence translation (AI)',
+  'prep-remedial': 'preposition · remedial weak-point drill',
   'decl-table': 'declension · table',
   'decl-article': 'declension · article',
   'decl-adjective': 'declension · adjective ending',

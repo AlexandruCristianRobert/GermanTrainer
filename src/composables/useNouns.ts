@@ -61,5 +61,9 @@ export function useNouns() {
     return counts
   }
 
-  return { items, refresh, create, update, remove, count, sample, sampleByGroups, countsByGroup }
+  async function findByGerman(german: string): Promise<Noun | undefined> {
+    return db.nouns.where('german').equals(german).first()
+  }
+
+  return { items, refresh, create, update, remove, count, sample, sampleByGroups, countsByGroup, findByGerman }
 }
