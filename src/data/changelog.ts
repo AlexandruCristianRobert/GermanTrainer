@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.13'
+export const APP_VERSION = '1.11.14'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.14', date: '2026-06-12', kind: 'fix',
+    title: 'Quizzes · one Enter press no longer submits and advances at once',
+    notes: [
+      '<strong>Enter behaves again in typed quizzes.</strong> In the noun <em>Translation</em> quiz (and the adjective <em>Sentence</em> quiz), pressing <em>Enter</em> to submit also skipped straight to the next question — the graded answer flashed by before you could read it. Submitting now stays on the feedback; press <em>Enter</em> again (or click <em>Next</em>) when you\'re ready to move on.',
+      '<strong>The cause:</strong> submitting moved focus to the <em>Next</em> button while the key was still held down, and the button reacted to the <em>release</em> of that same keystroke. The same trap existed for keyboard users in the gender picker and the remedial drill — removed there too.'
+    ]
+  },
   {
     version: '1.11.13', date: '2026-06-11', kind: 'module',
     title: 'Prepositions · weak-point tracking + remedial drill',
