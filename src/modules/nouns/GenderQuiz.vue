@@ -175,7 +175,6 @@ function btnClass(g: Gender): string {
           type="button"
           :disabled="!picked"
           @click="next"
-          @keyup.enter="next"
         >
           {{ questionNumber === totalQuestions ? 'Finish quiz' : 'Next' }}
           <span aria-hidden="true">→</span>

@@ -170,7 +170,6 @@ const marg = computed(() => TRANSLATION_MARGINALIA[margIdx.value])
           class="btn btn-accent"
           type="button"
           @click="next"
-          @keyup.enter="next"
         >
           {{ questionNumber === totalQuestions ? 'Finish quiz' : 'Next' }}
           <span aria-hidden="true">→</span>

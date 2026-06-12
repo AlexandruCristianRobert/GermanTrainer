@@ -410,7 +410,6 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           type="button"
           class="btn btn-accent"
           @click="next"
-          @keyup.enter="next"
         >{{ isLast ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
       </div>
 

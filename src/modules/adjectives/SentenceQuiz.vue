@@ -95,7 +95,6 @@ const isCorrect = computed(() => props.question.isCorrect === true)
         class="btn btn-accent"
         type="button"
         @click="next"
-        @keyup.enter="next"
       >
         {{ questionNumber === totalQuestions ? 'Finish quiz' : 'Next' }}
         <span aria-hidden="true">→</span>
