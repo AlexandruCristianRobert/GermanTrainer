@@ -12,10 +12,12 @@ interface ModuleCard {
 }
 
 const cards: ModuleCard[] = [
-  { numeral: 'A', route: 'verbs-list',         title: 'Browse verbs',     de: 'Liste',       desc: 'Searchable list of all 378 A1/A2/B1/B2 verbs with type, case, and auxiliary.' },
-  { numeral: 'B', route: 'verbs-translation',  title: 'Translation quiz', de: 'Übersetzen',  desc: 'Type the English meaning of a German verb. "to" is optional.' },
-  { numeral: 'C', route: 'verbs-conjugation',  title: 'Conjugation quiz', de: 'Konjugation', desc: 'Fill in all six forms across the tenses you pick — from Präsens to Passiv.' },
-  { numeral: 'D', route: 'verbs-cheatsheet',   title: 'Cheatsheet',       de: 'Grammatik',   desc: 'Twelve chapters of conjugation rules, exceptions, and example sentences.' }
+  { numeral: 'A', route: 'verbs-list',         title: 'Browse verbs',        de: 'Liste',          desc: 'Searchable list of all 378 A1/A2/B1/B2 verbs with type, case, and auxiliary.' },
+  { numeral: 'B', route: 'verbs-translation',  title: 'Translation quiz',    de: 'Übersetzen',     desc: 'Type the English meaning of a German verb. "to" is optional.' },
+  { numeral: 'C', route: 'verbs-sentence',     title: 'Sentence quiz',       de: 'Satz (KI)',      desc: 'AI writes English sentences with your verbs + nouns; you translate to German and the AI grades you.' },
+  { numeral: 'D', route: 'verbs-remedial',     title: 'Practise weak verbs', de: 'Schwachstellen', desc: 'A sentence drill focused on the verbs and nouns you get wrong most often.' },
+  { numeral: 'E', route: 'verbs-conjugation',  title: 'Conjugation quiz',    de: 'Konjugation',    desc: 'Fill in all six forms across the tenses you pick — from Präsens to Passiv.' },
+  { numeral: 'F', route: 'verbs-cheatsheet',   title: 'Cheatsheet',          de: 'Grammatik',      desc: 'Twelve chapters of conjugation rules, exceptions, and example sentences.' }
 ]
 
 function go(target: string) { router.push({ name: target }) }
