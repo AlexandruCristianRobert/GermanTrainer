@@ -102,3 +102,46 @@ describe('buildVerbGeneratePrompt', () => {
     expect(new Set(VERB_ANGLE_POOL).size).toBeGreaterThanOrEqual(12)
   })
 })
+
+import { validateVerbSentencePair } from '../../src/composables/useVerbSentenceQuiz'
+
+describe('validateVerbSentencePair', () => {
+  const spec = { index: 0, verbs: [{ german: 'gehen', english: 'go', level: 'A1' as const }], nouns: [{ german: 'Schule', article: 'die' as const, english: 'school' }] }
+
+  test('accepts a well-formed pair and keeps spans + extras', () => {
+    const out = validateVerbSentencePair({
+      index: 0, english: 'The children go to school in the morning.', german: 'Die Kinder gehen morgens zur Schule.',
+      verbSpansEn: ['go'], nounSpansEn: ['school'],
+      extraWords: [{ en: 'children', de: 'das Kind', kind: 'noun' }, { en: 'morning', de: 'der Morgen', kind: 'noun' }]
+    }, spec)
+    expect(out).not.toBeNull()
+    expect(out!.verbSpansEn).toEqual(['go'])
+    expect(out!.nounSpansEn).toEqual(['school'])
+    expect(out!.extraWords).toHaveLength(2)
+    expect(out!.verbs).toEqual(spec.verbs) // spec carried through
+  })
+  test('rejects non-objects and too-short sentences', () => {
+    expect(validateVerbSentencePair(null, spec)).toBeNull()
+    expect(validateVerbSentencePair({ english: 'Hi', german: 'Ja' }, spec)).toBeNull()
+  })
+  test('tolerates missing/garbage span fields (best-effort, never rejects on them)', () => {
+    const out = validateVerbSentencePair({ index: 0, english: 'We bought a cake.', german: 'Wir haben einen Kuchen gekauft.' }, spec)
+    expect(out).not.toBeNull()
+    expect(out!.verbSpansEn).toBeUndefined()
+    expect(out!.extraWords).toBeUndefined()
+  })
+  test('drops malformed extraWords entries, keeps valid ones', () => {
+    const out = validateVerbSentencePair({
+      index: 0, english: 'The cat sleeps on the table.', german: 'Die Katze schläft auf dem Tisch.',
+      extraWords: [{ en: 'cat', de: 'die Katze', kind: 'noun' }, { en: '', de: 'x', kind: 'noun' }, { en: 'sleeps', de: '', kind: 'verb' }, 'junk']
+    }, spec)
+    expect(out!.extraWords).toEqual([{ en: 'cat', de: 'die Katze', kind: 'noun' }])
+  })
+  test('coerces an unknown extraWords kind to "noun"', () => {
+    const out = validateVerbSentencePair({
+      index: 0, english: 'He runs fast.', german: 'Er läuft schnell.',
+      extraWords: [{ en: 'runs', de: 'laufen', kind: 'banana' }]
+    }, spec)
+    expect(out!.extraWords).toEqual([{ en: 'runs', de: 'laufen', kind: 'noun' }])
+  })
+})

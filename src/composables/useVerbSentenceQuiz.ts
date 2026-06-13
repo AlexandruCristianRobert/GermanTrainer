@@ -226,3 +226,45 @@ export function buildVerbGeneratePrompt(
     `\nAlso return verbSpansEn, nounSpansEn (one per listed noun, in order), and extraWords (every other noun/verb), each surface an exact substring of your English sentence.`
   )
 }
+
+function trimStr(x: unknown): string {
+  return typeof x === 'string' ? x.trim() : ''
+}
+
+/**
+ * Validate one AI sentence pair against its spec. We do NOT require the verb
+ * surface to appear (conjugated forms diverge from the infinitive — over-strict
+ * checks force slow retries). Span/extra fields are best-effort: malformed or
+ * missing values are dropped, never a reason to reject the pair.
+ */
+export function validateVerbSentencePair(
+  raw: unknown,
+  spec: VerbSentenceSpec
+): GeneratedVerbSentence | null {
+  if (!raw || typeof raw !== 'object') return null
+  const e = raw as Record<string, unknown>
+  const english = trimStr(e.english)
+  const german = trimStr(e.german)
+  if (english.length < 3 || german.length < 3) return null
+
+  const out: GeneratedVerbSentence = { ...spec, english, german }
+
+  if (Array.isArray(e.verbSpansEn)) {
+    out.verbSpansEn = e.verbSpansEn.filter((x): x is string => typeof x === 'string').map(s => s.trim())
+  }
+  if (Array.isArray(e.nounSpansEn)) {
+    out.nounSpansEn = e.nounSpansEn.filter((x): x is string => typeof x === 'string').map(s => s.trim())
+  }
+  if (Array.isArray(e.extraWords)) {
+    const extras = e.extraWords
+      .filter((w): w is Record<string, unknown> => !!w && typeof w === 'object')
+      .map(w => ({
+        en: trimStr(w.en),
+        de: trimStr(w.de),
+        kind: w.kind === 'verb' ? ('verb' as const) : ('noun' as const)
+      }))
+      .filter(w => w.en.length > 0 && w.de.length > 0)
+    if (extras.length > 0) out.extraWords = extras
+  }
+  return out
+}
