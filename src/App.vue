@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { NConfigProvider, NMessageProvider, NDialogProvider, darkTheme } from 'naive-ui'
 import NavShell from './components/NavShell.vue'
 import LoadingOverlay from './components/LoadingOverlay.vue'
+import RouteProgress from './components/RouteProgress.vue'
 import ToastStack from './components/ToastStack.vue'
 import { useTheme } from './composables/useTheme'
 
@@ -19,6 +20,7 @@ const theme = computed(() => resolved.value === 'dark' ? darkTheme : null)
       </n-dialog-provider>
     </n-message-provider>
   </n-config-provider>
+  <RouteProgress />
   <LoadingOverlay />
   <ToastStack />
 </template>
