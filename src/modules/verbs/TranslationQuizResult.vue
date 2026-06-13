@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import type { Verb } from '../../data/verbs'
 import { usePagination } from '../../composables/usePagination'
 import Pagination from '../../components/Pagination.vue'
+import RetryModal from '../../components/RetryModal.vue'
 
 interface GradedRow {
   verb: Verb
@@ -15,6 +16,7 @@ interface Stashed {
   graded: GradedRow[]
   total: number
   correct: number
+  direction?: 'de-en' | 'en-de'
 }
 
 const router = useRouter()
@@ -27,12 +29,18 @@ onMounted(() => {
   } catch { /* ignore */ }
 })
 
+// Older stashes predate the direction field — they were always DE→EN.
+const direction = computed(() => data.value?.direction === 'en-de' ? 'en-de' : 'de-en')
+
 const pct = computed(() => {
   if (!data.value || data.value.total === 0) return 0
   return Math.round((data.value.correct / data.value.total) * 100)
 })
 
-const wrongCount = computed(() => (data.value?.total ?? 0) - (data.value?.correct ?? 0))
+// Derive from the graded rows (correct === false) so the "Retry N wrong" label
+// and the set retryWrong() actually rebuilds share one source of truth.
+const wrongRows = computed(() => (data.value?.graded ?? []).filter(g => !g.correct))
+const wrongCount = computed(() => wrongRows.value.length)
 
 const pagination = usePagination(() => data.value?.graded ?? [], 25)
 
@@ -44,6 +52,18 @@ const summary = computed(() => {
 
 function back() { router.push({ name: 'verbs-translation' }) }
 function home() { router.push({ name: 'verbs' }) }
+
+function retryWrong() {
+  const rows = wrongRows.value
+  if (rows.length === 0) return
+  try {
+    sessionStorage.setItem('gt:verbTranslationRetry', JSON.stringify({
+      verbs: rows.map(r => r.verb),
+      direction: direction.value
+    }))
+  } catch { return /* without the stash the runner has nothing to load */ }
+  router.push({ name: 'verbs-translation-run', query: { retry: '1' } })
+}
 </script>
 
 <template>
@@ -66,7 +86,18 @@ function home() { router.push({ name: 'verbs' }) }
       </div>
       <div class="result-actions">
         <button class="btn btn-ghost" type="button" @click="home">← Verben</button>
-        <button class="btn btn-accent" type="button" @click="back">
+        <template v-if="data">
+          <button
+            v-if="wrongCount > 0"
+            class="btn btn-accent"
+            type="button"
+            @click="retryWrong"
+          >
+            Retry {{ wrongCount }} wrong <span aria-hidden="true">→</span>
+          </button>
+          <span v-else class="all-correct-banner">Alles richtig! 🎉</span>
+        </template>
+        <button class="btn" :class="wrongCount > 0 ? 'btn-ghost' : 'btn-accent'" type="button" @click="back">
           Start another quiz <span aria-hidden="true">→</span>
         </button>
       </div>
@@ -99,7 +130,7 @@ function home() { router.push({ name: 'verbs' }) }
         >
           <div class="verb-result-num"># {{ String(pagination.start.value + i + 1).padStart(2, '0') }}</div>
           <div class="verb-result-prompt">
-            <div class="vrp-german">{{ g.verb.german }}</div>
+            <div class="vrp-german">{{ direction === 'en-de' ? g.verb.english : g.verb.german }}</div>
             <div class="vrp-meta">
               <span>{{ g.verb.level }}</span><span class="vrp-dot">·</span>
               <span>{{ g.verb.type }}</span><span class="vrp-dot">·</span>
@@ -122,7 +153,11 @@ function home() { router.push({ name: 'verbs' }) }
             <div v-if="!g.correct" class="verb-result-line">
               <span class="vrl-label">RICHTIG</span>
               <span class="vrl-value">
-                <span class="vr-stamp vr-stamp-right">{{ g.verb.english }}</span>
+                <span class="vr-stamp vr-stamp-right">{{ direction === 'en-de' ? g.verb.german : g.verb.english }}</span>
+                <span
+                  v-if="direction === 'de-en' && g.verb.english.includes('/')"
+                  class="micro-mark"
+                >any one counts</span>
               </span>
             </div>
           </div>
@@ -130,6 +165,8 @@ function home() { router.push({ name: 'verbs' }) }
           <div class="verb-result-mark">{{ g.correct ? '✓' : '✗' }}</div>
         </div>
       </div>
+
+      <RetryModal :wrong-count="wrongCount" item-label="verbs" @retry="retryWrong" />
     </template>
   </div>
 </template>
@@ -138,6 +175,14 @@ function home() { router.push({ name: 'verbs' }) }
 .result-page { max-width: 880px; }
 .result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .vrs-pct-suffix { font-size: 18px; color: var(--mute); margin-left: 2px; }
+
+.all-correct-banner {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--success);
+  align-self: center;
+}
 
 @media (max-width: 720px) {
   .result-actions { flex-direction: column; align-items: stretch; }

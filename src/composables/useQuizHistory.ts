@@ -41,6 +41,7 @@ export interface QuizHistoryMeta {
   types?: string[]
   cases?: string[]
   tenses?: string[]
+  verbDirection?: 'de-en' | 'en-de'
   prepLevels?: string[]
   prepCases?: string[]
 

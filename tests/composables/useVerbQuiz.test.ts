@@ -3,6 +3,7 @@ import {
   useTranslationQuiz,
   useConjugationQuiz,
   checkTranslation,
+  checkGermanTranslation,
   checkConjugation
 } from '../../src/composables/useVerbQuiz'
 import type { Verb } from '../../src/data/verbs'
@@ -89,11 +90,75 @@ describe('checkTranslation — parentheticals', () => {
   })
 })
 
+describe('checkTranslation — one alternative is always enough', () => {
+  it('accepts a single alternative with stray punctuation', () => {
+    expect(checkTranslation('contact.', 'turn to / contact')).toBe(true)
+    expect(checkTranslation('turn to!', 'turn to / contact')).toBe(true)
+    expect(checkTranslation('"contact"', 'turn to / contact')).toBe(true)
+    expect(checkTranslation('to contact.', 'turn to / contact')).toBe(true)
+  })
+
+  it('accepts typing the alternatives exactly as displayed', () => {
+    expect(checkTranslation('turn to / contact', 'turn to / contact')).toBe(true)
+    expect(checkTranslation('contact / turn to', 'turn to / contact')).toBe(true)
+  })
+
+  it('rejects a list that smuggles in a wrong alternative', () => {
+    expect(checkTranslation('turn to / banana', 'turn to / contact')).toBe(false)
+    expect(checkTranslation('/', 'turn to / contact')).toBe(false)
+  })
+})
+
+describe('verb dataset — alternatives are slash-separated', () => {
+  it('no english field lists alternatives with commas or "or"', async () => {
+    const { VERBS } = await import('../../src/data/verbs')
+    const offenders = VERBS.filter(v => /,|\bor\b/.test(v.english))
+    expect(offenders.map(v => v.german)).toEqual([])
+  })
+})
+
 describe('verb dataset — parenthetical hygiene', () => {
   it('no english field contains "(...)" — typing one word is enough to match', async () => {
     const { VERBS } = await import('../../src/data/verbs')
     const offenders = VERBS.filter(v => /\([^)]*\)/.test(v.english))
     expect(offenders).toEqual([])
+  })
+})
+
+describe('checkGermanTranslation — EN→DE grading', () => {
+  it('accepts the exact German infinitive', () => {
+    expect(checkGermanTranslation('aufstehen', 'aufstehen')).toBe(true)
+  })
+
+  it('accepts case and whitespace differences', () => {
+    expect(checkGermanTranslation('  Aufstehen ', 'aufstehen')).toBe(true)
+  })
+
+  it('accepts stray edge punctuation', () => {
+    expect(checkGermanTranslation('aufstehen.', 'aufstehen')).toBe(true)
+    expect(checkGermanTranslation('"sich freuen!"', 'sich freuen')).toBe(true)
+  })
+
+  it('rejects umlaut substitutions', () => {
+    expect(checkGermanTranslation('horen', 'hören')).toBe(false)
+    expect(checkGermanTranslation('hoeren', 'hören')).toBe(false)
+  })
+
+  it('accepts reflexive verbs with or without "sich"', () => {
+    expect(checkGermanTranslation('sich freuen', 'sich freuen')).toBe(true)
+    expect(checkGermanTranslation('freuen', 'sich freuen')).toBe(true)
+    expect(checkGermanTranslation('SICH FREUEN', 'sich freuen')).toBe(true)
+  })
+
+  it('does not accept a bare "sich" or "sich" on a non-reflexive verb', () => {
+    expect(checkGermanTranslation('sich', 'sich freuen')).toBe(false)
+    expect(checkGermanTranslation('sich gehen', 'gehen')).toBe(false)
+  })
+
+  it('rejects a wrong verb and the empty answer', () => {
+    expect(checkGermanTranslation('stehen', 'aufstehen')).toBe(false)
+    expect(checkGermanTranslation('', 'aufstehen')).toBe(false)
+    expect(checkGermanTranslation('   ', 'aufstehen')).toBe(false)
   })
 })
 

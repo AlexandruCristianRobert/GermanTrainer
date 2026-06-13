@@ -4,6 +4,13 @@ import { conjugate } from './conjugate'
 
 // ───── Translation mode ─────────────────────────────────────────────
 
+/**
+ * Which way the learner translates: 'de-en' (shown the German, types the
+ * English — the original sheet) or 'en-de' (shown the English, types the
+ * German infinitive).
+ */
+export type TranslationDirection = 'de-en' | 'en-de'
+
 export interface TranslationQuestion {
   verb: Verb
   userAnswer: string | null
@@ -17,19 +24,43 @@ function stripParens(s: string): string {
   return s.replace(/\([^)]*\)/g, '')
 }
 
+function stripEdgePunctuation(s: string): string {
+  return s.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '')
+}
+
 function normalizeTranslation(s: string): string {
-  let n = stripParens(s).trim().replace(/\s+/g, ' ').toLowerCase()
+  let n = stripEdgePunctuation(stripParens(s).trim().replace(/\s+/g, ' ').toLowerCase())
   if (n.startsWith('to ')) n = n.slice(3).trim()
   return n
 }
 
 export function checkTranslation(input: string, english: string): boolean {
-  const a = normalizeTranslation(input)
+  // Each slash-separated alternative is graded independently — typing any
+  // one of them accepts. Typing several (e.g. "turn to / contact" exactly
+  // as displayed) accepts only if every one is right. Parentheticals and
+  // edge punctuation are stripped from both sides so disambiguation hints
+  // and stray periods don't reject correct words.
+  const expected = english.split('/').map(normalizeTranslation).filter(s => s.length > 0)
+  const given = input.split('/').map(normalizeTranslation).filter(s => s.length > 0)
+  if (given.length === 0 || expected.length === 0) return false
+  return given.every(g => expected.includes(g))
+}
+
+function normalizeGerman(s: string): string {
+  return stripEdgePunctuation(stripParens(s).trim().replace(/\s+/g, ' ').toLowerCase())
+}
+
+export function checkGermanTranslation(input: string, german: string): boolean {
+  const a = normalizeGerman(input)
   if (a.length === 0) return false
-  // Each slash-separated alternative is graded independently — typing
-  // any one of them accepts. Parentheticals are stripped from both
-  // sides so optional disambiguation hints don't reject correct words.
-  return english.split('/').some(seg => normalizeTranslation(seg) === a)
+  return german.split('/').some(seg => {
+    const e = normalizeGerman(seg)
+    if (a === e) return true
+    // Reflexive headwords accept the bare verb too: "freuen" for
+    // "sich freuen". Unlike English "to", "sich" is never optional the
+    // other way — non-reflexive verbs reject a "sich" prefix.
+    return e.startsWith('sich ') && a === e.slice(5)
+  })
 }
 
 export function useTranslationQuiz(verbs: Verb[]) {

@@ -2,7 +2,8 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
-import { checkTranslation } from '../../composables/useVerbQuiz'
+import { shuffle } from '../../data/pool'
+import { checkTranslation, checkGermanTranslation, type TranslationDirection } from '../../composables/useVerbQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { VERB_LEVELS, VERB_TYPES, VERB_CASES, type Verb, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
 import { getVerbTip } from '../../data/verb-tips'
@@ -28,6 +29,7 @@ const { sample } = useVerbs()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
+const direction = ref<TranslationDirection>('de-en')
 const deck = ref<Verb[]>([])
 const answers = ref<string[]>([])
 const startedAt = ref<number>(0)
@@ -40,8 +42,40 @@ function csvFilter<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   return raw.split(',').map(s => s.trim()).filter((x): x is T => set.has(x))
 }
 
+function startDeck(verbs: Verb[]) {
+  deck.value = verbs
+  answers.value = verbs.map(() => '')
+  showTip.value = verbs.map(() => false)
+  startedAt.value = Date.now()
+}
+
+// Retry rounds (?retry=1) replay the verbs the result page stashed instead of
+// sampling fresh ones; the direction travels in the stash, not the query.
+function loadRetryDeck() {
+  try {
+    const raw = sessionStorage.getItem('gt:verbTranslationRetry')
+    const stash = raw ? JSON.parse(raw) as { verbs?: Verb[]; direction?: TranslationDirection } : null
+    const verbs = Array.isArray(stash?.verbs) ? stash.verbs : []
+    if (verbs.length === 0) {
+      error.value = 'Nothing to retry — start a fresh round from setup.'
+      return
+    }
+    direction.value = stash?.direction === 'en-de' ? 'en-de' : 'de-en'
+    startDeck(shuffle(verbs))
+  } catch {
+    error.value = 'Nothing to retry — start a fresh round from setup.'
+  }
+}
+
 onMounted(() => {
+  if (route.query.retry === '1') {
+    loadRetryDeck()
+    loading.value = false
+    nextTick(() => inputRefs.value[0]?.focus())
+    return
+  }
   const count = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
+  direction.value = route.query.direction === 'en-de' ? 'en-de' : 'de-en'
   const f = {
     levels: csvFilter<VerbLevel>(route.query.levels, VERB_LEVELS),
     types: csvFilter<VerbType>(route.query.types, VERB_TYPES),
@@ -52,10 +86,7 @@ onMounted(() => {
     if (verbs.length === 0) {
       error.value = 'No verbs match the selected filters.'
     } else {
-      deck.value = verbs
-      answers.value = verbs.map(() => '')
-      showTip.value = verbs.map(() => false)
-      startedAt.value = Date.now()
+      startDeck(verbs)
     }
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load.'
@@ -106,7 +137,9 @@ function submitAll() {
   const graded = deck.value.map((verb, i) => ({
     verb,
     input: answers.value[i],
-    correct: checkTranslation(answers.value[i], verb.english)
+    correct: direction.value === 'en-de'
+      ? checkGermanTranslation(answers.value[i], verb.german)
+      : checkTranslation(answers.value[i], verb.english)
   }))
   const finishedAt = Date.now()
   const correct = graded.filter(g => g.correct).length
@@ -122,12 +155,12 @@ function submitAll() {
     durationMs: finishedAt - startedAt.value,
     count: total.value,
     correct,
-    meta: { levels, types, cases }
+    meta: { levels, types, cases, verbDirection: direction.value }
   })
 
   // Stash graded result for the result page (sessionStorage so refresh survives within the tab)
   try {
-    sessionStorage.setItem('gt:lastVerbTranslation', JSON.stringify({ graded, total: total.value, correct }))
+    sessionStorage.setItem('gt:lastVerbTranslation', JSON.stringify({ graded, total: total.value, correct, direction: direction.value }))
   } catch { /* ignore quota */ }
   router.push({ name: 'verbs-translation-result' })
 }
@@ -151,9 +184,12 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
         <div>
           <div class="breadcrumb">Kapitel III · Übersetzen · {{ total }} Verben</div>
           <h1 class="section-title">Übersetzung<em>.</em></h1>
-          <p class="section-subtitle">
-            Type the English meaning of each verb. "to" is optional. Press Enter to jump to the next line.
+          <p v-if="direction === 'de-en'" class="section-subtitle">
+            Type the English meaning of each verb. "to" is optional, and where several meanings are listed any one counts. Press Enter to jump to the next line.
             <em class="hint-aside">Double-click a verb for an English hint that nudges you toward the meaning.</em>
+          </p>
+          <p v-else class="section-subtitle">
+            Type the German infinitive for each meaning. For reflexive verbs "sich" is optional. Press Enter to jump to the next line.
           </p>
         </div>
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
@@ -185,11 +221,13 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
           <div class="test-content">
             <div class="test-prompt-row">
               <span
+                v-if="direction === 'de-en'"
                 class="test-verb"
                 :class="{ 'with-tip': showTip[i] }"
                 :title="showTip[i] ? 'Double-click to show the verb' : 'Double-click for an English hint'"
                 @dblclick="toggleTip(i)"
               >{{ showTip[i] ? getVerbTip(verb.german) : verb.german }}</span>
+              <span v-else class="test-verb">{{ verb.english }}</span>
               <span class="test-chips">
                 <span class="tag">{{ verb.level }}</span>
                 <span class="tag" :class="typeTagClass(verb.type)">{{ verb.type }}</span>
@@ -200,7 +238,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
               :ref="(el) => { if (el) inputRefs[i] = el as HTMLInputElement }"
               class="test-input"
               type="text"
-              placeholder="English (to is optional)…"
+              :placeholder="direction === 'en-de' ? 'German infinitive…' : 'English (to is optional)…'"
               :value="answers[i]"
               @input="setAnswer(i, ($event.target as HTMLInputElement).value)"
               @keydown.enter="onEnter($event, i)"
