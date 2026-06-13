@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.16'
+export const APP_VERSION = '1.11.17'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.17', date: '2026-06-13', kind: 'polish',
+    title: 'Polish · page-load progress bar + a chime when AI quizzes are ready',
+    notes: [
+      '<strong>A progress bar while pages load.</strong> Moving between sections now shows a slim bar across the top of the app while the next page\'s code loads, so a slow or first-time navigation no longer looks frozen. It only appears if the load takes more than a moment (quick, cached navigations stay clean), and it respects <em>reduced motion</em>.',
+      '<strong>A chime when a quiz is ready.</strong> When an AI-generated quiz finishes loading — the verb and preposition <em>Satz</em> drills, the declension article (KI) drill, adjectives, Konjunktiv and Passiv — a soft two-note chime signals it\'s ready to start. Handy when generation takes a while and you\'ve glanced away.',
+      '<strong>Mute it any time.</strong> A new <em>Quiz-ready sound</em> switch in <em>Settings → Display</em> (on by default) turns the chime off, and your choice is remembered.'
+    ]
+  },
   {
     version: '1.11.16', date: '2026-06-13', kind: 'module',
     title: 'Verbs · sentence quiz: translate AI sentences, highlight every word, drill your weak verbs',
