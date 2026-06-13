@@ -134,7 +134,7 @@ watch(finished, (now) => {
   })
 })
 
-const resultPagination = usePagination(() => questions.value, 25)
+const resultPagination = usePagination(() => questions.value, 25, 'decl-article-ai-result')
 </script>
 
 <template>

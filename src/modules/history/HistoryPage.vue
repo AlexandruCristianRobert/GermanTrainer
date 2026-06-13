@@ -80,7 +80,7 @@ const filtered = computed(() =>
   filter.value === 'all' ? items.value : items.value.filter(it => it.type === filter.value)
 )
 
-const pagination = usePagination(() => filtered.value, 25)
+const pagination = usePagination(() => filtered.value, 25, 'history')
 
 const totalRuns = computed(() => items.value.length)
 const totalQuestions = computed(() => items.value.reduce((s, it) => s + (it.count || 0), 0))

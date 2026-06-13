@@ -12,7 +12,7 @@ const props = defineProps<{
   mode: NounQuizMode
 }>()
 
-const pagination = usePagination(() => props.questions, 25)
+const pagination = usePagination(() => props.questions, 25, 'noun-quiz-result')
 
 defineEmits<{ (e: 'restart'): void; (e: 'retry-wrong'): void }>()
 

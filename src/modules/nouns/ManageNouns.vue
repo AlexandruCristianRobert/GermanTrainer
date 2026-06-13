@@ -32,7 +32,7 @@ const filtered = computed(() => {
   )
 })
 
-const pagination = usePagination(() => filtered.value, 25)
+const pagination = usePagination(() => filtered.value, 25, 'nouns-manage')
 
 function genderTagClass(g: Gender): string {
   if (g === 'der') return 'tag-cobalt'

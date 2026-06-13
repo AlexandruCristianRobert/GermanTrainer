@@ -42,7 +42,7 @@ const summary = computed(() => {
   return 'Keep practising — drill the tables in /declension/tables and try again.'
 })
 
-const pagination = usePagination(() => data.value?.questions ?? [], 25)
+const pagination = usePagination(() => data.value?.questions ?? [], 25, 'decl-table-result')
 
 function restart() { router.push({ name: 'declension-table' }) }
 function home() { router.push({ name: 'declension' }) }

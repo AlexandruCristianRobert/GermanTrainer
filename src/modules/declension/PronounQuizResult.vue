@@ -42,7 +42,7 @@ const summary = computed(() => {
   return 'Keep practising — review pronouns and try again.'
 })
 
-const pagination = usePagination(() => data.value?.questions ?? [], 25)
+const pagination = usePagination(() => data.value?.questions ?? [], 25, 'decl-pronoun-result')
 
 function restart() { router.push({ name: 'declension-pronoun' }) }
 function home() { router.push({ name: 'declension' }) }

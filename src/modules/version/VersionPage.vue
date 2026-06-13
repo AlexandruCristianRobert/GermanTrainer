@@ -7,7 +7,7 @@ import Pagination from '../../components/Pagination.vue'
 const router = useRouter()
 const [major, minor, patch] = APP_VERSION.split('.').map(s => parseInt(s, 10))
 
-const pagination = usePagination(() => CHANGELOG, 10)
+const pagination = usePagination(() => CHANGELOG, 10, 'version')
 
 function home() { router.push({ name: 'home' }) }
 </script>

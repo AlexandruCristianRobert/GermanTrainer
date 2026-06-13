@@ -42,7 +42,7 @@ const pct = computed(() => {
 const wrongRows = computed(() => (data.value?.graded ?? []).filter(g => !g.correct))
 const wrongCount = computed(() => wrongRows.value.length)
 
-const pagination = usePagination(() => data.value?.graded ?? [], 25)
+const pagination = usePagination(() => data.value?.graded ?? [], 25, 'verb-translation-result')
 
 const summary = computed(() => {
   if (pct.value >= 80) return 'Stark. Most of these verbs are second nature now.'

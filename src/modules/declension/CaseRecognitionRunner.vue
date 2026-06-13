@@ -154,7 +154,7 @@ watch(finished, (now) => {
 })
 
 // Result-page pagination over the recap list.
-const pagination = usePagination(() => questions.value, 10)
+const pagination = usePagination(() => questions.value, 10, 'decl-cr-result')
 </script>
 
 <template>
