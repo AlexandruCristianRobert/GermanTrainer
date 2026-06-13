@@ -1,15 +1,31 @@
 <script setup lang="ts">
 import { usePromptSize } from '../../composables/usePromptSizes'
 import TypeSizeField from './TypeSizeField.vue'
+import { useSound } from '../../composables/useSound'
 
 const verb = usePromptSize('verb')
 const noun = usePromptSize('noun')
 const adjective = usePromptSize('adjective')
 const declension = usePromptSize('declension')
+const sound = useSound()
 </script>
 
 <template>
   <section>
+    <!-- ── Quiz-ready sound ─────────────────────────────────────── -->
+    <div class="sound-row">
+      <div class="sound-copy">
+        <div class="field-label">Quiz-ready sound</div>
+        <p class="sound-blurb">A soft chime when an AI quiz finishes loading.</p>
+      </div>
+      <div class="segmented sound-toggle">
+        <button :class="{ active: sound.enabled.value }" @click="sound.setEnabled(true)">On</button>
+        <button :class="{ active: !sound.enabled.value }" @click="sound.setEnabled(false)">Off</button>
+      </div>
+    </div>
+
+    <hr class="settings-divider" />
+
     <!-- ── Verb test-sheet ───────────────────────────────────────── -->
     <TypeSizeField
       label="Verb test-sheet · type size"
@@ -118,4 +134,21 @@ const declension = usePromptSize('declension')
   border-bottom: 0;
 }
 .preview-card-center { text-align: center; }
+
+.sound-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.sound-copy { min-width: 0; }
+.sound-blurb {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  margin: 4px 0 0;
+}
+.sound-toggle { flex: none; }
 </style>
