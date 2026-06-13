@@ -13,6 +13,7 @@
 // teleported into <body> so it floats above everything.
 
 import { ref, computed, type Ref, type ComputedRef } from 'vue'
+import { useSound } from './useSound'
 
 export interface LoadingState {
   title: string
@@ -32,7 +33,7 @@ export interface LoadingApi {
    * when the function throws — the rejection still propagates so the
    * caller can toast the error.
    */
-  wrap: <T>(fn: () => Promise<T>, msg: LoadingState) => Promise<T>
+  wrap: <T>(fn: () => Promise<T>, msg: LoadingState, opts?: { chime?: boolean }) => Promise<T>
 }
 
 const active = computed(() => state.value !== null)
@@ -47,13 +48,18 @@ export function useLoading(): LoadingApi {
     hide() {
       state.value = null
     },
-    async wrap<T>(fn: () => Promise<T>, msg: LoadingState): Promise<T> {
+    async wrap<T>(fn: () => Promise<T>, msg: LoadingState, opts?: { chime?: boolean }): Promise<T> {
       state.value = { ...msg }
+      let result: T
       try {
-        return await fn()
+        result = await fn()
       } finally {
         state.value = null
       }
+      // Success path only — a thrown fn never reaches here. Chime after the
+      // overlay has hidden, so the sound marks "ready", not "still loading".
+      if (opts?.chime) useSound().playReady()
+      return result
     }
   }
 }
