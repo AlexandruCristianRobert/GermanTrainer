@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.15'
+export const APP_VERSION = '1.11.16'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,17 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.16', date: '2026-06-13', kind: 'module',
+    title: 'Verbs · sentence quiz: translate AI sentences, highlight every word, drill your weak verbs',
+    notes: [
+      '<strong>Translate AI-written sentences.</strong> A new <em>Satz (KI)</em> drill on the Verbs page: pick a verb pool (<em>level</em>, <em>type</em>, governed <em>case</em>) and a noun theme, choose how many verbs and nouns per sentence (1, 2, or mixed), and the AI writes everyday German sentences built around them. You\'re shown the English and type the German; the AI grades each answer and adds a short <em>tip</em> when you miss. (English → German; needs AI access.)',
+      '<strong>See — and peek at — every word.</strong> With <em>Word hints</em> on, the English prompt highlights <em>every</em> verb and noun. Hover (or tap, or focus with the keyboard) to reveal the German: verb infinitives and <code>der/die/das</code> + noun for your theme words from the app\'s own data, and AI-supplied dictionary forms for the incidental words the sentence adds. Toggle hints off to translate unaided.',
+      '<strong>Starts in seconds, not a minute.</strong> Sentences now <em>stream in</em> — the first appears almost immediately and the rest generate in the background while you answer (a brief <em>Preparing next…</em> only if you race ahead). Generation also rotates fresh framing per batch with a random seed, so repeated runs stop producing near-identical sentences.',
+      '<strong>Drill what you get wrong.</strong> Each run records which verbs and nouns it tested and <em>why</em> an answer was wrong — <em>conjugation</em>, <em>case</em>, <em>word-order</em>, <em>noun</em> or <em>typo</em> — feeding a <em>Verb weak points</em> panel on your History page and a new <em>Practise weak verbs</em> drill that weights sentences toward the verbs and nouns you miss most.',
+      '<strong>Lists remember your page size.</strong> Set a list to show 100 per page and it stays 100 the next time you open it — your <em>History</em>, <em>Manage nouns</em>, the version log and every quiz-result list each remember their own choice.'
+    ]
+  },
   {
     version: '1.11.15', date: '2026-06-13', kind: 'polish',
     title: 'Verbs · translation quiz: pick a direction, retry your misses, fairer grading',
