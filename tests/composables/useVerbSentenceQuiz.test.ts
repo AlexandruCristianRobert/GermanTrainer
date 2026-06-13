@@ -217,3 +217,57 @@ describe('buildVerbHintInputs', () => {
     expect(hints.every(h => h.surface.length > 0)).toBe(true)
   })
 })
+
+import {
+  buildVerbGradePrompt, parseVerbGrade, gradeVerbAnswer, buildVerbDrillItem
+} from '../../src/composables/useVerbSentenceQuiz'
+
+describe('buildVerbGradePrompt', () => {
+  const p = buildVerbGradePrompt({
+    model: 'm', english: 'I go to school.', german: 'Ich gehe zur Schule.',
+    verbsGerman: ['gehen'], nounsGerman: ['Schule'], userAnswer: 'Ich gehe zur Schule.'
+  })
+  test('mentions the target verbs and the learner answer, and lists the 5 tags', () => {
+    expect(p.system).toContain('conjugation')
+    expect(p.system).toContain('word-order')
+    expect(p.user).toContain('gehen')
+    expect(p.user).toContain('Ich gehe zur Schule.')
+  })
+})
+
+describe('parseVerbGrade', () => {
+  test('valid correct grade', () => {
+    expect(parseVerbGrade({ correct: true })).toEqual({ correct: true })
+  })
+  test('keeps tip + filters tags to the known set', () => {
+    expect(parseVerbGrade({ correct: false, tip: 'Wrong tense.', errorTags: ['conjugation', 'banana', 'case'] }))
+      .toEqual({ correct: false, tip: 'Wrong tense.', tags: ['conjugation', 'case'] })
+  })
+  test('rejects non-objects and missing boolean', () => {
+    expect(parseVerbGrade(null)).toBeNull()
+    expect(parseVerbGrade({ tip: 'x' })).toBeNull()
+  })
+})
+
+describe('gradeVerbAnswer', () => {
+  test('returns the parsed grade', async () => {
+    const client: AiClient = { models: { generateContent: async () => ({ text: JSON.stringify({ correct: false, tip: 'Verb at the end.', errorTags: ['word-order'] }) }) } }
+    const g = await gradeVerbAnswer(client, { model: 'm', english: 'x', german: 'y', verbsGerman: ['gehen'], nounsGerman: [], userAnswer: 'z' })
+    expect(g.correct).toBe(false)
+    expect(g.tags).toEqual(['word-order'])
+  })
+  test('throws after exhausting retries on bad JSON', async () => {
+    const client: AiClient = { models: { generateContent: async () => ({ text: 'nope' }) } }
+    await expect(gradeVerbAnswer(client, { model: 'm', english: 'x', german: 'y', verbsGerman: [], nounsGerman: [], userAnswer: 'z' })).rejects.toThrow()
+  })
+})
+
+describe('buildVerbDrillItem', () => {
+  const s = { index: 0, verbs: [{ german: 'gehen', english: 'go', level: 'A1' as const }, { german: 'sehen', english: 'see', level: 'A1' as const }], nouns: [{ german: 'Schule', article: 'die' as const, english: 'school' }], english: 'x', german: 'y' }
+  test('records verb + noun keys and correctness', () => {
+    expect(buildVerbDrillItem(s, true)).toEqual({ verbKeys: ['gehen', 'sehen'], nounKeys: ['Schule'], correct: true })
+  })
+  test('attaches tags when present', () => {
+    expect(buildVerbDrillItem(s, false, ['conjugation']).tags).toEqual(['conjugation'])
+  })
+})

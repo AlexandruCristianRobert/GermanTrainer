@@ -11,6 +11,7 @@ import { shuffle } from '../data/pool'
 import type { Verb, VerbLevel } from '../data/verbs'
 import type { NounRef, HintInput } from './useSentenceQuiz'
 import type { AiClient } from './useClaude'
+import type { VerbErrorTag, VerbDrillItem } from './useQuizHistory'
 
 // ─────────────────────────────── Types ────────────────────────────────
 
@@ -369,4 +370,119 @@ export function buildVerbHintInputs(s: GeneratedVerbSentence): HintInput[] {
     if (w.en && w.de) hints.push({ surface: w.en, kind: w.kind, reveal: w.de })
   })
   return hints
+}
+
+// ──────────────────────────── AI grading ──────────────────────────────
+//
+// EN→DE only. Mirrors useSentenceQuiz.gradeAnswer: temperature 0, JSON schema,
+// one retry, THROWS if both attempts fail (caller falls back to exact check).
+
+export interface GradeVerbOptions {
+  model: string
+  english: string        // reference English (shown to the learner)
+  german: string         // reference German (generated up front)
+  verbsGerman: string[]  // drilled verb infinitives
+  nounsGerman: string[]  // theme noun heads
+  userAnswer: string
+}
+
+export interface VerbAnswerGrade {
+  correct: boolean
+  tip?: string
+  tags?: VerbErrorTag[]
+}
+
+const VERB_ERROR_TAGS: readonly VerbErrorTag[] = ['conjugation', 'case', 'word-order', 'noun', 'typo']
+
+const VERB_GRADE_SCHEMA = {
+  type: 'object',
+  properties: {
+    correct: { type: 'boolean' },
+    tip: { type: 'string' },
+    errorTags: { type: 'array', items: { type: 'string', enum: ['conjugation', 'case', 'word-order', 'noun', 'typo'] } }
+  },
+  required: ['correct']
+}
+
+export function buildVerbGradePrompt(opts: GradeVerbOptions): { system: string; user: string } {
+  const system =
+    'You are a German teacher grading one translation exercise. The learner was shown the ENGLISH ' +
+    'sentence and typed a GERMAN translation. Respond ONLY as JSON {"correct": boolean, "tip": string, ' +
+    '"errorTags": string[]} — no prose, no markdown fences. Set "correct" true when the German is a ' +
+    'correct, grammatical translation that uses the target verb(s) appropriately; accept natural ' +
+    'alternative phrasings, synonyms, and word order — do not require an exact match to the reference. ' +
+    'When "correct" is false, set "tip" to ONE short English sentence pinpointing the mistake, and set ' +
+    '"errorTags" to every applicable value from exactly: "conjugation" (right verb, wrong form — tense, ' +
+    'person, auxiliary, or Partizip), "case" (wrong case for an object the verb governs), "word-order" ' +
+    '(verb-second, verb-final, or split separable-prefix placement wrong), "noun" (a wrong theme noun — ' +
+    'word, gender, or form), "typo" (a slip elsewhere). When "correct" is true, "tip" may be empty and ' +
+    '"errorTags" omitted.'
+  const verbs = opts.verbsGerman.length ? opts.verbsGerman.join(', ') : '(any fitting verb)'
+  const nouns = opts.nounsGerman.length ? opts.nounsGerman.join(', ') : '(none)'
+  const user =
+    `ENGLISH (source shown to the learner): ${opts.english}\n` +
+    `GERMAN (reference translation): ${opts.german}\n` +
+    `TARGET VERB(S): ${verbs}\n` +
+    `THEME NOUN(S): ${nouns}\n` +
+    `LEARNER'S GERMAN ANSWER: ${opts.userAnswer}`
+  return { system, user }
+}
+
+export function parseVerbGrade(raw: unknown): VerbAnswerGrade | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  if (typeof r.correct !== 'boolean') return null
+  const grade: VerbAnswerGrade = { correct: r.correct }
+  if (typeof r.tip === 'string') {
+    const tip = r.tip.trim()
+    if (tip.length > 0) grade.tip = tip
+  }
+  if (Array.isArray(r.errorTags)) {
+    const tags = r.errorTags.filter(
+      (t): t is VerbErrorTag => typeof t === 'string' && (VERB_ERROR_TAGS as readonly string[]).includes(t)
+    )
+    if (tags.length > 0) grade.tags = tags
+  }
+  return grade
+}
+
+export async function gradeVerbAnswer(client: AiClient, opts: GradeVerbOptions): Promise<VerbAnswerGrade> {
+  const { system, user } = buildVerbGradePrompt(opts)
+  const maxRetries = 1
+  let attempts = 0
+  let lastError = 'no attempts'
+  while (attempts <= maxRetries) {
+    attempts++
+    try {
+      const response = await client.models.generateContent({
+        model: opts.model,
+        contents: user,
+        config: { systemInstruction: system, responseMimeType: 'application/json', responseSchema: VERB_GRADE_SCHEMA, temperature: 0 }
+      })
+      let parsed: unknown
+      try { parsed = JSON.parse(response.text ?? '') } catch { lastError = 'malformed JSON'; continue }
+      const grade = parseVerbGrade(parsed)
+      if (grade === null) { lastError = 'validation failed'; continue }
+      return grade
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : String(err)
+      continue
+    }
+  }
+  throw new Error(`gradeVerbAnswer exhausted ${attempts} attempts. Last error: ${lastError}`)
+}
+
+/** The per-item record stored in run meta for one graded verb sentence. */
+export function buildVerbDrillItem(
+  s: GeneratedVerbSentence,
+  correct: boolean,
+  tags?: VerbErrorTag[]
+): VerbDrillItem {
+  const item: VerbDrillItem = {
+    verbKeys: s.verbs.map(v => v.german),
+    nounKeys: s.nouns.map(n => n.german),
+    correct
+  }
+  if (tags && tags.length > 0) item.tags = tags
+  return item
 }
