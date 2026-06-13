@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { computeVerbWeakPoints, weakKeysForRemedial } from '../../src/composables/useVerbSentenceStats'
+import { computeVerbWeakPoints, weakKeysForRemedial, selectRemedialPool } from '../../src/composables/useVerbSentenceStats'
 import type { QuizHistoryEntry } from '../../src/composables/useQuizHistory'
 
 function run(items: any[]): QuizHistoryEntry {
@@ -68,5 +68,17 @@ describe('weakKeysForRemedial', () => {
   test('excludes items that were never wrong', () => {
     const wp = computeVerbWeakPoints([run([{ verbKeys: ['perfect'], correct: true }])])
     expect(weakKeysForRemedial(wp, 10).verbKeys).not.toContain('perfect')
+  })
+})
+
+describe('selectRemedialPool', () => {
+  test('uses weak refs when present', () => {
+    const weak = [{ german: 'a', english: 'a', level: 'A1' as const }]
+    const fallback = [{ german: 'x', english: 'x', level: 'A1' as const }]
+    expect(selectRemedialPool(weak, fallback)).toEqual(weak)
+  })
+  test('falls back to the full pool when there are no weak refs', () => {
+    const fallback = [{ german: 'x', english: 'x', level: 'A1' as const }]
+    expect(selectRemedialPool([], fallback)).toEqual(fallback)
   })
 })

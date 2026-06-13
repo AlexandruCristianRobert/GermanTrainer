@@ -82,3 +82,8 @@ export function weakKeysForRemedial(wp: VerbWeakPoints, limit: number): { verbKe
     nounKeys: wp.weakNouns.filter(n => n.wrong > 0).slice(0, limit).map(n => n.nounKey)
   }
 }
+
+/** Prefer the weak items; if there are none, drill the whole pool. */
+export function selectRemedialPool<T>(weak: readonly T[], fallback: readonly T[]): T[] {
+  return weak.length > 0 ? [...weak] : [...fallback]
+}
