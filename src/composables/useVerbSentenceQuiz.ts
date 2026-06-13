@@ -116,3 +116,113 @@ export function buildVerbSpecs(
   }
   return specs
 }
+
+// ──────────────────────────── AI generation ───────────────────────────
+
+/** Rotating one-line angles injected per batch so sentences don't converge. */
+export const VERB_ANGLE_POOL = [
+  'set the scene at breakfast',
+  'place the action at the office',
+  'use a first-person plural subject (wir)',
+  'use a child as the subject',
+  'set it on a weekend trip',
+  'frame it as a question',
+  'put it in the Perfekt (past)',
+  'use a 2nd-person informal subject (du)',
+  'set it in a kitchen',
+  'use a future intention (morgen / nächste Woche)',
+  'frame it as advice or a suggestion',
+  'set it during bad weather',
+  'use a polite request (Sie)',
+  'open with an adverb of time',
+  'set it at a train station',
+  'frame it as something overheard'
+] as const
+
+/** Compact label for the chosen CEFR levels. */
+export function levelLabel(levels: readonly VerbLevel[]): string {
+  if (levels.length === 0) return 'A2–B1'
+  const order: VerbLevel[] = ['A1', 'A2', 'B1', 'B2']
+  const present = order.filter(l => levels.includes(l))
+  if (present.length >= 4) return 'A1–B2'
+  return present.join('/')
+}
+
+export const VERB_GEN_SYSTEM =
+  'You are a German teacher writing translation exercises. For each item you are given ' +
+  'one or two German verbs (dictionary form, with an English gloss) and zero or more nouns. ' +
+  'Write ONE natural, everyday German sentence that uses the given verb(s) correctly ' +
+  'conjugated and naturally incorporates the given noun(s), then give a faithful, natural ' +
+  'English translation. Vary the tense naturally for the requested CEFR level (present-heavy ' +
+  'for A1, mixing in Perfekt/Präteritum for A2+). Keep sentences concise (6–14 words). ' +
+  'Return JSON {"items":[{"index":<number>,"english":"...","german":"...","verbSpansEn":[...],' +
+  '"nounSpansEn":[...],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}]}]} with exactly ' +
+  'one entry per requested index. ' +
+  '"verbSpansEn" = the exact English word(s) expressing each given verb, in the SAME order, ' +
+  'copied verbatim from YOUR English sentence (one entry per given verb). ' +
+  '"nounSpansEn" = the exact English word(s) for each given noun, in the SAME order (the noun ' +
+  'head, WITHOUT its article; one entry per given noun; use [] when none were given). ' +
+  '"extraWords" = EVERY OTHER noun and finite verb in your English sentence that is NOT already ' +
+  'listed above (subjects, objects, auxiliaries, modals, incidental nouns), each with "en" = its ' +
+  'exact English surface, "de" = its German dictionary form (the infinitive for a verb; the ' +
+  'article + nominative singular for a noun, e.g. "die Katze"), and "kind". ' +
+  'All "en" surfaces MUST be exact substrings of your English sentence so they can be located.'
+
+export const VERB_GEN_SCHEMA = {
+  type: 'object',
+  properties: {
+    items: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          index: { type: 'integer' },
+          english: { type: 'string' },
+          german: { type: 'string' },
+          verbSpansEn: { type: 'array', items: { type: 'string' } },
+          nounSpansEn: { type: 'array', items: { type: 'string' } },
+          extraWords: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                en: { type: 'string' },
+                de: { type: 'string' },
+                kind: { type: 'string', enum: ['verb', 'noun'] }
+              },
+              required: ['en', 'de', 'kind']
+            }
+          }
+        },
+        required: ['index', 'english', 'german', 'verbSpansEn', 'nounSpansEn', 'extraWords']
+      }
+    }
+  },
+  required: ['items']
+}
+
+export interface PromptVariation { angles: string[]; seed: string }
+
+export function buildVerbGeneratePrompt(
+  specs: readonly VerbSentenceSpec[],
+  level: string,
+  variation: PromptVariation
+): string {
+  const lines = specs.map(s => {
+    const verbs = s.verbs.length
+      ? s.verbs.map(v => `"${v.german}" (${v.english}) [${v.level}]`).join(' + ')
+      : '(any fitting verb)'
+    const nouns = s.nouns.length
+      ? s.nouns.map(n => `${n.article} ${n.german} (${n.english})`).join(' + ')
+      : '(any fitting noun)'
+    return `#${s.index} — verb(s): ${verbs}; build around noun(s): ${nouns}`
+  })
+  return (
+    `Target CEFR level: ${level}.\n` +
+    `Write one German sentence and its English translation for each of the following ${specs.length} item(s):\n` +
+    lines.join('\n') +
+    `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
+    `\nBatch variation seed: ${variation.seed}.` +
+    `\nAlso return verbSpansEn, nounSpansEn (one per listed noun, in order), and extraWords (every other noun/verb), each surface an exact substring of your English sentence.`
+  )
+}

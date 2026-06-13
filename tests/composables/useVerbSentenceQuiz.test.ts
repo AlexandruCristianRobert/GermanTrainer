@@ -59,3 +59,46 @@ describe('buildVerbSpecs', () => {
     expect(specs[0].verbs).toEqual([])
   })
 })
+
+import {
+  VERB_ANGLE_POOL, levelLabel, buildVerbGeneratePrompt
+} from '../../src/composables/useVerbSentenceQuiz'
+
+describe('levelLabel', () => {
+  test('all four levels → A1–B2 range', () => {
+    expect(levelLabel(['A1', 'A2', 'B1', 'B2'])).toBe('A1–B2')
+  })
+  test('subset → slash-joined', () => {
+    expect(levelLabel(['A2', 'B1'])).toBe('A2/B1')
+  })
+  test('empty → a sane default', () => {
+    expect(levelLabel([])).toBe('A2–B1')
+  })
+})
+
+describe('buildVerbGeneratePrompt', () => {
+  const specs = [
+    { index: 0, verbs: [{ german: 'gehen', english: 'go', level: 'A1' as const }], nouns: [{ german: 'Schule', article: 'die' as const, english: 'school' }] },
+    { index: 1, verbs: [{ german: 'kaufen', english: 'buy', level: 'A1' as const }, { german: 'wollen', english: 'want', level: 'A1' as const }], nouns: [] }
+  ]
+  const prompt = buildVerbGeneratePrompt(specs, 'A1–A2', { angles: ['set it at breakfast', 'use a question'], seed: 'abc123' })
+
+  test('lists every spec index with its verbs and nouns', () => {
+    expect(prompt).toContain('#0')
+    expect(prompt).toContain('gehen')
+    expect(prompt).toContain('die Schule (school)')
+    expect(prompt).toContain('#1')
+    expect(prompt).toContain('kaufen')
+    expect(prompt).toContain('wollen')
+  })
+  test('injects the variety angles and seed', () => {
+    expect(prompt).toContain('set it at breakfast')
+    expect(prompt).toContain('abc123')
+  })
+  test('states the target level', () => {
+    expect(prompt).toContain('A1–A2')
+  })
+  test('VERB_ANGLE_POOL has enough distinct angles to rotate', () => {
+    expect(new Set(VERB_ANGLE_POOL).size).toBeGreaterThanOrEqual(12)
+  })
+})
