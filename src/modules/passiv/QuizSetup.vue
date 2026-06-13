@@ -102,7 +102,8 @@ async function start() {
       {
         title: 'Generating sentences',
         subtitle: `Asking Gemini for ${count.value} ${difficulty.value}-difficulty active sentences. This usually takes 1–3 minutes — please don't close the tab.`
-      }
+      },
+      { chime: true }
     )
     lastResult.value = result
     if (result.entries.length === 0) {

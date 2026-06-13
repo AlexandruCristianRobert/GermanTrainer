@@ -99,7 +99,8 @@ async function start() {
       {
         title: 'Generating quotes',
         subtitle: `Asking Gemini for ${count.value} ${difficulty.value}-difficulty quote pairs. This usually takes 1–3 minutes — please don't close the tab.`
-      }
+      },
+      { chime: true }
     )
     lastResult.value = result
     if (result.entries.length === 0) {

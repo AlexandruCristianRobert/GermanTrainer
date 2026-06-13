@@ -12,6 +12,7 @@ import { saveQuizRun, type QuizHistoryType } from '../../composables/useQuizHist
 import { useSettings } from '../../composables/useSettings'
 import { resolveAiClient } from '../../composables/localClaude'
 import { useToast } from '../../composables/useToast'
+import { useSound } from '../../composables/useSound'
 import RetryModal from '../../components/RetryModal.vue'
 import QuizProgress from '../../components/QuizProgress.vue'
 
@@ -19,6 +20,8 @@ const STASH_KEY = 'gt:lastVerbSentenceQuiz'
 const router = useRouter()
 const { settings, load: loadSettings } = useSettings()
 const toast = useToast()
+const sound = useSound()
+let chimed = false
 
 interface Stash {
   specs: VerbSentenceSpec[]
@@ -104,6 +107,7 @@ onMounted(async () => {
     },
     onResults: (sentences) => {
       for (const s of sentences) { deck.value.push(s); answers.value.push('') }
+      if (!chimed && deck.value.length > 0) { chimed = true; sound.playReady() }
       if (awaitingNext.value) tryAdvance()
       nextTick(() => { if (deck.value.length === sentences.length) inputRef.value?.focus() })
     },

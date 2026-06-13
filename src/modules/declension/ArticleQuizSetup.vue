@@ -183,7 +183,8 @@ async function startAI() {
       {
         title: 'Generating sentences',
         subtitle: `Asking Gemini for ${aiCount.value} ${difficulty.value}-difficulty sentences. This usually takes 1–3 minutes — please don't close the tab.`
-      }
+      },
+      { chime: true }
     )
     aiLastResult.value = result
     if (result.entries.length === 0) {

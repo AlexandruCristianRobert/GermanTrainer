@@ -137,7 +137,8 @@ async function start() {
       {
         title: 'Building your drill',
         subtitle: `Targeting your weak points across ${length.value} mixed questions. Sentence generation can take 30–90 seconds — please don't close the tab.`
-      }
+      },
+      { chime: true }
     )
 
     if (deck.length === 0) {

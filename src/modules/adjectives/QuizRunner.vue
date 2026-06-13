@@ -80,7 +80,8 @@ async function startQuiz() {
       {
         title: 'Generating sentences',
         subtitle: `Asking Gemini for ${requestedCount} adjective sentences. This usually takes 1–3 minutes — please don't close the tab.`
-      }
+      },
+      { chime: true }
     )
     quiz = useAdjectiveQuiz(sentences)
     ready.value = true

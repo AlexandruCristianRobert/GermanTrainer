@@ -129,7 +129,8 @@ async function start() {
       {
         title: 'Generating sentences',
         subtitle: `Asking Gemini for ${n} preposition sentence${n === 1 ? '' : 's'}. This usually takes 30–90 seconds — please don't close the tab.`
-      }
+      },
+      { chime: true }
     )
     if (result.sentences.length === 0) {
       toast.error('No sentences generated', { description: `The model returned ${result.rejected} item(s) but none passed validation. Try again or widen the case selection.` })
