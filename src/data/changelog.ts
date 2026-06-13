@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.14'
+export const APP_VERSION = '1.11.15'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.15', date: '2026-06-13', kind: 'polish',
+    title: 'Verbs · translation quiz: pick a direction, retry your misses, fairer grading',
+    notes: [
+      '<strong>Drill either direction.</strong> The verb <em>Übersetzung</em> quiz now has a <em>Direction</em> switch on Setup: <em>German → English</em> (type the meaning, as before) or <em>English → German</em> (you\'re shown the meaning and type the German infinitive). EN→DE grading is umlaut-strict — <code>hören</code>, not <code>horen</code> — and the <code>sich</code> on reflexive verbs is optional. Your choice is remembered and recorded with each run in your history.',
+      '<strong>Retry the ones you missed.</strong> Finishing a verb translation quiz with mistakes now offers a focused <em>Retry N wrong</em> round — same prompt as the noun and preposition quizzes (press <em>Enter</em> to retry, <em>Esc</em> to review). It replays just the missed verbs in the same direction, and re-offers after each round until you\'ve nailed them all.',
+      '<strong>Any one meaning counts.</strong> For verbs with several English meanings — <em>sich wenden</em> = <em>turn to / contact</em> — typing any single one is now accepted, and stray punctuation (a trailing period, surrounding quotes) no longer rejects an otherwise-correct answer.'
+    ]
+  },
   {
     version: '1.11.14', date: '2026-06-12', kind: 'fix',
     title: 'Quizzes · one Enter press no longer submits and advances at once',
