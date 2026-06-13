@@ -29,6 +29,7 @@ import './styles/tokens.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import { router } from './router'
+import { installRouteProgress } from './composables/useRouteProgress'
 import { db, seedIfEmpty } from './db'
 import { initPromptSizes } from './composables/usePromptSizes'
 import { initPalette } from './composables/usePalette'
@@ -56,6 +57,7 @@ async function bootstrap() {
   }
   const app = createApp(App)
   app.use(router)
+  installRouteProgress(router)
   app.mount('#app')
 }
 
