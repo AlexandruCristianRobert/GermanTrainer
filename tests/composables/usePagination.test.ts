@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, beforeEach } from 'vitest'
 import { usePagination, buildPageList } from '../../src/composables/usePagination'
 
 describe('buildPageList — compact page numbers with ellipses', () => {
@@ -70,5 +70,40 @@ describe('usePagination — reactive slice + paging', () => {
     expect(p.page.value).toBe(5)
     n = 12 // shrink — only 2 pages left
     expect(p.slice.value.length).toBeLessThanOrEqual(10)
+  })
+})
+
+describe('usePagination — persisted page size', () => {
+  beforeEach(() => localStorage.clear())
+
+  test('with no stored value, uses the default', () => {
+    const p = usePagination(() => Array.from({ length: 50 }, (_, i) => i), 10, 'unit-test-a')
+    expect(p.pageSize.value).toBe(10)
+  })
+
+  test('setPageSize persists under the namespaced key', () => {
+    const p = usePagination(() => Array.from({ length: 50 }, (_, i) => i), 10, 'unit-test-b')
+    p.setPageSize(50)
+    expect(localStorage.getItem('gt:pageSize:unit-test-b')).toBe('50')
+  })
+
+  test('a fresh instance with the same key restores the stored size', () => {
+    usePagination(() => [], 10, 'unit-test-c').setPageSize(100)
+    const p2 = usePagination(() => Array.from({ length: 200 }, (_, i) => i), 10, 'unit-test-c')
+    expect(p2.pageSize.value).toBe(100)
+    expect(p2.slice.value.length).toBe(100)
+  })
+
+  test('a corrupt or non-positive stored value falls back to the default', () => {
+    localStorage.setItem('gt:pageSize:unit-test-d', 'NaN')
+    expect(usePagination(() => [], 10, 'unit-test-d').pageSize.value).toBe(10)
+    localStorage.setItem('gt:pageSize:unit-test-d', '0')
+    expect(usePagination(() => [], 10, 'unit-test-d').pageSize.value).toBe(10)
+  })
+
+  test('without a key, nothing is persisted', () => {
+    const p = usePagination(() => [], 10)
+    p.setPageSize(25)
+    expect(localStorage.getItem('gt:pageSize:undefined')).toBeNull()
   })
 })

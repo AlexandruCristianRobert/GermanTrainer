@@ -2,6 +2,28 @@ import { computed, ref, type ComputedRef, type Ref } from 'vue'
 
 export type PageItem = number | '…'
 
+const PAGE_SIZE_PREFIX = 'gt:pageSize:'
+
+function readStoredSize(key: string | undefined, fallback: number): number {
+  if (!key || typeof localStorage === 'undefined') return fallback
+  try {
+    const raw = localStorage.getItem(PAGE_SIZE_PREFIX + key)
+    const n = raw == null ? NaN : parseInt(raw, 10)
+    return Number.isFinite(n) && n > 0 ? n : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function writeStoredSize(key: string | undefined, n: number): void {
+  if (!key || typeof localStorage === 'undefined') return
+  try {
+    localStorage.setItem(PAGE_SIZE_PREFIX + key, String(n))
+  } catch {
+    /* ignore quota / disabled */
+  }
+}
+
 /**
  * Compact page-number list with ellipses. Always includes first + last + (current ± 1).
  * If total ≤ 7, returns every page.
@@ -35,10 +57,11 @@ export interface PaginationApi<T> {
 
 export function usePagination<T>(
   source: () => readonly T[] | T[],
-  defaultPageSize = 10
+  defaultPageSize = 10,
+  persistKey?: string
 ): PaginationApi<T> {
   const page = ref(1)
-  const pageSize = ref(defaultPageSize)
+  const pageSize = ref(readStoredSize(persistKey, defaultPageSize))
 
   const items = computed(() => source())
   const total = computed(() => items.value.length)
@@ -57,6 +80,7 @@ export function usePagination<T>(
   function setPageSize(n: number) {
     pageSize.value = Math.max(1, n)
     page.value = 1
+    writeStoredSize(persistKey, pageSize.value)
   }
 
   // Expose safePage as `page` so callers always see the clamped value.
