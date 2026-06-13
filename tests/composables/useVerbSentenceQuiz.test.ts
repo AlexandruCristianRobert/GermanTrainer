@@ -185,3 +185,35 @@ describe('generateVerbSentenceBatch', () => {
     expect(res.sentences).toHaveLength(0)
   })
 })
+
+import { buildVerbHintInputs } from '../../src/composables/useVerbSentenceQuiz'
+import { buildHintSegments } from '../../src/composables/useSentenceQuiz'
+
+describe('buildVerbHintInputs', () => {
+  const sentence = {
+    index: 0,
+    verbs: [{ german: 'gehen', english: 'go', level: 'A1' as const }],
+    nouns: [{ german: 'Schule', article: 'die' as const, english: 'school' }],
+    english: 'The children go to school in the morning.',
+    german: 'Die Kinder gehen morgens zur Schule.',
+    verbSpansEn: ['go'],
+    nounSpansEn: ['school'],
+    extraWords: [{ en: 'children', de: 'das Kind', kind: 'noun' as const }]
+  }
+
+  test('builds hints for drilled verb (our German), theme noun (our German), and extras (AI German)', () => {
+    const hints = buildVerbHintInputs(sentence)
+    expect(hints).toContainEqual({ surface: 'go', kind: 'verb', reveal: 'gehen' })
+    expect(hints).toContainEqual({ surface: 'school', kind: 'noun', reveal: 'die Schule' })
+    expect(hints).toContainEqual({ surface: 'children', kind: 'noun', reveal: 'das Kind' })
+  })
+  test('the hints anchor into the sentence via buildHintSegments', () => {
+    const segs = buildHintSegments(sentence.english, buildVerbHintInputs(sentence))
+    expect(segs.map(s => s.text).join('')).toBe(sentence.english) // lossless
+    expect(segs.some(s => s.hint?.kind === 'verb' && s.hint.reveal === 'gehen')).toBe(true)
+  })
+  test('skips empty surfaces and missing arrays', () => {
+    const hints = buildVerbHintInputs({ ...sentence, verbSpansEn: [''], nounSpansEn: undefined, extraWords: undefined })
+    expect(hints.every(h => h.surface.length > 0)).toBe(true)
+  })
+})

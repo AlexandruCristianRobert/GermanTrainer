@@ -9,7 +9,7 @@
 
 import { shuffle } from '../data/pool'
 import type { Verb, VerbLevel } from '../data/verbs'
-import type { NounRef } from './useSentenceQuiz'
+import type { NounRef, HintInput } from './useSentenceQuiz'
 import type { AiClient } from './useClaude'
 
 // ─────────────────────────────── Types ────────────────────────────────
@@ -347,4 +347,26 @@ export async function generateVerbSentenceBatch(
 
   const sentences = opts.specs.filter(s => accepted.has(s.index)).map(s => accepted.get(s.index)!)
   return { sentences, rejected, attempts }
+}
+
+// ─────────────────────────── Hint inputs ──────────────────────────────
+//
+// Per ADR-0003: the German for drilled verbs and theme nouns comes from OUR
+// stored data (the spec); only incidental/extra words use the AI's German.
+
+/** Build the (surface, kind, reveal) inputs for buildHintSegments. */
+export function buildVerbHintInputs(s: GeneratedVerbSentence): HintInput[] {
+  const hints: HintInput[] = []
+  ;(s.verbSpansEn ?? []).forEach((surf, i) => {
+    const v = s.verbs[i]
+    if (surf && v) hints.push({ surface: surf, kind: 'verb', reveal: v.german })
+  })
+  ;(s.nounSpansEn ?? []).forEach((surf, i) => {
+    const n = s.nouns[i]
+    if (surf && n) hints.push({ surface: surf, kind: 'noun', reveal: `${n.article} ${n.german}` })
+  })
+  ;(s.extraWords ?? []).forEach(w => {
+    if (w.en && w.de) hints.push({ surface: w.en, kind: w.kind, reveal: w.de })
+  })
+  return hints
 }

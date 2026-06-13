@@ -224,7 +224,7 @@ export function validateSentencePair(
 // found are dropped — a hint we cannot anchor simply doesn't render, so the quiz
 // stays usable. The concatenation of all segment texts equals the input exactly.
 
-export type HintKind = 'prep' | 'noun'
+export type HintKind = 'prep' | 'noun' | 'verb'
 
 /** One slice of the prompt sentence: plain text, or a highlighted hint span. */
 export interface HintSegment {
