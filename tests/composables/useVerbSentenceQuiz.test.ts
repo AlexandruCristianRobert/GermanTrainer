@@ -145,3 +145,43 @@ describe('validateVerbSentencePair', () => {
     expect(out!.extraWords).toEqual([{ en: 'runs', de: 'laufen', kind: 'noun' }])
   })
 })
+
+import { generateVerbSentenceBatch } from '../../src/composables/useVerbSentenceQuiz'
+import type { AiClient } from '../../src/composables/useClaude'
+
+function fakeClient(responder: (prompt: string) => string): AiClient {
+  return { models: { generateContent: async (p) => ({ text: responder(String(p.contents ?? '')) }) } }
+}
+const SPECS = [
+  { index: 0, verbs: [{ german: 'gehen', english: 'go', level: 'A1' as const }], nouns: [] },
+  { index: 1, verbs: [{ german: 'sehen', english: 'see', level: 'A1' as const }], nouns: [] }
+]
+
+describe('generateVerbSentenceBatch', () => {
+  test('returns one validated sentence per spec', async () => {
+    const client = fakeClient(() => JSON.stringify({ items: [
+      { index: 0, english: 'I go home.', german: 'Ich gehe nach Hause.', verbSpansEn: ['go'], nounSpansEn: [], extraWords: [] },
+      { index: 1, english: 'I see the dog.', german: 'Ich sehe den Hund.', verbSpansEn: ['see'], nounSpansEn: [], extraWords: [{ en: 'dog', de: 'der Hund', kind: 'noun' }] }
+    ] }))
+    const res = await generateVerbSentenceBatch(client, { model: 'm', specs: SPECS, maxRetries: 0 })
+    expect(res.sentences).toHaveLength(2)
+    expect(res.sentences.map(s => s.index).sort()).toEqual([0, 1])
+  })
+  test('retries only the missing specs', async () => {
+    let call = 0
+    const client = fakeClient(() => {
+      call++
+      return call === 1
+        ? JSON.stringify({ items: [{ index: 0, english: 'I go home.', german: 'Ich gehe heim.', verbSpansEn: ['go'], nounSpansEn: [], extraWords: [] }] })
+        : JSON.stringify({ items: [{ index: 1, english: 'I see it.', german: 'Ich sehe es.', verbSpansEn: ['see'], nounSpansEn: [], extraWords: [] }] })
+    })
+    const res = await generateVerbSentenceBatch(client, { model: 'm', specs: SPECS, maxRetries: 2 })
+    expect(res.sentences).toHaveLength(2)
+    expect(res.attempts).toBe(2)
+  })
+  test('survives malformed JSON without throwing', async () => {
+    const client = fakeClient(() => 'not json at all')
+    const res = await generateVerbSentenceBatch(client, { model: 'm', specs: SPECS, maxRetries: 1 })
+    expect(res.sentences).toHaveLength(0)
+  })
+})

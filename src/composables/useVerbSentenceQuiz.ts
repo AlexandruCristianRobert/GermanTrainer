@@ -10,6 +10,7 @@
 import { shuffle } from '../data/pool'
 import type { Verb, VerbLevel } from '../data/verbs'
 import type { NounRef } from './useSentenceQuiz'
+import type { AiClient } from './useClaude'
 
 // ─────────────────────────────── Types ────────────────────────────────
 
@@ -267,4 +268,83 @@ export function validateVerbSentencePair(
     if (extras.length > 0) out.extraWords = extras
   }
   return out
+}
+
+export interface GenerateVerbBatchOptions {
+  model: string
+  specs: VerbSentenceSpec[]
+  level?: string
+  maxRetries?: number
+  rng?: () => number
+}
+
+export interface GenerateVerbBatchResult {
+  sentences: GeneratedVerbSentence[]
+  rejected: number
+  attempts: number
+}
+
+/** A short random-ish token for the batch seed (no Date/crypto dependency). */
+function makeSeed(rng: () => number): string {
+  return Math.floor(rng() * 1_000_000_000).toString(36)
+}
+
+/**
+ * Ask the AI for a sentence pair per spec in this batch, validating each and
+ * retrying only the missing/failed specs up to `maxRetries` extra rounds. Fresh
+ * variety angles + seed each attempt so retries don't reproduce failures.
+ */
+export async function generateVerbSentenceBatch(
+  client: AiClient,
+  opts: GenerateVerbBatchOptions
+): Promise<GenerateVerbBatchResult> {
+  const rng = opts.rng ?? Math.random
+  const level = opts.level ?? 'A2–B1'
+  const maxRetries = opts.maxRetries ?? 2
+  const bySpec = new Map(opts.specs.map(s => [s.index, s]))
+  const accepted = new Map<number, GeneratedVerbSentence>()
+  let rejected = 0
+  let attempts = 0
+
+  while (accepted.size < opts.specs.length && attempts <= maxRetries) {
+    attempts++
+    const remaining = opts.specs.filter(s => !accepted.has(s.index))
+    const angles = shuffle([...VERB_ANGLE_POOL], Math.max(3, Math.min(6, remaining.length)), rng)
+    const prompt = buildVerbGeneratePrompt(remaining, level, { angles, seed: makeSeed(rng) })
+
+    let text = ''
+    try {
+      const res = await client.models.generateContent({
+        model: opts.model,
+        contents: prompt,
+        config: {
+          systemInstruction: VERB_GEN_SYSTEM,
+          responseMimeType: 'application/json',
+          responseSchema: VERB_GEN_SCHEMA,
+          temperature: 0.95,
+          topP: 0.95
+        }
+      })
+      text = res.text ?? ''
+    } catch {
+      continue
+    }
+
+    let parsed: unknown
+    try { parsed = JSON.parse(text) } catch { continue }
+    const items = (parsed as { items?: unknown }).items
+    if (!Array.isArray(items)) continue
+
+    for (const raw of items) {
+      const idx = typeof (raw as { index?: unknown }).index === 'number'
+        ? (raw as { index: number }).index : NaN
+      const spec = bySpec.get(idx)
+      if (!spec || accepted.has(idx)) continue
+      const v = validateVerbSentencePair(raw, spec)
+      if (v) accepted.set(idx, v); else rejected++
+    }
+  }
+
+  const sentences = opts.specs.filter(s => accepted.has(s.index)).map(s => accepted.get(s.index)!)
+  return { sentences, rejected, attempts }
 }
