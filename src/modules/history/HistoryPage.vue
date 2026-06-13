@@ -67,6 +67,7 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
 const typeOrder: QuizHistoryType[] = [
   'noun-gender', 'noun-translation', 'adjective',
   'verb-translation', 'verb-conjugation',
+  'verb-sentence', 'verb-remedial',
   'prep-case', 'prep-article', 'prep-two-way',
   'prep-sentence', 'prep-remedial',
   'decl-table', 'decl-article', 'decl-adjective',
