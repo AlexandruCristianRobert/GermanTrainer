@@ -50,6 +50,8 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'prep-two-way':     { label: 'Preposition · two-way', de: 'Präposition · Wechsel', module: 'Prepositions' },
   'prep-sentence':    { label: 'Preposition · sentence (AI)', de: 'Präposition · Satz (KI)', module: 'Prepositions' },
   'prep-remedial':    { label: 'Preposition · remedial', de: 'Präposition · Schwachstellen', module: 'Prepositions' },
+  'verb-sentence':  { label: 'Verb · sentence (AI)', de: 'Verb · Satz (KI)', module: 'Verbs' },
+  'verb-remedial':  { label: 'Verb · remedial', de: 'Verb · Schwachstellen', module: 'Verbs' },
   'decl-table':     { label: 'Declension · table', de: 'Deklination · Tabelle', module: 'Declension' },
   'decl-article':   { label: 'Declension · article', de: 'Deklination · Artikel', module: 'Declension' },
   'decl-adjective': { label: 'Declension · adj. ending', de: 'Deklination · Endung', module: 'Declension' },

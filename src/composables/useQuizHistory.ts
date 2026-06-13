@@ -12,6 +12,8 @@ export type QuizHistoryType =
   | 'prep-two-way'
   | 'prep-sentence'
   | 'prep-remedial'
+  | 'verb-sentence'
+  | 'verb-remedial'
   | 'decl-table'
   | 'decl-article'
   | 'decl-adjective'
@@ -34,6 +36,16 @@ export interface PrepDrillItem {
   tags?: PrepErrorTag[]  // why wrong; absent under Exact grading / when correct
 }
 
+export type VerbErrorTag = 'conjugation' | 'case' | 'word-order' | 'noun' | 'typo'
+
+/** One recorded answer in a verb-sentence or verb-remedial run. */
+export interface VerbDrillItem {
+  verbKeys?: string[]    // german infinitives of the drilled verbs
+  nounKeys?: string[]    // german surfaces of the theme nouns
+  correct: boolean
+  tags?: VerbErrorTag[]  // why wrong; absent when correct
+}
+
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation'
   groups?: string[]
@@ -53,6 +65,17 @@ export interface QuizHistoryMeta {
   sentenceGrading?: 'ai' | 'exact'
   sentenceHints?: boolean
   sentenceItems?: PrepDrillItem[]
+
+  // Verb sentence-translation (AI) — EN→DE, AI-graded
+  verbSentenceLevels?: string[]
+  verbSentenceTypes?: string[]
+  verbSentenceCases?: string[]
+  verbSentenceGroups?: string[]
+  verbsPerSentence?: 1 | 2 | 'mix'
+  verbSentenceNounsPer?: 1 | 2 | 'mix'
+  verbSentenceHints?: boolean
+  verbSentenceItems?: VerbDrillItem[]
+
   declLevels?: string[]
   declCases?: string[]
   declDeterminers?: string[]

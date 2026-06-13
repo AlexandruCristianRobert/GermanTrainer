@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, test, expect, beforeEach } from 'vitest'
 import {
   loadHistory,
   saveQuizRun,
   clearHistory,
-  type QuizHistoryEntry
+  type QuizHistoryEntry,
+  type VerbDrillItem
 } from '../../src/composables/useQuizHistory'
 
 const STORAGE_KEY = 'gt:quizHistory'
@@ -178,5 +179,21 @@ describe('useQuizHistory', () => {
     expect(entry.meta.task2Score).toBe(65)
     expect(entry.meta.combinedScore).toBe(73)
     expect(entry.meta.passes).toBe(true)
+  })
+})
+
+describe('verb-sentence history', () => {
+  test('round-trips a verb-sentence run with per-item data', () => {
+    clearHistory()
+    const items: VerbDrillItem[] = [{ verbKeys: ['gehen'], nounKeys: ['Schule'], correct: false, tags: ['conjugation'] }]
+    saveQuizRun({
+      type: 'verb-sentence', startedAt: new Date().toISOString(), finishedAt: new Date().toISOString(),
+      durationMs: 1000, count: 1, correct: 0,
+      meta: { verbSentenceLevels: ['A1'], verbsPerSentence: 'mix', verbSentenceNounsPer: 1, verbSentenceHints: true, verbSentenceItems: items }
+    })
+    const all = loadHistory()
+    expect(all[0].type).toBe('verb-sentence')
+    expect(all[0].meta.verbSentenceItems?.[0].verbKeys).toEqual(['gehen'])
+    clearHistory()
   })
 })
