@@ -297,6 +297,12 @@ const aggregateLabel = computed(() => {
 @media (max-width: 720px) {
   .conj-prompt-german { font-size: 44px; }
 }
+@media (max-width: 600px) {
+  .conj-table { padding: 16px 14px; }
+  .conj-rows-grid { grid-template-columns: 1fr; gap: 2px; }
+  .conj-row-input { grid-template-columns: 64px 1fr; column-gap: 10px; }
+  .conj-feedback { grid-column: 1 / -1; padding-left: 74px; margin-top: -2px; }
+}
 
 .conj-table {
   border: 1px solid var(--rule);

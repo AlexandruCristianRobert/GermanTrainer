@@ -327,7 +327,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 .hint-verb:hover, .hint-verb:focus-visible, .hint-verb.revealed { background-color: var(--accent-tint); }
 .hint-noun { text-decoration-color: var(--cobalt); }
 .hint-noun:hover, .hint-noun:focus-visible, .hint-noun.revealed { background-color: var(--cobalt-tint); }
-.hint-pop { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); white-space: nowrap; font-family: var(--font-mono); font-size: 13px; line-height: 1.2; padding: 4px 8px; border-radius: 4px; background: var(--paper-card, #fff); color: var(--ink); border: 1px solid var(--rule); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 120ms ease; z-index: 2; }
+.hint-pop { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); max-width: min(80vw, 260px); white-space: normal; text-align: center; font-family: var(--font-mono); font-size: 13px; line-height: 1.2; padding: 4px 8px; border-radius: 4px; background: var(--paper-card, #fff); color: var(--ink); border: 1px solid var(--rule); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 120ms ease; z-index: 2; }
 .hint:hover .hint-pop, .hint:focus-visible .hint-pop, .hint.revealed .hint-pop { opacity: 1; visibility: visible; }
 .prep-input-wrap { display: flex; gap: 12px; align-items: flex-end; margin-top: 36px; }
 .prep-input { flex: 1; text-align: center; font-size: 22px; border: 0; border-bottom: 2px solid var(--rule); padding: 8px 0; }
@@ -357,5 +357,5 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 .rr-label { display: inline-block; min-width: 56px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
 .setup-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; gap: 16px; }
 .result-cta { display: flex; gap: 12px; }
-@media (max-width: 720px) { .setup-actions { flex-direction: column-reverse; align-items: stretch; } .result-cta { flex-direction: column; } .setup-actions .btn { justify-content: center; } }
+@media (max-width: 720px) { .en-sentence { font-size: clamp(20px, 6vw, 26px); } .setup-actions { flex-direction: column-reverse; align-items: stretch; } .result-cta { flex-direction: column; } .setup-actions .btn { justify-content: center; } }
 </style>
