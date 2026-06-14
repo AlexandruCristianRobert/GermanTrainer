@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.17'
+export const APP_VERSION = '1.11.18'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.18', date: '2026-06-14', kind: 'fix',
+    title: 'Verbs · mobile fixes for the sentence & conjugation quizzes',
+    notes: [
+      '<strong>Hint reveals no longer get cut off on phones.</strong> In the verb <em>Satz</em> quiz, tapping a highlighted word to reveal its German could overflow the screen edge on a narrow display and get clipped. The reveal now wraps and stays within the viewport.',
+      '<strong>The conjugation quiz fits a phone screen.</strong> The six-form input grid collapses to a single column on small screens, and the <em>→ expected answer</em> feedback drops onto its own full-width line, so long compound tenses (Plusquamperfekt, Passiv) are no longer cramped.',
+      '<strong>Right-sized prompts.</strong> The English sentence in the verb <em>Satz</em> quiz now scales down on small screens instead of sitting at a fixed large size.'
+    ]
+  },
   {
     version: '1.11.17', date: '2026-06-13', kind: 'polish',
     title: 'Polish · page-load progress bar + a chime when AI quizzes are ready',
