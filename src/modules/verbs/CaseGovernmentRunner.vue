@@ -84,13 +84,13 @@ onMounted(() => {
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 // ── computed from quiz ───────────────────────────────────────────────────────
-const current       = computed(() => (ready.value, quiz.value?.current.value ?? null))
-const finished      = computed(() => (ready.value, quiz.value?.finished.value ?? false))
-const total         = computed(() => (ready.value, quiz.value?.total.value ?? 0))
-const questionIndex = computed(() => (ready.value, quiz.value?.currentIndex.value ?? 0))
-const score         = computed(() => (ready.value, quiz.value?.score.value ?? 0))
-const wrongVerbs    = computed(() => (ready.value, quiz.value?.wrongVerbs.value ?? []))
-const questions     = computed(() => (ready.value, quiz.value?.questions.value ?? []))
+const current       = computed(() => ready.value ? quiz.value?.current.value ?? null : null)
+const finished      = computed(() => ready.value ? quiz.value?.finished.value ?? false : false)
+const total         = computed(() => ready.value ? quiz.value?.total.value ?? 0 : 0)
+const questionIndex = computed(() => ready.value ? quiz.value?.currentIndex.value ?? 0 : 0)
+const score         = computed(() => ready.value ? quiz.value?.score.value ?? 0 : 0)
+const wrongVerbs    = computed(() => ready.value ? quiz.value?.wrongVerbs.value ?? [] : [])
+const questions     = computed(() => ready.value ? quiz.value?.questions.value ?? [] : [])
 
 const pips = computed(() => {
   const out: string[] = []
