@@ -110,6 +110,19 @@ describe('useStammformenQuiz — separable verb (aufstehen)', () => {
   })
 })
 
+// fuehren: führte / geführt — both Präteritum and Partizip II contain ü
+const fuehren: Verb = {
+  german: 'führen',
+  english: 'lead / guide',
+  level: 'A1',
+  type: 'regular',
+  case: 'accusative',
+  auxiliary: 'haben',
+  praesens: ['führe', 'führst', 'führt', 'führen', 'führt', 'führen'],
+  praeteritumStem: 'führte',
+  partizip2: 'geführt',
+}
+
 describe('useStammformenQuiz — umlaut tolerance', () => {
   it('accepts "schlief" with real umlaut', () => {
     const q = useStammformenQuiz([schlafen])
@@ -123,6 +136,15 @@ describe('useStammformenQuiz — umlaut tolerance', () => {
     q.submit({ praeteritum: 'Schlief', partizip: 'Geschlafen', aux: 'haben' })
     expect(q.questions.value[0].praeteritumOk).toBe(true)
     expect(q.questions.value[0].partizipOk).toBe(true)
+  })
+
+  it('accepts "fuehrte" (ue for ü) as Präteritum of führen', () => {
+    // führte → folded: fuehrte; user types "fuehrte" without ü
+    const q = useStammformenQuiz([fuehren])
+    q.submit({ praeteritum: 'fuehrte', partizip: 'gefuehrt', aux: 'haben' })
+    expect(q.questions.value[0].praeteritumOk).toBe(true)
+    expect(q.questions.value[0].partizipOk).toBe(true)
+    expect(q.questions.value[0].isCorrect).toBe(true)
   })
 })
 

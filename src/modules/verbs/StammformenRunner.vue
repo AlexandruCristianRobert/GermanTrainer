@@ -207,8 +207,11 @@ function restart() {
       </div>
     </div>
 
+  </div>
+
+  <!-- Retry modal (shown when quiz finishes with wrong verbs) -->
+  <div v-else-if="showRetryModal" class="page">
     <RetryModal
-      v-if="wrongVerbs.length > 0"
       :wrong-count="wrongVerbs.length"
       item-label="verbs"
       @retry="retryWrong"

@@ -88,15 +88,15 @@ describe('StammformenRunner — smoke tests', () => {
     wrapper.unmount()
   })
 
-  it('shows error state when no verbs match the filter', async () => {
-    // Use an empty type combination that won't match anything
+  it('Handles count=0 gracefully', async () => {
+    // count=0 → Math.max(1, 0) = 1, so one quiz item is still loaded
     const { wrapper } = await mountRunner({
       levels: 'A1',
       types: 'irregular',
       count: '0',
     })
-    // count=0 → Math.max(1,...) = 1, so it will still load
-    // Let's test with an impossible combination
+    // The quiz stage should still render (not an error state)
+    expect(wrapper.find('.stammformen-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 })
