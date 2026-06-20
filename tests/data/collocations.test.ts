@@ -11,6 +11,33 @@ function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+/**
+ * Standard German preposition+article contractions. An example "contains" its
+ * preposition if the bare preposition appears OR any of these contracted forms
+ * does, so idiomatic German (am Montag, ins Kino, zum Geburtstag, beim Arzt …)
+ * counts the same as the de-contracted form.
+ */
+const PREP_CONTRACTIONS: Record<string, string[]> = {
+  an: ['am', 'ans'],
+  in: ['im', 'ins'],
+  bei: ['beim'],
+  von: ['vom'],
+  zu: ['zum', 'zur'],
+  auf: ['aufs'],
+  für: ['fürs'],
+  um: ['ums'],
+  über: ['übers'],
+  durch: ['durchs'],
+  vor: ['vorm', 'vors'],
+  hinter: ['hinterm', 'hinters'],
+  unter: ['unterm', 'unters']
+}
+
+/** Forms (bare preposition + its contractions) that satisfy the example check. */
+function prepositionForms(preposition: string): string[] {
+  return [preposition, ...(PREP_CONTRACTIONS[preposition] ?? [])]
+}
+
 describe('collocations dataset', () => {
   test('no duplicate ids', () => {
     const ids = COLLOCATIONS.map(c => c.id)
@@ -70,12 +97,16 @@ describe('collocations dataset', () => {
     expect(offenders).toEqual([])
   })
 
-  test('example contains the preposition (case-insensitive, word boundary)', () => {
+  test('example contains the preposition or a standard contraction (case-insensitive, word boundary)', () => {
     const offenders: string[] = []
     for (const c of COLLOCATIONS) {
-      const re = new RegExp(`(^|[^\\p{L}])${escapeRegExp(c.preposition)}([^\\p{L}]|$)`, 'iu')
-      if (!re.test(c.example)) {
-        offenders.push(`${c.id}: "${c.preposition}" not found in "${c.example}"`)
+      const forms = prepositionForms(c.preposition)
+      const found = forms.some(form => {
+        const re = new RegExp(`(^|[^\\p{L}])${escapeRegExp(form)}([^\\p{L}]|$)`, 'iu')
+        return re.test(c.example)
+      })
+      if (!found) {
+        offenders.push(`${c.id}: "${c.preposition}" (or a contraction) not found in "${c.example}"`)
       }
     }
     expect(offenders).toEqual([])
