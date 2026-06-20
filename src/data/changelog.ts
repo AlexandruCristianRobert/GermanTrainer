@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.18'
+export const APP_VERSION = '1.11.19'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.19', date: '2026-06-21', kind: 'polish',
+    title: 'Three offline drills · Stammformen, verb case government & fixed prepositions',
+    notes: [
+      '<strong>Principal parts (Stammformen).</strong> A new drill on the Verbs page: shown a verb\'s infinitive, recall its <em>Präteritum</em>, <em>Partizip II</em> and auxiliary (<code>haben</code>/<code>sein</code>) as one linked set — scored all-or-nothing. Filter by level and type; it defaults to the irregular, mixed and modal verbs actually worth memorising.',
+      '<strong>Verb case government (Rektion).</strong> A new Verbs drill: for each verb, tap the case it governs — <em>Akkusativ</em>, <em>Dativ</em>, both, <em>Genitiv</em>, a reflexive pronoun, or no object.',
+      '<strong>Fixed prepositions (Feste Präpositionen).</strong> A new drill on the Prepositions page, built on ~500 curated verb / adjective / noun + preposition collocations (<em>warten auf</em> + Akk., <em>Angst vor</em> + Dat.): type the governed preposition and pick its case.',
+      '<strong>Fully offline, phone-first.</strong> All three run entirely on the device — no AI, no network, no API key — so you can load the app once and practise anywhere. They\'re built for the phone and are practice-only (they aren\'t recorded to your history or stats).'
+    ]
+  },
   {
     version: '1.11.18', date: '2026-06-14', kind: 'fix',
     title: 'Verbs · mobile fixes for the sentence & conjugation quizzes',
