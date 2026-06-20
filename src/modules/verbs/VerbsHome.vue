@@ -18,7 +18,8 @@ const cards: ModuleCard[] = [
   { numeral: 'D', route: 'verbs-remedial',     title: 'Practise weak verbs', de: 'Schwachstellen', desc: 'A sentence drill focused on the verbs and nouns you get wrong most often.' },
   { numeral: 'E', route: 'verbs-conjugation',  title: 'Conjugation quiz',    de: 'Konjugation',    desc: 'Fill in all six forms across the tenses you pick — from Präsens to Passiv.' },
   { numeral: 'F', route: 'verbs-cheatsheet',   title: 'Cheatsheet',          de: 'Grammatik',      desc: 'Twelve chapters of conjugation rules, exceptions, and example sentences.' },
-  { numeral: 'G', route: 'verbs-stammformen',  title: 'Principal parts',      de: 'Stammformen',    desc: "Recall a verb's Präteritum, Partizip II and auxiliary (haben/sein) as one linked set — the strong/irregular verbs worth memorising." }
+  { numeral: 'G', route: 'verbs-stammformen',  title: 'Principal parts',      de: 'Stammformen',    desc: "Recall a verb's Präteritum, Partizip II and auxiliary (haben/sein) as one linked set — the strong/irregular verbs worth memorising." },
+  { numeral: 'H', route: 'verbs-case-government', title: 'Case government', de: 'Rektion', desc: 'For each verb, identify the case it governs — accusative, dative, both, genitive, reflexive, or no object.' }
 ]
 
 function go(target: string) { router.push({ name: target }) }
