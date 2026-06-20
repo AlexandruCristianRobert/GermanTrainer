@@ -24,6 +24,10 @@ _Avoid_: tooltip, popover, reveal, clue
 A preposition that governs the accusative for motion/direction and the dative for location.
 _Avoid_: dual preposition, mixed preposition
 
+**Prepositional collocation** (feste Präposition):
+A verb, adjective, or noun that governs a fixed preposition and a fixed case — *warten auf + Akkusativ*, *stolz auf + Akkusativ*, *Angst vor + Dativ*. The **Fixed prepositions** drill shows the word and its English meaning and asks the learner to supply the preposition and its case; practice-only, records no [Run]. Each meaning that takes a different preposition is a separate collocation (*sich freuen auf* "look forward to" vs *sich freuen über* "be glad about").
+_Avoid_: prepositional verb (excludes adjectives and nouns), fixed phrase, idiom
+
 **Assigned theme noun**:
 A noun the drill deliberately selects from the learner's chosen noun theme and builds a sentence around. These are the vocabulary the drill tests, and the only nouns eligible for a word hint.
 _Avoid_: target noun, chosen noun
@@ -62,6 +66,14 @@ _Avoid_: verb mistake type, conjugation error
 A [Verb sentence quiz] run whose verb and noun pools are drawn from the learner's [Weak point]s (weakest drilled verbs + theme nouns from recent history) instead of random sampling — the verb counterpart of the preposition [Remedial drill], but a *single* format (weak-weighted sentence translation) rather than a blend of formats.
 _Avoid_: review mode, weak-verb quiz
 
+**Principal parts** (Stammformen):
+A verb's citation set — infinitive, third-person-singular Präteritum, Partizip II, and the perfect-tense auxiliary (*haben*/*sein*) — learned and recalled as one unit. The **Principal parts** drill tests the whole set for a verb at once and counts a card correct only when every part is right; it is practice-only and records no [Run]. Distinct from the conjugation drill, which fills all six person-forms of a chosen tense.
+_Avoid_: principal forms, base forms, stem forms; conjugation (the six-form drill)
+
+**Verb case government** (Rektion):
+The grammatical case a verb requires of its object — `accusative` (the default), `dative` (*helfen*, *danken*), `dative + accusative` (ditransitive, *geben*), `genitive` (rare, *gedenken*), a reflexive pronoun (*sich freuen*), or none (intransitive). The **Verb case government** drill shows a verb and the learner identifies which case it governs; practice-only, records no [Run]. Verbs whose governed case varies by meaning are excluded from the drill.
+_Avoid_: valency, government, case selection
+
 ### Vocabulary forms
 
 **Dictionary form**:
@@ -71,3 +83,17 @@ _Avoid_: base form, lemma, citation form
 **Inflected form**:
 A word as it actually appears in a sentence after declension/conjugation (`den Tisch`). The learner must produce this themselves; hints never reveal it.
 _Avoid_: surface form, conjugated form
+
+### Identity & history
+
+**User**:
+A learner identified solely by a self-chosen display name — no password, no account, no verification. Anyone who types the same name shares and adds to that name's history; identity is honor-system. The name is asked for once and remembered on the device; if it is ever missing, the app asks again.
+_Avoid_: account, profile, login, player
+
+**Username key**:
+The normalized form of a User's name — trimmed, lower-cased, inner whitespace collapsed — used to group all of that name's runs. Two names differing only in case or spacing are the same User.
+_Avoid_: slug, id, handle
+
+**Run**:
+One completed quiz, recorded in history with its score, timing, settings, and (for some quiz types) per-item detail. The unit the History page lists and the stats aggregate over. A retry round of only the wrong items is practice, not a Run, and is never recorded.
+_Avoid_: session, attempt, entry
