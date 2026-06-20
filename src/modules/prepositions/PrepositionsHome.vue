@@ -51,6 +51,12 @@ const cards: Card[] = [
     title: 'Sentence translation', de: 'Satzübersetzung · KI',
     desc: 'AI writes a sentence per random preposition using nouns from a theme you pick. Read the English, type the German.',
     cta: 'Start'
+  },
+  {
+    numeral: 'F', route: 'prepositions-collocations',
+    title: 'Fixed prepositions', de: 'Feste Präpositionen',
+    desc: 'A verb, adjective, or noun governs a fixed preposition + case (warten auf + Akk., Angst vor + Dat.). Type the preposition and pick its case.',
+    cta: 'Start'
   }
 ]
 </script>
