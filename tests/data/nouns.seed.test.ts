@@ -38,6 +38,10 @@ describe('nouns.seed.json integrity', () => {
     expect(entries.filter(e => e.group === 'Switzerland').length).toBeGreaterThanOrEqual(100)
   })
 
+  it('has at least 140 Programming nouns', () => {
+    expect(entries.filter(e => e.group === 'Programming').length).toBeGreaterThanOrEqual(140)
+  })
+
   it('every category is well-populated (>= 50 nouns)', () => {
     const counts = new Map<string, number>()
     for (const e of entries) counts.set(e.group, (counts.get(e.group) ?? 0) + 1)

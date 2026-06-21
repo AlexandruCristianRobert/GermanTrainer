@@ -1,4 +1,4 @@
-import Dexie, { type Table } from 'dexie'
+import Dexie, { type Table, type Transaction } from 'dexie'
 import type { Adjective, Noun, NounGroup, Settings } from './types'
 import type { WritingDraft } from '../data/writingPrompts'
 import type { SimulatorSession } from '../data/simulatorC1'
@@ -92,27 +92,51 @@ export class GermanTrainerDb extends Dexie {
       // additions) for existing users, who never re-run seedIfEmpty. Same approach
       // as version(4): add missing germans, re-group where the seed changed it,
       // leave user-added nouns untouched.
-      const table = tx.table<Noun>('nouns')
-      const existing = await table.toArray()
-      const byGerman = new Map<string, Noun>()
-      for (const n of existing) byGerman.set(n.german, n)
-
-      const now = Date.now()
-      const seedDeduped = dedupeNouns(nounsSeed as NounSeedEntry[])
-      const toAdd: Array<Omit<Noun, 'id'>> = []
-      const toUpdate: Array<{ id: number; group: NounGroup }> = []
-      for (const seed of seedDeduped) {
-        const current = byGerman.get(seed.german)
-        if (!current) {
-          toAdd.push({ ...seed, createdAt: now })
-        } else if (current.group !== seed.group && current.id != null) {
-          toUpdate.push({ id: current.id, group: seed.group })
-        }
-      }
-      if (toAdd.length > 0) await table.bulkAdd(toAdd)
-      for (const u of toUpdate) await table.update(u.id, { group: u.group })
+      await topUpNounsFromSeed(tx)
+    })
+    this.version(8).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt'
+    }).upgrade(async tx => {
+      // Top up the new Programming category for existing users, who never re-run
+      // seedIfEmpty. Same top-up as version(7): add missing germans, re-group where
+      // the seed changed it, leave user-added nouns untouched.
+      await topUpNounsFromSeed(tx)
     })
   }
+}
+
+/**
+ * Shared "top up + re-categorize" migration step used by version(4), (7) and (8).
+ * Existing users already have nouns, so seedIfEmpty() never re-runs for them — we
+ * have to migrate explicitly when new categories ship. For each seed entry:
+ *   - If the german key is missing → add it.
+ *   - If it exists but the seed now puts it in a different group → update group.
+ * User-added nouns (not in the seed) are left untouched.
+ */
+async function topUpNounsFromSeed(tx: Transaction): Promise<void> {
+  const table = tx.table<Noun>('nouns')
+  const existing = await table.toArray()
+  const byGerman = new Map<string, Noun>()
+  for (const n of existing) byGerman.set(n.german, n)
+
+  const now = Date.now()
+  const seedDeduped = dedupeNouns(nounsSeed as NounSeedEntry[])
+  const toAdd: Array<Omit<Noun, 'id'>> = []
+  const toUpdate: Array<{ id: number; group: NounGroup }> = []
+  for (const seed of seedDeduped) {
+    const current = byGerman.get(seed.german)
+    if (!current) {
+      toAdd.push({ ...seed, createdAt: now })
+    } else if (current.group !== seed.group && current.id != null) {
+      toUpdate.push({ id: current.id, group: seed.group })
+    }
+  }
+  if (toAdd.length > 0) await table.bulkAdd(toAdd)
+  for (const u of toUpdate) await table.update(u.id, { group: u.group })
 }
 
 export const db = new GermanTrainerDb()

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import Dexie from 'dexie'
 import { db, seedIfEmpty, resetTableToSeed, dedupeNouns } from '../../src/db'
 
 describe('db', () => {
@@ -70,6 +71,48 @@ describe('seedIfEmpty', () => {
     await db.nouns.add({ german: 'CustomNoun', gender: 'der', english: 'custom', group: 'Other', createdAt: 0 })
     await seedIfEmpty()
     expect(await db.nouns.count()).toBe(1)
+  })
+})
+
+describe('v8 migration tops up Programming nouns', () => {
+  beforeEach(async () => {
+    await db.delete()
+  })
+
+  it('adds Programming nouns to a pre-v8 db on reopen, leaving user-added nouns untouched', async () => {
+    // Simulate an existing install on the old schema (pre-Programming): open a
+    // Dexie db on version 7's stores, populate it WITHOUT any Programming nouns,
+    // and add a user-created noun the seed will never touch.
+    const legacy = new Dexie('GermanTrainerDb')
+    legacy.version(7).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt'
+    })
+    await legacy.open()
+    await legacy.table('nouns').bulkAdd([
+      { german: 'Tisch', gender: 'der', english: 'table', group: 'Furniture', createdAt: 0 },
+      { german: 'MeinEigenesWort', gender: 'das', english: 'my own word', group: 'Other', createdAt: 0 }
+    ])
+    const programmingBefore = await legacy
+      .table('nouns')
+      .where('group')
+      .equals('Programming')
+      .count()
+    expect(programmingBefore).toBe(0)
+    legacy.close()
+
+    // Reopen through the app's Dexie instance, which runs the version(8) upgrade.
+    await db.open()
+    const programmingAfter = await db.nouns.where('group').equals('Programming').count()
+    expect(programmingAfter).toBeGreaterThanOrEqual(140)
+
+    // User-added noun survives the top-up.
+    const own = await db.nouns.where('german').equals('MeinEigenesWort').first()
+    expect(own).toBeDefined()
+    expect(own?.group).toBe('Other')
   })
 })
 
