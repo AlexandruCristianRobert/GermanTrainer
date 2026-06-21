@@ -12622,5 +12622,983 @@
     "gender": "der",
     "english": "lid",
     "group": "Other"
+  },
+  {
+    "german": "Variable",
+    "gender": "die",
+    "english": "variable",
+    "group": "Programming"
+  },
+  {
+    "german": "Funktion",
+    "gender": "die",
+    "english": "function",
+    "group": "Programming"
+  },
+  {
+    "german": "Schleife",
+    "gender": "die",
+    "english": "loop",
+    "group": "Programming"
+  },
+  {
+    "german": "Bedingung",
+    "gender": "die",
+    "english": "condition",
+    "group": "Programming"
+  },
+  {
+    "german": "Anweisung",
+    "gender": "die",
+    "english": "statement / instruction",
+    "group": "Programming"
+  },
+  {
+    "german": "Methode",
+    "gender": "die",
+    "english": "method",
+    "group": "Programming"
+  },
+  {
+    "german": "Objekt",
+    "gender": "das",
+    "english": "object",
+    "group": "Programming"
+  },
+  {
+    "german": "Parameter",
+    "gender": "der",
+    "english": "parameter",
+    "group": "Programming"
+  },
+  {
+    "german": "Argument",
+    "gender": "das",
+    "english": "argument",
+    "group": "Programming"
+  },
+  {
+    "german": "Ausdruck",
+    "gender": "der",
+    "english": "expression",
+    "group": "Programming"
+  },
+  {
+    "german": "Operator",
+    "gender": "der",
+    "english": "operator",
+    "group": "Programming"
+  },
+  {
+    "german": "Operand",
+    "gender": "der",
+    "english": "operand",
+    "group": "Programming"
+  },
+  {
+    "german": "Zuweisung",
+    "gender": "die",
+    "english": "assignment",
+    "group": "Programming"
+  },
+  {
+    "german": "Rekursion",
+    "gender": "die",
+    "english": "recursion",
+    "group": "Programming"
+  },
+  {
+    "german": "Ausnahme",
+    "gender": "die",
+    "english": "exception",
+    "group": "Programming"
+  },
+  {
+    "german": "Schlüsselwort",
+    "gender": "das",
+    "english": "keyword",
+    "group": "Programming"
+  },
+  {
+    "german": "Konstante",
+    "gender": "die",
+    "english": "constant",
+    "group": "Programming"
+  },
+  {
+    "german": "Datentyp",
+    "gender": "der",
+    "english": "data type",
+    "group": "Programming"
+  },
+  {
+    "german": "Rückgabewert",
+    "gender": "der",
+    "english": "return value",
+    "group": "Programming"
+  },
+  {
+    "german": "Konstruktor",
+    "gender": "der",
+    "english": "constructor",
+    "group": "Programming"
+  },
+  {
+    "german": "Destruktor",
+    "gender": "der",
+    "english": "destructor",
+    "group": "Programming"
+  },
+  {
+    "german": "Vererbung",
+    "gender": "die",
+    "english": "inheritance",
+    "group": "Programming"
+  },
+  {
+    "german": "Schnittstellentyp",
+    "gender": "der",
+    "english": "interface (type)",
+    "group": "Programming"
+  },
+  {
+    "german": "Aufzählung",
+    "gender": "die",
+    "english": "enumeration / enum",
+    "group": "Programming"
+  },
+  {
+    "german": "Sichtbarkeit",
+    "gender": "die",
+    "english": "visibility / scope",
+    "group": "Programming"
+  },
+  {
+    "german": "Gültigkeitsbereich",
+    "gender": "der",
+    "english": "scope",
+    "group": "Programming"
+  },
+  {
+    "german": "Namensraum",
+    "gender": "der",
+    "english": "namespace",
+    "group": "Programming"
+  },
+  {
+    "german": "Anmerkung",
+    "gender": "die",
+    "english": "annotation",
+    "group": "Programming"
+  },
+  {
+    "german": "Dekorator",
+    "gender": "der",
+    "english": "decorator",
+    "group": "Programming"
+  },
+  {
+    "german": "Generikum",
+    "gender": "das",
+    "english": "generic (type)",
+    "group": "Programming"
+  },
+  {
+    "german": "Iteration",
+    "gender": "die",
+    "english": "iteration",
+    "group": "Programming"
+  },
+  {
+    "german": "Iterator",
+    "gender": "der",
+    "english": "iterator",
+    "group": "Programming"
+  },
+  {
+    "german": "Rückruffunktion",
+    "gender": "die",
+    "english": "callback function",
+    "group": "Programming"
+  },
+  {
+    "german": "Versprechen",
+    "gender": "das",
+    "english": "promise (async)",
+    "group": "Programming"
+  },
+  {
+    "german": "Ereignis",
+    "gender": "das",
+    "english": "event",
+    "group": "Programming"
+  },
+  {
+    "german": "Kommentar",
+    "gender": "der",
+    "english": "comment",
+    "group": "Programming"
+  },
+  {
+    "german": "Syntax",
+    "gender": "die",
+    "english": "syntax",
+    "group": "Programming"
+  },
+  {
+    "german": "Semantik",
+    "gender": "die",
+    "english": "semantics",
+    "group": "Programming"
+  },
+  {
+    "german": "Literal",
+    "gender": "das",
+    "english": "literal",
+    "group": "Programming"
+  },
+  {
+    "german": "Typumwandlung",
+    "gender": "die",
+    "english": "type cast / conversion",
+    "group": "Programming"
+  },
+  {
+    "german": "Array",
+    "gender": "das",
+    "english": "array",
+    "group": "Programming"
+  },
+  {
+    "german": "Datenfeld",
+    "gender": "das",
+    "english": "array / data field",
+    "group": "Programming"
+  },
+  {
+    "german": "Liste",
+    "gender": "die",
+    "english": "list",
+    "group": "Programming"
+  },
+  {
+    "german": "Stapel",
+    "gender": "der",
+    "english": "stack",
+    "group": "Programming"
+  },
+  {
+    "german": "Stack",
+    "gender": "der",
+    "english": "stack",
+    "group": "Programming"
+  },
+  {
+    "german": "Baumstruktur",
+    "gender": "die",
+    "english": "tree structure",
+    "group": "Programming"
+  },
+  {
+    "german": "Knoten",
+    "gender": "der",
+    "english": "node",
+    "group": "Programming"
+  },
+  {
+    "german": "Kante",
+    "gender": "die",
+    "english": "edge (graph)",
+    "group": "Programming"
+  },
+  {
+    "german": "Graph",
+    "gender": "der",
+    "english": "graph",
+    "group": "Programming"
+  },
+  {
+    "german": "Hashtabelle",
+    "gender": "die",
+    "english": "hash table",
+    "group": "Programming"
+  },
+  {
+    "german": "Hashwert",
+    "gender": "der",
+    "english": "hash value",
+    "group": "Programming"
+  },
+  {
+    "german": "Pointer",
+    "gender": "der",
+    "english": "pointer",
+    "group": "Programming"
+  },
+  {
+    "german": "Referenz",
+    "gender": "die",
+    "english": "reference",
+    "group": "Programming"
+  },
+  {
+    "german": "Hashmap",
+    "gender": "die",
+    "english": "hash map",
+    "group": "Programming"
+  },
+  {
+    "german": "Tupel",
+    "gender": "das",
+    "english": "tuple",
+    "group": "Programming"
+  },
+  {
+    "german": "Zeichenkette",
+    "gender": "die",
+    "english": "string",
+    "group": "Programming"
+  },
+  {
+    "german": "Zeichen",
+    "gender": "das",
+    "english": "character",
+    "group": "Programming"
+  },
+  {
+    "german": "Ganzzahl",
+    "gender": "die",
+    "english": "integer",
+    "group": "Programming"
+  },
+  {
+    "german": "Gleitkommazahl",
+    "gender": "die",
+    "english": "floating-point number",
+    "group": "Programming"
+  },
+  {
+    "german": "Wahrheitswert",
+    "gender": "der",
+    "english": "boolean value",
+    "group": "Programming"
+  },
+  {
+    "german": "Index",
+    "gender": "der",
+    "english": "index",
+    "group": "Programming"
+  },
+  {
+    "german": "Element",
+    "gender": "das",
+    "english": "element",
+    "group": "Programming"
+  },
+  {
+    "german": "Eintrag",
+    "gender": "der",
+    "english": "entry",
+    "group": "Programming"
+  },
+  {
+    "german": "Matrix",
+    "gender": "die",
+    "english": "matrix",
+    "group": "Programming"
+  },
+  {
+    "german": "Bitfolge",
+    "gender": "die",
+    "english": "bit sequence",
+    "group": "Programming"
+  },
+  {
+    "german": "Byte",
+    "gender": "das",
+    "english": "byte",
+    "group": "Programming"
+  },
+  {
+    "german": "Nullwert",
+    "gender": "der",
+    "english": "null value",
+    "group": "Programming"
+  },
+  {
+    "german": "Quellcode",
+    "gender": "der",
+    "english": "source code",
+    "group": "Programming"
+  },
+  {
+    "german": "Quelltext",
+    "gender": "der",
+    "english": "source text / code",
+    "group": "Programming"
+  },
+  {
+    "german": "Compiler",
+    "gender": "der",
+    "english": "compiler",
+    "group": "Programming"
+  },
+  {
+    "german": "Übersetzer",
+    "gender": "der",
+    "english": "compiler / translator",
+    "group": "Programming"
+  },
+  {
+    "german": "Interpreter",
+    "gender": "der",
+    "english": "interpreter",
+    "group": "Programming"
+  },
+  {
+    "german": "Debugger",
+    "gender": "der",
+    "english": "debugger",
+    "group": "Programming"
+  },
+  {
+    "german": "Haltepunkt",
+    "gender": "der",
+    "english": "breakpoint",
+    "group": "Programming"
+  },
+  {
+    "german": "Modul",
+    "gender": "das",
+    "english": "module",
+    "group": "Programming"
+  },
+  {
+    "german": "Paket",
+    "gender": "das",
+    "english": "package",
+    "group": "Programming"
+  },
+  {
+    "german": "Abhängigkeit",
+    "gender": "die",
+    "english": "dependency",
+    "group": "Programming"
+  },
+  {
+    "german": "Repository",
+    "gender": "das",
+    "english": "repository",
+    "group": "Programming"
+  },
+  {
+    "german": "Commit",
+    "gender": "der",
+    "english": "commit",
+    "group": "Programming"
+  },
+  {
+    "german": "Zweig",
+    "gender": "der",
+    "english": "branch",
+    "group": "Programming"
+  },
+  {
+    "german": "Branch",
+    "gender": "der",
+    "english": "branch",
+    "group": "Programming"
+  },
+  {
+    "german": "Zusammenführung",
+    "gender": "die",
+    "english": "merge",
+    "group": "Programming"
+  },
+  {
+    "german": "Konflikt",
+    "gender": "der",
+    "english": "merge conflict",
+    "group": "Programming"
+  },
+  {
+    "german": "Bereitstellung",
+    "gender": "die",
+    "english": "deployment",
+    "group": "Programming"
+  },
+  {
+    "german": "Container",
+    "gender": "der",
+    "english": "container",
+    "group": "Programming"
+  },
+  {
+    "german": "Pipeline",
+    "gender": "die",
+    "english": "pipeline (CI/CD)",
+    "group": "Programming"
+  },
+  {
+    "german": "Testabdeckung",
+    "gender": "die",
+    "english": "test coverage",
+    "group": "Programming"
+  },
+  {
+    "german": "Testfall",
+    "gender": "der",
+    "english": "test case",
+    "group": "Programming"
+  },
+  {
+    "german": "Einheitstest",
+    "gender": "der",
+    "english": "unit test",
+    "group": "Programming"
+  },
+  {
+    "german": "Fehler",
+    "gender": "der",
+    "english": "error / bug",
+    "group": "Programming"
+  },
+  {
+    "german": "Fehlermeldung",
+    "gender": "die",
+    "english": "error message",
+    "group": "Programming"
+  },
+  {
+    "german": "Bug",
+    "gender": "der",
+    "english": "bug",
+    "group": "Programming"
+  },
+  {
+    "german": "Fehlerbehebung",
+    "gender": "die",
+    "english": "bugfix / debugging",
+    "group": "Programming"
+  },
+  {
+    "german": "Version",
+    "gender": "die",
+    "english": "version",
+    "group": "Programming"
+  },
+  {
+    "german": "Versionsverwaltung",
+    "gender": "die",
+    "english": "version control",
+    "group": "Programming"
+  },
+  {
+    "german": "Build",
+    "gender": "der",
+    "english": "build",
+    "group": "Programming"
+  },
+  {
+    "german": "Erstellung",
+    "gender": "die",
+    "english": "build / creation",
+    "group": "Programming"
+  },
+  {
+    "german": "Skript",
+    "gender": "das",
+    "english": "script",
+    "group": "Programming"
+  },
+  {
+    "german": "Werkzeug",
+    "gender": "das",
+    "english": "tool",
+    "group": "Programming"
+  },
+  {
+    "german": "Werkzeugkasten",
+    "gender": "der",
+    "english": "toolkit",
+    "group": "Programming"
+  },
+  {
+    "german": "Editor",
+    "gender": "der",
+    "english": "editor",
+    "group": "Programming"
+  },
+  {
+    "german": "Terminal",
+    "gender": "das",
+    "english": "terminal",
+    "group": "Programming"
+  },
+  {
+    "german": "Konsole",
+    "gender": "die",
+    "english": "console",
+    "group": "Programming"
+  },
+  {
+    "german": "Protokollierung",
+    "gender": "die",
+    "english": "logging",
+    "group": "Programming"
+  },
+  {
+    "german": "Refaktorierung",
+    "gender": "die",
+    "english": "refactoring",
+    "group": "Programming"
+  },
+  {
+    "german": "Codeüberprüfung",
+    "gender": "die",
+    "english": "code review",
+    "group": "Programming"
+  },
+  {
+    "german": "Dokumentation",
+    "gender": "die",
+    "english": "documentation",
+    "group": "Programming"
+  },
+  {
+    "german": "Konfiguration",
+    "gender": "die",
+    "english": "configuration",
+    "group": "Programming"
+  },
+  {
+    "german": "Konfigurationsdatei",
+    "gender": "die",
+    "english": "config file",
+    "group": "Programming"
+  },
+  {
+    "german": "Umgebung",
+    "gender": "die",
+    "english": "environment",
+    "group": "Programming"
+  },
+  {
+    "german": "Laufzeitumgebung",
+    "gender": "die",
+    "english": "runtime environment",
+    "group": "Programming"
+  },
+  {
+    "german": "Laufzeit",
+    "gender": "die",
+    "english": "runtime",
+    "group": "Programming"
+  },
+  {
+    "german": "Kompilierung",
+    "gender": "die",
+    "english": "compilation",
+    "group": "Programming"
+  },
+  {
+    "german": "Bibliotheksverweis",
+    "gender": "der",
+    "english": "library reference",
+    "group": "Programming"
+  },
+  {
+    "german": "Programmierbibliothek",
+    "gender": "die",
+    "english": "programming library",
+    "group": "Programming"
+  },
+  {
+    "german": "Abfrage",
+    "gender": "die",
+    "english": "query",
+    "group": "Programming"
+  },
+  {
+    "german": "Spalte",
+    "gender": "die",
+    "english": "column",
+    "group": "Programming"
+  },
+  {
+    "german": "Zeile",
+    "gender": "die",
+    "english": "row / line",
+    "group": "Programming"
+  },
+  {
+    "german": "Datensatz",
+    "gender": "der",
+    "english": "record",
+    "group": "Programming"
+  },
+  {
+    "german": "Primärschlüssel",
+    "gender": "der",
+    "english": "primary key",
+    "group": "Programming"
+  },
+  {
+    "german": "Fremdschlüssel",
+    "gender": "der",
+    "english": "foreign key",
+    "group": "Programming"
+  },
+  {
+    "german": "Transaktion",
+    "gender": "die",
+    "english": "transaction",
+    "group": "Programming"
+  },
+  {
+    "german": "Cache",
+    "gender": "der",
+    "english": "cache",
+    "group": "Programming"
+  },
+  {
+    "german": "Zwischenspeicher",
+    "gender": "der",
+    "english": "cache / buffer",
+    "group": "Programming"
+  },
+  {
+    "german": "Puffer",
+    "gender": "der",
+    "english": "buffer",
+    "group": "Programming"
+  },
+  {
+    "german": "Thread",
+    "gender": "der",
+    "english": "thread",
+    "group": "Programming"
+  },
+  {
+    "german": "Prozess",
+    "gender": "der",
+    "english": "process",
+    "group": "Programming"
+  },
+  {
+    "german": "Nebenläufigkeit",
+    "gender": "die",
+    "english": "concurrency",
+    "group": "Programming"
+  },
+  {
+    "german": "Programmierschnittstelle",
+    "gender": "die",
+    "english": "API",
+    "group": "Programming"
+  },
+  {
+    "german": "Endpunkt",
+    "gender": "der",
+    "english": "endpoint",
+    "group": "Programming"
+  },
+  {
+    "german": "Anfrage",
+    "gender": "die",
+    "english": "request",
+    "group": "Programming"
+  },
+  {
+    "german": "Antwort",
+    "gender": "die",
+    "english": "response",
+    "group": "Programming"
+  },
+  {
+    "german": "Nutzlast",
+    "gender": "die",
+    "english": "payload",
+    "group": "Programming"
+  },
+  {
+    "german": "Authentifizierung",
+    "gender": "die",
+    "english": "authentication",
+    "group": "Programming"
+  },
+  {
+    "german": "Autorisierung",
+    "gender": "die",
+    "english": "authorization",
+    "group": "Programming"
+  },
+  {
+    "german": "Token",
+    "gender": "das",
+    "english": "token",
+    "group": "Programming"
+  },
+  {
+    "german": "Sicherheitslücke",
+    "gender": "die",
+    "english": "security vulnerability",
+    "group": "Programming"
+  },
+  {
+    "german": "Bandbreite",
+    "gender": "die",
+    "english": "bandwidth",
+    "group": "Programming"
+  },
+  {
+    "german": "Latenz",
+    "gender": "die",
+    "english": "latency",
+    "group": "Programming"
+  },
+  {
+    "german": "Lastausgleich",
+    "gender": "der",
+    "english": "load balancing",
+    "group": "Programming"
+  },
+  {
+    "german": "Warteschlangendienst",
+    "gender": "der",
+    "english": "queue service",
+    "group": "Programming"
+  },
+  {
+    "german": "Zustand",
+    "gender": "der",
+    "english": "state",
+    "group": "Programming"
+  },
+  {
+    "german": "Zustandsmaschine",
+    "gender": "die",
+    "english": "state machine",
+    "group": "Programming"
+  },
+  {
+    "german": "Ereignisschleife",
+    "gender": "die",
+    "english": "event loop",
+    "group": "Programming"
+  },
+  {
+    "german": "Verzeichnis",
+    "gender": "das",
+    "english": "directory",
+    "group": "Programming"
+  },
+  {
+    "german": "Dateipfad",
+    "gender": "der",
+    "english": "file path",
+    "group": "Programming"
+  },
+  {
+    "german": "Dateiendung",
+    "gender": "die",
+    "english": "file extension",
+    "group": "Programming"
+  },
+  {
+    "german": "Speicherbereich",
+    "gender": "der",
+    "english": "memory area",
+    "group": "Programming"
+  },
+  {
+    "german": "Adresse",
+    "gender": "die",
+    "english": "address (memory)",
+    "group": "Programming"
+  },
+  {
+    "german": "Speicherleck",
+    "gender": "das",
+    "english": "memory leak",
+    "group": "Programming"
+  },
+  {
+    "german": "Müllabfuhr",
+    "gender": "die",
+    "english": "garbage collection",
+    "group": "Programming"
+  },
+  {
+    "german": "Algorithmus",
+    "gender": "der",
+    "english": "algorithm",
+    "group": "Programming"
+  },
+  {
+    "german": "Komplexität",
+    "gender": "die",
+    "english": "complexity",
+    "group": "Programming"
+  },
+  {
+    "german": "Entwurfsmuster",
+    "gender": "das",
+    "english": "design pattern",
+    "group": "Programming"
+  },
+  {
+    "german": "Framework",
+    "gender": "das",
+    "english": "framework",
+    "group": "Programming"
+  },
+  {
+    "german": "Rahmenwerk",
+    "gender": "das",
+    "english": "framework",
+    "group": "Programming"
+  },
+  {
+    "german": "Plattform",
+    "gender": "die",
+    "english": "platform",
+    "group": "Programming"
+  },
+  {
+    "german": "Laufwerk",
+    "gender": "das",
+    "english": "drive",
+    "group": "Programming"
+  },
+  {
+    "german": "Warnung",
+    "gender": "die",
+    "english": "warning",
+    "group": "Programming"
+  },
+  {
+    "german": "Stapelüberlauf",
+    "gender": "der",
+    "english": "stack overflow",
+    "group": "Programming"
+  },
+  {
+    "german": "Rückverfolgung",
+    "gender": "die",
+    "english": "stack trace / traceback",
+    "group": "Programming"
+  },
+  {
+    "german": "Eingabe",
+    "gender": "die",
+    "english": "input",
+    "group": "Programming"
+  },
+  {
+    "german": "Schnittstellenbeschreibung",
+    "gender": "die",
+    "english": "API specification",
+    "group": "Programming"
   }
 ]

@@ -22,6 +22,7 @@ export const NOUN_GROUPS = [
   'City & Shopping',
   'Fantasy',
   'Switzerland',
+  'Programming',
   'Other'
 ] as const
 
