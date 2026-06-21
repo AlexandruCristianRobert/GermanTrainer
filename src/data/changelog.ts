@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.19'
+export const APP_VERSION = '1.11.20'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.20', date: '2026-06-21', kind: 'polish',
+    title: 'Nouns · new Programming vocabulary group',
+    notes: [
+      '<strong>A new <em>Programming</em> noun group.</strong> The noun deck gains 163 curated software-development nouns — language constructs (<em>die Variable</em>, <em>die Schleife</em>, <em>die Funktion</em>), data structures (<em>der Stapel</em>, <em>die Warteschlange</em>, <em>das Array</em>) and tooling (<em>der Quellcode</em>, <em>das Repository</em>, <em>der Commit</em>) — each with its correct gender. Choose <em>Programming</em> in the noun gender or translation quizzes, or as a noun theme in the sentence drills.',
+      '<strong>It reaches your existing deck automatically.</strong> A schema migration tops up the new words on the next load — any nouns you added yourself are left untouched.'
+    ]
+  },
   {
     version: '1.11.19', date: '2026-06-21', kind: 'polish',
     title: 'Three offline drills · Stammformen, verb case government & fixed prepositions',
