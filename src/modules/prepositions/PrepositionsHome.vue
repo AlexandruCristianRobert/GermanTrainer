@@ -57,6 +57,12 @@ const cards: Card[] = [
     title: 'Fixed prepositions', de: 'Feste Präpositionen',
     desc: 'A verb, adjective, or noun governs a fixed preposition + case (warten auf + Akk., Angst vor + Dat.). Type the preposition and pick its case.',
     cta: 'Start'
+  },
+  {
+    numeral: 'G', route: 'prepositions-cheatsheet',
+    title: 'Cheatsheet', de: 'Feste Präpositionen · Spickzettel',
+    desc: 'Memory hooks for the fixed prepositions: über for talking about, nach for seeking, vor for fear. Grouped by preposition with the core idea each carries.',
+    cta: 'Open'
   }
 ]
 </script>

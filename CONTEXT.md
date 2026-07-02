@@ -28,6 +28,10 @@ _Avoid_: dual preposition, mixed preposition
 A verb, adjective, or noun that governs a fixed preposition and a fixed case — *warten auf + Akkusativ*, *stolz auf + Akkusativ*, *Angst vor + Dativ*. The **Fixed prepositions** drill shows the word and its English meaning and asks the learner to supply the preposition and its case; practice-only, records no [Run]. Each meaning that takes a different preposition is a separate collocation (*sich freuen auf* "look forward to" vs *sich freuen über* "be glad about").
 _Avoid_: prepositional verb (excludes adjectives and nouns), fixed phrase, idiom
 
+**Fixed-preposition core idea**:
+The single dominant sense a preposition carries across its [Prepositional collocation]s — *über* marks the topic of talking/thinking, *nach* reaching-toward/seeking, *vor* fear/avoidance, *auf* anticipation. A memory hook, not a rule: which word governs which preposition is still memorized. The organizing spine of the **Fixed prepositions cheatsheet** (de *Spickzettel*), which groups collocations by preposition and states this hook instead of enumerating them — the mnemonic counterpart to the verb Cheatsheet's grammar rules.
+_Avoid_: theme, meaning, category, rule.
+
 **Assigned theme noun**:
 A noun the drill deliberately selects from the learner's chosen noun theme and builds a sentence around. These are the vocabulary the drill tests, and the only nouns eligible for a word hint.
 _Avoid_: target noun, chosen noun

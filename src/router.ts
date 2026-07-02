@@ -42,6 +42,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/prepositions/remedial/run', name: 'prepositions-remedial-run', component: () => import('./modules/prepositions/RemedialRunner.vue') },
   { path: '/prepositions/collocations', name: 'prepositions-collocations', component: () => import('./modules/prepositions/CollocationsSetup.vue') },
   { path: '/prepositions/collocations/run', name: 'prepositions-collocations-run', component: () => import('./modules/prepositions/CollocationsRunner.vue') },
+  { path: '/prepositions/cheatsheet', name: 'prepositions-cheatsheet', component: () => import('./modules/prepositions/PrepositionCheatsheet.vue') },
   { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
   { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
   { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },
