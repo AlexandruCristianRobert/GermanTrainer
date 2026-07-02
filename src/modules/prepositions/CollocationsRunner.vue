@@ -51,6 +51,7 @@ onMounted(() => {
       quiz.value = useCollocationQuiz(items)
       ready.value = true
       resetInputs()
+      nextTick(() => prepInputRef.value?.focus())
     }
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load.'
@@ -91,6 +92,15 @@ const pips = computed(() => {
 })
 
 // ── actions ──────────────────────────────────────────────────────────────────
+// 1 = Akkusativ · 2 = Dativ, chosen from the keyboard while the preposition
+// input holds focus. Swallow the digit so it never lands in the field; ignored
+// once the card is submitted (the case is locked).
+function onPrepKeydown(e: KeyboardEvent) {
+  if (submitted.value || e.altKey || e.ctrlKey || e.metaKey) return
+  if (e.key === '1') { e.preventDefault(); selectedCase.value = 'accusative' }
+  else if (e.key === '2') { e.preventDefault(); selectedCase.value = 'dative' }
+}
+
 function submit() {
   if (!quiz.value || submitted.value) return
   if (!selectedCase.value) return
@@ -126,6 +136,7 @@ function retryWrong() {
   quiz.value = useCollocationQuiz(shuffle(wrong))
   resetInputs()
   dismissed.value = false
+  nextTick(() => prepInputRef.value?.focus())
 }
 
 function dismissRetry() {
@@ -247,6 +258,7 @@ function caseName(c: CollocationCase): string {
               color: current.prepositionOk ? 'var(--success)' : 'var(--danger)',
               borderBottomColor: current.prepositionOk ? 'var(--success)' : 'var(--danger)'
             } : undefined"
+            @keydown="onPrepKeydown"
             @keyup.enter="submitted ? next() : submit()"
           />
           <div v-if="submitted" class="colloc-feedback">

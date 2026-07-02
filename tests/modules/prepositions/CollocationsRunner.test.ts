@@ -88,6 +88,52 @@ describe('CollocationsRunner — smoke tests', () => {
     wrapper.unmount()
   })
 
+  it('focuses the preposition input on the first card', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+    const input = wrapper.find('.input-prep').element
+    expect(document.activeElement).toBe(input)
+    wrapper.unmount()
+  })
+
+  it('pressing 1 on the preposition input selects Akkusativ', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+
+    await wrapper.find('.input-prep').trigger('keydown', { key: '1' })
+
+    const akkBtn = wrapper.findAll('button').find(b => b.text() === 'Akkusativ')
+    expect(akkBtn!.classes()).toContain('case-selected')
+
+    // Case chosen from the keyboard enables Submit.
+    const submitBtn = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
+    expect(submitBtn!.attributes('disabled')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('pressing 2 on the preposition input selects Dativ', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+
+    await wrapper.find('.input-prep').trigger('keydown', { key: '2' })
+
+    const datBtn = wrapper.findAll('button').find(b => b.text() === 'Dativ')
+    expect(datBtn!.classes()).toContain('case-selected')
+    wrapper.unmount()
+  })
+
+  it('ignores 1/2 once the card is submitted (case stays locked)', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+
+    // Pick Akkusativ, then submit.
+    await wrapper.find('.input-prep').trigger('keydown', { key: '1' })
+    const submitBtn = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
+    await submitBtn!.trigger('click')
+
+    // Try to switch to Dativ after submit — should be ignored.
+    await wrapper.find('.input-prep').trigger('keydown', { key: '2' })
+    const datBtn = wrapper.findAll('button').find(b => b.text() === 'Dativ')
+    expect(datBtn!.classes()).not.toContain('case-selected')
+    wrapper.unmount()
+  })
+
   it('handles count=0 gracefully — still loads one item', async () => {
     const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '0' })
     expect(wrapper.find('.colloc-stage').exists()).toBe(true)
