@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.20'
+export const APP_VERSION = '1.11.22'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,22 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.22', date: '2026-07-01', kind: 'polish',
+    title: 'Prepositions · fixed-preposition Cheatsheet (Spickzettel)',
+    notes: [
+      '<strong>A memory-aid cheatsheet for the fixed prepositions.</strong> A new <em>Spickzettel</em> on the Prepositions page, organised the way you actually remember them — by preposition, each with the <em>core idea</em> it carries: <em>über</em> for talking and thinking about, <em>nach</em> for seeking, <em>vor</em> for fear and avoidance, <em>auf</em> for anticipation. Fifteen prepositions, each with a handful of representative examples and an example sentence.',
+      '<strong>The case becomes a memory hook, not a rule.</strong> Where a preposition splits by meaning, a note makes it stick — <em>an</em> + Akkusativ points the mind at something (<em>denken an</em>) while <em>an</em> + Dativ marks involvement or lack (<em>teilnehmen an</em>, <em>Mangel an</em>); <em>in</em> + Akkusativ moves into a state, <em>in</em> + Dativ is already inside one; <em>leiden an</em> (a disease) vs <em>leiden unter</em> (circumstances).',
+      '<strong>Always in step with the drill.</strong> Every example is drawn from the same curated data as the <em>Feste Präpositionen</em> drill, so the phrasing you memorise is exactly what you\'re tested on.'
+    ]
+  },
+  {
+    version: '1.11.21', date: '2026-07-01', kind: 'polish',
+    title: 'Fixed prepositions · fully keyboard-driven',
+    notes: [
+      '<strong>Answer without reaching for the mouse.</strong> The <em>Feste Präpositionen</em> drill now drops the cursor straight into the preposition box on every card. Type the preposition, press <code>1</code> for <em>Akkusativ</em> or <code>2</code> for <em>Dativ</em>, then <code>Enter</code> to check and <code>Enter</code> again for the next card — your hands never leave the keyboard.'
+    ]
+  },
   {
     version: '1.11.20', date: '2026-06-21', kind: 'polish',
     title: 'Nouns · new Programming vocabulary group',
