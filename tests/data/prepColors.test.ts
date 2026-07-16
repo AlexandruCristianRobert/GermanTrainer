@@ -6,9 +6,12 @@ const distinctPrepositions = [...new Set(COLLOCATIONS.map((c) => c.preposition))
 
 describe('prepColors', () => {
   it('COLLOCATIONS actually governs the expected 15 prepositions (sanity check)', () => {
-    // Not a hard requirement of this module, but if this ever drifts the assertions
-    // below about "every distinct preposition resolves" would silently stop meaning much.
-    expect(distinctPrepositions.length).toBeGreaterThan(0)
+    // If this ever drifts, the assertions below about "every distinct preposition
+    // resolves" would silently stop meaning much.
+    expect(distinctPrepositions.sort()).toEqual([
+      'an', 'auf', 'aus', 'bei', 'für', 'gegen', 'in', 'mit',
+      'nach', 'um', 'unter', 'vor', 'von', 'zu', 'über',
+    ].sort())
   })
 
   it('every distinct preposition in COLLOCATIONS yields a non-empty style object', () => {
