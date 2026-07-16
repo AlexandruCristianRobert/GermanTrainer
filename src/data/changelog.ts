@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.22'
+export const APP_VERSION = '1.11.23'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.23', date: '2026-07-16', kind: 'polish',
+    title: 'Fixed prepositions · scene hints & preposition colours',
+    notes: [
+      '<strong>A scene hint on every card.</strong> Each of the 505 collocations in the <em>Feste Präpositionen</em> drill now carries a one-line English micro-scene, shown under the word before you answer — <em>warten</em>: “you\'ve been standing there a while; the bus still hasn\'t come”. It retells the card\'s own example sentence, angled toward the preposition\'s core idea from the Spickzettel, so the situation nudges you toward the preposition without ever naming it. Turn hints on or off on the setup screen (on by default).',
+      '<strong>Every preposition has a colour now.</strong> Fifteen fixed prepositions, fifteen fixed hues — <em>gegen</em> red, <em>auf</em> amber, <em>vor</em> violet, <em>zu</em> cyan… Once you\'ve answered, the card washes in the preposition\'s colour, the revealed example takes its accent, and the end-of-drill summary tints each row the same way — one more hook binding word to preposition. Before you answer the card stays neutral, so the colour never gives the answer away.'
+    ]
+  },
   {
     version: '1.11.22', date: '2026-07-01', kind: 'polish',
     title: 'Prepositions · fixed-preposition Cheatsheet (Spickzettel)',
