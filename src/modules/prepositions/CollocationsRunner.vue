@@ -11,11 +11,15 @@ import {
   COLLOCATION_LEVELS, COLLOCATION_ROLES,
   type Collocation, type CollocationCase, type CollocationLevel, type CollocationRole,
 } from '../../data/collocations'
+import { prepColorStyle } from '../../data/prepColors'
 
 const route  = useRoute()
 const router = useRouter()
 const { sample } = useCollocations()
 const { isMobile } = useBreakpoint()
+
+// Scene hints are on unless the query param explicitly turns them off.
+const hintsOn = computed(() => route.query.hints !== '0')
 
 // ── quiz state ──────────────────────────────────────────────────────────────
 const loading = ref(true)
@@ -185,6 +189,7 @@ function caseName(c: CollocationCase): string {
         v-for="(q, i) in questions"
         :key="i"
         class="result-row colloc-result-row"
+        :style="prepColorStyle(q.item.preposition)"
       >
         <div class="result-word">
           <div class="german">{{ q.item.word }}</div>
@@ -193,7 +198,7 @@ function caseName(c: CollocationCase): string {
         <div class="result-parts">
           <span class="result-part">
             <span class="part-label">Prep.</span>
-            <strong :class="q.prepositionOk ? 'ok' : 'err'">{{ q.item.preposition }}</strong>
+            <strong class="prep-accent-text">{{ q.item.preposition }}</strong>
           </span>
           <span class="result-part">
             <span class="part-label">Case</span>
@@ -221,7 +226,10 @@ function caseName(c: CollocationCase): string {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="colloc-stage">
+    <div
+      class="colloc-stage"
+      :style="submitted ? prepColorStyle(current.item.preposition) : undefined"
+    >
       <div class="quiz-meta">
         <span class="quiz-counter">Card {{ questionIndex + 1 }} · of {{ total }}</span>
       </div>
@@ -231,13 +239,14 @@ function caseName(c: CollocationCase): string {
       </div>
 
       <!-- Prompt card -->
-      <div class="prompt-card colloc-prompt">
+      <div class="prompt-card colloc-prompt" :class="{ submitted }">
         <div class="prompt-chips">
           <span class="tag">{{ current.item.role }}</span>
           <span class="tag">{{ current.item.level }}</span>
         </div>
         <div class="prompt-german colloc-german">{{ current.item.word }}</div>
         <div class="prompt-english">{{ current.item.english }}</div>
+        <div v-if="hintsOn" class="prompt-hint">{{ current.item.sceneHint }}</div>
       </div>
 
       <!-- Input area -->
@@ -263,7 +272,8 @@ function caseName(c: CollocationCase): string {
           />
           <div v-if="submitted" class="colloc-feedback">
             <span v-if="current.prepositionOk" class="ok-mark">✓</span>
-            <span v-else class="row-expected">→ <strong>{{ current.item.preposition }}</strong></span>
+            <span v-else class="row-expected">→</span>
+            <strong class="prep-accent-text">{{ current.item.preposition }}</strong>
           </div>
         </div>
 
@@ -348,6 +358,9 @@ function caseName(c: CollocationCase): string {
 .colloc-prompt {
   padding: 56px 0 32px;
 }
+.colloc-prompt.submitted {
+  background: var(--prep-wash);
+}
 .colloc-german {
   font-size: clamp(28px, 8vw, 56px);
   font-style: italic;
@@ -357,6 +370,13 @@ function caseName(c: CollocationCase): string {
   font-family: var(--font-body);
   font-size: 18px;
   color: var(--ink-soft);
+}
+.prompt-hint {
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--mute);
 }
 
 /* Inputs */
@@ -369,6 +389,9 @@ function caseName(c: CollocationCase): string {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+.colloc-inputs.submitted {
+  background: var(--prep-wash);
 }
 
 .colloc-input-row {
@@ -393,6 +416,7 @@ function caseName(c: CollocationCase): string {
 }
 .ok-mark { color: var(--success); font-weight: 600; }
 .row-expected { color: var(--danger); }
+.prep-accent-text { color: var(--prep-accent); font-weight: 600; }
 
 /* Case row */
 .colloc-case-row {
@@ -442,7 +466,9 @@ function caseName(c: CollocationCase): string {
 /* Reveal block */
 .colloc-reveal {
   border-top: 1px solid var(--hairline);
+  border-left: 3px solid var(--prep-accent);
   padding-top: 12px;
+  padding-left: 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -451,7 +477,7 @@ function caseName(c: CollocationCase): string {
   font-family: var(--font-display);
   font-style: italic;
   font-size: 17px;
-  color: var(--ink);
+  color: var(--prep-accent);
 }
 .reveal-notes {
   font-family: var(--font-body);
@@ -471,6 +497,7 @@ function caseName(c: CollocationCase): string {
 /* Result list */
 .colloc-result-row {
   grid-template-columns: 180px 1fr auto;
+  background: var(--prep-wash);
 }
 .result-word-meta {
   font-family: var(--font-mono);

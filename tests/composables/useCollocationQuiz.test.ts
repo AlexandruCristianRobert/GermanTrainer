@@ -13,6 +13,7 @@ const wartenAuf: Collocation = {
   case: 'accusative',
   level: 'B1',
   example: 'Ich warte auf den Bus.',
+  sceneHint: 'the bus is late and you keep checking the road',
 }
 
 const stolzAuf: Collocation = {
@@ -24,6 +25,7 @@ const stolzAuf: Collocation = {
   case: 'accusative',
   level: 'B1',
   example: 'Sie ist stolz auf ihren Sohn.',
+  sceneHint: 'she beams with pride at her son',
 }
 
 const angstVor: Collocation = {
@@ -35,6 +37,7 @@ const angstVor: Collocation = {
   case: 'dative',
   level: 'B1',
   example: 'Er hat Angst vor Hunden.',
+  sceneHint: 'dogs make him freeze on the spot',
 }
 
 const teilnehmenAn: Collocation = {
@@ -46,6 +49,7 @@ const teilnehmenAn: Collocation = {
   case: 'dative',
   level: 'B1',
   example: 'Wir nehmen am Wettbewerb teil.',
+  sceneHint: 'we sign up and join the contest',
 }
 
 // A collocation with alternatives
@@ -58,6 +62,7 @@ const interessiertAn: Collocation = {
   case: 'dative',
   level: 'B1',
   example: 'Sie ist an Musik interessiert.',
+  sceneHint: 'music is what grabs her attention',
   alternatives: ['fuer'], // not a real alternative, just for test
 }
 
@@ -127,6 +132,7 @@ describe('useCollocationQuiz — preposition grading', () => {
       case: 'accusative',
       level: 'B1',
       example: 'Ich danke dir für deine Hilfe.',
+      sceneHint: 'thanks so much for helping me out',
     }
     const q = useCollocationQuiz([fuerCollocation])
     q.submit({ preposition: 'fuer', case: 'accusative' })

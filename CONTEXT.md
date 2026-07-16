@@ -32,6 +32,14 @@ _Avoid_: prepositional verb (excludes adjectives and nouns), fixed phrase, idiom
 The single dominant sense a preposition carries across its [Prepositional collocation]s — *über* marks the topic of talking/thinking, *nach* reaching-toward/seeking, *vor* fear/avoidance, *auf* anticipation. A memory hook, not a rule: which word governs which preposition is still memorized. The organizing spine of the **Fixed prepositions cheatsheet** (de *Spickzettel*), which groups collocations by preposition and states this hook instead of enumerating them — the mnemonic counterpart to the verb Cheatsheet's grammar rules.
 _Avoid_: theme, meaning, category, rule.
 
+**Scene hint**:
+A one-line English micro-scene shown on a Fixed prepositions drill card *before* the learner answers — a retelling of the collocation's stored German example sentence, angled to evoke the [Fixed-preposition core idea] (*warten*: "you've been standing there a while; the bus still hasn't come"). It never names the preposition or the case. A setup toggle (default on) shows or hides scene hints for the whole drill; after submitting, the German example confirms the scene. Distinct from [Word hint], which reveals vocabulary in translation drills.
+_Avoid_: description, hint phrase, tooltip
+
+**Preposition color**:
+A fixed hue permanently assigned to each of the fifteen governed prepositions (e.g. *gegen* = red), used in the **Fixed prepositions** drill as a memory anchor binding a [Prepositional collocation] to its preposition. It appears only once the learner has answered — at the card's reveal and in the drill summary — never while answering (it would leak the answer). Correct/wrong verdicts keep their own green/red and always read on top of it. The cheatsheet does not use preposition colors.
+_Avoid_: theme color, category color, highlight
+
 **Assigned theme noun**:
 A noun the drill deliberately selects from the learner's chosen noun theme and builds a sentence around. These are the vocabulary the drill tests, and the only nouns eligible for a word hint.
 _Avoid_: target noun, chosen noun

@@ -152,4 +152,52 @@ describe('collocations dataset', () => {
     expect(byRole('adjective')).toBeGreaterThanOrEqual(60)
     expect(byRole('noun')).toBeGreaterThanOrEqual(80)
   })
+
+  test('every entry has a non-empty sceneHint', () => {
+    const offenders = COLLOCATIONS
+      .filter(c => typeof c.sceneHint !== 'string' || c.sceneHint.trim().length === 0)
+      .map(c => c.id)
+    expect(offenders).toEqual([])
+  })
+
+  test('sceneHint is at most 90 characters and 14 words', () => {
+    const offenders: string[] = []
+    for (const c of COLLOCATIONS) {
+      const hint = c.sceneHint ?? ''
+      if (hint.length > 90) offenders.push(`${c.id}: ${hint.length} chars > 90`)
+      const words = hint.trim().split(/\s+/).filter(Boolean)
+      if (words.length > 14) offenders.push(`${c.id}: ${words.length} words > 14`)
+    }
+    expect(offenders).toEqual([])
+  })
+
+  test('sceneHint never names a preposition or case (forbidden tokens, word boundary)', () => {
+    // German prepositions + case names must not surface in the English micro-scene.
+    // Word-boundary, case-insensitive, \p{L}-based — mirrors the example/preposition test.
+    // "an" and "in" are deliberately absent: they are ordinary English words.
+    const FORBIDDEN = [
+      'auf', 'über', 'ueber', 'für', 'fuer', 'gegen', 'nach', 'von', 'mit', 'zu',
+      'vor', 'aus', 'bei', 'um', 'unter',
+      'akkusativ', 'dativ', 'accusative', 'dative'
+    ]
+    const offenders: string[] = []
+    for (const c of COLLOCATIONS) {
+      const hint = c.sceneHint ?? ''
+      for (const token of FORBIDDEN) {
+        const re = new RegExp(`(^|[^\\p{L}])${escapeRegExp(token)}([^\\p{L}]|$)`, 'iu')
+        if (re.test(hint)) offenders.push(`${c.id}: contains "${token}" in "${hint}"`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  test('no duplicate sceneHint values across the whole dataset', () => {
+    const counts = new Map<string, number>()
+    for (const c of COLLOCATIONS) {
+      const key = (c.sceneHint ?? '').trim()
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    const dupes = [...counts.entries()].filter(([, n]) => n > 1).map(([s]) => s)
+    expect(dupes).toEqual([])
+  })
 })
