@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import CollocationsRunner from '../../../src/modules/prepositions/CollocationsRunner.vue'
+import { prepSlug } from '../../../src/data/prepColors'
 
 // Stub useBreakpoint so the component doesn't call window.matchMedia in jsdom
 vi.mock('../../../src/composables/useBreakpoint', () => ({
@@ -146,6 +147,81 @@ describe('CollocationsRunner — smoke tests', () => {
     // With empty levels, csv returns all levels, so this might still work.
     // Instead mount with an extreme mismatch: just verify no crash.
     expect(wrapper.find('.page').exists()).toBe(true)
+    wrapper.unmount()
+  })
+})
+
+describe('CollocationsRunner — preposition colors', () => {
+  it('the stage carries no --prep-accent style before submit (pre-submit unchanged)', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+    const stage = wrapper.find('.colloc-stage')
+    expect(stage.attributes('style')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('the stage carries the item\'s --prep-accent / --prep-wash style after submit', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+
+    const akkBtn = wrapper.findAll('button').find(b => b.text() === 'Akkusativ')
+    await akkBtn!.trigger('click')
+    const submitBtn = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
+    await submitBtn!.trigger('click')
+
+    // The governed preposition is always shown post-submit, bold, in the prep row —
+    // read it back to know which per-preposition slug the stage should now carry.
+    const preposition = wrapper.find('.prep-accent-text').text()
+    const slug = prepSlug(preposition)
+    expect(slug).not.toBeNull()
+
+    const style = wrapper.find('.colloc-stage').attributes('style') ?? ''
+    expect(style).toContain(`--prep-accent: var(--prep-${slug})`)
+    expect(style).toContain(`--prep-wash: var(--prep-${slug}-wash)`)
+    wrapper.unmount()
+  })
+
+  it('shows the governed preposition in the prep row even when the answer was correct', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+
+    const akkBtn = wrapper.findAll('button').find(b => b.text() === 'Akkusativ')
+    await akkBtn!.trigger('click')
+    const submitBtn = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
+    await submitBtn!.trigger('click')
+
+    // Regardless of whether the case guess was right, the prep row must show a symbol
+    // (✓ or →) followed by the bold, accent-colored governed preposition — never bare "✓".
+    const feedback = wrapper.find('.colloc-feedback')
+    expect(feedback.text()).toMatch(/^[✓→]\s*\S+$/)
+    expect(wrapper.find('.prep-accent-text').text().length).toBeGreaterThan(0)
+    wrapper.unmount()
+  })
+
+  it('summary rows carry per-item --prep-accent / --prep-wash style vars', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+
+    const akkBtn = wrapper.findAll('button').find(b => b.text() === 'Akkusativ')
+    await akkBtn!.trigger('click')
+    const submitBtn = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
+    await submitBtn!.trigger('click')
+
+    const preposition = wrapper.find('.prep-accent-text').text()
+    const slug = prepSlug(preposition)
+
+    const finishBtn = wrapper.findAll('button').find(b => b.text().startsWith('Finish drill'))
+    await finishBtn!.trigger('click')
+    await flushPromises()
+
+    // A wrong guess pops the retry modal first; dismiss it to reach the summary screen.
+    const reviewBtn = wrapper.findAll('button').find(b => b.text() === 'Review instead')
+    if (reviewBtn) {
+      await reviewBtn.trigger('click')
+      await flushPromises()
+    }
+
+    const row = wrapper.find('.colloc-result-row')
+    expect(row.exists()).toBe(true)
+    const style = row.attributes('style') ?? ''
+    expect(style).toContain(`--prep-accent: var(--prep-${slug})`)
+    expect(style).toContain(`--prep-wash: var(--prep-${slug}-wash)`)
     wrapper.unmount()
   })
 })
