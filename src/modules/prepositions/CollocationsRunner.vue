@@ -18,6 +18,9 @@ const router = useRouter()
 const { sample } = useCollocations()
 const { isMobile } = useBreakpoint()
 
+// Scene hints are on unless the query param explicitly turns them off.
+const hintsOn = computed(() => route.query.hints !== '0')
+
 // ── quiz state ──────────────────────────────────────────────────────────────
 const loading = ref(true)
 const error   = ref<string | null>(null)
@@ -243,6 +246,7 @@ function caseName(c: CollocationCase): string {
         </div>
         <div class="prompt-german colloc-german">{{ current.item.word }}</div>
         <div class="prompt-english">{{ current.item.english }}</div>
+        <div v-if="hintsOn" class="prompt-hint">{{ current.item.sceneHint }}</div>
       </div>
 
       <!-- Input area -->
@@ -366,6 +370,13 @@ function caseName(c: CollocationCase): string {
   font-family: var(--font-body);
   font-size: 18px;
   color: var(--ink-soft);
+}
+.prompt-hint {
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--mute);
 }
 
 /* Inputs */

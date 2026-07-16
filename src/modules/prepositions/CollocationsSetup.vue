@@ -17,12 +17,14 @@ const roles  = ref<CollocationRole[]>([...COLLOCATION_ROLES])
 type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
 const preset = ref<CountPreset>(10)
 const customCount = ref(10)
+const hints = ref(true)
 
 interface Stored {
   levels?: CollocationLevel[]
   roles?: CollocationRole[]
   preset?: CountPreset
   customCount?: number
+  hints?: boolean
 }
 
 function load() {
@@ -34,6 +36,7 @@ function load() {
     if (s.roles)  roles.value  = s.roles.filter(r => (COLLOCATION_ROLES as readonly string[]).includes(r))
     if (s.preset !== undefined) preset.value = s.preset
     if (s.customCount !== undefined) customCount.value = s.customCount
+    if (typeof s.hints === 'boolean') hints.value = s.hints
   } catch { /* ignore */ }
 }
 
@@ -42,13 +45,14 @@ function save() {
     const payload: Stored = {
       levels: levels.value, roles: roles.value,
       preset: preset.value, customCount: customCount.value,
+      hints: hints.value,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   } catch { /* ignore */ }
 }
 
 onMounted(load)
-watch([levels, roles, preset, customCount], save, { deep: true })
+watch([levels, roles, preset, customCount, hints], save, { deep: true })
 
 const availableItems = computed(() => filter({ levels: levels.value, roles: roles.value }).length)
 
@@ -72,6 +76,7 @@ function start() {
       count: String(effectiveCount.value),
       levels: levels.value.join(','),
       roles: roles.value.join(','),
+      hints: hints.value ? '1' : '0',
     }
   })
 }
@@ -122,6 +127,19 @@ function start() {
           @click="roles = toggle(roles, r)"
         >{{ r }}</button>
       </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Scene hints</div>
+      <div class="segmented">
+        <button :class="{ active: hints }" @click="hints = true">On</button>
+        <button :class="{ active: !hints }" @click="hints = false">Off</button>
+      </div>
+      <p class="micro-mark grading-hint">
+        {{ hints
+          ? 'Shows a one-line English scene under each word to set the context before you answer.'
+          : 'No scene — just the word and its English gloss.' }}
+      </p>
     </div>
 
     <div class="field">
@@ -180,6 +198,7 @@ function start() {
 .count-row { align-items: center; gap: 12px; }
 .custom-count { width: 80px; font-size: 17px; padding: 4px 0; }
 .count-avail { margin-left: auto; }
+.grading-hint { margin: 8px 0 0; }
 
 .setup-actions {
   display: flex;
