@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.23'
+export const APP_VERSION = '1.11.24'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.24', date: '2026-07-17', kind: 'polish',
+    title: 'Fixed prepositions · hints now point at the core idea',
+    notes: [
+      '<strong>The pre-answer hint now evokes the preposition\'s core idea.</strong> On every <em>Feste Präpositionen</em> card, the one-line hint before you answer no longer retells the example as a little scene — it points at the governed preposition\'s <em>core idea</em> from the Spickzettel instead (<em>warten auf</em> → “your attention is oriented toward something still ahead”). It still never names the preposition or the case: a memory scaffold aimed at the answer rather than a description of the situation.',
+      '<strong>Rewritten for all 505 collocations.</strong> Every verb, adjective and noun in the drill gets a fresh core-idea hint matched to its preposition — and, for two-way prepositions, to its case (<em>denken an</em> “the mind reaches out and fastens on a target” vs <em>teilnehmen an</em> “you stand inside it, taking your part”). The on/off toggle and preposition colours are unchanged.'
+    ]
+  },
   {
     version: '1.11.23', date: '2026-07-16', kind: 'polish',
     title: 'Fixed prepositions · scene hints & preposition colours',
