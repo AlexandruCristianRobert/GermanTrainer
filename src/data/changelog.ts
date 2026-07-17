@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.28'
+export const APP_VERSION = '1.11.29'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.29', date: '2026-07-17', kind: 'polish',
+    title: 'Fixed prepositions · both answers accepted + deeper explanations',
+    notes: [
+      '<strong>Words that take two prepositions now accept either.</strong> Where a single meaning is genuinely satisfied by more than one preposition — <em>das Interesse an</em> ≈ <em>für</em>, <em>die Frage an/nach</em>, <em>berichten über/von</em>, <em>schimpfen über/auf</em>, <em>enttäuscht über/von</em> — the drill merges them into one card and marks <em>either</em> preposition (with its own case) correct. Meaning-splitting pairs like <em>sich freuen auf</em> vs <em>über</em> stay separate, since the gloss is the answer.',
+      '<strong>The why-you-missed note now explains the link.</strong> Instead of just stating the core idea and the hint, each explanation now spells out <em>how</em> the hint\'s image embodies the preposition\'s idea — <em>zweifeln</em>: "a doubt \'snags at one spot and refuses to hold\'; it stays fastened and won\'t move past the one thing you\'re unsure of — that stuck grip is <em>an</em>\'s fixation." All ~500 rewritten, and interchangeable cards explain both answers.'
+    ]
+  },
   {
     version: '1.11.28', date: '2026-07-17', kind: 'polish',
     title: 'Fixed prepositions · why-you-missed explanations',

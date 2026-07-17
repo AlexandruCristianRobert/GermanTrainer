@@ -68,7 +68,22 @@ const interessiertAn: Collocation = {
   example: 'Sie ist an Musik interessiert.',
   coreIdeaHint: 'music is what grabs her attention',
   coreIdeaExplanation: 'an here fixes attention at a point; music is what holds her — so interessiert takes an (Dativ).',
-  alternatives: ['fuer'], // not a real alternative, just for test
+  alsoAccept: [{ preposition: 'fuer', case: 'dative' }], // not real, just for test
+}
+
+// A merged interchangeable card: same meaning, two prep+case answers (different cases).
+const dieFrage: Collocation = {
+  id: 'die-frage-an',
+  word: 'die Frage',
+  english: 'a question',
+  role: 'noun',
+  preposition: 'an',
+  case: 'accusative',
+  level: 'B1',
+  example: 'Ich habe eine Frage an dich.',
+  coreIdeaHint: 'a question aimed straight at the person it is put to',
+  coreIdeaExplanation: 'an reaches toward a point and nach seeks after one; a question does either — so Frage takes an (Akkusativ) or nach (Dativ).',
+  alsoAccept: [{ preposition: 'nach', case: 'dative' }],
 }
 
 // ── Basic state ───────────────────────────────────────────────────────────────
@@ -145,10 +160,38 @@ describe('useCollocationQuiz — preposition grading', () => {
     expect(q.questions.value[0].prepositionOk).toBe(true)
   })
 
-  it('accepts alternative preposition when alternatives array is provided', () => {
+  it('accepts an alsoAccept preposition (same case)', () => {
     const q = useCollocationQuiz([interessiertAn])
     q.submit({ preposition: 'fuer', case: 'dative' })
     expect(q.questions.value[0].prepositionOk).toBe(true)
+    expect(q.questions.value[0].isCorrect).toBe(true)
+  })
+
+  it('merged card accepts either answer, each with ITS own case', () => {
+    // primary an+Akkusativ
+    const a = useCollocationQuiz([dieFrage])
+    a.submit({ preposition: 'an', case: 'accusative' })
+    expect(a.questions.value[0].isCorrect).toBe(true)
+    // alsoAccept nach+Dativ (different case) — also correct
+    const b = useCollocationQuiz([dieFrage])
+    b.submit({ preposition: 'nach', case: 'dative' })
+    expect(b.questions.value[0].isCorrect).toBe(true)
+  })
+
+  it('merged card rejects a valid preposition with the wrong case', () => {
+    // "nach" is acceptable, but only with Dativ — nach+Akkusativ must fail
+    const q = useCollocationQuiz([dieFrage])
+    q.submit({ preposition: 'nach', case: 'accusative' })
+    expect(q.questions.value[0].prepositionOk).toBe(true)
+    expect(q.questions.value[0].caseOk).toBe(false)
+    expect(q.questions.value[0].isCorrect).toBe(false)
+  })
+
+  it('merged card rejects a preposition that is not accepted at all', () => {
+    const q = useCollocationQuiz([dieFrage])
+    q.submit({ preposition: 'über', case: 'accusative' })
+    expect(q.questions.value[0].prepositionOk).toBe(false)
+    expect(q.questions.value[0].isCorrect).toBe(false)
   })
 
   it('case-insensitive match (capital A → auf)', () => {

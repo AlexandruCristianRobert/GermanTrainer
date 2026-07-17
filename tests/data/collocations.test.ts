@@ -130,20 +130,25 @@ describe('collocations dataset', () => {
     expect(offenders).toEqual([])
   })
 
-  test('alternatives, when present, are lowercase non-empty strings', () => {
+  test('alsoAccept entries are lowercase preps with a valid case, distinct from the primary', () => {
+    const validCases = new Set<string>(COLLOCATION_CASES)
     const offenders: string[] = []
     for (const c of COLLOCATIONS) {
-      if (!c.alternatives) continue
-      for (const alt of c.alternatives) {
-        if (alt.trim().length === 0) offenders.push(`${c.id}: empty alternative`)
-        else if (alt !== alt.toLowerCase()) offenders.push(`${c.id}: alt not lowercase "${alt}"`)
+      if (!c.alsoAccept) continue
+      for (const a of c.alsoAccept) {
+        if (a.preposition.trim().length === 0) offenders.push(`${c.id}: empty alsoAccept preposition`)
+        else if (a.preposition !== a.preposition.toLowerCase()) offenders.push(`${c.id}: alsoAccept prep not lowercase "${a.preposition}"`)
+        if (!validCases.has(a.case)) offenders.push(`${c.id}: alsoAccept bad case ${a.case}`)
+        if (a.preposition === c.preposition && a.case === c.case) offenders.push(`${c.id}: alsoAccept duplicates the primary answer`)
       }
     }
     expect(offenders).toEqual([])
   })
 
-  test('total count is at least 500', () => {
-    expect(COLLOCATIONS.length).toBeGreaterThanOrEqual(500)
+  // Deliberately merged 5 interchangeable same-meaning pairs into single cards (v1.11.29),
+  // so the count dropped from 504 to 499. Still ~500 curated entries.
+  test('total count is at least 495', () => {
+    expect(COLLOCATIONS.length).toBeGreaterThanOrEqual(495)
   })
 
   test('each role meets a sane minimum', () => {
@@ -210,13 +215,13 @@ describe('collocations dataset', () => {
     expect(offenders).toEqual([])
   })
 
-  test('coreIdeaExplanation is at most 180 characters and 30 words', () => {
+  test('coreIdeaExplanation is at most 360 characters and 65 words', () => {
     const offenders: string[] = []
     for (const c of COLLOCATIONS) {
       const ex = c.coreIdeaExplanation ?? ''
-      if (ex.length > 180) offenders.push(`${c.id}: ${ex.length} chars > 180`)
+      if (ex.length > 360) offenders.push(`${c.id}: ${ex.length} chars > 360`)
       const words = ex.trim().split(/\s+/).filter(Boolean)
-      if (words.length > 30) offenders.push(`${c.id}: ${words.length} words > 30`)
+      if (words.length > 65) offenders.push(`${c.id}: ${words.length} words > 65`)
     }
     expect(offenders).toEqual([])
   })
@@ -232,14 +237,19 @@ describe('collocations dataset', () => {
     expect(offenders).toEqual([])
   })
 
-  test('coreIdeaExplanation names the correct case and not the wrong one', () => {
+  test('coreIdeaExplanation names the primary case, and only cases that are acceptable', () => {
+    const CASE_DE: Record<string, string> = { accusative: 'Akkusativ', dative: 'Dativ' }
     const offenders: string[] = []
     for (const c of COLLOCATIONS) {
       const ex = c.coreIdeaExplanation ?? ''
-      const right = c.case === 'accusative' ? 'Akkusativ' : 'Dativ'
-      const wrong = c.case === 'accusative' ? 'Dativ' : 'Akkusativ'
-      if (!ex.includes(right)) offenders.push(`${c.id}: missing ${right}`)
-      if (ex.includes(wrong)) offenders.push(`${c.id}: contains wrong case ${wrong}`)
+      // an interchangeable card legitimately names each acceptable answer's case
+      const acceptable = new Set<string>([c.case, ...(c.alsoAccept?.map(a => a.case) ?? [])])
+      if (!ex.includes(CASE_DE[c.case])) offenders.push(`${c.id}: missing primary ${CASE_DE[c.case]}`)
+      for (const k of ['accusative', 'dative']) {
+        if (!acceptable.has(k) && ex.includes(CASE_DE[k])) {
+          offenders.push(`${c.id}: names non-acceptable case ${CASE_DE[k]}`)
+        }
+      }
     }
     expect(offenders).toEqual([])
   })

@@ -156,6 +156,14 @@ function restart() {
 function caseName(c: CollocationCase): string {
   return c === 'accusative' ? 'Akkusativ' : 'Dativ'
 }
+const shortCase = (c: CollocationCase) => (c === 'accusative' ? 'Akk' : 'Dat')
+
+// All acceptable answers for a card (primary + interchangeable alsoAccept), for the
+// reveal on merged cards — e.g. "an (Akk) · nach (Dat)".
+function acceptedAnswers(item: Collocation): string {
+  const all = [{ preposition: item.preposition, case: item.case }, ...(item.alsoAccept ?? [])]
+  return all.map(a => `${a.preposition} (${shortCase(a.case)})`).join(' · ')
+}
 </script>
 
 <template>
@@ -305,6 +313,9 @@ function caseName(c: CollocationCase): string {
 
         <!-- Reveal: on a miss, the core-idea explanation leads; then example + notes -->
         <div v-if="submitted" class="colloc-reveal">
+          <div v-if="current.item.alsoAccept?.length" class="reveal-accepted">
+            Both correct: {{ acceptedAnswers(current.item) }}
+          </div>
           <div v-if="!current.isCorrect" class="reveal-explanation">
             <span class="reveal-why">Why?</span>{{ current.item.coreIdeaExplanation }}
           </div>
@@ -535,6 +546,13 @@ function caseName(c: CollocationCase): string {
   text-transform: uppercase;
   color: var(--prep-accent);
   margin-right: 8px;
+}
+.reveal-accepted {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--prep-accent);
+  font-weight: 600;
 }
 
 /* Actions */

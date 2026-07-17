@@ -30,8 +30,16 @@ export function useCollocationQuiz(items: Collocation[]) {
     const q = questions.value[currentIndex.value]
     if (!q) return
 
-    const prepositionOk = checkText(answer.preposition, q.item.preposition, q.item.alternatives)
-    const caseOk = answer.case === q.item.case
+    // A collocation may accept more than one (preposition, case) pair when the meaning
+    // is genuinely interchangeable (das Interesse an ≈ für). The typed preposition is
+    // matched against each acceptable answer; its case is then judged against THAT one.
+    const accepts = [
+      { preposition: q.item.preposition, case: q.item.case },
+      ...(q.item.alsoAccept ?? []),
+    ]
+    const prepMatch = accepts.find(a => checkText(answer.preposition, a.preposition))
+    const prepositionOk = !!prepMatch
+    const caseOk = prepMatch ? answer.case === prepMatch.case : answer.case === q.item.case
 
     q.prepositionOk = prepositionOk
     q.caseOk = caseOk
