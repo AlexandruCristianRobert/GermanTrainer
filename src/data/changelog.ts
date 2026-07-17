@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.31'
+export const APP_VERSION = '1.11.32'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.32', date: '2026-07-17', kind: 'polish',
+    title: 'AI quizzes · every generator now streams',
+    notes: [
+      '<strong>All the AI quizzes start almost instantly now.</strong> Prep sentence, prep remedial, adjective, Konjunktiv, Passiv and the declension article-AI drills no longer make you wait behind a loading screen for the whole set — they generate the first few in a small batch, open right away, and stream the rest in behind you (batches of about ten). A big custom run is usable in seconds instead of a minute.',
+      '<strong>Steadier, cheaper generation.</strong> Instead of one enormous request, each drill now asks the AI in bite-sized batches, so a hiccup costs one batch (surfaced as “Generated X of N”) rather than the whole run. Completes the streaming rollout begun with the verb quizzes (ADR-0008).'
+    ]
+  },
   {
     version: '1.11.31', date: '2026-07-17', kind: 'polish',
     title: 'AI generation · ramped batches (verb quizzes)',

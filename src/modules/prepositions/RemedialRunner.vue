@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
 import { checkArticle } from '../../composables/usePrepositionQuiz'
 import { checkTranslation } from '../../composables/useNounQuiz'
-import { checkSentence, gradeAnswer, buildDrillItem } from '../../composables/useSentenceQuiz'
+import {
+  checkSentence, gradeAnswer, buildDrillItem, generateSentences,
+  type SentenceSpec, type GeneratedSentence
+} from '../../composables/useSentenceQuiz'
+import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun, type PrepDrillItem } from '../../composables/useQuizHistory'
 import type { RemedialQuestion } from '../../composables/usePrepRemedial'
 import type { Gender } from '../../db/types'
 import { useSettings } from '../../composables/useSettings'
 import { resolveAiClient } from '../../composables/localClaude'
 import { useToast } from '../../composables/useToast'
+import { useSound } from '../../composables/useSound'
 import RetryModal from '../../components/RetryModal.vue'
 import QuizProgress from '../../components/QuizProgress.vue'
 
@@ -18,8 +23,11 @@ const STASH_KEY = 'gt:lastPrepRemedial'
 const router = useRouter()
 const { settings, load: loadSettings } = useSettings()
 const toast = useToast()
+const sound = useSound()
+let chimed = false
 
-interface Stash { deck: RemedialQuestion[] }
+// New stash shape: local (instant) items up front, AI sentence specs streamed.
+interface Stash { localDeck: RemedialQuestion[]; sentenceSpecs: SentenceSpec[]; model?: string }
 
 interface Result {
   correct: boolean
@@ -37,6 +45,13 @@ const items = ref<PrepDrillItem[]>([])
 const startedAt = ref(0)
 const historySaved = ref(false)
 
+// Streaming state (mirrors VerbSentenceRunner): expected = the full deck size
+// the drill intends; deck fills in as AI sentences arrive.
+const expected = ref(0)
+const generationDone = ref(false)
+const awaitingNext = ref(false)   // learner outran sentence generation
+const model = ref('')
+
 const index = ref(0)
 const userInput = ref('')
 const phase = ref<'input' | 'checking' | 'graded'>('input')
@@ -44,7 +59,8 @@ const finished = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 const nextBtnRef = ref<HTMLButtonElement | null>(null)
 
-function loadDeck(qs: RemedialQuestion[]) {
+/** Reset per-run state and seed the deck with the given questions. */
+function seedRun(qs: RemedialQuestion[], expectedTotal: number) {
   deck.value = qs
   answers.value = qs.map(() => '')
   results.value = new Map()
@@ -53,29 +69,72 @@ function loadDeck(qs: RemedialQuestion[]) {
   userInput.value = ''
   phase.value = 'input'
   finished.value = false
+  awaitingNext.value = false
+  expected.value = expectedTotal
   startedAt.value = Date.now()
+  historySaved.value = false
   nextTick(() => inputRef.value?.focus())
 }
 
 onMounted(async () => {
   await loadSettings()
+  let stash: Stash | null = null
   try {
     const raw = sessionStorage.getItem(STASH_KEY)
-    if (!raw) { error.value = 'No remedial drill in this session. Go back to setup and build one.'; return }
-    const s = JSON.parse(raw) as Stash
-    if (!Array.isArray(s.deck) || s.deck.length === 0) {
-      error.value = 'The session had no questions. Build a drill from setup.'
-      return
-    }
-    loadDeck(s.deck)
+    if (!raw) { error.value = 'No remedial drill in this session. Go back to setup and build one.'; ready.value = true; return }
+    stash = JSON.parse(raw) as Stash
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load.'
-  } finally {
     ready.value = true
+    return
   }
+
+  const localDeck = Array.isArray(stash?.localDeck) ? stash!.localDeck : []
+  const sentenceSpecs = Array.isArray(stash?.sentenceSpecs) ? stash!.sentenceSpecs : []
+  model.value = stash?.model ?? settings.value.model
+
+  if (localDeck.length === 0 && sentenceSpecs.length === 0) {
+    error.value = 'The session had no questions. Build a drill from setup.'
+    ready.value = true
+    return
+  }
+
+  // Local items are available immediately; AI sentences stream in after them.
+  seedRun([...localDeck], localDeck.length + sentenceSpecs.length)
+  ready.value = true
+
+  if (sentenceSpecs.length === 0) {
+    generationDone.value = true
+    return
+  }
+
+  const client = resolveAiClient(settings.value)
+  // Ramp 5, then batches of 10 (ADR-0008): a quick first paint, efficient tail.
+  const batches = planRampBatches(sentenceSpecs, [5], 10)
+  generateProgressively<SentenceSpec, GeneratedSentence>({
+    batches,
+    runBatch: (batch) =>
+      generateSentences(client, { model: model.value, specs: batch, maxRetries: 2 })
+        .then(r => r.sentences),
+    onResults: (sentences) => {
+      for (const sentence of sentences) {
+        deck.value.push({ format: 'sentence', sentence })
+        answers.value.push('')
+      }
+      if (!chimed && sentences.length > 0) { chimed = true; sound.playReady() }
+      if (awaitingNext.value) tryAdvance()
+    },
+    concurrency: 4
+  }).finally(() => {
+    generationDone.value = true
+    if (awaitingNext.value) tryAdvance()
+  })
 })
 
-const total = computed(() => deck.value.length)
+// The expected full-deck size (local + planned sentences).
+const total = computed(() => expected.value)
+// How many cards are actually available right now (local + arrived sentences).
+const available = computed(() => deck.value.length)
 const current = computed<RemedialQuestion | null>(() => deck.value[index.value] ?? null)
 const currentResult = computed(() => results.value.get(index.value) ?? null)
 const correctCount = computed(() => {
@@ -88,9 +147,11 @@ const wrongAnswered = computed(() => {
   for (const r of results.value.values()) if (!r.correct) n++
   return n
 })
-const wrongCount = computed(() => total.value - correctCount.value)
+// Wrong count for the result screen is over the cards actually answered/available.
+const wrongCount = computed(() => available.value - correctCount.value)
 const allCorrect = computed(() => finished.value && wrongCount.value === 0)
-const isLast = computed(() => index.value + 1 >= total.value)
+// "Finish" only once generation is done AND we're on the last available card.
+const isLast = computed(() => generationDone.value && index.value + 1 >= available.value)
 
 // Per-format display helpers.
 function formatBadge(q: RemedialQuestion): string {
@@ -202,6 +263,7 @@ function pickGender(g: Gender) {
 
 function finishQuiz() {
   finished.value = true
+  awaitingNext.value = false
   if (!historySaved.value) {
     historySaved.value = true
     const finishedAt = Date.now()
@@ -210,20 +272,32 @@ function finishQuiz() {
       startedAt: new Date(startedAt.value).toISOString(),
       finishedAt: new Date(finishedAt).toISOString(),
       durationMs: finishedAt - startedAt.value,
-      count: total.value,
+      count: available.value,
       correct: correctCount.value,
       meta: { sentenceItems: items.value }
     })
   }
 }
 
+/** Advance to the next card, or wait for generation, or finish. */
+function tryAdvance() {
+  if (index.value + 1 < deck.value.length) {
+    index.value++
+    userInput.value = ''
+    phase.value = 'input'
+    awaitingNext.value = false
+    nextTick(() => inputRef.value?.focus())
+  } else if (generationDone.value) {
+    finishQuiz()
+  } else {
+    // Outran generation — wait; onResults/finally will re-call tryAdvance.
+    awaitingNext.value = true
+  }
+}
+
 function next() {
   if (phase.value !== 'graded') return
-  if (isLast.value) { finishQuiz(); return }
-  index.value++
-  userInput.value = ''
-  phase.value = 'input'
-  nextTick(() => inputRef.value?.focus())
+  tryAdvance()
 }
 
 function onEnter(e: KeyboardEvent) {
@@ -235,8 +309,13 @@ function onEnter(e: KeyboardEvent) {
 function retryWrong() {
   const wrong = deck.value.filter((_, i) => !results.value.get(i)?.correct)
   if (wrong.length === 0) return
-  loadDeck(shuffle(wrong))
+  const shuffled = shuffle(wrong)
+  generationDone.value = true // retry deck is fully materialised — no streaming.
+  seedRun(shuffled, shuffled.length)
 }
+
+// If we were waiting on generation and more arrived (or it finished), advance.
+watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { deep: true })
 
 function newQuiz() { router.push({ name: 'prepositions-remedial' }) }
 function endQuiz() { router.push({ name: 'prepositions' }) }
@@ -255,9 +334,10 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
     <header class="section-header">
       <div>
         <div class="breadcrumb">Kapitel IV · Schwachstellen · Auswertung</div>
-        <h1 class="section-title">{{ correctCount }} / {{ total }}<em>.</em></h1>
+        <h1 class="section-title">{{ correctCount }} / {{ available }}<em>.</em></h1>
         <p v-if="allCorrect" class="section-subtitle">Alles richtig! 🎉</p>
         <p v-else class="section-subtitle">{{ wrongCount }} to fix. Answers and notes below.</p>
+        <p v-if="available < total" class="section-subtitle">Answered {{ available }} of {{ total }} — some sentences failed to generate.</p>
       </div>
     </header>
 
@@ -302,7 +382,7 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
   </div>
 
   <!-- ───────────────────── One question per step ───────────────────── -->
-  <div v-else-if="current" class="page">
+  <div v-else class="page">
     <div class="quiz-card">
       <div class="quiz-meta">
         <span class="quiz-counter">Frage {{ index + 1 }} · von {{ total }}</span>
@@ -317,6 +397,11 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
         :current-index="index"
       />
 
+      <div v-if="awaitingNext || !current" class="prompt-card">
+        <div class="micro-mark">Preparing next sentence…</div>
+      </div>
+
+      <template v-else-if="current">
       <div class="prompt-card">
         <span class="tag format-badge">{{ formatBadge(current) }}</span>
 
@@ -424,6 +509,7 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           <span v-for="t in currentResult.tags" :key="t" class="tag tag-error">{{ t }}</span>
         </span>
       </div>
+      </template>
     </div>
   </div>
 </template>

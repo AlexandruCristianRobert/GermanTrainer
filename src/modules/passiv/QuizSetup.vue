@@ -10,13 +10,7 @@ import {
   type PassivDifficulty,
   type TransformationType
 } from '../../data/passiv'
-import {
-  generatePassivQuestions,
-  type PassivGenerateResult
-} from '../../composables/usePassivQuiz'
 import { useSettings } from '../../composables/useSettings'
-import { resolveAiClient } from '../../composables/localClaude'
-import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
 
 const STORAGE_KEY = 'passivSetup'
@@ -29,9 +23,7 @@ const focusTypes = ref<TransformationType[]>([...TRANSFORMATION_TYPES])
 const { settings, canUseAi, load: loadSettings } = useSettings()
 onMounted(loadSettings)
 
-const generating = ref(false)
 const error = ref<string | null>(null)
-const lastResult = ref<PassivGenerateResult | null>(null)
 
 interface Stored { difficulty?: PassivDifficulty; count?: number; focusTypes?: TransformationType[] }
 
@@ -68,10 +60,9 @@ function toggleType(t: TransformationType) {
     : [...focusTypes.value, t]
 }
 
-const loading = useLoading()
 const toast = useToast()
 
-async function start() {
+function start() {
   if (!canUseAi.value) {
     toast.error(
       settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
@@ -81,55 +72,22 @@ async function start() {
     )
     return
   }
-  generating.value = true
+  if (focusTypes.value.length === 0) return
   error.value = null
-  lastResult.value = null
-  try {
-    const result = await loading.wrap(
-      async () => {
-        const client = resolveAiClient(settings.value)
-        const focus = focusTypes.value.length > 0 && focusTypes.value.length < TRANSFORMATION_TYPES.length
-          ? focusTypes.value
-          : undefined
-        return await generatePassivQuestions(client, {
-          model: settings.value.model,
-          count: count.value,
-          difficulty: difficulty.value,
-          focusedTypes: focus,
-          maxRetries: 2
-        })
-      },
-      {
-        title: 'Generating sentences',
-        subtitle: `Asking Gemini for ${count.value} ${difficulty.value}-difficulty active sentences. This usually takes 1–3 minutes — please don't close the tab.`
-      },
-      { chime: true }
-    )
-    lastResult.value = result
-    if (result.entries.length === 0) {
-      const msg = `The model returned ${result.rejected} entries but none passed validation.`
-      error.value = msg
-      toast.error('Generation produced no valid sentences', { description: msg })
-      return
-    }
-    toast.success(`Generated ${result.entries.length} sentences`, {
-      description: result.rejected > 0
-        ? `${result.rejected} rejected · ${result.attempts} attempt${result.attempts === 1 ? '' : 's'}`
-        : `Took ${result.attempts} attempt${result.attempts === 1 ? '' : 's'}.`
-    })
-    sessionStorage.setItem('gt:lastPassiv', JSON.stringify({
-      entries: result.entries,
-      difficulty: difficulty.value,
-      focusTypes: focusTypes.value
-    }))
-    router.push({ name: 'passiv-quiz-run' })
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Generation failed.'
-    error.value = msg
-    toast.error('Generation failed', { description: msg })
-  } finally {
-    generating.value = false
-  }
+
+  const focus = focusTypes.value.length > 0 && focusTypes.value.length < TRANSFORMATION_TYPES.length
+    ? focusTypes.value
+    : undefined
+
+  // Stash the generation params; the runner streams the batches progressively.
+  sessionStorage.setItem('gt:lastPassiv', JSON.stringify({
+    count: count.value,
+    difficulty: difficulty.value,
+    focusedTypes: focus,
+    focusTypes: focusTypes.value,
+    model: settings.value.model
+  }))
+  router.push({ name: 'passiv-quiz-run' })
 }
 
 function back() { router.push({ name: 'passiv' }) }
@@ -206,22 +164,15 @@ function back() { router.push({ name: 'passiv' }) }
       <span class="alert-label">Generation failed</span>{{ error }}
     </div>
 
-    <div v-if="lastResult && lastResult.entries.length > 0" class="alert alert-info">
-      <span class="alert-label">Last run</span>
-      {{ lastResult.entries.length }} accepted ·
-      {{ lastResult.rejected }} rejected ·
-      {{ lastResult.attempts }} {{ lastResult.attempts === 1 ? 'attempt' : 'attempts' }}
-    </div>
-
     <div class="setup-actions">
       <button class="btn btn-ghost" type="button" @click="back">← Back</button>
       <button
         class="btn btn-accent btn-meta"
         type="button"
-        :disabled="!canUseAi || generating || focusTypes.length === 0"
+        :disabled="!canUseAi || focusTypes.length === 0"
         @click="start"
       >
-        <span class="bm-main">{{ generating ? 'Generating…' : 'Generate &amp; start' }} <span v-if="!generating" aria-hidden="true">→</span></span>
+        <span class="bm-main">Generate &amp; start <span aria-hidden="true">→</span></span>
         <span class="bm-sub">{{ count }} sentences · {{ PASSIV_DIFFICULTY_LABEL[difficulty] }}</span>
       </button>
     </div>

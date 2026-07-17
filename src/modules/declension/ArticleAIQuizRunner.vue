@@ -5,12 +5,18 @@ import { saveQuizRun } from '../../composables/useQuizHistory'
 import { usePagination } from '../../composables/usePagination'
 import Pagination from '../../components/Pagination.vue'
 import type { MultiArticleEntry, Difficulty } from '../../data/declension-ai'
-import { CASE_LABEL_DE } from '../../data/declension'
+import { CASE_LABEL_DE, DECL_CASES, type DeclCase } from '../../data/declension'
+import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
+import { generateDeclensionArticles } from '../../composables/useDeclensionAI'
+import { useSettings } from '../../composables/useSettings'
+import { resolveAiClient } from '../../composables/localClaude'
+import { useSound } from '../../composables/useSound'
 
 interface Stash {
-  entries: MultiArticleEntry[]
+  aiCount: number
   difficulty: Difficulty
   focusCases?: string[]
+  model?: string
 }
 
 interface BlankAnswer {
@@ -26,56 +32,112 @@ interface QuestionState {
 }
 
 const router = useRouter()
-const loading = ref(true)
+const { settings, load: loadSettings } = useSettings()
+const sound = useSound()
+let chimed = false
+
 const error = ref<string | null>(null)
 const startedAt = ref<number>(0)
 const historySaved = ref(false)
 
-const stash = ref<Stash | null>(null)
-const questions = ref<QuestionState[]>([])
+const difficulty = ref<Difficulty>('medium')
+const expected = ref(0)              // requested N
+const questions = ref<QuestionState[]>([])  // arrival order
+const generationDone = ref(false)
 const currentIndex = ref(0)
+const awaitingNext = ref(false)      // outran generation
 
-onMounted(() => {
-  try {
-    const raw = sessionStorage.getItem('gt:lastDeclArticleAI')
-    if (!raw) {
-      error.value = 'No AI sentences in session. Go back to Setup and run Generate.'
-      return
-    }
-    const s = JSON.parse(raw) as Stash
-    if (!Array.isArray(s.entries) || s.entries.length === 0) {
-      error.value = 'AI session contained no entries.'
-      return
-    }
-    stash.value = s
-    questions.value = s.entries.map(e => ({
-      entry: e,
-      blanks: e.blanks.map(() => ({ userInput: '', isCorrect: null })),
-      submitted: false,
-      correctCount: 0
-    }))
-    startedAt.value = Date.now()
-    nextTick(() => focusFirstBlank())
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to load.'
-  } finally {
-    loading.value = false
-  }
-})
-
-function focusFirstBlank() {
-  const firstInput = document.querySelector('.ai-blank-input') as HTMLInputElement | null
-  firstInput?.focus()
-}
-
+const ready = computed(() => questions.value.length > 0 || generationDone.value || error.value !== null)
 const current = computed(() => questions.value[currentIndex.value] ?? null)
-const finished = computed(() => questions.value.length > 0 && currentIndex.value >= questions.value.length)
+const finished = ref(false)
 const total = computed(() => questions.value.length)
 
 const totalBlanks = computed(() => questions.value.reduce((s, q) => s + q.blanks.length, 0))
 const correctBlanks = computed(() => questions.value.reduce((s, q) => s + q.correctCount, 0))
 const wrongBlanks = computed(() => totalBlanks.value - correctBlanks.value)
 const pctScore = computed(() => totalBlanks.value === 0 ? 0 : Math.round((correctBlanks.value / totalBlanks.value) * 100))
+const isLastGenerated = computed(() => currentIndex.value + 1 >= questions.value.length)
+
+onMounted(async () => {
+  await loadSettings()
+  let s: Stash | null = null
+  try {
+    const raw = sessionStorage.getItem('gt:lastDeclArticleAI')
+    if (!raw) {
+      error.value = 'No AI sentences in session. Go back to Setup and run Generate.'
+      return
+    }
+    s = JSON.parse(raw) as Stash
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Failed to load.'
+    return
+  }
+  if (!s || typeof s.aiCount !== 'number' || s.aiCount <= 0) {
+    error.value = 'AI session contained no request. Go back to Setup and run Generate.'
+    return
+  }
+
+  expected.value = s.aiCount
+  difficulty.value = s.difficulty ?? 'medium'
+  startedAt.value = Date.now()
+
+  const model = s.model ?? settings.value.model
+  const focusedCases = Array.isArray(s.focusCases)
+    ? (s.focusCases.filter(c => (DECL_CASES as readonly string[]).includes(c)) as DeclCase[])
+    : undefined
+  const focusArg = focusedCases && focusedCases.length > 0 && focusedCases.length < DECL_CASES.length
+    ? focusedCases
+    : undefined
+
+  const client = resolveAiClient(settings.value)
+  // Stream by count: first batch of 5 for a fast first paint, then batches of
+  // 10. Sequential (concurrency 1) so cross-batch dedup stays deterministic.
+  const units = Array.from({ length: expected.value }, (_, i) => i)
+  const batches = planRampBatches(units, [5], 10)
+  const seen = new Set<string>()
+
+  generateProgressively<number, MultiArticleEntry>({
+    batches,
+    runBatch: async (chunk) => {
+      const r = await generateDeclensionArticles(client, {
+        model,
+        count: chunk.length,
+        difficulty: difficulty.value,
+        focusedCases: focusArg,
+        maxRetries: 1
+      })
+      return r.entries
+    },
+    onResults: (entries) => {
+      let added = 0
+      for (const e of entries) {
+        const key = e.sentence.trim().toLowerCase()
+        if (seen.has(key)) continue
+        seen.add(key)
+        questions.value.push({
+          entry: e,
+          blanks: e.blanks.map(() => ({ userInput: '', isCorrect: null })),
+          submitted: false,
+          correctCount: 0
+        })
+        added++
+      }
+      if (!chimed && questions.value.length > 0) { chimed = true; sound.playReady() }
+      if (awaitingNext.value) tryAdvance()
+      if (added > 0 && questions.value.length === added) nextTick(() => focusFirstBlank())
+    },
+    concurrency: 1
+  }).finally(() => {
+    generationDone.value = true
+    if (questions.value.length === 0) error.value = 'The model returned no usable sentences. Go back and try again.'
+    if (awaitingNext.value) tryAdvance()
+  })
+})
+
+function focusFirstBlank() {
+  const firstInput = document.querySelector('.ai-blank-input') as HTMLInputElement | null
+  firstInput?.focus()
+}
 
 function templateParts(template: string): string[] {
   return template.split('___')
@@ -95,11 +157,23 @@ function submit() {
   q.submitted = true
 }
 
-function next() {
-  currentIndex.value += 1
-  if (!finished.value) {
+/** Move to the next card, or wait for generation, or finish. */
+function tryAdvance() {
+  if (currentIndex.value + 1 < questions.value.length) {
+    currentIndex.value += 1
+    awaitingNext.value = false
     nextTick(() => focusFirstBlank())
+  } else if (generationDone.value) {
+    finishQuiz()
+  } else {
+    awaitingNext.value = true // wait; onResults/finally will re-call tryAdvance
   }
+}
+
+function next() {
+  const q = current.value
+  if (!q || !q.submitted) return
+  tryAdvance()
 }
 
 function onEnter(e: KeyboardEvent) {
@@ -115,8 +189,10 @@ function onEnter(e: KeyboardEvent) {
 
 function endQuiz() { router.push({ name: 'declension-article' }) }
 
-watch(finished, (now) => {
-  if (!now || historySaved.value || !stash.value) return
+function finishQuiz() {
+  finished.value = true
+  awaitingNext.value = false
+  if (historySaved.value) return
   historySaved.value = true
   const finishedAt = Date.now()
   const blanksAvg = totalBlanks.value / Math.max(1, questions.value.length)
@@ -128,17 +204,20 @@ watch(finished, (now) => {
     count: totalBlanks.value,
     correct: correctBlanks.value,
     meta: {
-      declAIDifficulty: stash.value.difficulty,
+      declAIDifficulty: difficulty.value,
       declAIBlanksCount: Math.round(blanksAvg * 10) / 10
     }
   })
-})
+}
+
+// If we were waiting and generation delivered more (or finished), advance.
+watch([questions, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { deep: true })
 
 const resultPagination = usePagination(() => questions.value, 25, 'decl-article-ai-result')
 </script>
 
 <template>
-  <div v-if="loading" class="page loading-state"><div class="micro-mark">Loading…</div></div>
+  <div v-if="!ready" class="page loading-state"><div class="micro-mark">Generating the first sentence…</div></div>
 
   <div v-else-if="error" class="page">
     <div class="alert alert-danger"><span class="alert-label">Error</span>{{ error }}</div>
@@ -152,7 +231,10 @@ const resultPagination = usePagination(() => questions.value, 25, 'decl-article-
         <div class="result-score">{{ correctBlanks }}<span class="denom"> / {{ totalBlanks }}</span></div>
         <p class="section-subtitle">
           {{ totalBlanks }} blanks across {{ total }} AI-generated sentences ·
-          {{ stash?.difficulty }}.
+          {{ difficulty }}.
+        </p>
+        <p v-if="total < expected" class="section-subtitle">
+          Generated {{ total }} of {{ expected }} — some sentences failed to generate.
         </p>
       </div>
       <div class="result-actions">
@@ -220,59 +302,63 @@ const resultPagination = usePagination(() => questions.value, 25, 'decl-article-
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
       </div>
 
-      <div class="ai-prompt-meta">
-        <span class="ai-prompt-difficulty">{{ stash?.difficulty }}</span>
-        <span class="ai-prompt-blanks">{{ current.entry.blanks.length }} blanks</span>
-      </div>
+      <div v-if="awaitingNext" class="prompt-card"><div class="micro-mark">Preparing next sentence…</div></div>
 
-      <div class="prompt-card ai-prompt-card">
-        <div class="ai-sentence" @keydown.enter="onEnter">
-          <template v-for="(part, idx) in templateParts(current.entry.template)" :key="idx">
-            <span>{{ part }}</span>
-            <input
-              v-if="idx < current.entry.blanks.length"
-              class="ai-blank-input"
-              :class="current.submitted ? (current.blanks[idx].isCorrect ? 'ai-blank-right' : 'ai-blank-wrong') : ''"
-              type="text"
-              v-model="current.blanks[idx].userInput"
-              :readonly="current.submitted"
-              autocomplete="off"
-              spellcheck="false"
-              :placeholder="`#${idx + 1}`"
-            />
-          </template>
+      <template v-else>
+        <div class="ai-prompt-meta">
+          <span class="ai-prompt-difficulty">{{ difficulty }}</span>
+          <span class="ai-prompt-blanks">{{ current.entry.blanks.length }} blanks</span>
         </div>
-        <div class="ai-gloss">{{ current.entry.gloss }}</div>
-      </div>
 
-      <div v-if="current.submitted" class="ai-rationale-list">
-        <div v-for="(b, bi) in current.entry.blanks" :key="bi" class="ai-rationale-line">
-          <span class="ai-rl-num">#{{ bi + 1 }}</span>
-          <span
-            class="ai-rl-icon"
-            :class="current.blanks[bi].isCorrect ? 'ai-rl-ok' : 'ai-rl-bad'"
-          >{{ current.blanks[bi].isCorrect ? '✓' : '✗' }}</span>
-          <span class="ai-rl-text">
-            <strong>{{ b.answer }}</strong> — {{ b.rationale }}
-          </span>
+        <div class="prompt-card ai-prompt-card">
+          <div class="ai-sentence" @keydown.enter="onEnter">
+            <template v-for="(part, idx) in templateParts(current.entry.template)" :key="idx">
+              <span>{{ part }}</span>
+              <input
+                v-if="idx < current.entry.blanks.length"
+                class="ai-blank-input"
+                :class="current.submitted ? (current.blanks[idx].isCorrect ? 'ai-blank-right' : 'ai-blank-wrong') : ''"
+                type="text"
+                v-model="current.blanks[idx].userInput"
+                :readonly="current.submitted"
+                autocomplete="off"
+                spellcheck="false"
+                :placeholder="`#${idx + 1}`"
+              />
+            </template>
+          </div>
+          <div class="ai-gloss">{{ current.entry.gloss }}</div>
         </div>
-      </div>
 
-      <div class="ai-actions">
-        <button
-          v-if="!current.submitted"
-          type="button"
-          class="btn btn-accent"
-          @click="submit"
-          :disabled="current.blanks.some(b => !b.userInput.trim())"
-        >Submit</button>
-        <button
-          v-else
-          type="button"
-          class="btn btn-accent"
-          @click="next"
-        >{{ currentIndex + 1 >= total ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
-      </div>
+        <div v-if="current.submitted" class="ai-rationale-list">
+          <div v-for="(b, bi) in current.entry.blanks" :key="bi" class="ai-rationale-line">
+            <span class="ai-rl-num">#{{ bi + 1 }}</span>
+            <span
+              class="ai-rl-icon"
+              :class="current.blanks[bi].isCorrect ? 'ai-rl-ok' : 'ai-rl-bad'"
+            >{{ current.blanks[bi].isCorrect ? '✓' : '✗' }}</span>
+            <span class="ai-rl-text">
+              <strong>{{ b.answer }}</strong> — {{ b.rationale }}
+            </span>
+          </div>
+        </div>
+
+        <div class="ai-actions">
+          <button
+            v-if="!current.submitted"
+            type="button"
+            class="btn btn-accent"
+            @click="submit"
+            :disabled="current.blanks.some(b => !b.userInput.trim())"
+          >Submit</button>
+          <button
+            v-else
+            type="button"
+            class="btn btn-accent"
+            @click="next"
+          >{{ (isLastGenerated && generationDone) ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
+        </div>
+      </template>
     </div>
   </div>
 </template>

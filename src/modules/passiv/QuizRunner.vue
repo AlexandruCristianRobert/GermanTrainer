@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   TRANSFORMATION_EXAMPLES,
@@ -9,15 +9,19 @@ import {
   type PassivQuestion,
   type TransformationType
 } from '../../data/passiv'
-import { judgePassiv } from '../../composables/usePassivQuiz'
+import { generatePassivQuestions, judgePassiv } from '../../composables/usePassivQuiz'
+import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { resolveAiClient } from '../../composables/localClaude'
 import { useSettings } from '../../composables/useSettings'
 import { useToast } from '../../composables/useToast'
+import { useSound } from '../../composables/useSound'
 
 interface Stash {
-  entries: PassivQuestion[]
+  count: number
   difficulty: PassivDifficulty
+  focusedTypes?: TransformationType[]
   focusTypes: TransformationType[]
+  model?: string
 }
 
 interface QuestionState {
@@ -31,44 +35,99 @@ interface QuestionState {
 
 const router = useRouter()
 const toast = useToast()
+const sound = useSound()
 const { settings, load: loadSettings } = useSettings()
+let chimed = false
 
-const loading = ref(true)
 const error = ref<string | null>(null)
 const stash = ref<Stash | null>(null)
 const questions = ref<QuestionState[]>([])
 const currentIndex = ref(0)
 const startedAt = ref(0)
 
+const expected = ref(0)            // requested N
+const generationDone = ref(false)
+const awaitingNext = ref(false)    // outran generation
+const finished = ref(false)
+
+// Open the moment the first sentence lands, generation ends, or an error surfaces.
+const ready = computed(() => questions.value.length > 0 || generationDone.value || error.value !== null)
+
 onMounted(async () => {
   await loadSettings()
+  let s: Stash | null = null
   try {
     const raw = sessionStorage.getItem('gt:lastPassiv')
     if (!raw) {
       error.value = 'No session data found. Go back to Setup and run Generate.'
       return
     }
-    const s = JSON.parse(raw) as Stash
-    if (!Array.isArray(s.entries) || s.entries.length === 0) {
-      error.value = 'Session contained no entries.'
-      return
-    }
-    stash.value = s
-    questions.value = s.entries.map(e => ({
-      entry: e,
-      userInput: '',
-      submitted: false,
-      judging: false,
-      judgement: null,
-      exampleOpen: false
-    }))
-    startedAt.value = Date.now()
-    nextTick(focusInput)
+    s = JSON.parse(raw) as Stash
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load.'
-  } finally {
-    loading.value = false
+    return
   }
+  if (!s || typeof s.count !== 'number' || s.count <= 0) {
+    error.value = 'Session contained no generation parameters.'
+    return
+  }
+
+  stash.value = s
+  expected.value = s.count
+  startedAt.value = Date.now()
+
+  const client = resolveAiClient(settings.value)
+  const model = s.model ?? settings.value.model
+  const difficulty = s.difficulty
+  const focusedTypes = s.focusedTypes
+
+  // Cross-batch dedup: the active sentence identifies the item. The count-based
+  // generator dedups within a call but not across sequential batches.
+  const seen = new Set<string>()
+  const contentKey = (q: PassivQuestion) => q.active.trim().toLowerCase()
+
+  // Ramp 5, then batches of 10 (ADR-0008): a fast first paint, then an efficient tail.
+  const units = Array.from({ length: s.count }, (_, i) => i)
+  const batches = planRampBatches(units, [5], 10)
+
+  generateProgressively<number, PassivQuestion>({
+    batches,
+    runBatch: async (chunk) => {
+      const res = await generatePassivQuestions(client, {
+        model,
+        count: chunk.length,
+        difficulty,
+        focusedTypes,
+        maxRetries: 2
+      })
+      return res.entries
+    },
+    onResults: (entries) => {
+      for (const e of entries) {
+        const key = contentKey(e)
+        if (seen.has(key)) continue
+        seen.add(key)
+        questions.value.push({
+          entry: e,
+          userInput: '',
+          submitted: false,
+          judging: false,
+          judgement: null,
+          exampleOpen: false
+        })
+      }
+      if (!chimed && questions.value.length > 0) { chimed = true; sound.playReady() }
+      if (awaitingNext.value) advance()
+      nextTick(focusInput)
+    },
+    concurrency: 1 // SEQUENTIAL — needed for cross-batch dedup to be meaningful.
+  }).finally(() => {
+    generationDone.value = true
+    if (questions.value.length === 0) {
+      error.value = 'The model returned no usable sentences. Go back and try again.'
+    }
+    if (awaitingNext.value) advance()
+  })
 })
 
 function focusInput() {
@@ -77,7 +136,9 @@ function focusInput() {
 }
 
 const current = computed(() => questions.value[currentIndex.value] ?? null)
-const total = computed(() => questions.value.length)
+const total = computed(() => expected.value)
+const generatedTotal = computed(() => questions.value.length)
+const isLastGenerated = computed(() => currentIndex.value + 1 >= questions.value.length)
 
 async function submit() {
   const q = current.value
@@ -96,17 +157,27 @@ async function submit() {
   }
 }
 
-function next() {
-  if (currentIndex.value + 1 >= questions.value.length) {
+/** Advance to the next card, or wait for generation, or finish. */
+function advance() {
+  if (currentIndex.value + 1 < questions.value.length) {
+    currentIndex.value += 1
+    awaitingNext.value = false
+    nextTick(focusInput)
+  } else if (generationDone.value) {
     finalize()
-    return
+  } else {
+    awaitingNext.value = true // wait; onResults/finally will re-call advance
   }
-  currentIndex.value += 1
-  nextTick(focusInput)
+}
+
+function next() {
+  advance()
 }
 
 function finalize() {
-  if (!stash.value) return
+  if (!stash.value || finished.value) return
+  finished.value = true
+  awaitingNext.value = false
   const correct = questions.value.filter(q => q.judgement?.verdict === 'correct').length
   const finishedAt = Date.now()
 
@@ -125,7 +196,8 @@ function finalize() {
       judgement: q.judgement
     })),
     correct,
-    total: questions.value.length,
+    total: generatedTotal.value,
+    requested: expected.value,
     difficulty: stash.value.difficulty,
     focusTypes: stash.value.focusTypes,
     perType,
@@ -153,10 +225,14 @@ const verdictLabel: Record<PassivJudgeResult['verdict'], string> = {
   partially_correct: 'Teilweise',
   incorrect: 'Falsch'
 }
+
+// If we were waiting on generation and more sentences arrived (or it finished
+// empty), resume.
+watch([questions, generationDone], () => { if (awaitingNext.value) advance() }, { deep: true })
 </script>
 
 <template>
-  <div v-if="loading" class="page loading-state"><div class="micro-mark">Loading…</div></div>
+  <div v-if="!ready" class="page loading-state"><div class="micro-mark">Generating the first sentence…</div></div>
 
   <div v-else-if="error" class="page">
     <div class="alert alert-danger"><span class="alert-label">Error</span>{{ error }}</div>
@@ -170,6 +246,9 @@ const verdictLabel: Record<PassivJudgeResult['verdict'], string> = {
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
       </div>
 
+      <div v-if="awaitingNext" class="prompt-card"><div class="micro-mark">Preparing next sentence…</div></div>
+
+      <template v-else>
       <div class="passiv-target-row">
         <span class="passiv-target-label">Form</span>
         <span class="passiv-target-tag">{{ TRANSFORMATION_LABELS[current.entry.target] }}</span>
@@ -236,8 +315,9 @@ const verdictLabel: Record<PassivJudgeResult['verdict'], string> = {
           type="button"
           class="btn btn-accent"
           @click="next"
-        >{{ currentIndex + 1 >= total ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
+        >{{ (isLastGenerated && generationDone) ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
       </div>
+      </template>
     </div>
   </div>
 </template>

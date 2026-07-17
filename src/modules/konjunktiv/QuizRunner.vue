@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { KiDifficulty, KiJudgeResult, KiQuestion, KiTopic } from '../../data/konjunktiv'
-import { judgeKi } from '../../composables/useKonjunktivQuiz'
+import { generateKiQuestions, judgeKi } from '../../composables/useKonjunktivQuiz'
+import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { resolveAiClient } from '../../composables/localClaude'
 import { useSettings } from '../../composables/useSettings'
 import { useToast } from '../../composables/useToast'
+import { useSound } from '../../composables/useSound'
 
 interface Stash {
-  entries: KiQuestion[]
+  count: number
   difficulty: KiDifficulty
   topics: KiTopic[]
+  model: string
 }
 
 interface QuestionState {
@@ -23,53 +26,91 @@ interface QuestionState {
 
 const router = useRouter()
 const toast = useToast()
+const sound = useSound()
 const { settings, load: loadSettings } = useSettings()
+let chimed = false
 
-const loading = ref(true)
 const error = ref<string | null>(null)
 const stash = ref<Stash | null>(null)
-const questions = ref<QuestionState[]>([])
+const expected = ref(0)                         // requested N
+const questions = ref<QuestionState[]>([])      // arrival order (the streamed deck)
+const generationDone = ref(false)
 const currentIndex = ref(0)
 const startedAt = ref(0)
+const awaitingNext = ref(false)                 // outran generation
+
+const ready = computed(() => questions.value.length > 0 || generationDone.value || error.value !== null)
+const current = computed(() => questions.value[currentIndex.value] ?? null)
+// The counter denominator: show the requested N while streaming, but never
+// less than what's already in the deck.
+const total = computed(() => Math.max(expected.value, questions.value.length))
+const finished = ref(false)
 
 onMounted(async () => {
   await loadSettings()
+  let s: Stash
   try {
     const raw = sessionStorage.getItem('gt:lastKonjunktiv')
     if (!raw) {
       error.value = 'No session data found. Go back to Setup and run Generate.'
       return
     }
-    const s = JSON.parse(raw) as Stash
-    if (!Array.isArray(s.entries) || s.entries.length === 0) {
-      error.value = 'Session contained no entries.'
-      return
-    }
-    stash.value = s
-    questions.value = s.entries.map(e => ({
-      entry: e,
-      userInput: '',
-      submitted: false,
-      judging: false,
-      judgement: null
-    }))
-    startedAt.value = Date.now()
-    nextTick(focusInput)
+    s = JSON.parse(raw) as Stash
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load.'
-  } finally {
-    loading.value = false
+    return
   }
+  if (typeof s.count !== 'number' || s.count <= 0) {
+    error.value = 'Session contained no valid quote count.'
+    return
+  }
+  stash.value = s
+  expected.value = s.count
+  startedAt.value = Date.now()
+
+  const client = resolveAiClient(settings.value)
+  const model = s.model || settings.value.model
+  // One placeholder unit per target item; ramp 5, then batches of 10 (ADR-0008).
+  const units = Array.from({ length: s.count }, (_, i) => i)
+  const batches = planRampBatches(units, [5], 10)
+  // Cross-batch dedup on the canonical rewrite (source + reporting clause +
+  // indirect-speech answer) — the field that uniquely identifies a quote pair.
+  const seen = new Set<string>()
+
+  generateProgressively<number, KiQuestion>({
+    batches,
+    runBatch: async (chunk) => {
+      const r = await generateKiQuestions(client, {
+        model,
+        count: chunk.length,
+        difficulty: s.difficulty,
+        topics: s.topics.length > 0 ? s.topics : undefined
+      })
+      return r.entries
+    },
+    onResults: (entries) => {
+      for (const e of entries) {
+        const key = e.referenceAnswer.trim()
+        if (seen.has(key)) continue
+        seen.add(key)
+        questions.value.push({ entry: e, userInput: '', submitted: false, judging: false, judgement: null })
+      }
+      if (!chimed && questions.value.length > 0) { chimed = true; sound.playReady() }
+      if (awaitingNext.value) tryAdvance()
+      nextTick(() => { if (questions.value.length === entries.length) focusInput() })
+    },
+    concurrency: 1 // SEQUENTIAL — a count-based generator would otherwise duplicate across parallel calls
+  }).finally(() => {
+    generationDone.value = true
+    if (questions.value.length === 0) error.value = 'The model returned no usable quotes. Go back and try again.'
+    if (awaitingNext.value) tryAdvance()
+  })
 })
 
 function focusInput() {
   const el = document.querySelector('.ki-input') as HTMLInputElement | null
   el?.focus()
 }
-
-const current = computed(() => questions.value[currentIndex.value] ?? null)
-const finished = computed(() => questions.value.length > 0 && currentIndex.value >= questions.value.length)
-const total = computed(() => questions.value.length)
 
 async function submit() {
   const q = current.value
@@ -88,16 +129,29 @@ async function submit() {
   }
 }
 
-function next() {
-  if (currentIndex.value + 1 >= questions.value.length) {
+/** Move to the next card, or wait for generation, or finish. */
+function tryAdvance() {
+  if (currentIndex.value + 1 < questions.value.length) {
+    currentIndex.value += 1
+    awaitingNext.value = false
+    nextTick(focusInput)
+  } else if (generationDone.value) {
     finalize()
-    return
+  } else {
+    awaitingNext.value = true // wait; onResults/finally will re-call tryAdvance
   }
-  currentIndex.value += 1
-  nextTick(focusInput)
+}
+
+function next() {
+  const q = current.value
+  if (!q || !q.submitted) return
+  tryAdvance()
 }
 
 function finalize() {
+  if (finished.value) return
+  finished.value = true
+  awaitingNext.value = false
   if (!stash.value) return
   const correct = questions.value.filter(q => q.judgement?.verdict === 'correct').length
   const finishedAt = Date.now()
@@ -108,7 +162,8 @@ function finalize() {
       judgement: q.judgement
     })),
     correct,
-    total: questions.value.length,
+    total: questions.value.length,   // save the real generated count
+    expected: expected.value,        // requested N (may exceed total after dedup/shortfall)
     difficulty: stash.value.difficulty,
     topics: stash.value.topics,
     startedAt: startedAt.value,
@@ -130,6 +185,12 @@ function onEnter(e: KeyboardEvent) {
 
 function endQuiz() { router.push({ name: 'konjunktiv' }) }
 
+// The current card is the last generated one AND generation has finished.
+const isLastGenerated = computed(() => currentIndex.value + 1 >= questions.value.length)
+
+// If we were waiting and generation produced more (or finished), advance.
+watch([questions, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { deep: true })
+
 const verdictLabel: Record<KiJudgeResult['verdict'], string> = {
   correct: 'Richtig',
   partially_correct: 'Teilweise',
@@ -138,7 +199,7 @@ const verdictLabel: Record<KiJudgeResult['verdict'], string> = {
 </script>
 
 <template>
-  <div v-if="loading" class="page loading-state"><div class="micro-mark">Loading…</div></div>
+  <div v-if="!ready" class="page loading-state"><div class="micro-mark">Generating the first quote…</div></div>
 
   <div v-else-if="error" class="page">
     <div class="alert alert-danger"><span class="alert-label">Error</span>{{ error }}</div>
@@ -152,6 +213,9 @@ const verdictLabel: Record<KiJudgeResult['verdict'], string> = {
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
       </div>
 
+      <div v-if="awaitingNext" class="prompt-card"><div class="micro-mark">Preparing next quote…</div></div>
+
+      <template v-else>
       <div class="ki-prompt-meta">
         <span class="ki-prompt-difficulty">{{ stash?.difficulty }}</span>
         <span class="ki-prompt-mood">Erwartet: {{ current.entry.expectedMood }}</span>
@@ -210,8 +274,9 @@ const verdictLabel: Record<KiJudgeResult['verdict'], string> = {
           type="button"
           class="btn btn-accent"
           @click="next"
-        >{{ currentIndex + 1 >= total ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
+        >{{ (isLastGenerated && generationDone) ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
       </div>
+      </template>
     </div>
   </div>
 
