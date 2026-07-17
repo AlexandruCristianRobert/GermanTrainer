@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.24'
+export const APP_VERSION = '1.11.25'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.25', date: '2026-07-17', kind: 'polish',
+    title: 'Fixed prepositions · a clearer test card',
+    notes: [
+      '<strong>The drill now sits in one high-contrast card.</strong> The <em>Feste Präpositionen</em> test is framed in a single card with a solid surface and full-strength text, so it stays easy to read in either theme and whatever palette you\'ve set — the preposition colour no longer washes across the whole card when you answer.',
+      '<strong>The colour moved to the frame.</strong> A slim spine along the top of the card turns the preposition\'s hue the moment you submit, and the revealed example keeps its accent — the memory-anchor colour is still there, just contained to the edges instead of tinting everything you\'re reading.'
+    ]
+  },
   {
     version: '1.11.24', date: '2026-07-17', kind: 'polish',
     title: 'Fixed prepositions · hints now point at the core idea',
