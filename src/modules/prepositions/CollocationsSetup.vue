@@ -130,15 +130,15 @@ function start() {
     </div>
 
     <div class="field">
-      <div class="field-label">Scene hints</div>
+      <div class="field-label">Core-idea hints</div>
       <div class="segmented">
         <button :class="{ active: hints }" @click="hints = true">On</button>
         <button :class="{ active: !hints }" @click="hints = false">Off</button>
       </div>
       <p class="micro-mark grading-hint">
         {{ hints
-          ? 'Shows a one-line English scene under each word to set the context before you answer.'
-          : 'No scene — just the word and its English gloss.' }}
+          ? 'Shows a one-line cue under each word, pointing at the preposition\'s core idea before you answer.'
+          : 'No hint — just the word and its English gloss.' }}
       </p>
     </div>
 
