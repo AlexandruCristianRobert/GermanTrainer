@@ -9,13 +9,7 @@ import {
   type KiDifficulty,
   type KiTopic
 } from '../../data/konjunktiv'
-import {
-  generateKiQuestions,
-  type KiGenerateResult
-} from '../../composables/useKonjunktivQuiz'
 import { useSettings } from '../../composables/useSettings'
-import { resolveAiClient } from '../../composables/localClaude'
-import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
 
 const STORAGE_KEY = 'konjunktivSetup'
@@ -28,9 +22,7 @@ const topics = ref<KiTopic[]>([...KI_TOPICS])
 const { settings, canUseAi, load: loadSettings } = useSettings()
 onMounted(loadSettings)
 
-const generating = ref(false)
 const error = ref<string | null>(null)
-const lastResult = ref<KiGenerateResult | null>(null)
 
 interface Stored { difficulty?: KiDifficulty; count?: number; topics?: KiTopic[] }
 
@@ -65,10 +57,9 @@ function toggleTopic(t: KiTopic) {
     : [...topics.value, t]
 }
 
-const loading = useLoading()
 const toast = useToast()
 
-async function start() {
+function start() {
   if (!canUseAi.value) {
     toast.error(
       settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
@@ -78,55 +69,18 @@ async function start() {
     )
     return
   }
-  generating.value = true
   error.value = null
-  lastResult.value = null
-  try {
-    const result = await loading.wrap(
-      async () => {
-        const client = resolveAiClient(settings.value)
-        const focusTopics = topics.value.length > 0 && topics.value.length < KI_TOPICS.length
-          ? topics.value
-          : undefined
-        return await generateKiQuestions(client, {
-          model: settings.value.model,
-          count: count.value,
-          difficulty: difficulty.value,
-          topics: focusTopics,
-          maxRetries: 2
-        })
-      },
-      {
-        title: 'Generating quotes',
-        subtitle: `Asking Gemini for ${count.value} ${difficulty.value}-difficulty quote pairs. This usually takes 1–3 minutes — please don't close the tab.`
-      },
-      { chime: true }
-    )
-    lastResult.value = result
-    if (result.entries.length === 0) {
-      const msg = `The model returned ${result.rejected} entries but none passed validation. Try a different difficulty or retry.`
-      error.value = msg
-      toast.error('Generation produced no valid quotes', { description: msg })
-      return
-    }
-    toast.success(`Generated ${result.entries.length} quotes`, {
-      description: result.rejected > 0
-        ? `${result.rejected} entries rejected · ${result.attempts} attempt${result.attempts === 1 ? '' : 's'}`
-        : `Took ${result.attempts} attempt${result.attempts === 1 ? '' : 's'}.`
-    })
-    sessionStorage.setItem('gt:lastKonjunktiv', JSON.stringify({
-      entries: result.entries,
-      difficulty: difficulty.value,
-      topics: topics.value
-    }))
-    router.push({ name: 'konjunktiv-quiz-run' })
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Generation failed.'
-    error.value = msg
-    toast.error('Generation failed', { description: msg })
-  } finally {
-    generating.value = false
-  }
+  const focusTopics = topics.value.length > 0 && topics.value.length < KI_TOPICS.length
+    ? topics.value
+    : undefined
+  // Stream on the runner: stash only the params generateKiQuestions needs.
+  sessionStorage.setItem('gt:lastKonjunktiv', JSON.stringify({
+    count: count.value,
+    difficulty: difficulty.value,
+    topics: focusTopics ?? [...topics.value],
+    model: settings.value.model
+  }))
+  router.push({ name: 'konjunktiv-quiz-run' })
 }
 
 function back() { router.push({ name: 'konjunktiv' }) }
@@ -200,14 +154,7 @@ function back() { router.push({ name: 'konjunktiv' }) }
     </div>
 
     <div v-if="error" class="alert alert-danger">
-      <span class="alert-label">Generation failed</span>{{ error }}
-    </div>
-
-    <div v-if="lastResult && lastResult.entries.length > 0" class="alert alert-info">
-      <span class="alert-label">Last run</span>
-      {{ lastResult.entries.length }} accepted ·
-      {{ lastResult.rejected }} rejected ·
-      {{ lastResult.attempts }} {{ lastResult.attempts === 1 ? 'attempt' : 'attempts' }}
+      <span class="alert-label">Cannot start</span>{{ error }}
     </div>
 
     <div class="setup-actions">
@@ -215,10 +162,10 @@ function back() { router.push({ name: 'konjunktiv' }) }
       <button
         class="btn btn-accent btn-meta"
         type="button"
-        :disabled="!canUseAi || generating || topics.length === 0"
+        :disabled="!canUseAi || topics.length === 0"
         @click="start"
       >
-        <span class="bm-main">{{ generating ? 'Generating…' : 'Generate &amp; start' }} <span v-if="!generating" aria-hidden="true">→</span></span>
+        <span class="bm-main">Generate &amp; start <span aria-hidden="true">→</span></span>
         <span class="bm-sub">{{ count }} quotes · {{ KI_DIFFICULTY_LABEL[difficulty] }}</span>
       </button>
     </div>

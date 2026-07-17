@@ -14,6 +14,7 @@ interface StashedResult {
   questions: ResultEntry[]
   correct: number
   total: number
+  expected?: number
   difficulty: KiDifficulty
   topics: KiTopic[]
   startedAt: number
@@ -84,6 +85,9 @@ function newRun() { router.push({ name: 'konjunktiv-quiz' }) }
         <div class="result-score">{{ data.correct }}<span class="denom"> / {{ data.total }}</span></div>
         <p class="section-subtitle">
           {{ data.total }} quote rewrites · difficulty {{ data.difficulty }}.
+        </p>
+        <p v-if="data.expected && data.total < data.expected" class="section-subtitle">
+          Generated {{ data.total }} of {{ data.expected }} — some quotes failed to generate.
         </p>
       </div>
       <div class="result-actions">

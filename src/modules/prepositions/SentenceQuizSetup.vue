@@ -6,11 +6,9 @@ import { PREPOSITION_CASES, type PrepCase } from '../../data/prepositions'
 import { NOUN_GROUPS, type NounGroup } from '../../db/types'
 import { useNouns } from '../../composables/useNouns'
 import { useSettings } from '../../composables/useSettings'
-import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
-import { resolveAiClient } from '../../composables/localClaude'
 import {
-  pickPrepositions, buildSpecs, nounToRef, generateSentences,
+  pickPrepositions, buildSpecs, nounToRef,
   type NounsPerSentence, type Direction, type GradingMode
 } from '../../composables/useSentenceQuiz'
 
@@ -20,7 +18,6 @@ const router = useRouter()
 
 const { sampleByGroups, countsByGroup } = useNouns()
 const { settings, canUseAi, load: loadSettings } = useSettings()
-const loading = useLoading()
 const toast = useToast()
 
 const cases = ref<PrepCase[]>([...PREPOSITION_CASES])
@@ -36,7 +33,6 @@ const wordHints = ref(true)
 const nounCounts = ref<Record<NounGroup, number>>(
   Object.fromEntries(NOUN_GROUPS.map(g => [g, 0])) as Record<NounGroup, number>
 )
-const generating = ref(false)
 
 interface Stored {
   cases?: PrepCase[]
@@ -95,7 +91,7 @@ const effective = computed(() => count.value === 'custom' ? Math.max(1, customCo
 const selectedNounTotal = computed(() => groups.value.reduce((sum, g) => sum + (nounCounts.value[g] ?? 0), 0))
 
 const canStart = computed(() =>
-  canUseAi.value && cases.value.length > 0 && availablePreps.value > 0 && selectedNounTotal.value > 0 && !generating.value
+  canUseAi.value && cases.value.length > 0 && availablePreps.value > 0 && selectedNounTotal.value > 0
 )
 
 function toggle<T>(set: T[], v: T): T[] {
@@ -114,47 +110,30 @@ async function start() {
     return
   }
   if (!canStart.value) return
-  generating.value = true
   try {
     const n = effective.value
-    const result = await loading.wrap(
-      async () => {
-        const client = resolveAiClient(settings.value)
-        const nounPool = (await sampleByGroups(groups.value, 100000)).map(nounToRef)
-        const pool = filterPrepositions({ cases: cases.value })
-        const chosen = pickPrepositions(pool, n)
-        const specs = buildSpecs(chosen, nounPool, nounsPer.value)
-        return await generateSentences(client, { model: settings.value.model, specs, maxRetries: 2 })
-      },
-      {
-        title: 'Generating sentences',
-        subtitle: `Asking Gemini for ${n} preposition sentence${n === 1 ? '' : 's'}. This usually takes 30–90 seconds — please don't close the tab.`
-      },
-      { chime: true }
-    )
-    if (result.sentences.length === 0) {
-      toast.error('No sentences generated', { description: `The model returned ${result.rejected} item(s) but none passed validation. Try again or widen the case selection.` })
+    // Build the specs; the Runner streams generation batch-by-batch (ADR-0004/0008).
+    const nounPool = (await sampleByGroups(groups.value, 100000)).map(nounToRef)
+    const pool = filterPrepositions({ cases: cases.value })
+    const chosen = pickPrepositions(pool, n)
+    const specs = buildSpecs(chosen, nounPool, nounsPer.value)
+    if (specs.length === 0) {
+      toast.error('Nothing to generate', { description: 'No preposition/noun combinations were built. Widen your selection and try again.' })
       return
     }
-    if (result.sentences.length < n) {
-      toast.info(`Generated ${result.sentences.length} of ${n}`, { description: `${result.rejected} rejected by the validator across ${result.attempts} attempt(s).` })
-    } else {
-      toast.success(`Generated ${result.sentences.length} sentences`, { description: `${result.attempts} attempt${result.attempts === 1 ? '' : 's'}.` })
-    }
     sessionStorage.setItem(STASH_KEY, JSON.stringify({
-      sentences: result.sentences,
+      specs,
       cases: cases.value,
       groups: groups.value,
       nounsPer: nounsPer.value,
       direction: direction.value,
       gradingMode: gradingMode.value,
-      wordHints: wordHints.value
+      wordHints: wordHints.value,
+      model: settings.value.model
     }))
     router.push({ name: 'prepositions-sentence-run' })
   } catch (err) {
-    toast.error('Generation failed', { description: err instanceof Error ? err.message : String(err) })
-  } finally {
-    generating.value = false
+    toast.error('Setup failed', { description: err instanceof Error ? err.message : String(err) })
   }
 }
 
@@ -312,7 +291,7 @@ function back() { router.push({ name: 'prepositions' }) }
         type="button"
         :disabled="!canStart"
         @click="start"
-      >Generate &amp; start · {{ effective }} sentence{{ effective === 1 ? '' : 's' }} <span aria-hidden="true">→</span></button>
+      >Start · {{ effective }} sentence{{ effective === 1 ? '' : 's' }} <span aria-hidden="true">→</span></button>
     </div>
   </div>
 </template>

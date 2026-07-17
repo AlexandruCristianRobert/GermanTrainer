@@ -5,9 +5,7 @@ import { PREPOSITIONS, type Preposition } from '../../data/prepositions'
 import { shuffle } from '../../data/pool'
 import { useNouns } from '../../composables/useNouns'
 import { useSettings } from '../../composables/useSettings'
-import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
-import { resolveAiClient } from '../../composables/localClaude'
 import { loadHistory } from '../../composables/useQuizHistory'
 import {
   computeWeakPoints,
@@ -16,8 +14,8 @@ import {
   type RemedialQuestion
 } from '../../composables/usePrepRemedial'
 import {
-  pickPrepositions, buildSpecs, nounToRef, generateSentences,
-  type GeneratedSentence
+  pickPrepositions, buildSpecs, nounToRef,
+  type SentenceSpec
 } from '../../composables/useSentenceQuiz'
 import type { Noun } from '../../db/types'
 
@@ -26,7 +24,6 @@ const router = useRouter()
 
 const { findByGerman } = useNouns()
 const { settings, canUseAi, load: loadSettings } = useSettings()
-const loading = useLoading()
 const toast = useToast()
 
 type LengthPreset = 10 | 15 | 20
@@ -82,70 +79,63 @@ async function start() {
   if (!canStart.value) return
   generating.value = true
   try {
-    const deck = await loading.wrap(
-      async () => {
-        const p = plan.value
+    const p = plan.value
 
-        // 1. Sentence questions (AI-generated).
-        let sentenceQs: RemedialQuestion[] = []
-        if (p.counts.sentence > 0) {
-          const seedPreps = resolvePreps(p.prepIdsForSentence)
-          const chosenPreps = pickPrepositions(seedPreps, p.counts.sentence)
-          const nounPool = (await resolveNouns(p.nounKeysForSentence)).map(nounToRef)
-          const specs = buildSpecs(chosenPreps, nounPool, 'mix')
-          if (specs.length > 0) {
-            const gen = await generateSentences(resolveAiClient(settings.value), {
-              model: settings.value.model, specs, maxRetries: 2
-            })
-            sentenceQs = gen.sentences.map((sentence: GeneratedSentence) => ({ format: 'sentence', sentence }))
-          }
-        }
+    // 1. Sentence specs — built locally, NOT generated here. The runner streams
+    //    the AI sentences progressively, so we only stash the specs + AI params.
+    let sentenceSpecs: SentenceSpec[] = []
+    if (p.counts.sentence > 0) {
+      const seedPreps = resolvePreps(p.prepIdsForSentence)
+      const chosenPreps = pickPrepositions(seedPreps, p.counts.sentence)
+      const nounPool = (await resolveNouns(p.nounKeysForSentence)).map(nounToRef)
+      sentenceSpecs = buildSpecs(chosenPreps, nounPool, 'mix')
+    }
 
-        // 2. Case-fill questions — cycle the resolved weak preps to fill the count.
-        const caseQs: RemedialQuestion[] = []
-        const casePreps = resolvePreps(p.prepIdsForCase)
-        if (casePreps.length > 0) {
-          for (let i = 0; i < p.counts.caseFill; i++) {
-            const prep = casePreps[i % casePreps.length]
-            const example = shuffle(prep.examples, 1)[0]
-            if (!example) continue
-            caseQs.push({
-              format: 'case-fill',
-              prepId: prep.id,
-              prepGerman: prep.german,
-              prepEnglish: prep.english,
-              case: prep.case,
-              example
-            })
-          }
-        }
+    // 2. Case-fill questions — cycle the resolved weak preps to fill the count.
+    const caseQs: RemedialQuestion[] = []
+    const casePreps = resolvePreps(p.prepIdsForCase)
+    if (casePreps.length > 0) {
+      for (let i = 0; i < p.counts.caseFill; i++) {
+        const prep = casePreps[i % casePreps.length]
+        const example = shuffle(prep.examples, 1)[0]
+        if (!example) continue
+        caseQs.push({
+          format: 'case-fill',
+          prepId: prep.id,
+          prepGerman: prep.german,
+          prepEnglish: prep.english,
+          case: prep.case,
+          example
+        })
+      }
+    }
 
-        // 3. Noun-card questions — cycle resolved nouns, alternating gender/translation.
-        const nounQs: RemedialQuestion[] = []
-        const cardNouns = await resolveNouns(p.nounKeysForCards)
-        if (cardNouns.length > 0) {
-          for (let i = 0; i < p.counts.nounCard; i++) {
-            const noun = cardNouns[i % cardNouns.length]
-            nounQs.push(i % 2 === 0
-              ? { format: 'noun-gender', noun }
-              : { format: 'noun-translation', noun })
-          }
-        }
+    // 3. Noun-card questions — cycle resolved nouns, alternating gender/translation.
+    const nounQs: RemedialQuestion[] = []
+    const cardNouns = await resolveNouns(p.nounKeysForCards)
+    if (cardNouns.length > 0) {
+      for (let i = 0; i < p.counts.nounCard; i++) {
+        const noun = cardNouns[i % cardNouns.length]
+        nounQs.push(i % 2 === 0
+          ? { format: 'noun-gender', noun }
+          : { format: 'noun-translation', noun })
+      }
+    }
 
-        return shuffle([...sentenceQs, ...caseQs, ...nounQs])
-      },
-      {
-        title: 'Building your drill',
-        subtitle: `Targeting your weak points across ${length.value} mixed questions. Sentence generation can take 30–90 seconds — please don't close the tab.`
-      },
-      { chime: true }
-    )
+    // The instantly-available local items (mixed-format shuffle, as before).
+    // AI sentence items are streamed by the runner and appended after these.
+    const localDeck: RemedialQuestion[] = shuffle([...caseQs, ...nounQs])
 
-    if (deck.length === 0) {
+    if (localDeck.length === 0 && sentenceSpecs.length === 0) {
       toast.error('Nothing to drill', { description: 'No questions could be built — try doing a few more AI-graded sentence quizzes first.' })
       return
     }
-    sessionStorage.setItem(STASH_KEY, JSON.stringify({ deck }))
+
+    sessionStorage.setItem(STASH_KEY, JSON.stringify({
+      localDeck,
+      sentenceSpecs,
+      model: settings.value.model
+    }))
     router.push({ name: 'prepositions-remedial-run' })
   } catch (err) {
     toast.error('Could not build the drill', { description: err instanceof Error ? err.message : String(err) })

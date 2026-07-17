@@ -20,6 +20,7 @@ interface StashedResult {
   questions: ResultEntry[]
   correct: number
   total: number
+  requested?: number
   difficulty: PassivDifficulty
   focusTypes: TransformationType[]
   perType: Record<string, { correct: number; total: number }>
@@ -102,6 +103,9 @@ function newRun() { router.push({ name: 'passiv-quiz' }) }
         <div class="result-score">{{ data.correct }}<span class="denom"> / {{ data.total }}</span></div>
         <p class="section-subtitle">
           {{ data.total }} active-to-passive transformations · difficulty {{ data.difficulty }}.
+        </p>
+        <p v-if="data.requested && data.total < data.requested" class="section-subtitle">
+          Generated {{ data.total }} of {{ data.requested }} — some sentences failed to generate.
         </p>
       </div>
       <div class="result-actions">

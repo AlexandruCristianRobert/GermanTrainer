@@ -19,16 +19,24 @@ function normalize(s: string): string {
   return s.trim().toLowerCase()
 }
 
+function toQuestion(i: SentenceItem): AdjectiveQuestion {
+  return {
+    item: i,
+    blanked: blankSentence(i.sentence, i.adjective_inflected),
+    userAnswer: null,
+    isCorrect: null
+  }
+}
+
 export function useAdjectiveQuiz(items: SentenceItem[]) {
-  const questions = ref<AdjectiveQuestion[]>(
-    items.map(i => ({
-      item: i,
-      blanked: blankSentence(i.sentence, i.adjective_inflected),
-      userAnswer: null,
-      isCorrect: null
-    }))
-  )
+  const questions = ref<AdjectiveQuestion[]>(items.map(toQuestion))
   const currentIndex = ref(0)
+
+  /** Append newly generated items (progressive streaming). Backward-compatible:
+   * callers that pass all items up front never need to call this. */
+  function append(items: SentenceItem[]): void {
+    for (const i of items) questions.value.push(toQuestion(i))
+  }
 
   function submit(answer: string): void {
     const q = questions.value[currentIndex.value]
@@ -52,5 +60,5 @@ export function useAdjectiveQuiz(items: SentenceItem[]) {
   const total = computed(() => questions.value.length)
   const current = computed(() => questions.value[currentIndex.value] ?? null)
 
-  return { questions, currentIndex, current, finished, score, total, submit, advance }
+  return { questions, currentIndex, current, finished, score, total, submit, advance, append }
 }

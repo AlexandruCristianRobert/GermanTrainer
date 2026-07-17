@@ -6,14 +6,8 @@ import {
   DECL_LEVELS, DECL_CASES, DECL_DETERMINERS, DECL_GENDERS,
   type DeclLevel, type DeclCase, type Determiner, type DeclGender
 } from '../../data/declension'
-import {
-  generateDeclensionArticles,
-  type GenerateResult
-} from '../../composables/useDeclensionAI'
 import { DIFFICULTIES, DIFFICULTY_LABEL, type Difficulty } from '../../data/declension-ai'
 import { useSettings } from '../../composables/useSettings'
-import { resolveAiClient } from '../../composables/localClaude'
-import { useLoading } from '../../composables/useLoading'
 import { useToast } from '../../composables/useToast'
 
 const STORAGE_KEY = 'declArticleSetup'
@@ -29,9 +23,7 @@ const aiFocusCases = ref<DeclCase[]>([...DECL_CASES])
 const { settings, canUseAi, load: loadSettings } = useSettings()
 onMounted(loadSettings)
 
-const aiGenerating = ref(false)
 const aiError = ref<string | null>(null)
-const aiLastResult = ref<GenerateResult | null>(null)
 
 interface AIStored { difficulty?: Difficulty; count?: number; focusCases?: DeclCase[]; source?: Source }
 
@@ -149,10 +141,9 @@ function startCurated() {
   })
 }
 
-const loading = useLoading()
 const toast = useToast()
 
-async function startAI() {
+function startAI() {
   if (!canUseAi.value) {
     toast.error(
       settings.value.aiProvider === 'local-claude' ? 'Local Claude not reachable' : 'Gemini API key required',
@@ -162,55 +153,16 @@ async function startAI() {
     )
     return
   }
-  aiGenerating.value = true
   aiError.value = null
-  aiLastResult.value = null
-  try {
-    const result = await loading.wrap(
-      async () => {
-        const client = resolveAiClient(settings.value)
-        const focusedCases = aiFocusCases.value.length > 0 && aiFocusCases.value.length < DECL_CASES.length
-          ? aiFocusCases.value
-          : undefined
-        return await generateDeclensionArticles(client, {
-          model: settings.value.model,
-          count: aiCount.value,
-          difficulty: difficulty.value,
-          focusedCases,
-          maxRetries: 2
-        })
-      },
-      {
-        title: 'Generating sentences',
-        subtitle: `Asking Gemini for ${aiCount.value} ${difficulty.value}-difficulty sentences. This usually takes 1–3 minutes — please don't close the tab.`
-      },
-      { chime: true }
-    )
-    aiLastResult.value = result
-    if (result.entries.length === 0) {
-      const msg = `The model returned ${result.rejected} entries but none passed validation. Try a different difficulty or retry.`
-      aiError.value = msg
-      toast.error('Generation produced no valid sentences', { description: msg })
-      return
-    }
-    toast.success(`Generated ${result.entries.length} sentences`, {
-      description: result.rejected > 0
-        ? `${result.rejected} entries rejected by the validator · ${result.attempts} attempt${result.attempts === 1 ? '' : 's'}`
-        : `Took ${result.attempts} attempt${result.attempts === 1 ? '' : 's'}.`
-    })
-    sessionStorage.setItem('gt:lastDeclArticleAI', JSON.stringify({
-      entries: result.entries,
-      difficulty: difficulty.value,
-      focusCases: aiFocusCases.value
-    }))
-    router.push({ name: 'declension-article-ai-run' })
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'AI generation failed.'
-    aiError.value = msg
-    toast.error('AI generation failed', { description: msg })
-  } finally {
-    aiGenerating.value = false
-  }
+  // Progressive streaming: stash the config and hand off to the runner, which
+  // generates in ramped batches so the first sentence paints fast (ADR-0008).
+  sessionStorage.setItem('gt:lastDeclArticleAI', JSON.stringify({
+    aiCount: aiCount.value,
+    difficulty: difficulty.value,
+    focusCases: aiFocusCases.value,
+    model: settings.value.model
+  }))
+  router.push({ name: 'declension-article-ai-run' })
 }
 
 function back() { router.push({ name: 'declension' }) }
@@ -395,7 +347,7 @@ function back() { router.push({ name: 'declension' }) }
             @click="aiCount = n"
           >{{ n }}</button>
         </div>
-        <p class="ai-cost-note">Each run is one Gemini call. Aim for 10 to balance variety and cost.</p>
+        <p class="ai-cost-note">Sentences stream in as they generate. Aim for 10 to balance variety and cost.</p>
       </div>
 
       <div class="alert alert-info">
@@ -406,18 +358,11 @@ function back() { router.push({ name: 'declension' }) }
 
       <div class="alert alert-warning">
         <span class="alert-label">Heads up</span>
-        Gemini takes <strong>1–3 minutes</strong> to return a batch — please don't close the tab while the loader is up.
+        The first sentence appears within seconds; the rest stream in behind it — keep the tab open while you work.
       </div>
 
       <div v-if="aiError" class="alert alert-danger">
         <span class="alert-label">Generation failed</span>{{ aiError }}
-      </div>
-
-      <div v-if="aiLastResult && aiLastResult.entries.length > 0" class="alert alert-info">
-        <span class="alert-label">Last run</span>
-        {{ aiLastResult.entries.length }} accepted ·
-        {{ aiLastResult.rejected }} rejected ·
-        {{ aiLastResult.attempts }} {{ aiLastResult.attempts === 1 ? 'attempt' : 'attempts' }}
       </div>
     </template>
 
@@ -437,10 +382,10 @@ function back() { router.push({ name: 'declension' }) }
         v-else
         class="btn btn-accent btn-meta"
         type="button"
-        :disabled="!canUseAi || aiGenerating || aiFocusCases.length === 0"
+        :disabled="!canUseAi || aiFocusCases.length === 0"
         @click="startAI"
       >
-        <span class="bm-main">{{ aiGenerating ? 'Generating…' : 'Generate &amp; start' }} <span v-if="!aiGenerating" aria-hidden="true">→</span></span>
+        <span class="bm-main">Generate &amp; start <span aria-hidden="true">→</span></span>
         <span class="bm-sub">{{ aiCount }} sentences · {{ DIFFICULTY_LABEL[difficulty] }}</span>
       </button>
     </div>

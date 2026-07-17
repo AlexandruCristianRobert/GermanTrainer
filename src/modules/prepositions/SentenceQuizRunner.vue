@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
-import { checkSentence, gradeAnswer, buildHintSegments, buildDrillItem, type GeneratedSentence, type SentenceVerdict, type Direction, type GradingMode, type HintSegment, type HintInput } from '../../composables/useSentenceQuiz'
+import { checkSentence, gradeAnswer, buildHintSegments, buildDrillItem, generateSentences, type GeneratedSentence, type SentenceSpec, type SentenceVerdict, type Direction, type GradingMode, type HintSegment, type HintInput } from '../../composables/useSentenceQuiz'
+import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
 import { resolveAiClient } from '../../composables/localClaude'
 import { useToast } from '../../composables/useToast'
+import { useSound } from '../../composables/useSound'
 import RetryModal from '../../components/RetryModal.vue'
 import QuizProgress from '../../components/QuizProgress.vue'
 
@@ -14,20 +16,24 @@ const STASH_KEY = 'gt:lastPrepSentenceQuiz'
 const router = useRouter()
 const { settings, load: loadSettings } = useSettings()
 const toast = useToast()
+const sound = useSound()
+let chimed = false
 
 interface Stash {
-  sentences: GeneratedSentence[]
+  specs: SentenceSpec[]
   cases?: string[]
   groups?: string[]
   nounsPer?: 1 | 2 | 'mix'
   direction?: Direction
   gradingMode?: GradingMode
   wordHints?: boolean
+  model?: string
 }
 
-const ready = ref(false)
 const error = ref<string | null>(null)
-const deck = ref<GeneratedSentence[]>([])
+const expected = ref(0)                          // requested N
+const deck = ref<GeneratedSentence[]>([])        // arrival order
+const generationDone = ref(false)
 const answers = ref<string[]>([])
 const verdicts = ref<Map<number, SentenceVerdict>>(new Map())
 const startedAt = ref(0)
@@ -43,8 +49,12 @@ const index = ref(0)
 const userInput = ref('')
 const phase = ref<'input' | 'checking' | 'graded'>('input')
 const finished = ref(false)
+const awaitingNext = ref(false)                  // learner outran generation
+const shortToastShown = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 const nextBtnRef = ref<HTMLButtonElement | null>(null)
+
+const ready = computed(() => deck.value.length > 0 || generationDone.value || error.value !== null)
 
 // Tap-to-toggle reveal state for word hints, keyed by segment index.
 const revealed = ref<Set<number>>(new Set())
@@ -65,46 +75,56 @@ function caseHintLabel(c: string): string {
   return c === 'two-way' ? 'two-way · acc. (motion) or dat. (location)' : c
 }
 
-function loadDeck(items: GeneratedSentence[]) {
-  deck.value = items
-  answers.value = items.map(() => '')
-  verdicts.value = new Map()
-  index.value = 0
-  userInput.value = ''
-  phase.value = 'input'
-  finished.value = false
-  startedAt.value = Date.now()
-  revealed.value = new Set()
-  nextTick(() => inputRef.value?.focus())
-}
-
 onMounted(async () => {
   await loadSettings()
+  let stash: Stash | null = null
   try {
     const raw = sessionStorage.getItem(STASH_KEY)
-    if (!raw) { error.value = 'No generated sentences in this session. Go back to setup and generate a quiz.'; return }
-    const s = JSON.parse(raw) as Stash
-    if (!Array.isArray(s.sentences) || s.sentences.length === 0) {
-      error.value = 'The session had no sentences. Generate a quiz from setup.'
-      return
-    }
-    meta.value = {
-      cases: Array.isArray(s.cases) ? s.cases : [],
-      groups: Array.isArray(s.groups) ? s.groups : [],
-      nounsPer: s.nounsPer ?? 'mix'
-    }
-    direction.value = s.direction === 'de-en' ? 'de-en' : 'en-de'
-    gradingMode.value = s.gradingMode === 'ai' ? 'ai' : 'exact'
-    wordHints.value = s.wordHints !== false
-    loadDeck(s.sentences)
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to load.'
-  } finally {
-    ready.value = true
+    if (!raw) { error.value = 'No quiz in this session. Go back to setup and start a quiz.'; return }
+    stash = JSON.parse(raw) as Stash
+  } catch (e) { error.value = e instanceof Error ? e.message : 'Failed to load.'; return }
+  if (!stash || !Array.isArray(stash.specs) || stash.specs.length === 0) {
+    error.value = 'No sentence specs in this session. Start a quiz from setup.'
+    return
   }
+
+  meta.value = {
+    cases: Array.isArray(stash.cases) ? stash.cases : [],
+    groups: Array.isArray(stash.groups) ? stash.groups : [],
+    nounsPer: stash.nounsPer ?? 'mix'
+  }
+  direction.value = stash.direction === 'de-en' ? 'de-en' : 'en-de'
+  gradingMode.value = stash.gradingMode === 'ai' ? 'ai' : 'exact'
+  wordHints.value = stash.wordHints !== false
+  expected.value = stash.specs.length
+  startedAt.value = Date.now()
+  answers.value = []
+
+  const model = stash.model ?? settings.value.model
+  const client = resolveAiClient(settings.value)
+  // Ramp 5, then batches of 10 (ADR-0008): fast first paint, efficient tail.
+  const batches = planRampBatches(stash.specs, [5], 10)
+  generateProgressively<SentenceSpec, GeneratedSentence>({
+    batches,
+    runBatch: async (batch) => {
+      const res = await generateSentences(client, { model, specs: batch, maxRetries: 2 })
+      return res.sentences
+    },
+    onResults: (sentences) => {
+      for (const s of sentences) { deck.value.push(s); answers.value.push('') }
+      if (!chimed && deck.value.length > 0) { chimed = true; sound.playReady() }
+      if (awaitingNext.value) tryAdvance()
+      nextTick(() => { if (deck.value.length === sentences.length) inputRef.value?.focus() })
+    },
+    concurrency: 4
+  }).finally(() => {
+    generationDone.value = true
+    if (deck.value.length === 0) error.value = 'The model returned no usable sentences. Go back and try again.'
+    if (awaitingNext.value) tryAdvance()
+  })
 })
 
-const total = computed(() => deck.value.length)
+const total = computed(() => expected.value)
 const current = computed<GeneratedSentence | null>(() => deck.value[index.value] ?? null)
 const currentVerdict = computed(() => verdicts.value.get(index.value) ?? null)
 const correctCount = computed(() => {
@@ -117,9 +137,10 @@ const wrongAnswered = computed(() => {
   for (const v of verdicts.value.values()) if (!v.correct) n++
   return n
 })
-const wrongCount = computed(() => total.value - correctCount.value)
+const generatedTotal = computed(() => deck.value.length)
+const wrongCount = computed(() => generatedTotal.value - correctCount.value)
 const allCorrect = computed(() => finished.value && wrongCount.value === 0)
-const isLast = computed(() => index.value + 1 >= total.value)
+const isLastGenerated = computed(() => index.value + 1 >= deck.value.length)
 
 // What is SHOWN (source) and what the learner must PRODUCE / the reference (target).
 function sourceText(s: GeneratedSentence): string {
@@ -184,8 +205,14 @@ async function submit() {
 
 function finishQuiz() {
   finished.value = true
+  awaitingNext.value = false
   if (!historySaved.value) {
     historySaved.value = true
+    // Tell the learner when generation came up short of what they asked for.
+    if (generatedTotal.value < expected.value && !shortToastShown.value) {
+      shortToastShown.value = true
+      toast.info(`Generated ${generatedTotal.value} of ${expected.value}`, { description: 'Some sentences failed to generate and were skipped.' })
+    }
     const finishedAt = Date.now()
     // Only EN→DE runs record per-item drill data for weak-point tracking;
     // DE→EN runs omit the field entirely.
@@ -198,7 +225,7 @@ function finishQuiz() {
       startedAt: new Date(startedAt.value).toISOString(),
       finishedAt: new Date(finishedAt).toISOString(),
       durationMs: finishedAt - startedAt.value,
-      count: total.value,
+      count: generatedTotal.value,
       correct: correctCount.value,
       meta: {
         sentenceCases: meta.value.cases,
@@ -213,34 +240,61 @@ function finishQuiz() {
   }
 }
 
+/** Move to the next card, or wait for generation, or finish. */
+function tryAdvance() {
+  if (index.value + 1 < deck.value.length) {
+    index.value++
+    userInput.value = ''
+    phase.value = 'input'
+    awaitingNext.value = false
+    revealed.value = new Set()
+    nextTick(() => inputRef.value?.focus())
+  } else if (generationDone.value) {
+    finishQuiz()
+  } else {
+    awaitingNext.value = true // wait; onResults/finally will re-call tryAdvance
+  }
+}
+
 function next() {
   if (phase.value !== 'graded') return
-  if (isLast.value) { finishQuiz(); return }
-  index.value++
-  userInput.value = ''
-  phase.value = 'input'
-  revealed.value = new Set()
-  nextTick(() => inputRef.value?.focus())
+  tryAdvance()
 }
 
 function onEnter(e: KeyboardEvent) {
   e.preventDefault()
   if (phase.value === 'input') submit()
-  else next()
+  else if (phase.value === 'graded') next()
 }
 
 function retryWrong() {
   const wrong = deck.value.filter((_, i) => !verdicts.value.get(i)?.correct)
   if (wrong.length === 0) return
-  loadDeck(shuffle(wrong))
+  deck.value = shuffle(wrong)
+  answers.value = deck.value.map(() => '')
+  verdicts.value = new Map()
+  expected.value = deck.value.length
+  generationDone.value = true
+  index.value = 0
+  userInput.value = ''
+  phase.value = 'input'
+  finished.value = false
+  revealed.value = new Set()
+  startedAt.value = Date.now()
+  historySaved.value = false
+  shortToastShown.value = false
+  nextTick(() => inputRef.value?.focus())
 }
+
+// If we were waiting and generation delivered more (or finished), advance.
+watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { deep: true })
 
 function newQuiz() { router.push({ name: 'prepositions-sentence' }) }
 function endQuiz() { router.push({ name: 'prepositions' }) }
 </script>
 
 <template>
-  <div v-if="!ready" class="page loading-state"><div class="micro-mark">Loading…</div></div>
+  <div v-if="!ready" class="page loading-state"><div class="micro-mark">Generating the first sentence…</div></div>
 
   <div v-else-if="error" class="page">
     <div class="alert alert-danger"><span class="alert-label">Error</span>{{ error }}</div>
@@ -252,9 +306,10 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
     <header class="section-header">
       <div>
         <div class="breadcrumb">Kapitel IV · Satzübersetzung · Auswertung</div>
-        <h1 class="section-title">{{ correctCount }} / {{ total }}<em>.</em></h1>
+        <h1 class="section-title">{{ correctCount }} / {{ generatedTotal }}<em>.</em></h1>
         <p v-if="allCorrect" class="section-subtitle">Alles richtig! 🎉</p>
         <p v-else class="section-subtitle">{{ wrongCount }} to fix. Reference translations and notes below.</p>
+        <p v-if="generatedTotal < expected" class="section-subtitle">Generated {{ generatedTotal }} of {{ expected }} — some sentences failed to generate.</p>
       </div>
     </header>
 
@@ -299,7 +354,7 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
   </div>
 
   <!-- ───────────────────── One sentence per step ───────────────────── -->
-  <div v-else-if="current" class="page">
+  <div v-else class="page">
     <div class="quiz-card">
       <div class="quiz-meta">
         <span class="quiz-counter">Satz {{ index + 1 }} · von {{ total }}</span>
@@ -314,73 +369,77 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
         :current-index="index"
       />
 
-      <div class="prompt-card">
-        <div v-if="!hintsActive" class="en-sentence">{{ sourceText(current) }}</div>
-        <div v-else class="en-sentence">
-          <template v-for="(seg, i) in currentSegments" :key="i"><span
-            v-if="seg.hint"
-            class="hint"
-            :class="['hint-' + seg.hint.kind, { revealed: revealed.has(i) }]"
-            tabindex="0"
-            role="button"
-            :aria-label="(seg.hint.kind === 'prep' ? 'preposition hint: ' : 'noun hint: ') + seg.hint.reveal"
-            @click="toggleReveal(i)"
-            @keydown.enter.prevent="toggleReveal(i)"
-            @keydown.space.prevent="toggleReveal(i)"
-          >{{ seg.text }}<span class="hint-pop">{{ seg.hint.reveal }}</span></span><template v-else>{{ seg.text }}</template></template>
+      <div v-if="awaitingNext" class="prompt-card"><div class="micro-mark">Preparing next sentence…</div></div>
+
+      <template v-else-if="current">
+        <div class="prompt-card">
+          <div v-if="!hintsActive" class="en-sentence">{{ sourceText(current) }}</div>
+          <div v-else class="en-sentence">
+            <template v-for="(seg, i) in currentSegments" :key="i"><span
+              v-if="seg.hint"
+              class="hint"
+              :class="['hint-' + seg.hint.kind, { revealed: revealed.has(i) }]"
+              tabindex="0"
+              role="button"
+              :aria-label="(seg.hint.kind === 'prep' ? 'preposition hint: ' : 'noun hint: ') + seg.hint.reveal"
+              @click="toggleReveal(i)"
+              @keydown.enter.prevent="toggleReveal(i)"
+              @keydown.space.prevent="toggleReveal(i)"
+            >{{ seg.text }}<span class="hint-pop">{{ seg.hint.reveal }}</span></span><template v-else>{{ seg.text }}</template></template>
+          </div>
+          <div class="en-hint">{{ direction === 'en-de' ? 'Translate into German.' : 'Translate into English.' }}</div>
         </div>
-        <div class="en-hint">{{ direction === 'en-de' ? 'Translate into German.' : 'Translate into English.' }}</div>
-      </div>
 
-      <form class="prep-input-wrap" @submit.prevent="submit">
-        <input
-          ref="inputRef"
-          class="input prep-input"
-          type="text"
-          :placeholder="direction === 'en-de' ? 'Deutsch…' : 'English…'"
-          v-model="userInput"
-          :readonly="phase !== 'input'"
-          autocomplete="off"
-          spellcheck="false"
-          @keydown.enter="onEnter"
-          :style="phase === 'graded' ? {
-            color: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)',
-            borderBottomColor: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)'
-          } : undefined"
-        />
-        <button
-          v-if="phase === 'input'"
-          type="submit"
-          class="btn btn-accent"
-          :disabled="userInput.trim().length === 0"
-        >Submit</button>
-        <button
-          v-else-if="phase === 'checking'"
-          type="button"
-          class="btn btn-accent"
-          disabled
-        >Checking…</button>
-        <button
-          v-else
-          ref="nextBtnRef"
-          type="button"
-          class="btn btn-accent"
-          @click="next"
-        >{{ isLast ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
-      </form>
+        <form class="prep-input-wrap" @submit.prevent="submit">
+          <input
+            ref="inputRef"
+            class="input prep-input"
+            type="text"
+            :placeholder="direction === 'en-de' ? 'Deutsch…' : 'English…'"
+            v-model="userInput"
+            :readonly="phase !== 'input'"
+            autocomplete="off"
+            spellcheck="false"
+            @keydown.enter="onEnter"
+            :style="phase === 'graded' ? {
+              color: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)',
+              borderBottomColor: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)'
+            } : undefined"
+          />
+          <button
+            v-if="phase === 'input'"
+            type="submit"
+            class="btn btn-accent"
+            :disabled="userInput.trim().length === 0"
+          >Submit</button>
+          <button
+            v-else-if="phase === 'checking'"
+            type="button"
+            class="btn btn-accent"
+            disabled
+          >Checking…</button>
+          <button
+            v-else
+            ref="nextBtnRef"
+            type="button"
+            class="btn btn-accent"
+            @click="next"
+          >{{ (isLastGenerated && generationDone) ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
+        </form>
 
-      <div v-if="phase === 'graded' && currentVerdict" class="prep-feedback">
-        <span
-          class="prep-feedback-mark"
-          :class="currentVerdict.correct ? 'prep-feedback-ok' : 'prep-feedback-bad'"
-        >{{ currentVerdict.correct ? '✓ Richtig.' : '✗ Nicht ganz.' }}</span>
-        <span class="prep-feedback-full">{{ currentVerdict.correction || targetText(current) }}</span>
-        <span v-if="currentVerdict.tip" class="prep-feedback-tip">💡 {{ currentVerdict.tip }}</span>
-        <span class="prep-feedback-tags">
-          <span class="tag" :class="caseTagClass(current.case)">{{ current.prepGerman }} · {{ caseHintLabel(current.case) }}</span>
-          <span v-for="t in currentVerdict.tags" :key="t" class="tag tag-error">{{ t }}</span>
-        </span>
-      </div>
+        <div v-if="phase === 'graded' && currentVerdict" class="prep-feedback">
+          <span
+            class="prep-feedback-mark"
+            :class="currentVerdict.correct ? 'prep-feedback-ok' : 'prep-feedback-bad'"
+          >{{ currentVerdict.correct ? '✓ Richtig.' : '✗ Nicht ganz.' }}</span>
+          <span class="prep-feedback-full">{{ currentVerdict.correction || targetText(current) }}</span>
+          <span v-if="currentVerdict.tip" class="prep-feedback-tip">💡 {{ currentVerdict.tip }}</span>
+          <span class="prep-feedback-tags">
+            <span class="tag" :class="caseTagClass(current.case)">{{ current.prepGerman }} · {{ caseHintLabel(current.case) }}</span>
+            <span v-for="t in currentVerdict.tags" :key="t" class="tag tag-error">{{ t }}</span>
+          </span>
+        </div>
+      </template>
     </div>
   </div>
 </template>
