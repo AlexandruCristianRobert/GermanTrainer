@@ -210,6 +210,7 @@ function caseName(c: CollocationCase): string {
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
         </div>
+        <div v-if="!q.isCorrect" class="result-explanation">{{ q.item.coreIdeaExplanation }}</div>
       </div>
     </div>
   </div>
@@ -302,8 +303,11 @@ function caseName(c: CollocationCase): string {
           </div>
         </div>
 
-        <!-- Reveal: example sentence + notes -->
+        <!-- Reveal: on a miss, the core-idea explanation leads; then example + notes -->
         <div v-if="submitted" class="colloc-reveal">
+          <div v-if="!current.isCorrect" class="reveal-explanation">
+            <span class="reveal-why">Why?</span>{{ current.item.coreIdeaExplanation }}
+          </div>
           <div class="reveal-example">{{ current.item.example }}</div>
           <div v-if="current.item.notes" class="reveal-notes">{{ current.item.notes }}</div>
         </div>
@@ -518,6 +522,20 @@ function caseName(c: CollocationCase): string {
   font-size: 13px;
   color: var(--ink-soft);
 }
+.reveal-explanation {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.reveal-why {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--prep-accent);
+  margin-right: 8px;
+}
 
 /* Actions */
 .colloc-actions {
@@ -536,6 +554,16 @@ function caseName(c: CollocationCase): string {
   padding: 14px 16px;
 }
 .result-verdict { justify-self: end; }
+.result-explanation {
+  grid-column: 1 / -1;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dotted var(--hairline);
+}
 .result-word-meta {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -576,13 +604,15 @@ function caseName(c: CollocationCase): string {
     grid-template-columns: 1fr auto;
     grid-template-areas:
       "word verdict"
-      "parts parts";
+      "parts parts"
+      "expl expl";
     gap: 8px 12px;
     align-items: start;
   }
   .colloc-result-row .result-word { grid-area: word; }
   .colloc-result-row .result-parts { grid-area: parts; }
   .colloc-result-row .result-verdict { grid-area: verdict; align-self: start; }
+  .colloc-result-row .result-explanation { grid-area: expl; }
   .result-actions { flex-direction: column; align-items: stretch; }
   .result-actions .btn { justify-content: center; }
 }

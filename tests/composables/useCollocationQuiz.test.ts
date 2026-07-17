@@ -14,6 +14,7 @@ const wartenAuf: Collocation = {
   level: 'B1',
   example: 'Ich warte auf den Bus.',
   coreIdeaHint: 'the bus is late and you keep checking the road',
+  coreIdeaExplanation: 'auf carries anticipation toward a goal; the waiting is aimed ahead — so warten takes auf (Akkusativ).',
 }
 
 const stolzAuf: Collocation = {
@@ -26,6 +27,7 @@ const stolzAuf: Collocation = {
   level: 'B1',
   example: 'Sie ist stolz auf ihren Sohn.',
   coreIdeaHint: 'she beams with pride at her son',
+  coreIdeaExplanation: 'auf carries orientation toward a target; the pride is aimed at him — so stolz takes auf (Akkusativ).',
 }
 
 const angstVor: Collocation = {
@@ -38,6 +40,7 @@ const angstVor: Collocation = {
   level: 'B1',
   example: 'Er hat Angst vor Hunden.',
   coreIdeaHint: 'dogs make him freeze on the spot',
+  coreIdeaExplanation: 'vor carries recoiling from a threat; the dogs are what he backs away from — so Angst takes vor (Dativ).',
 }
 
 const teilnehmenAn: Collocation = {
@@ -50,6 +53,7 @@ const teilnehmenAn: Collocation = {
   level: 'B1',
   example: 'Wir nehmen am Wettbewerb teil.',
   coreIdeaHint: 'we sign up and join the contest',
+  coreIdeaExplanation: 'an here is involvement fixed at a point; joining the contest is being inside it — so teilnehmen takes an (Dativ).',
 }
 
 // A collocation with alternatives
@@ -63,6 +67,7 @@ const interessiertAn: Collocation = {
   level: 'B1',
   example: 'Sie ist an Musik interessiert.',
   coreIdeaHint: 'music is what grabs her attention',
+  coreIdeaExplanation: 'an here fixes attention at a point; music is what holds her — so interessiert takes an (Dativ).',
   alternatives: ['fuer'], // not a real alternative, just for test
 }
 
@@ -133,6 +138,7 @@ describe('useCollocationQuiz — preposition grading', () => {
       level: 'B1',
       example: 'Ich danke dir für deine Hilfe.',
       coreIdeaHint: 'thanks so much for helping me out',
+      coreIdeaExplanation: 'für marks a stance on something\'s behalf; the thanks is for the help given — so danken takes für (Akkusativ).',
     }
     const q = useCollocationQuiz([fuerCollocation])
     q.submit({ preposition: 'fuer', case: 'accusative' })

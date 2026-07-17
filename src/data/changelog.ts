@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.27'
+export const APP_VERSION = '1.11.28'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.28', date: '2026-07-17', kind: 'polish',
+    title: 'Fixed prepositions · why-you-missed explanations',
+    notes: [
+      '<strong>Miss a card, learn why.</strong> When you get a fixed-preposition wrong, the drill now shows a one-line explanation that connects the hint you just read to the preposition\'s core idea — e.g. <em>glauben</em>: "<em>an</em> carries contact and mental fixation; \'reaches out and fastens\' is that grip — so <em>glauben</em> takes <em>an</em> (Akkusativ)." The same note appears beneath each missed word on the results screen.',
+      '<strong>Written and checked for all collocations.</strong> Every verb, adjective and noun has its own seeded explanation, matched to its preposition and case. One data fix rode along: a bogus <em>danken + bei</em> entry (wrong German — <em>danken</em> takes a bare dative) was removed.'
+    ]
+  },
   {
     version: '1.11.27', date: '2026-07-17', kind: 'fix',
     title: 'Fixed prepositions · clearer hint text',

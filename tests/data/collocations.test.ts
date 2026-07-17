@@ -200,4 +200,57 @@ describe('collocations dataset', () => {
     const dupes = [...counts.entries()].filter(([, n]) => n > 1).map(([s]) => s)
     expect(dupes).toEqual([])
   })
+
+  // ── coreIdeaExplanation — shown AFTER a wrong answer, so it MUST name the answer ──
+
+  test('every entry has a non-empty coreIdeaExplanation', () => {
+    const offenders = COLLOCATIONS
+      .filter(c => typeof c.coreIdeaExplanation !== 'string' || c.coreIdeaExplanation.trim().length === 0)
+      .map(c => c.id)
+    expect(offenders).toEqual([])
+  })
+
+  test('coreIdeaExplanation is at most 180 characters and 30 words', () => {
+    const offenders: string[] = []
+    for (const c of COLLOCATIONS) {
+      const ex = c.coreIdeaExplanation ?? ''
+      if (ex.length > 180) offenders.push(`${c.id}: ${ex.length} chars > 180`)
+      const words = ex.trim().split(/\s+/).filter(Boolean)
+      if (words.length > 30) offenders.push(`${c.id}: ${words.length} words > 30`)
+    }
+    expect(offenders).toEqual([])
+  })
+
+  test('coreIdeaExplanation names its own preposition (word boundary)', () => {
+    const offenders: string[] = []
+    for (const c of COLLOCATIONS) {
+      const re = new RegExp(`(^|[^\\p{L}])${escapeRegExp(c.preposition)}([^\\p{L}]|$)`, 'iu')
+      if (!re.test(c.coreIdeaExplanation ?? '')) {
+        offenders.push(`${c.id}: "${c.preposition}" not named in explanation`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  test('coreIdeaExplanation names the correct case and not the wrong one', () => {
+    const offenders: string[] = []
+    for (const c of COLLOCATIONS) {
+      const ex = c.coreIdeaExplanation ?? ''
+      const right = c.case === 'accusative' ? 'Akkusativ' : 'Dativ'
+      const wrong = c.case === 'accusative' ? 'Dativ' : 'Akkusativ'
+      if (!ex.includes(right)) offenders.push(`${c.id}: missing ${right}`)
+      if (ex.includes(wrong)) offenders.push(`${c.id}: contains wrong case ${wrong}`)
+    }
+    expect(offenders).toEqual([])
+  })
+
+  test('no duplicate coreIdeaExplanation values across the whole dataset', () => {
+    const counts = new Map<string, number>()
+    for (const c of COLLOCATIONS) {
+      const key = (c.coreIdeaExplanation ?? '').trim()
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    const dupes = [...counts.entries()].filter(([, n]) => n > 1).map(([s]) => s)
+    expect(dupes).toEqual([])
+  })
 })
