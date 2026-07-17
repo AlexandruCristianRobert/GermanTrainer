@@ -205,7 +205,7 @@ function caseName(c: CollocationCase): string {
             <strong :class="q.caseOk ? 'ok' : 'err'">{{ caseName(q.item.case) }}</strong>
           </span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -532,7 +532,10 @@ function caseName(c: CollocationCase): string {
 .colloc-result-row {
   grid-template-columns: 180px 1fr auto;
   background: var(--prep-wash);
+  align-items: center;
+  padding: 14px 16px;
 }
+.result-verdict { justify-self: end; }
 .result-word-meta {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -567,7 +570,19 @@ function caseName(c: CollocationCase): string {
 
 /* Mobile — phone-first */
 @media (max-width: 720px) {
-  .colloc-result-row { grid-template-columns: 1fr; gap: 4px; }
+  /* Word on the left, verdict on the right, prep/case spanning full width below —
+     so each row uses the whole strip instead of a single left-hugging column. */
+  .colloc-result-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "word verdict"
+      "parts parts";
+    gap: 8px 12px;
+    align-items: start;
+  }
+  .colloc-result-row .result-word { grid-area: word; }
+  .colloc-result-row .result-parts { grid-area: parts; }
+  .colloc-result-row .result-verdict { grid-area: verdict; align-self: start; }
   .result-actions { flex-direction: column; align-items: stretch; }
   .result-actions .btn { justify-content: center; }
 }
@@ -576,13 +591,27 @@ function caseName(c: CollocationCase): string {
   .colloc-testcard { padding: 16px 18px 24px; border-radius: 6px; }
   .colloc-inputs { padding: 4px 0 0; }
 
+  /* Label and the correct-answer feedback share the top line (feedback pinned
+     right, using the full width); the input / case buttons span full width below. */
   .colloc-input-row {
-    grid-template-columns: 1fr;
-    gap: 4px;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "label feedback"
+      "field field";
+    gap: 6px 12px;
+    align-items: center;
   }
+  .colloc-label { grid-area: label; }
+  .colloc-input-row > .input-prep,
+  .colloc-input-row > .case-buttons { grid-area: field; }
   .colloc-feedback {
+    grid-area: feedback;
+    justify-self: end;
+    text-align: right;
     padding-left: 0;
+    font-size: 13px;
   }
+  .colloc-case-feedback { align-self: center; }
 
   .case-buttons {
     width: 100%;
