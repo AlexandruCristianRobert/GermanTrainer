@@ -196,7 +196,8 @@ describe('CollocationsRunner — preposition colors', () => {
   })
 
   it('summary rows carry per-item --prep-accent / --prep-wash style vars', async () => {
-    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+    // retype off so a wrong guess can advance straight to the summary
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1', retype: '0' })
 
     const akkBtn = wrapper.findAll('button').find(b => b.text() === 'Akkusativ')
     await akkBtn!.trigger('click')
@@ -258,6 +259,43 @@ describe('CollocationsRunner — core-idea hints', () => {
     const hint = wrapper.find('.prompt-hint')
     expect(hint.exists()).toBe(true)
     expect(hint.text().length).toBeGreaterThan(0)
+    wrapper.unmount()
+  })
+})
+
+describe('CollocationsRunner — retype on miss', () => {
+  async function wrongSubmit(query: Record<string, string>) {
+    const { wrapper } = await mountRunner(query)
+    await wrapper.findAll('button').find(b => b.text() === 'Akkusativ')!.trigger('click')
+    // no preposition typed -> the card is graded wrong
+    await wrapper.findAll('button').find(b => b.text().startsWith('Submit'))!.trigger('click')
+    await flushPromises()
+    return wrapper
+  }
+  const advanceBtn = (wrapper: any) =>
+    wrapper.findAll('button').find((b: any) => b.text().startsWith('Finish') || b.text().startsWith('Next'))
+
+  it('retype on: a wrong answer shows the retype box and blocks advancing', async () => {
+    const wrapper = await wrongSubmit({ levels: 'B1', roles: 'verb', count: '1', retype: '1' })
+    expect(wrapper.find('.retype-input').exists()).toBe(true)
+    expect(advanceBtn(wrapper)!.attributes('disabled')).toBeDefined()
+    wrapper.unmount()
+  })
+
+  it('retype on: typing the correct answer unblocks advancing', async () => {
+    const wrapper = await wrongSubmit({ levels: 'B1', roles: 'verb', count: '1', retype: '1' })
+    const word = wrapper.find('.colloc-german').text()
+    const prep = wrapper.find('.prep-accent-text').text()  // the revealed correct preposition
+    await wrapper.find('.retype-input').setValue(`${word} ${prep}`)
+    await flushPromises()
+    expect(advanceBtn(wrapper)!.attributes('disabled')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('retype off: a wrong answer neither shows the box nor blocks advancing', async () => {
+    const wrapper = await wrongSubmit({ levels: 'B1', roles: 'verb', count: '1', retype: '0' })
+    expect(wrapper.find('.retype-input').exists()).toBe(false)
+    expect(advanceBtn(wrapper)!.attributes('disabled')).toBeUndefined()
     wrapper.unmount()
   })
 })

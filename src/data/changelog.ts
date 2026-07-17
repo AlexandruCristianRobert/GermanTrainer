@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.29'
+export const APP_VERSION = '1.11.30'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.30', date: '2026-07-17', kind: 'polish',
+    title: 'Fixed prepositions · type-it-out on a miss + retry from the summary',
+    notes: [
+      '<strong>Burn in the ones you miss.</strong> A new setup toggle — <em>Type it out on a miss</em>, on by default and remembered — makes you retype the full answer (e.g. <em>glauben an</em>) after a wrong card before you can move on. Miss a card, press Enter, and the cursor jumps straight into the retype box so you can start typing; get it right and Next unlocks. Turn it off to just reveal-and-continue.',
+      '<strong>Retry the wrong ones after reviewing.</strong> If you choose “Review instead” at the end, the results screen now has a <em>Retry the N wrong</em> button, so you can run a focused round on your misses without restarting the whole drill.'
+    ]
+  },
   {
     version: '1.11.29', date: '2026-07-17', kind: 'polish',
     title: 'Fixed prepositions · both answers accepted + deeper explanations',
