@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.30'
+export const APP_VERSION = '1.11.31'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,13 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.31', date: '2026-07-17', kind: 'polish',
+    title: 'AI generation · ramped batches (verb quizzes)',
+    notes: [
+      '<strong>Faster first sentence, efficient tail.</strong> The AI verb sentence quiz (and verb remedial) now generate in a ramp — <em>1, then 2, then 5, then batches of 10</em> — so the first card appears almost immediately while the rest stream in behind you, and large custom runs make far fewer, steadier AI calls. Groundwork (a shared batch planner + ADR-0008) is in place to bring the same streaming to the other AI quizzes next.'
+    ]
+  },
   {
     version: '1.11.30', date: '2026-07-17', kind: 'polish',
     title: 'Fixed prepositions · type-it-out on a miss + retry from the summary',
