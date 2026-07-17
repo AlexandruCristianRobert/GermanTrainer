@@ -1,1 +1,0 @@
-import{b as l}from"./collocations-DdTnwUXN.js";import{c as r}from"./pool-Cxbj_MKy.js";const e=r(l,{levels:o=>o.level,roles:o=>o.role});function n(o={}){return e.filter(o)}function s(o,t={}){return e.sample(o,t)}function c(){return{all:l,filter:n,sample:s}}export{c as u};
