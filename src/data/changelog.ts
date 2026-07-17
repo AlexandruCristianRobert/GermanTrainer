@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.25'
+export const APP_VERSION = '1.11.26'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.26', date: '2026-07-17', kind: 'fix',
+    title: 'Fixed prepositions · tidier layout on phones',
+    notes: [
+      '<strong>The drill reads better on a phone.</strong> After you answer, the correct preposition and its ✓/✗ now sit on the same line as the label, pinned to the right, with the input and case buttons using the full width beneath — no more cramped, left-hugging feedback.',
+      '<strong>The results screen uses the whole row.</strong> Each word now spans the strip — word on the left, ✓/✗ on the right, and its preposition and case laid out beneath — instead of collapsing into one narrow left-aligned column.'
+    ]
+  },
   {
     version: '1.11.25', date: '2026-07-17', kind: 'polish',
     title: 'Fixed prepositions · a clearer test card',
