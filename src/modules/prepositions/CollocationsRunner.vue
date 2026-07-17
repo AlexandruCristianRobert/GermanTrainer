@@ -227,7 +227,8 @@ function caseName(c: CollocationCase): string {
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
     <div
-      class="colloc-stage"
+      class="colloc-stage colloc-testcard"
+      :class="{ submitted }"
       :style="submitted ? prepColorStyle(current.item.preposition) : undefined"
     >
       <div class="quiz-meta">
@@ -346,20 +347,55 @@ function caseName(c: CollocationCase): string {
   margin: 0 auto;
 }
 
-/* Prompt card */
+/* Test card — one framed, high-contrast surface holding the whole drill, so the
+   reading area stays legible on any theme or custom palette. The preposition
+   colour is contained to the frame (top spine) and the reveal, never the surface. */
+.colloc-testcard {
+  position: relative;
+  background: var(--paper-card);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 20px 40px 32px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px -34px rgba(20, 17, 10, 0.34);
+  transition: box-shadow .3s ease;
+}
+[data-theme="dark"] .colloc-testcard {
+  border-color: var(--rule);
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.66);
+}
+.colloc-testcard.submitted {
+  box-shadow: 0 30px 70px -32px rgba(20, 17, 10, 0.42);
+}
+[data-theme="dark"] .colloc-testcard.submitted {
+  box-shadow: 0 30px 70px -28px rgba(0, 0, 0, 0.74);
+}
+/* Top spine — neutral while answering, the preposition's hue on reveal. */
+.colloc-testcard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--hairline);
+  transition: background .35s ease;
+}
+.colloc-testcard.submitted::before {
+  background: var(--prep-accent);
+}
+
+/* Prompt */
 .prompt-chips {
   position: absolute;
-  top: 16px;
+  top: 4px;
   left: 0;
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
 }
 .colloc-prompt {
-  padding: 56px 0 32px;
-}
-.colloc-prompt.submitted {
-  background: var(--prep-wash);
+  padding: 44px 0 26px;
+  border-top: 0;
+  border-bottom: 1px solid var(--hairline);
 }
 .colloc-german {
   font-size: clamp(28px, 8vw, 56px);
@@ -379,19 +415,15 @@ function caseName(c: CollocationCase): string {
   color: var(--mute);
 }
 
-/* Inputs */
+/* Inputs — no box of their own; they live inside the test card. */
 .colloc-inputs {
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  margin: 24px 0 16px;
-  padding: 18px 22px;
-  background: var(--paper-card);
+  border: 0;
+  margin: 18px 0 8px;
+  padding: 4px 0 0;
+  background: transparent;
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-.colloc-inputs.submitted {
-  background: var(--prep-wash);
 }
 
 .colloc-input-row {
@@ -463,12 +495,14 @@ function caseName(c: CollocationCase): string {
   align-self: center;
 }
 
-/* Reveal block */
+/* Reveal block — the one place the preposition colour tints a surface, kept
+   small and contained: a coloured spine + a faint wash behind the example. */
 .colloc-reveal {
-  border-top: 1px solid var(--hairline);
+  margin-top: 4px;
   border-left: 3px solid var(--prep-accent);
-  padding-top: 12px;
-  padding-left: 14px;
+  background: var(--prep-wash);
+  border-radius: 0 3px 3px 0;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -539,7 +573,8 @@ function caseName(c: CollocationCase): string {
 }
 
 @media (max-width: 600px) {
-  .colloc-inputs { padding: 14px 12px; }
+  .colloc-testcard { padding: 16px 18px 24px; border-radius: 6px; }
+  .colloc-inputs { padding: 4px 0 0; }
 
   .colloc-input-row {
     grid-template-columns: 1fr;
