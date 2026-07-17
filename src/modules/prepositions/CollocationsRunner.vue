@@ -412,7 +412,7 @@ function caseName(c: CollocationCase): string {
   font-family: var(--font-body);
   font-style: italic;
   font-size: 13px;
-  color: var(--mute);
+  color: var(--ink);
 }
 
 /* Inputs — no box of their own; they live inside the test card. */

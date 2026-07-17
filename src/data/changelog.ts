@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.26'
+export const APP_VERSION = '1.11.27'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,13 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.27', date: '2026-07-17', kind: 'fix',
+    title: 'Fixed prepositions · clearer hint text',
+    notes: [
+      '<strong>The core-idea hint is now easy to read.</strong> The one-line hint shown under each word was set in a muted grey that faded out in some lighting; it now uses the same full-strength text colour as the word itself, so it stays legible in any light and theme.'
+    ]
+  },
   {
     version: '1.11.26', date: '2026-07-17', kind: 'fix',
     title: 'Fixed prepositions · tidier layout on phones',
