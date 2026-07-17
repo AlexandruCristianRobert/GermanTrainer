@@ -7,7 +7,7 @@ import {
   buildVerbHintInputs, gradeVerbAnswer, buildVerbDrillItem, generateVerbSentenceBatch,
   type GeneratedVerbSentence, type VerbSentenceSpec, type VerbSentenceVerdict
 } from '../../composables/useVerbSentenceQuiz'
-import { planBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
+import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun, type QuizHistoryType } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
 import { resolveAiClient } from '../../composables/localClaude'
@@ -98,7 +98,8 @@ onMounted(async () => {
   answers.value = []
 
   const client = resolveAiClient(settings.value)
-  const batches = planBatches(stash.specs, 1, 5)
+  // Ramp 1 → 2 → 5, then batches of 10 (ADR-0008): fast first paints, efficient tail.
+  const batches = planRampBatches(stash.specs, [1, 2, 5], 10)
   generateProgressively<VerbSentenceSpec, GeneratedVerbSentence>({
     batches,
     runBatch: async (batch) => {

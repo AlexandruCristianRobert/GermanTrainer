@@ -1,5 +1,37 @@
 import { describe, test, expect } from 'vitest'
-import { planBatches, generateProgressively } from '../../src/composables/useProgressiveGenerator'
+import { planBatches, planRampBatches, generateProgressively } from '../../src/composables/useProgressiveGenerator'
+
+describe('planRampBatches', () => {
+  test('empty input → no batches', () => {
+    expect(planRampBatches([], [1, 2, 5], 10)).toEqual([])
+  })
+  test('ramp 1,2,5 exactly consumes 8 items', () => {
+    expect(planRampBatches([1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 5], 10))
+      .toEqual([[1], [2, 3], [4, 5, 6, 7, 8]])
+  })
+  test('ramp 1,2,5 then chunks of 10, with a small remainder', () => {
+    const items = Array.from({ length: 20 }, (_, i) => i + 1)
+    expect(planRampBatches(items, [1, 2, 5], 10)).toEqual([
+      [1], [2, 3], [4, 5, 6, 7, 8],
+      [9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+      [19, 20],
+    ])
+  })
+  test('ramp 5 then chunks of 10 (5,10,10 for 25)', () => {
+    const items = Array.from({ length: 25 }, (_, i) => i + 1)
+    expect(planRampBatches(items, [5], 10).map(b => b.length)).toEqual([5, 10, 10])
+  })
+  test('custom 100 with ramp 5 → 5,10×9,5', () => {
+    const items = Array.from({ length: 100 }, (_, i) => i)
+    expect(planRampBatches(items, [5], 10).map(b => b.length)).toEqual([5, 10, 10, 10, 10, 10, 10, 10, 10, 10, 5])
+  })
+  test('fewer items than the ramp → partial ramp only', () => {
+    expect(planRampBatches([1, 2, 3], [1, 2, 5], 10)).toEqual([[1], [2, 3]])
+  })
+  test('no first sizes → pure chunks of batchSize', () => {
+    expect(planRampBatches([1, 2, 3, 4, 5], [], 2)).toEqual([[1, 2], [3, 4], [5]])
+  })
+})
 
 describe('planBatches', () => {
   test('empty input → no batches', () => {

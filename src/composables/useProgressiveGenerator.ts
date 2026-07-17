@@ -17,6 +17,27 @@ export function planBatches<T>(items: readonly T[], firstBatchSize: number, batc
   return out
 }
 
+/**
+ * A ramp of leading batches (`firstSizes`, e.g. [1,2,5] or [5]) for a fast first
+ * paint, then even chunks of `batchSize` (e.g. 10) for the remainder. Slicing 100
+ * with ([5], 10) yields 5,10×9,5; with ([1,2,5], 10) yields 1,2,5,10×9,2.
+ */
+export function planRampBatches<T>(items: readonly T[], firstSizes: readonly number[], batchSize: number): T[][] {
+  const out: T[][] = []
+  const rest = Math.max(1, batchSize)
+  let i = 0
+  for (const size of firstSizes) {
+    if (i >= items.length) break
+    const s = Math.max(1, size)
+    out.push(items.slice(i, i + s))
+    i += s
+  }
+  for (; i < items.length; i += rest) {
+    out.push(items.slice(i, i + rest))
+  }
+  return out
+}
+
 export interface ProgressiveOptions<S, R> {
   /** Pre-planned batches (see planBatches). batches[0] runs alone, first. */
   batches: S[][]
