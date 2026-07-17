@@ -226,8 +226,8 @@ describe('CollocationsRunner — preposition colors', () => {
   })
 })
 
-describe('CollocationsRunner — scene hints', () => {
-  it('renders the scene hint by default when no hints param is present', async () => {
+describe('CollocationsRunner — core-idea hints', () => {
+  it('renders the core-idea hint by default when no hints param is present', async () => {
     const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
     const hint = wrapper.find('.prompt-hint')
     expect(hint.exists()).toBe(true)
@@ -235,19 +235,19 @@ describe('CollocationsRunner — scene hints', () => {
     wrapper.unmount()
   })
 
-  it('renders the scene hint when hints=1', async () => {
+  it('renders the core-idea hint when hints=1', async () => {
     const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1', hints: '1' })
     expect(wrapper.find('.prompt-hint').exists()).toBe(true)
     wrapper.unmount()
   })
 
-  it('omits the scene hint element entirely when hints=0', async () => {
+  it('omits the core-idea hint element entirely when hints=0', async () => {
     const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1', hints: '0' })
     expect(wrapper.find('.prompt-hint').exists()).toBe(false)
     wrapper.unmount()
   })
 
-  it('keeps the scene hint visible after submit', async () => {
+  it('keeps the core-idea hint visible after submit', async () => {
     const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1', hints: '1' })
 
     const akkBtn = wrapper.findAll('button').find(b => b.text() === 'Akkusativ')

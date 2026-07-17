@@ -153,17 +153,17 @@ describe('collocations dataset', () => {
     expect(byRole('noun')).toBeGreaterThanOrEqual(80)
   })
 
-  test('every entry has a non-empty sceneHint', () => {
+  test('every entry has a non-empty coreIdeaHint', () => {
     const offenders = COLLOCATIONS
-      .filter(c => typeof c.sceneHint !== 'string' || c.sceneHint.trim().length === 0)
+      .filter(c => typeof c.coreIdeaHint !== 'string' || c.coreIdeaHint.trim().length === 0)
       .map(c => c.id)
     expect(offenders).toEqual([])
   })
 
-  test('sceneHint is at most 90 characters and 14 words', () => {
+  test('coreIdeaHint is at most 90 characters and 14 words', () => {
     const offenders: string[] = []
     for (const c of COLLOCATIONS) {
-      const hint = c.sceneHint ?? ''
+      const hint = c.coreIdeaHint ?? ''
       if (hint.length > 90) offenders.push(`${c.id}: ${hint.length} chars > 90`)
       const words = hint.trim().split(/\s+/).filter(Boolean)
       if (words.length > 14) offenders.push(`${c.id}: ${words.length} words > 14`)
@@ -171,9 +171,9 @@ describe('collocations dataset', () => {
     expect(offenders).toEqual([])
   })
 
-  test('sceneHint never names a preposition or case (forbidden tokens, word boundary)', () => {
-    // German prepositions + case names must not surface in the English micro-scene.
-    // Word-boundary, case-insensitive, \p{L}-based — mirrors the example/preposition test.
+  test('coreIdeaHint never names a preposition or case (forbidden tokens, word boundary)', () => {
+    // German prepositions + case names must not surface in the English hint (it would
+    // give the answer away). Word-boundary, case-insensitive, \p{L}-based.
     // "an" and "in" are deliberately absent: they are ordinary English words.
     const FORBIDDEN = [
       'auf', 'über', 'ueber', 'für', 'fuer', 'gegen', 'nach', 'von', 'mit', 'zu',
@@ -182,7 +182,7 @@ describe('collocations dataset', () => {
     ]
     const offenders: string[] = []
     for (const c of COLLOCATIONS) {
-      const hint = c.sceneHint ?? ''
+      const hint = c.coreIdeaHint ?? ''
       for (const token of FORBIDDEN) {
         const re = new RegExp(`(^|[^\\p{L}])${escapeRegExp(token)}([^\\p{L}]|$)`, 'iu')
         if (re.test(hint)) offenders.push(`${c.id}: contains "${token}" in "${hint}"`)
@@ -191,10 +191,10 @@ describe('collocations dataset', () => {
     expect(offenders).toEqual([])
   })
 
-  test('no duplicate sceneHint values across the whole dataset', () => {
+  test('no duplicate coreIdeaHint values across the whole dataset', () => {
     const counts = new Map<string, number>()
     for (const c of COLLOCATIONS) {
-      const key = (c.sceneHint ?? '').trim()
+      const key = (c.coreIdeaHint ?? '').trim()
       counts.set(key, (counts.get(key) ?? 0) + 1)
     }
     const dupes = [...counts.entries()].filter(([, n]) => n > 1).map(([s]) => s)

@@ -18,7 +18,7 @@ const router = useRouter()
 const { sample } = useCollocations()
 const { isMobile } = useBreakpoint()
 
-// Scene hints are on unless the query param explicitly turns them off.
+// Core-idea hints are on unless the query param explicitly turns them off.
 const hintsOn = computed(() => route.query.hints !== '0')
 
 // ── quiz state ──────────────────────────────────────────────────────────────
@@ -246,7 +246,7 @@ function caseName(c: CollocationCase): string {
         </div>
         <div class="prompt-german colloc-german">{{ current.item.word }}</div>
         <div class="prompt-english">{{ current.item.english }}</div>
-        <div v-if="hintsOn" class="prompt-hint">{{ current.item.sceneHint }}</div>
+        <div v-if="hintsOn" class="prompt-hint">{{ current.item.coreIdeaHint }}</div>
       </div>
 
       <!-- Input area -->
