@@ -18,6 +18,7 @@ type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
 const preset = ref<CountPreset>(10)
 const customCount = ref(10)
 const hints = ref(true)
+const retype = ref(true)
 
 interface Stored {
   levels?: CollocationLevel[]
@@ -25,6 +26,7 @@ interface Stored {
   preset?: CountPreset
   customCount?: number
   hints?: boolean
+  retype?: boolean
 }
 
 function load() {
@@ -37,6 +39,7 @@ function load() {
     if (s.preset !== undefined) preset.value = s.preset
     if (s.customCount !== undefined) customCount.value = s.customCount
     if (typeof s.hints === 'boolean') hints.value = s.hints
+    if (typeof s.retype === 'boolean') retype.value = s.retype
   } catch { /* ignore */ }
 }
 
@@ -45,14 +48,14 @@ function save() {
     const payload: Stored = {
       levels: levels.value, roles: roles.value,
       preset: preset.value, customCount: customCount.value,
-      hints: hints.value,
+      hints: hints.value, retype: retype.value,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   } catch { /* ignore */ }
 }
 
 onMounted(load)
-watch([levels, roles, preset, customCount, hints], save, { deep: true })
+watch([levels, roles, preset, customCount, hints, retype], save, { deep: true })
 
 const availableItems = computed(() => filter({ levels: levels.value, roles: roles.value }).length)
 
@@ -77,6 +80,7 @@ function start() {
       levels: levels.value.join(','),
       roles: roles.value.join(','),
       hints: hints.value ? '1' : '0',
+      retype: retype.value ? '1' : '0',
     }
   })
 }
@@ -139,6 +143,19 @@ function start() {
         {{ hints
           ? 'Shows a one-line cue under each word, pointing at the preposition\'s core idea before you answer.'
           : 'No hint — just the word and its English gloss.' }}
+      </p>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Type it out on a miss</div>
+      <div class="segmented">
+        <button :class="{ active: retype }" @click="retype = true">On</button>
+        <button :class="{ active: !retype }" @click="retype = false">Off</button>
+      </div>
+      <p class="micro-mark grading-hint">
+        {{ retype
+          ? 'When you get one wrong, you must type the full answer (e.g. glauben an) before moving on — it burns the correct pairing in.'
+          : 'A wrong answer just reveals the correct one; press Next to continue.' }}
       </p>
     </div>
 

@@ -20,6 +20,9 @@ const { isMobile } = useBreakpoint()
 
 // Core-idea hints are on unless the query param explicitly turns them off.
 const hintsOn = computed(() => route.query.hints !== '0')
+// "Type it out on a miss" — on unless explicitly turned off. When on, a wrong card
+// makes the learner retype the full answer (word + preposition) before advancing.
+const retypeOn = computed(() => route.query.retype !== '0')
 
 // ── quiz state ──────────────────────────────────────────────────────────────
 const loading = ref(true)
@@ -33,13 +36,15 @@ const quiz = shallowRef<Quiz | null>(null)
 const inputPreposition = ref('')
 const selectedCase     = ref<CollocationCase | null>(null)
 const submitted        = ref(false)
+const retypeInput      = ref('')
 
 // ── retry modal state ───────────────────────────────────────────────────────
 const showRetryModal = ref(false)
 const dismissed      = ref(false)
 
 // ── refs for focus ──────────────────────────────────────────────────────────
-const prepInputRef = ref<HTMLInputElement | null>(null)
+const prepInputRef   = ref<HTMLInputElement | null>(null)
+const retypeInputRef = ref<HTMLInputElement | null>(null)
 
 // ── mount ───────────────────────────────────────────────────────────────────
 onMounted(() => {
@@ -68,6 +73,7 @@ function resetInputs() {
   inputPreposition.value = ''
   selectedCase.value     = null
   submitted.value        = false
+  retypeInput.value      = ''
 }
 
 // ── computed from quiz ───────────────────────────────────────────────────────
@@ -95,6 +101,33 @@ const pips = computed(() => {
   return out
 })
 
+// ── retype-on-miss ─────────────────────────────────────────────────────────
+// After a wrong answer (when the setting is on) the learner must type the full
+// collocation — word + a correct preposition, e.g. "glauben an" — before advancing.
+const mustRetype = computed(() =>
+  submitted.value && retypeOn.value && current.value != null && current.value.isCorrect === false
+)
+function normPhrase(s: string): string {
+  return s.toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/^(der|die|das|sich)\s+/, '')  // article / reflexive is optional to retype
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+const acceptablePhrases = computed(() => {
+  const it = current.value?.item
+  if (!it) return [] as string[]
+  const preps = [it.preposition, ...(it.alsoAccept?.map(a => a.preposition) ?? [])]
+  return preps.map(p => normPhrase(`${it.word} ${p}`))
+})
+const retypeOk = computed(() => {
+  const typed = normPhrase(retypeInput.value)
+  return typed.length > 0 && acceptablePhrases.value.includes(typed)
+})
+// Can leave the current card: submitted, and either no retype is required or it's satisfied.
+const canAdvance = computed(() => submitted.value && (!mustRetype.value || retypeOk.value))
+
 // ── actions ──────────────────────────────────────────────────────────────────
 // 1 = Akkusativ · 2 = Dativ, chosen from the keyboard while the preposition
 // input holds focus. Swallow the digit so it never lands in the field; ignored
@@ -113,10 +146,16 @@ function submit() {
     case: selectedCase.value,
   })
   submitted.value = true
+  // On a miss with retype on, drop the cursor straight into the retype box.
+  if (mustRetype.value) {
+    retypeInput.value = ''
+    nextTick(() => retypeInputRef.value?.focus())
+  }
 }
 
 function next() {
   if (!quiz.value) return
+  if (!canAdvance.value) return  // retype required but not yet correct
   quiz.value.advance()
   resetInputs()
   nextTick(() => prepInputRef.value?.focus())
@@ -188,6 +227,11 @@ function acceptedAnswers(item: Collocation): string {
       </div>
       <div class="result-actions">
         <button class="btn btn-ghost" @click="router.push({ name: 'prepositions' })">← Präpositionen</button>
+        <button
+          v-if="wrongItems.length"
+          class="btn btn-ghost"
+          @click="retryWrong"
+        >Retry the {{ wrongItems.length }} wrong</button>
         <button class="btn btn-accent" @click="restart">Start another drill <span aria-hidden="true">→</span></button>
       </div>
     </header>
@@ -322,12 +366,33 @@ function acceptedAnswers(item: Collocation): string {
           <div class="reveal-example">{{ current.item.example }}</div>
           <div v-if="current.item.notes" class="reveal-notes">{{ current.item.notes }}</div>
         </div>
+
+        <!-- Retype the full answer to continue (setting: "type it out on a miss") -->
+        <div v-if="mustRetype" class="colloc-input-row colloc-retype-row">
+          <label class="colloc-label">Type it out</label>
+          <input
+            ref="retypeInputRef"
+            v-model="retypeInput"
+            class="input retype-input"
+            :class="{ 'retype-ok': retypeOk }"
+            type="text"
+            placeholder="Type the word + preposition to continue"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            @keyup.enter="next()"
+          />
+          <div class="colloc-feedback">
+            <span v-if="retypeOk" class="ok-mark">✓</span>
+          </div>
+        </div>
       </div>
 
       <!-- Actions -->
       <div class="quiz-actions colloc-actions">
         <span v-if="!submitted && isMobile" class="micro-mark">Pick a case, then tap Submit</span>
         <span v-if="!submitted && !isMobile" class="micro-mark">Pick a case, then press <span class="kbd">Enter</span> or Submit</span>
+        <span v-if="mustRetype && !retypeOk" class="micro-mark">Type the correct answer above to continue</span>
         <div class="action-buttons">
           <button
             v-if="!submitted"
@@ -342,6 +407,7 @@ function acceptedAnswers(item: Collocation): string {
             v-else
             class="btn btn-accent"
             type="button"
+            :disabled="mustRetype && !retypeOk"
             @click="next"
           >
             {{ questionIndex + 1 === total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
@@ -553,6 +619,18 @@ function acceptedAnswers(item: Collocation): string {
   letter-spacing: 0.02em;
   color: var(--prep-accent);
   font-weight: 600;
+}
+
+/* Retype-to-continue row */
+.colloc-retype-row { align-items: center; }
+.retype-input {
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+.retype-input.retype-ok {
+  color: var(--success);
+  border-bottom-color: var(--success);
 }
 
 /* Actions */
