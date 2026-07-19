@@ -299,3 +299,48 @@ describe('CollocationsRunner — retype on miss', () => {
     wrapper.unmount()
   })
 })
+
+describe('CollocationsRunner — color hint', () => {
+  it('off by default: no color style and no color-hint class before submit', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1' })
+    const stage = wrapper.find('.colloc-stage')
+    expect(stage.attributes('style')).toBeUndefined()
+    expect(stage.classes()).not.toContain('color-hint')
+    wrapper.unmount()
+  })
+
+  it('color=0: no color style and no color-hint class before submit', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1', color: '0' })
+    const stage = wrapper.find('.colloc-stage')
+    expect(stage.attributes('style')).toBeUndefined()
+    expect(stage.classes()).not.toContain('color-hint')
+    wrapper.unmount()
+  })
+
+  it('color=1: carries a preposition color style and the color-hint class before submit', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1', color: '1' })
+    const stage = wrapper.find('.colloc-stage')
+    const style = stage.attributes('style') ?? ''
+    expect(style).toMatch(/--prep-accent: var\(--prep-[a-z]+\)/)
+    expect(style).toMatch(/--prep-wash: var\(--prep-[a-z]+-wash\)/)
+    expect(stage.classes()).toContain('color-hint')
+    wrapper.unmount()
+  })
+
+  it('color=1: the pre-answer color matches the governed preposition (a real hint, not random)', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1', color: '1' })
+
+    // Grab the color shown BEFORE answering …
+    const preStyle = wrapper.find('.colloc-stage').attributes('style') ?? ''
+
+    const akkBtn = wrapper.findAll('button').find(b => b.text() === 'Akkusativ')
+    await akkBtn!.trigger('click')
+    const submitBtn = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
+    await submitBtn!.trigger('click')
+
+    // … and confirm it was the governed preposition's hue all along.
+    const slug = prepSlug(wrapper.find('.prep-accent-text').text())
+    expect(preStyle).toContain(`--prep-accent: var(--prep-${slug})`)
+    wrapper.unmount()
+  })
+})

@@ -41,8 +41,12 @@ A short English explanation (one to two sentences) shown *after* a **wrong** ans
 _Avoid_: hint (that is the pre-answer cue), correction, feedback, AI explanation.
 
 **Preposition color**:
-A fixed hue permanently assigned to each of the fifteen governed prepositions (e.g. *gegen* = red), used in the **Fixed prepositions** drill as a memory anchor binding a [Prepositional collocation] to its preposition. It appears only once the learner has answered — at the card's reveal and in the drill summary — never while answering (it would leak the answer). Correct/wrong verdicts keep their own green/red and always read on top of it. The cheatsheet does not use preposition colors.
+A fixed hue permanently assigned to each of the fifteen governed prepositions (e.g. *gegen* = red), used in the **Fixed prepositions** drill as a memory anchor binding a [Prepositional collocation] to its preposition. By default it appears only once the learner has answered — at the card's reveal and in the drill summary — never while answering, because it would leak the answer; the [Color hint] toggle deliberately overrides this, showing it from the start. Correct/wrong verdicts keep their own green/red and always read on top of it. The cheatsheet does not use preposition colors.
 _Avoid_: theme color, category color, highlight
+
+**Color hint**:
+The [Preposition color] shown on the drill card *before* the learner answers, as an opt-in cue. Unlike the [Core-idea hint], which evokes the preposition without naming it, the color hint gives the preposition away outright to a learner who knows the color scheme, leaving only the case to recall — its purpose is as much to drill the color↔preposition mapping itself as to scaffold the answer. Keyed to the preposition, not the case, so it never reveals the governed case. A setup toggle (default off) turns it on for the whole drill; when off, the [Preposition color] appears only on reveal. Distinct from [Word hint] (vocabulary in translation drills) and [Core-idea hint] (a worded cue).
+_Avoid_: color coaching, color scheme trainer
 
 **Assigned theme noun**:
 A noun the drill deliberately selects from the learner's chosen noun theme and builds a sentence around. These are the vocabulary the drill tests, and the only nouns eligible for a word hint.
