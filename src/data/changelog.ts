@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.32'
+export const APP_VERSION = '1.11.33'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.33', date: '2026-07-19', kind: 'polish',
+    title: 'Fixed prepositions · color hint before you answer',
+    notes: [
+      '<strong>Guess the preposition from its color.</strong> A new setup toggle — <em>Color hint</em>, off by default and remembered — tints each card with the preposition\'s color <em>before</em> you answer, instead of only revealing it once you submit. If you\'ve learned the scheme (<em>gegen</em> = red, <em>über</em> = blue, …), the hue is enough to guess the preposition — so the case is still yours to get right. It\'s as much a way to drill the colour↔preposition map itself as a leg-up on the answer.',
+      '<strong>Kept legible.</strong> The colour washes only the <em>question</em> — a soft tint behind the word plus its full hue on the card\'s top edge — while the answer area and the reveal panel stay neutral. Leave it off for the stricter no-colour-until-you-submit drill.'
+    ]
+  },
   {
     version: '1.11.32', date: '2026-07-17', kind: 'polish',
     title: 'AI quizzes · every generator now streams',
