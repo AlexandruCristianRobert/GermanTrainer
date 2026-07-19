@@ -23,6 +23,11 @@ const hintsOn = computed(() => route.query.hints !== '0')
 // "Type it out on a miss" — on unless explicitly turned off. When on, a wrong card
 // makes the learner retype the full answer (word + preposition) before advancing.
 const retypeOn = computed(() => route.query.retype !== '0')
+// Color hint — off unless explicitly turned on (CONTEXT.md: "Color hint"). When on,
+// the preposition's color (full-hue spine + a wash behind the question) shows from the
+// start, deliberately leaking the preposition as a guess/learning cue rather than
+// waiting for the reveal. Keyed to the preposition, so the case is still tested.
+const colorOn = computed(() => route.query.color === '1')
 
 // ── quiz state ──────────────────────────────────────────────────────────────
 const loading = ref(true)
@@ -281,8 +286,8 @@ function acceptedAnswers(item: Collocation): string {
   <div v-else-if="current && ready" class="page">
     <div
       class="colloc-stage colloc-testcard"
-      :class="{ submitted }"
-      :style="submitted ? prepColorStyle(current.item.preposition) : undefined"
+      :class="{ submitted, 'color-hint': colorOn }"
+      :style="(colorOn || submitted) ? prepColorStyle(current.item.preposition) : undefined"
     >
       <div class="quiz-meta">
         <span class="quiz-counter">Card {{ questionIndex + 1 }} · of {{ total }}</span>
@@ -460,7 +465,8 @@ function acceptedAnswers(item: Collocation): string {
   background: var(--hairline);
   transition: background .35s ease;
 }
-.colloc-testcard.submitted::before {
+.colloc-testcard.submitted::before,
+.colloc-testcard.color-hint::before {
   background: var(--prep-accent);
 }
 
@@ -494,6 +500,21 @@ function acceptedAnswers(item: Collocation): string {
   font-style: italic;
   font-size: 13px;
   color: var(--ink);
+}
+
+/* Color hint — the preposition's hue washes the question (the prompt) before the
+   learner answers, a cue to guess the preposition and drill the color scheme. The
+   input area and reveal panel stay on the neutral card, so the reveal still reads as
+   its own contained panel. Keyed to the preposition; the case is still tested. */
+.colloc-testcard.color-hint .colloc-prompt {
+  background: var(--prep-wash);
+  border-radius: 6px;
+  /* pad the wash out from the text, then pull the panel back the same amount so the
+     word stays aligned with the neutral-mode layout */
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-left: -16px;
+  margin-right: -16px;
 }
 
 /* Inputs — no box of their own; they live inside the test card. */
