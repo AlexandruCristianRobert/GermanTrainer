@@ -52,6 +52,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Case tests',
+    de: 'Kasus',
+    cards: [
+      {
+        numeral: 'T5', route: 'dacompounds-case',
+        title: 'Case pick', de: 'Kasus',
+        desc: 'A sentence already uses the da-compound — pick the case its underlying collocation governs: Akkusativ or Dativ.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [

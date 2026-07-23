@@ -19,6 +19,11 @@ import { DA_COMPOUND_PREPOSITIONS, daCompound } from '../data/daCompounds'
 import { createPool, shuffle, type FieldMatchers } from '../data/pool'
 import { checkText } from './drillGrading'
 
+// Re-exported so sibling engines (e.g. useDaCaseQuiz) that join the same
+// substitution pool can derive the correct compound without re-importing
+// straight from the data layer.
+export { substitutionAnswer }
+
 /** A substitution item joined to the collocation it references (by `collocationId`). */
 export interface JoinedItem {
   item: SubstitutionItem

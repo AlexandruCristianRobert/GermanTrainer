@@ -23,4 +23,16 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPES_ORDER).toContain('dac-substitution')
     expect(QUIZ_TYPES_ORDER).toContain('dac-neighbors')
   })
+
+  it('includes the three case-family Da-Compounds drill types with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dac-case')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-pronoun-case')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-article')
+    expect(QUIZ_TYPE_LABEL['dac-case']).toBe('Da-compounds · case')
+    expect(QUIZ_TYPE_DE['dac-case']).toBe('Da-Compounds · Kasus')
+    expect(QUIZ_TYPE_LABEL['dac-pronoun-case']).toBe('Da-compounds · pronoun case')
+    expect(QUIZ_TYPE_DE['dac-pronoun-case']).toBe('Da-Compounds · Pronomen-Kasus')
+    expect(QUIZ_TYPE_LABEL['dac-article']).toBe('Da-compounds · article fill')
+    expect(QUIZ_TYPE_DE['dac-article']).toBe('Da-Compounds · Artikel')
+  })
 })
