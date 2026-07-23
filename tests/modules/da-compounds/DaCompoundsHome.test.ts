@@ -14,6 +14,7 @@ async function mountHome() {
       { path: '/da-compounds/substitution', name: 'dacompounds-substitution', component: { template: '<div />' } },
       { path: '/da-compounds/neighbors', name: 'dacompounds-neighbors', component: { template: '<div />' } },
       { path: '/da-compounds/case', name: 'dacompounds-case', component: { template: '<div />' } },
+      { path: '/da-compounds/pronoun-case', name: 'dacompounds-pronoun-case', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -41,6 +42,18 @@ describe('DaCompoundsHome', () => {
     await caseCard!.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('dacompounds-case')
+  })
+
+  it('shows the T6 pronoun-case card in the Case tests group right after T5 and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const caseGroup = wrapper.findAll('.module-grid')[2]
+    const groupCards = caseGroup.findAll('.module-card')
+    expect(groupCards).toHaveLength(2)
+    expect(groupCards[0].text()).toContain('Case pick')
+    expect(groupCards[1].text()).toContain('Pronoun case')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-pronoun-case')
   })
 
   it('shows the T3 and T4 cards in the Compound recall group and navigates on click', async () => {
