@@ -13,6 +13,9 @@ async function mountHome() {
       { path: '/da-compounds/match', name: 'dacompounds-match', component: { template: '<div />' } },
       { path: '/da-compounds/substitution', name: 'dacompounds-substitution', component: { template: '<div />' } },
       { path: '/da-compounds/neighbors', name: 'dacompounds-neighbors', component: { template: '<div />' } },
+      { path: '/da-compounds/case', name: 'dacompounds-case', component: { template: '<div />' } },
+      { path: '/da-compounds/pronoun-case', name: 'dacompounds-pronoun-case', component: { template: '<div />' } },
+      { path: '/da-compounds/article', name: 'dacompounds-article', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -22,13 +25,47 @@ async function mountHome() {
 }
 
 describe('DaCompoundsHome', () => {
-  it('renders the module header, the Formation basics, Compound recall, and Reference groups', async () => {
+  it('renders the module header, the Formation basics, Compound recall, Case tests, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
     const headings = wrapper.findAll('.group-heading').map(h => h.text())
     expect(headings[0]).toContain('Formation basics')
     expect(headings[1]).toContain('Compound recall')
-    expect(headings[2]).toContain('Reference')
+    expect(headings[2]).toContain('Case tests')
+    expect(headings[3]).toContain('Reference')
+  })
+
+  it('shows the T5 case-pick card in the Case tests group and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const cards = wrapper.findAll('.module-card')
+    const caseCard = cards.find(c => c.text().includes('Case pick'))
+    expect(caseCard).toBeTruthy()
+    await caseCard!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-case')
+  })
+
+  it('shows the T6 pronoun-case card in the Case tests group right after T5 and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const caseGroup = wrapper.findAll('.module-grid')[2]
+    const groupCards = caseGroup.findAll('.module-card')
+    expect(groupCards).toHaveLength(3)
+    expect(groupCards[0].text()).toContain('Case pick')
+    expect(groupCards[1].text()).toContain('Pronoun case')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-pronoun-case')
+  })
+
+  it('shows the T7 article-fill card in the Case tests group right after T6 and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const caseGroup = wrapper.findAll('.module-grid')[2]
+    const groupCards = caseGroup.findAll('.module-card')
+    expect(groupCards).toHaveLength(3)
+    expect(groupCards[2].text()).toContain('Article fill')
+    await groupCards[2].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-article')
   })
 
   it('shows the T3 and T4 cards in the Compound recall group and navigates on click', async () => {

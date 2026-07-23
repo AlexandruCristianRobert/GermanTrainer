@@ -52,6 +52,27 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Case tests',
+    de: 'Kasus',
+    cards: [
+      {
+        numeral: 'T5', route: 'dacompounds-case',
+        title: 'Case pick', de: 'Kasus',
+        desc: 'A sentence already uses the da-compound — pick the case its underlying collocation governs: Akkusativ or Dativ.',
+      },
+      {
+        numeral: 'T6', route: 'dacompounds-pronoun-case',
+        title: 'Pronoun case', de: 'Pronomen',
+        desc: 'The object is a PERSON, not a thing — no da-compound applies. Pick or type the correctly declined Präposition + Personalpronomen.',
+      },
+      {
+        numeral: 'T7', route: 'dacompounds-article',
+        title: 'Article fill', de: 'Artikel',
+        desc: 'Two-way prepositions in verb objects mostly take Akkusativ — except a handful of Dativ verbs like arbeiten an. Type the full declined article.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
