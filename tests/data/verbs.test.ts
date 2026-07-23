@@ -70,6 +70,11 @@ describe('VERBS invariants', () => {
         for (const form of v.praesens) {
           expect(form.endsWith(` ${v.separablePrefix}`), `${v.german}: ${form}`).toBe(true)
         }
+        // imperativDu stores the BARE core only — the engine appends the prefix
+        // (conjugate.ts). A spaced value like "gib bekannt" would double it.
+        if (v.imperativDu) {
+          expect(v.imperativDu.includes(' '), `${v.german}: imperativDu "${v.imperativDu}"`).toBe(false)
+        }
       }
     }
   })
@@ -83,8 +88,10 @@ describe('VERBS invariants', () => {
   })
 
   test('verbs gaining an umlaut in er-form supply imperativDu explicitly', () => {
-    // The engine derives du-imperatives from the er-form; a→ä / au→äu verbs
-    // would keep the umlaut ("*fähr!") unless imperativDu is given (conjugate.ts).
+    // The engine derives du-imperatives from the er-form; a→ä / o→ö / au→äu
+    // verbs would keep the umlaut ("*fähr!"/"*stöß!") unless imperativDu is
+    // given (conjugate.ts). Stems already carrying ä/ö (lösen, gehören) are
+    // exempt because the stem check below excludes them.
     for (const v of VERBS) {
       const inf = bareInfinitive(v)
       const stem = v.separablePrefix ? inf.slice(v.separablePrefix.length) : inf
@@ -92,7 +99,7 @@ describe('VERBS invariants', () => {
       if (v.separablePrefix && er.endsWith(` ${v.separablePrefix}`)) {
         er = er.slice(0, -(v.separablePrefix.length + 1))
       }
-      const gainsUmlaut = /ä/.test(er) && !/ä/.test(stem)
+      const gainsUmlaut = /[äö]/.test(er) && !/[äö]/.test(stem)
       if (gainsUmlaut) expect(v.imperativDu, v.german).toBeTruthy()
     }
   })

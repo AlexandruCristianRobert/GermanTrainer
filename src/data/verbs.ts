@@ -6616,7 +6616,7 @@ export const VERBS: readonly Verb[] = [
     ],
     praeteritumStem: "gab",
     partizip2: "bekanntgegeben",
-    imperativDu: "gib bekannt",
+    imperativDu: "gib",
   },
   {
     german: "steigen",
@@ -6746,7 +6746,7 @@ export const VERBS: readonly Verb[] = [
     ],
     praeteritumStem: "sah",
     partizip2: "vorgesehen",
-    imperativDu: "sieh vor",
+    imperativDu: "sieh",
   },
   {
     german: "benutzen",
@@ -6883,7 +6883,7 @@ export const VERBS: readonly Verb[] = [
     ],
     praeteritumStem: "nahm",
     partizip2: "aufgenommen",
-    imperativDu: "nimm auf",
+    imperativDu: "nimm",
   },
   {
     german: "bezeichnen",
@@ -7135,7 +7135,7 @@ export const VERBS: readonly Verb[] = [
     ],
     praeteritumStem: "warf",
     partizip2: "vorgeworfen",
-    imperativDu: "wirf vor",
+    imperativDu: "wirf",
   },
   {
     german: "installieren",
@@ -7402,7 +7402,7 @@ export const VERBS: readonly Verb[] = [
     ],
     praeteritumStem: "gab",
     partizip2: "ausgegeben",
-    imperativDu: "gib aus",
+    imperativDu: "gib",
   },
   {
     german: "profitieren",
@@ -7440,7 +7440,7 @@ export const VERBS: readonly Verb[] = [
     ],
     praeteritumStem: "sah",
     partizip2: "ausgesehen",
-    imperativDu: "sieh aus",
+    imperativDu: "sieh",
   },
   {
     german: "befürchten",
@@ -7478,7 +7478,7 @@ export const VERBS: readonly Verb[] = [
     ],
     praeteritumStem: "fiel",
     partizip2: "ausgefallen",
-    imperativDu: "fall aus",
+    imperativDu: "fall",
   },
   {
     german: "einräumen",
@@ -7663,7 +7663,7 @@ export const VERBS: readonly Verb[] = [
     ],
     praeteritumStem: "trat",
     partizip2: "aufgetreten",
-    imperativDu: "tritt auf",
+    imperativDu: "tritt",
   },
   {
     german: "öffnen",
