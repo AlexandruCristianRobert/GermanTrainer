@@ -31,6 +31,22 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Compound recall',
+    de: 'Einsetzen',
+    cards: [
+      {
+        numeral: 'T3', route: 'dacompounds-substitution',
+        title: 'Gap-fill', de: 'Lückentext',
+        desc: 'A context sentence uses a fixed-preposition collocation; fill the gap in the follow-up with the right da-compound — pick from options or type it yourself.',
+      },
+      {
+        numeral: 'T4', route: 'dacompounds-neighbors',
+        title: 'Near neighbors', de: 'Verwechslungsgefahr',
+        desc: 'Same gap-fill, harder options: choose the right da-compound among its near-neighbor prepositions — the mix-ups that actually happen in speech.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [

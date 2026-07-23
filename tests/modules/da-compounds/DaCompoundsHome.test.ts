@@ -10,6 +10,8 @@ async function mountHome() {
       { path: '/da-compounds', name: 'dacompounds', component: { template: '<div />' } },
       { path: '/da-compounds/cheatsheet', name: 'dacompounds-cheatsheet', component: { template: '<div />' } },
       { path: '/da-compounds/formation', name: 'dacompounds-formation', component: { template: '<div />' } },
+      { path: '/da-compounds/substitution', name: 'dacompounds-substitution', component: { template: '<div />' } },
+      { path: '/da-compounds/neighbors', name: 'dacompounds-neighbors', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -19,12 +21,25 @@ async function mountHome() {
 }
 
 describe('DaCompoundsHome', () => {
-  it('renders the module header, the Formation basics group, and the Reference section', async () => {
+  it('renders the module header, the Formation basics, Compound recall, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
     const headings = wrapper.findAll('.group-heading').map(h => h.text())
     expect(headings[0]).toContain('Formation basics')
-    expect(headings[1]).toContain('Reference')
+    expect(headings[1]).toContain('Compound recall')
+    expect(headings[2]).toContain('Reference')
+  })
+
+  it('shows the T3 and T4 cards in the Compound recall group and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const cards = wrapper.findAll('.module-card')
+    const gapFillCard = cards.find(c => c.text().includes('Gap-fill'))
+    const neighborsCard = cards.find(c => c.text().includes('Near neighbors'))
+    expect(gapFillCard).toBeTruthy()
+    expect(neighborsCard).toBeTruthy()
+    await gapFillCard!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-substitution')
   })
 
   it('shows the T1 formation card first and navigates to it on click', async () => {
