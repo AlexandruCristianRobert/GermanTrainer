@@ -7,9 +7,12 @@ export type QuizHistoryType =
   | 'adjective'
   | 'verb-translation'
   | 'verb-conjugation'
+  | 'verb-stammformen'
+  | 'verb-case-government'
   | 'prep-case'
   | 'prep-article'
   | 'prep-two-way'
+  | 'prep-collocations'
   | 'prep-sentence'
   | 'prep-remedial'
   | 'verb-sentence'
@@ -52,6 +55,7 @@ export interface QuizHistoryMeta {
   levels?: string[]
   types?: string[]
   cases?: string[]
+  roles?: string[]   // Fixed prepositions drill: collocation word types (verb/adjective/noun)
   tenses?: string[]
   verbDirection?: 'de-en' | 'en-de'
   prepLevels?: string[]

@@ -180,6 +180,31 @@ describe('useQuizHistory', () => {
     expect(entry.meta.combinedScore).toBe(73)
     expect(entry.meta.passes).toBe(true)
   })
+
+  it('round-trips the deterministic-drill types and their meta (ADR-0010)', () => {
+    saveQuizRun({
+      type: 'prep-collocations',
+      startedAt: '2026-07-23T10:00:00.000Z', finishedAt: '2026-07-23T10:05:00.000Z',
+      durationMs: 300_000, count: 10, correct: 8,
+      meta: { levels: ['B1', 'B2'], roles: ['noun', 'verb'] }
+    })
+    saveQuizRun({
+      type: 'verb-stammformen',
+      startedAt: '2026-07-23T11:00:00.000Z', finishedAt: '2026-07-23T11:04:00.000Z',
+      durationMs: 240_000, count: 10, correct: 9,
+      meta: { levels: ['A1', 'A2'], types: ['irregular'] }
+    })
+    saveQuizRun({
+      type: 'verb-case-government',
+      startedAt: '2026-07-23T12:00:00.000Z', finishedAt: '2026-07-23T12:03:00.000Z',
+      durationMs: 180_000, count: 10, correct: 7,
+      meta: { levels: ['B1'], types: ['regular'], cases: ['dative'] }
+    })
+    const all = loadHistory()
+    expect(all.map(e => e.type)).toEqual(['verb-case-government', 'verb-stammformen', 'prep-collocations'])
+    expect(all[2].meta.roles).toEqual(['noun', 'verb'])
+    expect(all[0].meta.cases).toEqual(['dative'])
+  })
 })
 
 describe('verb-sentence history', () => {

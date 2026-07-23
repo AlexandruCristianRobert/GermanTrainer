@@ -46,9 +46,12 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'adjective':        { label: 'Adjective sentence', de: 'Adjektiv · Lückentext',    module: 'Adjectives' },
   'verb-translation': { label: 'Verb translation',   de: 'Verb · Übersetzung',       module: 'Verbs' },
   'verb-conjugation': { label: 'Verb conjugation',   de: 'Verb · Konjugation',       module: 'Verbs' },
+  'verb-stammformen':     { label: 'Verb · principal parts', de: 'Verb · Stammformen',  module: 'Verbs' },
+  'verb-case-government': { label: 'Verb · case government', de: 'Verb · Rektion',      module: 'Verbs' },
   'prep-case':        { label: 'Preposition · case', de: 'Präposition · Kasus',      module: 'Prepositions' },
   'prep-article':     { label: 'Preposition · article', de: 'Präposition · Artikel', module: 'Prepositions' },
   'prep-two-way':     { label: 'Preposition · two-way', de: 'Präposition · Wechsel', module: 'Prepositions' },
+  'prep-collocations':    { label: 'Preposition · fixed',    de: 'Feste Präpositionen', module: 'Prepositions' },
   'prep-sentence':    { label: 'Preposition · sentence (AI)', de: 'Präposition · Satz (KI)', module: 'Prepositions' },
   'prep-remedial':    { label: 'Preposition · remedial', de: 'Präposition · Schwachstellen', module: 'Prepositions' },
   'verb-sentence':  { label: 'Verb · sentence (AI)', de: 'Verb · Satz (KI)', module: 'Verbs' },
@@ -68,8 +71,10 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
 const typeOrder: QuizHistoryType[] = [
   'noun-gender', 'noun-translation', 'adjective',
   'verb-translation', 'verb-conjugation',
+  'verb-stammformen', 'verb-case-government',
   'verb-sentence', 'verb-remedial',
   'prep-case', 'prep-article', 'prep-two-way',
+  'prep-collocations',
   'prep-sentence', 'prep-remedial',
   'decl-table', 'decl-article', 'decl-adjective',
   'decl-pronoun', 'decl-case-recognition',
@@ -217,6 +222,7 @@ function summariseMeta(it: QuizHistoryEntry): string {
   if (m.groups && m.groups.length) parts.push(`${m.groups.length} group${m.groups.length === 1 ? '' : 's'}`)
   if (m.levels && m.levels.length) parts.push(m.levels.join('/'))
   if (m.types && m.types.length && m.types.length < 5) parts.push(m.types.join(', '))
+  if (m.roles?.length) parts.push(m.roles.join(', '))
   if (m.tenses && m.tenses.length) parts.push(`${m.tenses.length} tense${m.tenses.length === 1 ? '' : 's'}`)
   return parts.length ? parts.join(' · ') : '—'
 }
