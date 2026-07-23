@@ -2,6 +2,7 @@
 
 **Date:** 2026-07-23
 **Status:** Content spec — describes what the module should contain (test types + data). No implementation details.
+**Groomed:** 2026-07-23 grill session — naming, placement, selection, granularity, grading, recording (ADR-0010), and cheatsheet resolved; see §6 (decisions) and §7 (phase roadmap).
 
 A new module for German pronominal adverbs (dafür, davon, darüber, daran, …) and their
 interrogative counterparts (wofür, wovon, worüber, woran, …). It covers building sentences
@@ -64,7 +65,10 @@ drill at A2–C1.
 
 Legend — **Mode:** `offline` = static, deterministic, locally graded; `AI` = generated
 and/or graded by the AI provider. **Answer style:** `pick` = buttons/multiple choice,
-`type` = free text input.
+`type` = free text input. Offline tests never require typing a full free sentence — the
+learner types single-word/short gaps or orders tiles; free sentence production is AI-graded
+only (T14, T15, T17). Every drill records a [Run] when online and silently skips recording
+offline (ADR-0010).
 
 ### Family A — Formation basics (A2)
 
@@ -114,14 +118,16 @@ Replace the highlighted object: thing → da-compound, person → preposition + 
 Options in pick mode: darüber / über ihn / über sie. The #1 learner error per every source.
 Tests: the animacy rule + pronoun case in one item.
 
-**T9. Wo-question formation** · offline · type
-Given a statement with a highlighted complement, write the question:
-"Ich habe Angst vor **Prüfungen**" → "**Wovor** hast du Angst?"; person variant →
-"**Auf wen** wartest du?" Mixed sets force the choice.
+**T9. Wo-question formation** · offline · type (gap-constrained)
+Given a statement with a highlighted complement, complete the scaffolded question — only
+the question word is typed, never the full sentence:
+"Ich habe Angst vor **Prüfungen**" → "___ hast du Angst?" (→ *Wovor*); person variant →
+"___ wartest du?" (→ *Auf wen*). Mixed sets force the choice.
 Tests: wo/wor formation, interrogative animacy rule, wen/wem case.
 
-**T10. Dialogue completion** · offline · type
-Both slots gapped: "___ wartest du? — Ich warte ___, dass endlich Ferien sind."
+**T10. Dialogue completion** · offline · type (gap-constrained)
+Both slots gapped, sentence scaffolds given:
+"___ wartest du? — Ich warte ___, dass endlich Ferien sind."
 (→ Worauf / darauf). Tests: the interrogative↔demonstrative pairing in discourse.
 
 ### Family E — Korrelat & dass-clauses (B2 flagship)
@@ -132,10 +138,12 @@ Both slots gapped: "___ wartest du? — Ich warte ___, dass endlich Ferien sind.
 \*"Ich weiß darüber, dass…", \*"Ich hoffe darauf, dass…" (marked/heavy).
 Tests: obligatory vs. optional vs. wrong Korrelat.
 
-**T12. Paraphrase pairs** · offline · type
+**T12. Paraphrase pairs** · offline · type (gap-constrained)
 Noun phrase ↔ clause version, both gapped:
 "Ich kümmere mich **um** die Einhaltung des Termins. / Ich kümmere mich **darum**, dass
-der Termin eingehalten wird." Tests: equivalence of Präpositionalobjekt and dass-clause.
+der Termin eingehalten wird." Gaps are the preposition, the Korrelat, and optionally the
+finite verb form — never free sentence production.
+Tests: equivalence of Präpositionalobjekt and dass-clause.
 
 **T13. Meaning contrast** · offline · pick
 "Ich freue mich ___ meinen Geburtstag nächste Woche." (auf — future) vs.
@@ -155,10 +163,12 @@ feedback on preposition, compound form, and case. Same pattern as the verb sente
 Reverse direction; grading focuses on whether the learner decoded the compound correctly
 (darauf = "to it/that" in context, not "on it" literally).
 
-**T16. Sentence assembly** · offline · type
-Chunks → full sentence: "sich interessieren für / mein Vater / Briefmarken" →
-"Mein Vater interessiert sich für Briefmarken."
-Tests: conjugation + article case + word order together.
+**T16. Sentence assembly** · offline · pick (tiles)
+Pre-inflected chunks tapped into order: [interessiert] [sich] [Mein Vater] [für Briefmarken]
+→ "Mein Vater interessiert sich für Briefmarken." Accepted orders curated (fronting
+variants allowed); deterministic to grade.
+Tests: word order and prepositional-object/compound placement (conjugation is drilled
+elsewhere).
 
 **T17. Answer the question** · AI · type
 "Freust du dich auf das Wochenende?" → "Ja, ich freue mich (sehr) darauf."
@@ -211,7 +221,47 @@ Tests: when the wo-form is required, preferred, or wrong in relative clauses.
 11. Relative-clause misuse (\*"die Frau, wovon…")
 12. Compound misplaced in word order (cataphoric Korrelat belongs right before the comma)
 
-## 6. Out of scope (possible later phases)
+## 6. Resolved decisions (2026-07-23 grill session)
+
+1. **Canonical term:** *Da-compound* (German subtitle *Pronominaladverbien*); question
+   forms are *Wo-compounds*. Both are now glossary entries in `CONTEXT.md`.
+2. **Placement:** own top-level module ("Da-Compounds") with its own home, nav entry, and
+   home-grid card — data sourced from the shared collocation dataset.
+3. **Selection:** chip filters for collocation level (B1/B2/C1), word type
+   (verb/adjective/noun), and preposition. No join to [Verb level]s (different scale,
+   partial overlap). Noun theme chips apply to the AI sentence tests only.
+4. **Granularity:** one card per test (~20 cards) grouped under family section headers on
+   the module home; pick/type difficulty variants are setup toggles, not separate cards.
+5. **Grading:** offline tests are gap-constrained or tile-based (see legend); free sentence
+   production only in the AI-graded tests (T14, T15, T17).
+6. **Recording:** every drill records a Run when online and silently skips offline —
+   ADR-0010, which supersedes ADR-0007's "unrecorded" rule and retrofits the three
+   existing deterministic drills (Fixed prepositions, Principal parts, Case government).
+7. **Error tagging:** the AI translation drill gains a `compound` error tag feeding Weak
+   points; a da-compound remedial drill is a later option.
+8. **Preposition colors:** reused on reveal exactly as in the Fixed prepositions drill.
+9. **Cheatsheet:** ships in an early phase (formation table, no-compound list,
+   things-vs-people rule, Korrelat verb lists).
+
+## 7. Phase roadmap
+
+Each phase is released and user-tested before the next one starts (a per-phase
+implementation plan is written when the phase is green-lit). Time cost deliberately
+ignored — ordering is by dependency and pedagogy.
+
+| Phase | Contents | Gate check |
+|---|---|---|
+| 0 | Recording foundation: ADR-0010 retrofit — record-online/skip-offline helper + Run types for the three existing deterministic drills | Existing drills show up in History when online, stay silent offline |
+| 1 | Module scaffold: routes, nav, home card, section-headed module home + **Cheatsheet** + derived da-/wo-compound data and no-compound trap list | Module navigable on phone (~390px), cheatsheet correct |
+| 2 | Formation & recall drills: T1, T2, T3, T4 | Core drilling works end-to-end, records Runs |
+| 3 | Case drills: T5, T6, T7 | |
+| 4 | People vs things: T8, T9, T10 (+ person/thing example data) | |
+| 5 | Korrelat: T11, T12, T13 (+ Korrelat classification data) | |
+| 6 | AI sentence translation: T14, T15 (+ `compound` error tag, weak points) | |
+| 7 | Production extras: T16 tiles, T17 answer-the-question (AI) | |
+| 8 | Traps: T18, T19, T20 (+ homograph/register data) | |
+
+## 8. Out of scope (possible later phases)
 
 - hier-compounds (hierfür, hiermit — formal register variant)
 - Genitive-preposition collocations (deliberately excluded from the collocation data)

@@ -1,5 +1,9 @@
 # Three new practice drills are offline-first, deterministic, and unrecorded
 
+> **Status:** amended — the *unrecorded* decision is superseded by
+> [ADR-0010](0010-record-runs-when-online-for-all-drills.md) (drills now record a Run when online,
+> silently skip offline). The offline-first, deterministic generation-and-grading design stands.
+
 German Trainer's typed-answer quizzes lean on the network *at runtime*: the AI sentence quizzes call
 Gemini to **generate** sentences and again to **grade** each answer ([ADR-0003](0003-verb-sentence-hints-german-from-ai.md),
 [ADR-0004](0004-progressive-streaming-sentence-generation.md)), and every completed quiz is saved as

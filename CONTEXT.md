@@ -25,8 +25,16 @@ A preposition that governs the accusative for motion/direction and the dative fo
 _Avoid_: dual preposition, mixed preposition
 
 **Prepositional collocation** (feste Präposition):
-A verb, adjective, or noun that governs a fixed preposition and a fixed case — *warten auf + Akkusativ*, *stolz auf + Akkusativ*, *Angst vor + Dativ*. The **Fixed prepositions** drill shows the word and its English meaning and asks the learner to supply the preposition and its case; practice-only, records no [Run]. Each meaning that takes a *different* preposition is a separate collocation (*sich freuen auf* "look forward to" vs *sich freuen über* "be glad about"). But a single meaning that more than one preposition satisfies **equally** (*das Interesse an* ≈ *für*, *die Frage an/nach*) is *one* collocation that accepts each: it carries a set of acceptable *(preposition, case)* answers — every one is graded correct, and a card is shown for it only once per drill. Distinct from meaning-splitting pairs and from opposites (*sich entscheiden für* vs *gegen*), which stay separate because the gloss is the answer.
+A verb, adjective, or noun that governs a fixed preposition and a fixed case — *warten auf + Akkusativ*, *stolz auf + Akkusativ*, *Angst vor + Dativ*. The **Fixed prepositions** drill shows the word and its English meaning and asks the learner to supply the preposition and its case. Each meaning that takes a *different* preposition is a separate collocation (*sich freuen auf* "look forward to" vs *sich freuen über* "be glad about"). But a single meaning that more than one preposition satisfies **equally** (*das Interesse an* ≈ *für*, *die Frage an/nach*) is *one* collocation that accepts each: it carries a set of acceptable *(preposition, case)* answers — every one is graded correct, and a card is shown for it only once per drill. Distinct from meaning-splitting pairs and from opposites (*sich entscheiden für* vs *gegen*), which stay separate because the gloss is the answer.
 _Avoid_: prepositional verb (excludes adjectives and nouns), fixed phrase, idiom
+
+**Da-compound** (Pronominaladverb):
+A pronoun-like adverb — da(r) + preposition (*dafür*, *daran*, *darüber*) — standing in for preposition + pronoun when the referent is a thing, an abstract, or a whole clause, never a person (persons keep preposition + personal pronoun: *an ihn*). `dar-` before a vowel-initial preposition, `da-` otherwise; some prepositions form no compound (*ohne*, *seit*, *außer*, *gegenüber*, the genitive prepositions).
+_Avoid_: Pronominaladverb / Präpositionaladverb (German subtitle only), prepositional adverb, da-word
+
+**Wo-compound**:
+The interrogative counterpart of a [Da-compound] — wo(r) + preposition (*worauf*, *womit*) — asking after a thing; asking after a person takes preposition + *wen*/*wem* instead.
+_Avoid_: w-compound, question adverb, wo-word
 
 **Fixed-preposition core idea**:
 The single dominant sense a preposition carries across its [Prepositional collocation]s — *über* marks the topic of talking/thinking, *nach* reaching-toward/seeking, *vor* fear/avoidance, *auf* anticipation. A memory hook, not a rule: which word governs which preposition is still memorized. The organizing spine of the **Fixed prepositions cheatsheet** (de *Spickzettel*), which groups collocations by preposition and states this hook instead of enumerating them — the mnemonic counterpart to the verb Cheatsheet's grammar rules.
@@ -91,11 +99,11 @@ A [Verb sentence quiz] run whose verb and noun pools are drawn from the learner'
 _Avoid_: review mode, weak-verb quiz
 
 **Principal parts** (Stammformen):
-A verb's citation set — infinitive, third-person-singular Präteritum, Partizip II, and the perfect-tense auxiliary (*haben*/*sein*) — learned and recalled as one unit. The **Principal parts** drill tests the whole set for a verb at once and counts a card correct only when every part is right; it is practice-only and records no [Run]. Distinct from the conjugation drill, which fills all six person-forms of a chosen tense.
+A verb's citation set — infinitive, third-person-singular Präteritum, Partizip II, and the perfect-tense auxiliary (*haben*/*sein*) — learned and recalled as one unit. The **Principal parts** drill tests the whole set for a verb at once and counts a card correct only when every part is right. Distinct from the conjugation drill, which fills all six person-forms of a chosen tense.
 _Avoid_: principal forms, base forms, stem forms; conjugation (the six-form drill)
 
 **Verb case government** (Rektion):
-The grammatical case a verb requires of its object — `accusative` (the default), `dative` (*helfen*, *danken*), `dative + accusative` (ditransitive, *geben*), `genitive` (rare, *gedenken*), a reflexive pronoun (*sich freuen*), or none (intransitive). The **Verb case government** drill shows a verb and the learner identifies which case it governs; practice-only, records no [Run]. Verbs whose governed case varies by meaning are excluded from the drill.
+The grammatical case a verb requires of its object — `accusative` (the default), `dative` (*helfen*, *danken*), `dative + accusative` (ditransitive, *geben*), `genitive` (rare, *gedenken*), a reflexive pronoun (*sich freuen*), or none (intransitive). The **Verb case government** drill shows a verb and the learner identifies which case it governs. Verbs whose governed case varies by meaning are excluded from the drill.
 _Avoid_: valency, government, case selection
 
 ### Vocabulary forms
@@ -119,5 +127,5 @@ The normalized form of a User's name — trimmed, lower-cased, inner whitespace 
 _Avoid_: slug, id, handle
 
 **Run**:
-One completed quiz, recorded in history with its score, timing, settings, and (for some quiz types) per-item detail. The unit the History page lists and the stats aggregate over. A retry round of only the wrong items is practice, not a Run, and is never recorded.
+One completed quiz, recorded in history with its score, timing, settings, and (for some quiz types) per-item detail. The unit the History page lists and the stats aggregate over. Recorded only when online — a quiz finished offline is silently unrecorded practice. A retry round of only the wrong items is practice, not a Run, and is never recorded.
 _Avoid_: session, attempt, entry
