@@ -10,6 +10,12 @@ history, stats, and weak-point coverage across all drills is now worth re-coupli
 drills to the history cache ([ADR-0006](0006-sync-reactive-history-cache.md)), while a queue-and-sync
 outbox remains unjustified complexity.
 
+**Reality note (2026-07-23):** ADR-0005/0006 (Supabase history) are accepted but **not yet
+implemented** — `saveQuizRun` writes to device-local `localStorage`, which works offline. Until the
+Supabase migration lands, every completed drill records locally regardless of connectivity; the
+"insert online, skip silently offline" rule of this ADR binds the future remote backend, not the
+current store.
+
 ## Consequences
 
 - ADR-0007's *unrecorded* decision is superseded; its offline-first deterministic design (local
