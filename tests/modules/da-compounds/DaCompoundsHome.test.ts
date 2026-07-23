@@ -10,6 +10,7 @@ async function mountHome() {
       { path: '/da-compounds', name: 'dacompounds', component: { template: '<div />' } },
       { path: '/da-compounds/cheatsheet', name: 'dacompounds-cheatsheet', component: { template: '<div />' } },
       { path: '/da-compounds/formation', name: 'dacompounds-formation', component: { template: '<div />' } },
+      { path: '/da-compounds/match', name: 'dacompounds-match', component: { template: '<div />' } },
       { path: '/da-compounds/substitution', name: 'dacompounds-substitution', component: { template: '<div />' } },
       { path: '/da-compounds/neighbors', name: 'dacompounds-neighbors', component: { template: '<div />' } },
     ],
@@ -49,6 +50,17 @@ describe('DaCompoundsHome', () => {
     await card.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('dacompounds-formation')
+  })
+
+  it('shows the T2 matching card right after T1 in Formation basics and navigates to it on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const groupCards = wrapper.findAll('.module-grid')[0].findAll('.module-card')
+    expect(groupCards).toHaveLength(2)
+    expect(groupCards[0].text()).toContain('da- or dar-?')
+    expect(groupCards[1].text()).toContain('Matching')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-match')
   })
 
   it('still shows the cheatsheet card in the Reference group and navigates to it on click', async () => {

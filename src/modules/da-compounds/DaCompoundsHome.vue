@@ -28,6 +28,11 @@ const groups: Group[] = [
         title: 'da- or dar-?', de: 'Bildung',
         desc: 'Speed round: da-, dar-, or no compound at all — including the trap prepositions (*darohne).',
       },
+      {
+        numeral: 'T2', route: 'dacompounds-match',
+        title: 'Matching', de: 'Zuordnung',
+        desc: 'Tap a word, then its da-compound — pair every collocation on the screen. Each screen mixes prepositions so no two right-side chips ever match.',
+      },
     ],
   },
   {
