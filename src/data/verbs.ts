@@ -4812,7 +4812,7 @@ export const VERBS: readonly Verb[] = [
     german: "anwenden",
     english: "apply / use",
     level: "B2.1",
-    type: "mixed",
+    type: "separable",
     case: "accusative",
     auxiliary: "haben",
     separablePrefix: "an",
