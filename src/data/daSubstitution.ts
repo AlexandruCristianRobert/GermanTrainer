@@ -197,13 +197,13 @@ export const DA_SUBSTITUTION: SubstitutionItem[] = [
     stem: 'Auch der Film handelt genau ___.' },
   { id: 'sub-rechnen-mit', collocationId: 'rechnen-mit', level: 'B2',
     context: 'Wir rechnen am Abend mit Regen.',
-    stem: 'Ehrlich gesagt hatte niemand ___ gerechnet.' },
+    stem: 'Bei diesem Himmel muss man einfach ___ rechnen.' },
   { id: 'sub-umgehen-mit', collocationId: 'umgehen-mit', level: 'B2',
     context: 'Sie geht sehr sorgsam mit dem alten Buch um.',
     stem: 'Man muss immer vorsichtig ___ umgehen.' },
   { id: 'sub-drohen-mit', collocationId: 'drohen-mit', level: 'B2',
     context: 'Die Firma droht mit einer Klage.',
-    stem: 'Am Ende hat sie tatsächlich ___ gedroht.' },
+    stem: 'Schon im letzten Jahr hatte sie einmal ___ gedroht.' },
   { id: 'sub-warnen-vor', collocationId: 'warnen-vor', level: 'B2',
     context: 'Die Polizei warnt vor dem Glatteis.',
     stem: 'Im Radio wurde schon früh ___ gewarnt.' },
@@ -273,7 +273,7 @@ export const DA_SUBSTITUTION: SubstitutionItem[] = [
     context: 'Sie zeigt großes Interesse an Kunst.',
     stem: 'Ihr Interesse ___ wächst ständig weiter.' },
   { id: 'sub-der-traum-von', collocationId: 'der-traum-von', level: 'B2',
-    context: 'Der Traum von einem eigenen Haus wird wahr.',
+    context: 'Viele junge Familien haben den Traum von einem eigenen Haus.',
     stem: 'Der Traum ___ hält die junge Familie am Leben.' },
   { id: 'sub-die-nachfrage-nach', collocationId: 'die-nachfrage-nach', level: 'B2',
     context: 'Die Nachfrage nach kleinen Wohnungen steigt.',
@@ -286,7 +286,7 @@ export const DA_SUBSTITUTION: SubstitutionItem[] = [
     stem: 'Die Warnung ___ kam gerade noch rechtzeitig.' },
   { id: 'sub-der-respekt-vor', collocationId: 'der-respekt-vor', level: 'B2',
     context: 'Er hat großen Respekt vor der schweren Aufgabe.',
-    stem: 'Diesen Respekt ___ hat er nie verloren.' },
+    stem: 'Den Respekt ___ hat er bis heute nicht verloren.' },
 
   // ─────────────────────────────── C1 ───────────────────────────────
   // verbs

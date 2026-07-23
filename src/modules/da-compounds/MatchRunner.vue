@@ -442,7 +442,7 @@ function restart() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
+  min-height: 44px;
   padding: 8px 14px;
   font-family: var(--font-mono);
   font-size: 14px;

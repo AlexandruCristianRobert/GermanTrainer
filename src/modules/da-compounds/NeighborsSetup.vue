@@ -84,7 +84,7 @@ function start() {
         <p class="section-subtitle">
           Same gap-fill sentences, harder options: every choice is a da-compound of one of
           the governing preposition's near neighbors (e.g. warten auf → darauf, competing
-          with daran / darüber / davon) — the mix-ups that actually happen in speech.
+          with daran / darüber / darum) — the mix-ups that actually happen in speech.
         </p>
       </div>
     </header>

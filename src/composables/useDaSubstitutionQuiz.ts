@@ -82,20 +82,37 @@ export interface SubstitutionQuizOpts {
  * compoundable preposition's compound when the pool is too thin (<4 distinct
  * compounds total) to supply 3 distinct distractors on its own.
  */
-function randomDistractorCandidates(pool: JoinedItem[], answer: string): string[] {
-  const poolCompounds = Array.from(new Set(pool.map(ji => substitutionAnswer(ji.item))))
-  if (poolCompounds.length >= 4) return poolCompounds.filter(c => c !== answer)
-  return Array.from(new Set(DA_COMPOUND_PREPOSITIONS.map(e => daCompound(e.preposition))))
-    .filter(c => c !== answer)
+/**
+ * Every compound the collocation dataset itself grades as correct: the primary
+ * preposition's plus any `alsoAccept` alternative's (das Interesse an ≈ für →
+ * daran AND dafür are right). None of these may ever appear as a "distractor",
+ * and type mode must accept them all — same semantics as the Fixed-preps drill.
+ */
+function acceptedCompounds(colloc: Collocation): string[] {
+  return [daCompound(colloc.preposition), ...(colloc.alsoAccept ?? []).map(a => daCompound(a.preposition))]
 }
 
-/** Always 4 options, shuffled, the answer included exactly once. */
+const ALL_COMPOUNDS = Array.from(new Set(DA_COMPOUND_PREPOSITIONS.map(e => daCompound(e.preposition))))
+
+function randomDistractorCandidates(pool: JoinedItem[], accepted: string[]): string[] {
+  const poolCompounds = Array.from(new Set(pool.map(ji => substitutionAnswer(ji.item))))
+    .filter(c => !accepted.includes(c))
+  if (poolCompounds.length >= 3) return poolCompounds
+  return ALL_COMPOUNDS.filter(c => !accepted.includes(c))
+}
+
+/** Always 4 options, shuffled, the answer included exactly once, no accepted alternative among them. */
 function buildOptions(target: JoinedItem, pool: JoinedItem[], strategy: DistractorStrategy): string[] {
   const answer = substitutionAnswer(target.item)
-  const distractors = strategy === 'neighbors'
-    ? (NEIGHBOR_PREPS[target.colloc.preposition] ?? []).map(daCompound)
-    : shuffle(randomDistractorCandidates(pool, answer), 3)
-  return shuffle([answer, ...distractors])
+  const accepted = acceptedCompounds(target.colloc)
+  let distractors = strategy === 'neighbors'
+    ? (NEIGHBOR_PREPS[target.colloc.preposition] ?? []).map(daCompound).filter(c => !accepted.includes(c))
+    : shuffle(randomDistractorCandidates(pool, accepted), 3)
+  if (distractors.length < 3) {
+    const topUp = shuffle(ALL_COMPOUNDS.filter(c => !accepted.includes(c) && !distractors.includes(c)))
+    distractors = [...distractors, ...topUp].slice(0, 3)
+  }
+  return shuffle([answer, ...distractors.slice(0, 3)])
 }
 
 export interface SubstitutionQuestion extends JoinedItem {
@@ -134,12 +151,12 @@ export function useDaSubstitutionQuiz(items: JoinedItem[], opts: SubstitutionQui
     q.isCorrect = option === q.answer
   }
 
-  /** Type mode: grade the typed text with the shared umlaut-folding grader. */
+  /** Type mode: umlaut-folding grader; alsoAccept alternatives count as correct. */
   function submitText(input: string): void {
     const q = questions.value[currentIndex.value]
     if (!q || q.isCorrect !== null) return
     q.typed = input
-    q.isCorrect = checkText(input, q.answer)
+    q.isCorrect = checkText(input, q.answer, acceptedCompounds(q.colloc).slice(1))
   }
 
   function advance(): void {

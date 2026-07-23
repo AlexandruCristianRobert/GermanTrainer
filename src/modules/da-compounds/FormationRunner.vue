@@ -7,6 +7,19 @@ import { shuffle } from '../../data/pool'
 import { useBreakpoint } from '../../composables/useBreakpoint'
 import RetryModal from '../../components/RetryModal.vue'
 
+// The natural anaphor per no-compound trap — "Präposition + Pronomen" would
+// mislead for the genitive/temporal traps (*wegen es; the anaphor is deswegen).
+const TRAP_WORKAROUND: Record<string, string> = {
+  ohne: 'ohne es',
+  seit: 'seitdem',
+  außer: 'außer diesem',
+  gegenüber: 'dem gegenüber',
+  während: 'währenddessen',
+  wegen: 'deswegen',
+  trotz: 'trotzdem',
+  statt: 'stattdessen',
+}
+
 const CHOICE_BUTTONS: { value: FormationChoice; label: string }[] = [
   { value: 'da',   label: 'da-' },
   { value: 'dar',  label: 'dar-' },
@@ -249,7 +262,7 @@ function choiceLabel(c: FormationChoice): string {
       <!-- Prompt card -->
       <div class="fr-prompt">
         <div class="fr-preposition">{{ current.preposition }}</div>
-        <div class="fr-ask">da-, dar-, oder keine Bildung<em>?</em></div>
+        <div class="fr-ask">da-, dar- oder keine Bildung<em>?</em></div>
       </div>
 
       <!-- Three fixed choice buttons -->
@@ -285,12 +298,12 @@ function choiceLabel(c: FormationChoice): string {
         </template>
         <template v-else>
           <span v-if="currentIsCorrect" class="fr-feedback-mark fr-feedback-ok">
-            ✓ Richtig — bildet keine Zusammensetzung —
+            ✓ Richtig — bildet keine Zusammensetzung
           </span>
           <span v-else class="fr-feedback-mark fr-feedback-bad">
-            ✗ Korrekt: bildet keine Zusammensetzung —
+            ✗ Korrekt: bildet keine Zusammensetzung
           </span>
-          <p class="fr-notes">Präposition + Pronomen: ohne es</p>
+          <p class="fr-notes">Stattdessen: {{ TRAP_WORKAROUND[current.preposition] ?? 'Präposition + Pronomen' }}</p>
         </template>
         <button
           ref="nextBtnRef"
