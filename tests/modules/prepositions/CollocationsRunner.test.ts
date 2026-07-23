@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import CollocationsRunner from '../../../src/modules/prepositions/CollocationsRunner.vue'
@@ -8,6 +8,11 @@ import { prepSlug } from '../../../src/data/prepColors'
 vi.mock('../../../src/composables/useBreakpoint', () => ({
   useBreakpoint: () => ({ isMobile: { value: false } }),
 }))
+
+vi.mock('../../../src/composables/useQuizHistory', () => ({
+  saveQuizRun: vi.fn(),
+}))
+import { saveQuizRun } from '../../../src/composables/useQuizHistory'
 
 function makeRouter() {
   return createRouter({
@@ -341,6 +346,43 @@ describe('CollocationsRunner — color hint', () => {
     // … and confirm it was the governed preposition's hue all along.
     const slug = prepSlug(wrapper.find('.prep-accent-text').text())
     expect(preStyle).toContain(`--prep-accent: var(--prep-${slug})`)
+    wrapper.unmount()
+  })
+})
+
+describe('CollocationsRunner — history recording (ADR-0010)', () => {
+  beforeEach(() => { vi.mocked(saveQuizRun).mockClear() })
+
+  async function completeOneCardWrong(wrapper: Awaited<ReturnType<typeof mountRunner>>['wrapper']) {
+    await wrapper.find('.input-prep').setValue('xxx')          // guaranteed-wrong preposition
+    const akk = wrapper.findAll('button').find(b => b.text() === 'Akkusativ')
+    await akk!.trigger('click')
+    const submit = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
+    await submit!.trigger('click')
+    const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
+    await finish!.trigger('click')
+  }
+
+  it('records exactly one Run when the main round finishes', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1', retype: '0' })
+    await completeOneCardWrong(wrapper)
+    expect(saveQuizRun).toHaveBeenCalledTimes(1)
+    expect(saveQuizRun).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'prep-collocations',
+      count: 1,
+      correct: 0,
+      meta: expect.objectContaining({ levels: ['B1'], roles: ['verb'] }),
+    }))
+    wrapper.unmount()
+  })
+
+  it('does not record the retry round', async () => {
+    const { wrapper } = await mountRunner({ levels: 'B1', roles: 'verb', count: '1', retype: '0' })
+    await completeOneCardWrong(wrapper)
+    const retryBtn = wrapper.findAll('button').find(b => b.text().startsWith('Retry'))
+    await retryBtn!.trigger('click')                            // start retry round
+    await completeOneCardWrong(wrapper)                        // finish retry round
+    expect(saveQuizRun).toHaveBeenCalledTimes(1)               // still only the main round
     wrapper.unmount()
   })
 })
