@@ -18,6 +18,7 @@ async function mountHome() {
       { path: '/da-compounds/article', name: 'dacompounds-article', component: { template: '<div />' } },
       { path: '/da-compounds/transform', name: 'dacompounds-transform', component: { template: '<div />' } },
       { path: '/da-compounds/wo-question', name: 'dacompounds-wo-question', component: { template: '<div />' } },
+      { path: '/da-compounds/dialogue', name: 'dacompounds-dialogue', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -42,7 +43,7 @@ describe('DaCompoundsHome', () => {
     const { wrapper, router } = await mountHome()
     const group = wrapper.findAll('.module-grid')[3]
     const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(2)
+    expect(groupCards).toHaveLength(3)
     expect(groupCards[0].text()).toContain('Thing or person?')
     await groupCards[0].trigger('click')
     await flushPromises()
@@ -53,11 +54,22 @@ describe('DaCompoundsHome', () => {
     const { wrapper, router } = await mountHome()
     const group = wrapper.findAll('.module-grid')[3]
     const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(2)
+    expect(groupCards).toHaveLength(3)
     expect(groupCards[1].text()).toContain('Wo-questions')
     await groupCards[1].trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('dacompounds-wo-question')
+  })
+
+  it('shows the T10 dialogue card in the People vs things group right after T9 and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[3]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(3)
+    expect(groupCards[2].text()).toContain('Dialogue')
+    await groupCards[2].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-dialogue')
   })
 
   it('shows the T5 case-pick card in the Case tests group and navigates on click', async () => {

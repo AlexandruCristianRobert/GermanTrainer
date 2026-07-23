@@ -86,6 +86,11 @@ const groups: Group[] = [
         title: 'Wo-questions', de: 'W-Fragen',
         desc: 'A statement uses a collocation, its object left unflagged — decide for yourself: ask about a THING with a wo-compound, a PERSON with Präposition + wen/wem.',
       },
+      {
+        numeral: 'T10', route: 'dacompounds-dialogue',
+        title: 'Dialogue', de: 'Dialog',
+        desc: 'The full pairing: a wo-question opens (Worauf wartest du?) and the reply answers with the da-compound as Korrelat (Ich warte darauf, dass …). Both gaps, one card.',
+      },
     ],
   },
   {
