@@ -107,6 +107,11 @@ const groups: Group[] = [
         title: 'Paraphrase', de: 'Umformung',
         desc: 'The same idea two ways: a noun-phrase sentence needs the bare preposition, its clause paraphrase needs the da-compound Korrelat. Fill both gaps — the card only counts once both are right.',
       },
+      {
+        numeral: 'T13', route: 'dacompounds-contrast',
+        title: 'Meaning contrast', de: 'auf oder über?',
+        desc: 'One verb, competing prepositions, different meanings: sich freuen auf (ahead) vs. über (at hand), leiden an vs. unter, bestehen auf vs. aus. The sentence forces exactly one reading.',
+      },
     ],
   },
   {

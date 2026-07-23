@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.12.5'
+export const APP_VERSION = '1.12.6'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.6', date: '2026-07-23', kind: 'polish',
+    title: 'Da-Compounds · Korrelat, the B2 flagship',
+    notes: [
+      '<strong>Three drills on the pointing compound.</strong> <em>T11 Korrelat</em> — darauf, dass …: obligatory for some verbs (<em>Er besteht darauf, dass …</em>), optional for others, and plain wrong for <em>wissen/glauben/sagen</em> — the "— kein Korrelat" option keeps you honest, and optional verbs accept both readings. <em>T12 Paraphrase</em> — the same thought twice: <em>um die Einhaltung des Termins</em> ↔ <em>darum, dass der Termin eingehalten wird</em>. <em>T13 Meaning contrast</em> — one verb, two prepositions, different meanings: <em>freuen auf</em> (ahead) vs. <em>über</em> (at hand), <em>leiden an</em> vs. <em>unter</em>, <em>bestehen auf</em> vs. <em>aus</em>.',
+      '<strong>120+ new hand-written items</strong> with derived answers and a reveal that always explains the rule — every T11 sentence was checked to read naturally exactly as its status claims (with, with-or-without, or only without the compound).'
+    ]
+  },
   {
     version: '1.12.5', date: '2026-07-23', kind: 'polish',
     title: 'Da-Compounds · people vs. things',
