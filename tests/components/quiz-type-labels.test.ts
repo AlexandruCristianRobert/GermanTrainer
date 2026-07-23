@@ -35,4 +35,16 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPE_LABEL['dac-article']).toBe('Da-compounds · article fill')
     expect(QUIZ_TYPE_DE['dac-article']).toBe('Da-Compounds · Artikel')
   })
+
+  it('includes the three people-vs-things Da-Compounds drill types with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dac-transform')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-wo-question')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-dialogue')
+    expect(QUIZ_TYPE_LABEL['dac-transform']).toBe('Da-compounds · thing or person')
+    expect(QUIZ_TYPE_DE['dac-transform']).toBe('Da-Compounds · Sache oder Person')
+    expect(QUIZ_TYPE_LABEL['dac-wo-question']).toBe('Da-compounds · wo-questions')
+    expect(QUIZ_TYPE_DE['dac-wo-question']).toBe('Da-Compounds · W-Fragen')
+    expect(QUIZ_TYPE_LABEL['dac-dialogue']).toBe('Da-compounds · dialogue')
+    expect(QUIZ_TYPE_DE['dac-dialogue']).toBe('Da-Compounds · Dialog')
+  })
 })

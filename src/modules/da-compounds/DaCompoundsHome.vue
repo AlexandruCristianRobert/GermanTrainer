@@ -73,6 +73,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'People vs things',
+    de: 'Sache oder Person',
+    cards: [
+      {
+        numeral: 'T8', route: 'dacompounds-transform',
+        title: 'Thing or person?', de: 'Sache oder Person',
+        desc: 'A sentence uses a fixed-preposition collocation — replace the object: a THING becomes a da-compound, a PERSON becomes Präposition + Personalpronomen.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
