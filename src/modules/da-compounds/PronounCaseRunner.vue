@@ -365,7 +365,7 @@ function caseName(c: CollocationCase): string {
 
       <div class="sub-hint micro-mark">
         <template v-if="!submitted && modeUsed === 'pick' && !isMobile">
-          Press <span class="kbd">1</span>–<span class="kbd">3</span> to choose
+          Press <span class="kbd">1</span>–<span class="kbd">{{ current.options?.length ?? 3 }}</span> to choose
         </template>
         <template v-else-if="!submitted && modeUsed === 'pick'">Tap a choice</template>
         <template v-else-if="submitted">
