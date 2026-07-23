@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.33'
+export const APP_VERSION = '1.11.34'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.34', date: '2026-07-23', kind: 'polish',
+    title: 'Verbs · new level B2.2 — 200 more verbs',
+    notes: [
+      '<strong>The verb pool grows by more than half: 378 → 578.</strong> The old <em>B2</em> level is now called <em>B2.1</em> (same 169 verbs, untouched), and a new <em>B2.2</em> level adds the 200 most frequent German verbs that weren\'t in the pool yet — including surprisingly common ones the hand-picked levels had skipped (<em>lassen, zeigen, halten, bekommen, tun…</em>). The order comes from a published corpus ranking (UD German-HDT), not gut feeling, and the ranking ships in the repo so future batches continue where this one stopped.',
+      '<strong>Everywhere verbs are filtered by level</strong> — translation, conjugation, sentence quiz, principal parts, case government, the verb list — you\'ll find the two new chips. A saved <em>B2</em> selection automatically becomes <em>B2.1</em>, so your drills keep the exact pool you chose; the AI quizzes keep speaking plain CEFR (<em>B2</em>) behind the scenes.',
+      '<strong>Every new entry is full-fat and hand-checked:</strong> six Präsens forms, Präteritum, Partizip II, auxiliary, governed case, crossword-style hint — irregular forms verified against Wiktionary, and a new automated invariant suite now guards the whole 578-verb dataset (it already caught real slips while the batch was being written).'
+    ]
+  },
   {
     version: '1.11.33', date: '2026-07-19', kind: 'polish',
     title: 'Fixed prepositions · color hint before you answer',
