@@ -71,6 +71,14 @@ const modules: ModuleCard[] = [
   },
   {
     numeral: 'VIII',
+    route: 'dacompounds',
+    de: 'Pronominaladverbien',
+    title: 'Da-Compounds',
+    desc: 'dafür, darauf, davon — build them, pick their case, spot when a person needs a pronoun instead.',
+    meta: 'Cheatsheet live · drills arriving in phases'
+  },
+  {
+    numeral: 'IX',
     route: 'settings',
     de: 'Einstellungen',
     title: 'Settings',
@@ -93,7 +101,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/VIII</div>
+        <div class="breadcrumb">Frontispiece · I/IX</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,
