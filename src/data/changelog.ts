@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.12.3'
+export const APP_VERSION = '1.12.4'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.4', date: '2026-07-23', kind: 'polish',
+    title: 'Da-Compounds · the case family',
+    notes: [
+      '<strong>Three case drills join the module.</strong> <em>T5 Case pick</em> — a sentence carries the compound (<em>Ich warte darauf</em>); you name the hidden preposition\'s case. <em>T6 Pronoun case</em> — people don\'t take da-compounds: type or choose <em>auf ihn</em>, not <em>*auf ihm</em>. <em>T7 Article fill</em> — two-way prepositions in verb objects: <em>an ein___ Projekt</em> → <em>einem</em>, because <em>arbeiten an</em> is one of the dative exceptions.',
+      '<strong>Answers are derived, never hand-typed:</strong> 100+ new authored sentences carry only the situation; pronoun and article forms come from declension tables joined to the collocation\'s stored case — so a grading disagreement is impossible by construction.'
+    ]
+  },
   {
     version: '1.12.3', date: '2026-07-23', kind: 'polish',
     title: 'Da-Compounds · the first four drills',

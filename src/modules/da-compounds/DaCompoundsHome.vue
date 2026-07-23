@@ -65,6 +65,11 @@ const groups: Group[] = [
         title: 'Pronoun case', de: 'Pronomen',
         desc: 'The object is a PERSON, not a thing — no da-compound applies. Pick or type the correctly declined Präposition + Personalpronomen.',
       },
+      {
+        numeral: 'T7', route: 'dacompounds-article',
+        title: 'Article fill', de: 'Artikel',
+        desc: 'Two-way prepositions in verb objects mostly take Akkusativ — except a handful of Dativ verbs like arbeiten an. Type the full declined article.',
+      },
     ],
   },
   {
