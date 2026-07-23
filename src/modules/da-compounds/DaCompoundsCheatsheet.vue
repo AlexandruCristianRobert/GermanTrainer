@@ -177,7 +177,7 @@ function onSelect(id: string) {
   margin: 0 auto;
   align-items: start;
 }
-.grammatik-main { max-width: 720px; }
+.grammatik-main { max-width: 720px; min-width: 0; }
 
 .chapter {
   position: relative;
