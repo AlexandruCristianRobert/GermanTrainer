@@ -20,6 +20,38 @@ interface Group {
 // Drill cards arrive family by family (spec §7 phases); Phase 1 ships the reference.
 const groups: Group[] = [
   {
+    heading: 'Formation basics',
+    de: 'Bildung',
+    cards: [
+      {
+        numeral: 'T1', route: 'dacompounds-formation',
+        title: 'da- or dar-?', de: 'Bildung',
+        desc: 'Speed round: da-, dar-, or no compound at all — including the trap prepositions (*darohne).',
+      },
+      {
+        numeral: 'T2', route: 'dacompounds-match',
+        title: 'Matching', de: 'Zuordnung',
+        desc: 'Tap a word, then its da-compound — pair every collocation on the screen. Each screen mixes prepositions so no two right-side chips ever match.',
+      },
+    ],
+  },
+  {
+    heading: 'Compound recall',
+    de: 'Einsetzen',
+    cards: [
+      {
+        numeral: 'T3', route: 'dacompounds-substitution',
+        title: 'Gap-fill', de: 'Lückentext',
+        desc: 'A context sentence uses a fixed-preposition collocation; fill the gap in the follow-up with the right da-compound — pick from options or type it yourself.',
+      },
+      {
+        numeral: 'T4', route: 'dacompounds-neighbors',
+        title: 'Near neighbors', de: 'Verwechslungsgefahr',
+        desc: 'Same gap-fill, harder options: choose the right da-compound among its near-neighbor prepositions — the mix-ups that actually happen in speech.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [

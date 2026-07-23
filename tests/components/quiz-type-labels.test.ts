@@ -16,4 +16,11 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPES_ORDER).toContain('verb-stammformen')
     expect(QUIZ_TYPES_ORDER).toContain('verb-case-government')
   })
+
+  it('includes the four Da-Compounds drill types', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dac-formation')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-match')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-substitution')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-neighbors')
+  })
 })

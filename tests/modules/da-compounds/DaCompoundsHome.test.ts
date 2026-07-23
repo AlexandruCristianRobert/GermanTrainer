@@ -9,6 +9,10 @@ async function mountHome() {
     routes: [
       { path: '/da-compounds', name: 'dacompounds', component: { template: '<div />' } },
       { path: '/da-compounds/cheatsheet', name: 'dacompounds-cheatsheet', component: { template: '<div />' } },
+      { path: '/da-compounds/formation', name: 'dacompounds-formation', component: { template: '<div />' } },
+      { path: '/da-compounds/match', name: 'dacompounds-match', component: { template: '<div />' } },
+      { path: '/da-compounds/substitution', name: 'dacompounds-substitution', component: { template: '<div />' } },
+      { path: '/da-compounds/neighbors', name: 'dacompounds-neighbors', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -18,17 +22,53 @@ async function mountHome() {
 }
 
 describe('DaCompoundsHome', () => {
-  it('renders the module header and the Reference section', async () => {
+  it('renders the module header, the Formation basics, Compound recall, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
-    expect(wrapper.find('.group-heading').text()).toContain('Reference')
+    const headings = wrapper.findAll('.group-heading').map(h => h.text())
+    expect(headings[0]).toContain('Formation basics')
+    expect(headings[1]).toContain('Compound recall')
+    expect(headings[2]).toContain('Reference')
   })
 
-  it('shows the cheatsheet card and navigates to it on click', async () => {
+  it('shows the T3 and T4 cards in the Compound recall group and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const cards = wrapper.findAll('.module-card')
+    const gapFillCard = cards.find(c => c.text().includes('Gap-fill'))
+    const neighborsCard = cards.find(c => c.text().includes('Near neighbors'))
+    expect(gapFillCard).toBeTruthy()
+    expect(neighborsCard).toBeTruthy()
+    await gapFillCard!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-substitution')
+  })
+
+  it('shows the T1 formation card first and navigates to it on click', async () => {
     const { wrapper, router } = await mountHome()
     const card = wrapper.find('.module-card')
-    expect(card.text()).toContain('Cheatsheet')
+    expect(card.text()).toContain('da- or dar-?')
     await card.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-formation')
+  })
+
+  it('shows the T2 matching card right after T1 in Formation basics and navigates to it on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const groupCards = wrapper.findAll('.module-grid')[0].findAll('.module-card')
+    expect(groupCards).toHaveLength(2)
+    expect(groupCards[0].text()).toContain('da- or dar-?')
+    expect(groupCards[1].text()).toContain('Matching')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-match')
+  })
+
+  it('still shows the cheatsheet card in the Reference group and navigates to it on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const cards = wrapper.findAll('.module-card')
+    const cheatsheetCard = cards.find(c => c.text().includes('Cheatsheet'))
+    expect(cheatsheetCard).toBeTruthy()
+    await cheatsheetCard!.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('dacompounds-cheatsheet')
   })

@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.12.2'
+export const APP_VERSION = '1.12.3'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.3', date: '2026-07-23', kind: 'polish',
+    title: 'Da-Compounds · the first four drills',
+    notes: [
+      '<strong>Four drills open the module.</strong> <em>T1 da- or dar-?</em> — a speed round on formation, traps included (<em>*darohne</em> doesn\'t exist). <em>T2 Matching</em> — pair verbs with their compound. <em>T3 Gap-fill</em> — replace the prepositional phrase anaphorically (<em>Sie freut sich ___</em> → <em>darüber</em>), choose-from-four or type-it modes. <em>T4 Near neighbors</em> — distractors picked to be confusable (<em>denken an / warten auf / sprechen über</em>).',
+      '<strong>90+ hand-written sentence pairs</strong> drive the gap-fill drills, each tied to a collocation from the Fixed prepositions dataset and guarded by automated invariants. Every drill records to History and filters by level, word type, and preposition.'
+    ]
+  },
   {
     version: '1.12.2', date: '2026-07-23', kind: 'module',
     title: 'Da-Compounds · a new module opens',
