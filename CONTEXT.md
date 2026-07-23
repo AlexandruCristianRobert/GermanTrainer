@@ -70,6 +70,10 @@ _Avoid_: practice mode, review quiz, custom quiz
 
 ### Verbs
 
+**Verb level**:
+A label naming one frequency-ordered batch of the verb pool (`A1`, `A2`, `B1`, `B2.1`, `B2.2`). Verbs are admitted by corpus frequency — each level is "the next most frequent verbs not yet in the pool", named for the CEFR stage it roughly serves, not an official CEFR classification; `B2.1` and `B2.2` are the first and second batches of the advanced pool.
+_Avoid_: CEFR level (the learner-assessment scale is separate), difficulty, tier
+
 **Verb sentence quiz**:
 An AI-generated EN→DE translation drill for verbs, the verb counterpart of the preposition sentence quiz. The learner picks a verb pool (level + type + governed case) and a noun theme; the app samples verbs, the AI writes an English+German sentence pair per item using 1–2 [Drilled verb]s and 1–2 [Assigned theme noun]s, the learner types the German, and the AI grades it. Distinct from the older word-level **Verb translation** (infinitive ↔ English) and **Verb conjugation** drills, which it does not replace.
 _Avoid_: verb translation (means the word-level drill), sentence builder
