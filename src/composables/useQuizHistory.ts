@@ -13,6 +13,10 @@ export type QuizHistoryType =
   | 'prep-article'
   | 'prep-two-way'
   | 'prep-collocations'
+  | 'dac-formation'
+  | 'dac-match'
+  | 'dac-substitution'
+  | 'dac-neighbors'
   | 'prep-sentence'
   | 'prep-remedial'
   | 'verb-sentence'
@@ -50,7 +54,8 @@ export interface VerbDrillItem {
 }
 
 export interface QuizHistoryMeta {
-  mode?: 'gender' | 'translation'
+  mode?: 'gender' | 'translation' | 'pick' | 'type'
+  preps?: string[]   // Da-compound drills: preposition filter
   groups?: string[]
   levels?: string[]
   types?: string[]

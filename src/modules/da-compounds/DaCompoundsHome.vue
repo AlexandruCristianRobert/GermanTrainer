@@ -20,6 +20,17 @@ interface Group {
 // Drill cards arrive family by family (spec §7 phases); Phase 1 ships the reference.
 const groups: Group[] = [
   {
+    heading: 'Formation basics',
+    de: 'Bildung',
+    cards: [
+      {
+        numeral: 'T1', route: 'dacompounds-formation',
+        title: 'da- or dar-?', de: 'Bildung',
+        desc: 'Speed round: da-, dar-, or no compound at all — including the trap prepositions (*darohne).',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [

@@ -47,6 +47,8 @@ const routes: RouteRecordRaw[] = [
   // because NavShell derives the active tab via name.split('-')[0].
   { path: '/da-compounds', name: 'dacompounds', component: () => import('./modules/da-compounds/DaCompoundsHome.vue') },
   { path: '/da-compounds/cheatsheet', name: 'dacompounds-cheatsheet', component: () => import('./modules/da-compounds/DaCompoundsCheatsheet.vue') },
+  { path: '/da-compounds/formation', name: 'dacompounds-formation', component: () => import('./modules/da-compounds/FormationSetup.vue') },
+  { path: '/da-compounds/formation/run', name: 'dacompounds-formation-run', component: () => import('./modules/da-compounds/FormationRunner.vue') },
   { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
   { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
   { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },
