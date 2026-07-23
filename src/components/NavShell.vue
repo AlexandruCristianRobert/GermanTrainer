@@ -22,6 +22,7 @@ const items: NavItem[] = [
   { route: 'adjectives', label: 'Adjectives', de: 'Adjektive' },
   { route: 'verbs', label: 'Verbs', de: 'Verben' },
   { route: 'prepositions', label: 'Prepositions', de: 'Präpositionen' },
+  { route: 'dacompounds', label: 'Da-Compounds', de: 'Pronominaladverbien' },
   { route: 'declension', label: 'Declension', de: 'Deklination' },
   { route: 'history', label: 'History', de: 'Verlauf' },
   { route: 'settings', label: 'Settings', de: 'Einstellungen' }

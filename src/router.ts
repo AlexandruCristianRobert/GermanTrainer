@@ -43,6 +43,10 @@ const routes: RouteRecordRaw[] = [
   { path: '/prepositions/collocations', name: 'prepositions-collocations', component: () => import('./modules/prepositions/CollocationsSetup.vue') },
   { path: '/prepositions/collocations/run', name: 'prepositions-collocations-run', component: () => import('./modules/prepositions/CollocationsRunner.vue') },
   { path: '/prepositions/cheatsheet', name: 'prepositions-cheatsheet', component: () => import('./modules/prepositions/PrepositionCheatsheet.vue') },
+  // Da-Compounds (Pronominaladverbien). Route names are hyphen-free ('dacompounds')
+  // because NavShell derives the active tab via name.split('-')[0].
+  { path: '/da-compounds', name: 'dacompounds', component: () => import('./modules/da-compounds/DaCompoundsHome.vue') },
+  { path: '/da-compounds/cheatsheet', name: 'dacompounds-cheatsheet', component: () => import('./modules/da-compounds/DaCompoundsCheatsheet.vue') },
   { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
   { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
   { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },

@@ -106,6 +106,9 @@ onUnmounted(() => observer?.disconnect())
   position: sticky;
   top: 24px;
   width: 240px;
+  /* As a grid item: never let the pill strip's intrinsic width blow out the
+     layout track on tablet/mobile (the list scrolls instead). */
+  min-width: 0;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
   font-size: 14px;
