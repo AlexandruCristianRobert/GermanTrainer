@@ -1,1 +1,0 @@
-function s(e){return e.trim().toLowerCase().replace(/\s+/g," ").replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")}function l(e,n,a){const t=s(e);return t.length===0?!1:!!n.split("/").map(r=>s(r)).some(r=>r===t)}export{l as c};

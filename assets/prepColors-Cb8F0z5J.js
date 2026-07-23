@@ -1,0 +1,1 @@
+const n={gegen:"gegen",vor:"vor",auf:"auf",über:"ueber",für:"fuer",mit:"mit",zu:"zu",nach:"nach",an:"an",von:"von",um:"um",in:"in",bei:"bei",aus:"aus",unter:"unter"};function u(e){return n[e]??null}function a(e){const r=u(e);return r?{"--prep-accent":`var(--prep-${r})`,"--prep-wash":`var(--prep-${r}-wash)`}:{}}export{a as p};
