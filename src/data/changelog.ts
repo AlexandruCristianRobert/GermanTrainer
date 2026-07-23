@@ -22,8 +22,8 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: '1.12.2', date: '2026-07-23', kind: 'module',
     title: 'Da-Compounds · a new module opens',
     notes: [
-      '<strong>Module IX: Da-Compounds (Pronominaladverbien).</strong> dafür, darauf, davon &amp; friends get their own home — reachable from the top nav and the front page. The drills arrive family by family over the coming releases; this one lays the foundation.',
-      '<strong>The cheatsheet is live.</strong> The full formation table (<em>da/dar</em> and <em>wo/wor</em> — the linking <em>-r-</em> only before a vowel), the prepositions that refuse to form compounds (<em>*daohne</em>), the things-vs-people rule (<em>darauf</em> vs. <em>auf ihn</em>), and which verbs demand, allow, or forbid a Korrelat (<em>Ich freue mich darauf, dass …</em>).'
+      '<strong>Module VIII: Da-Compounds (Pronominaladverbien).</strong> dafür, darauf, davon &amp; friends get their own home — reachable from the top nav and the front page. The drills arrive family by family over the coming releases; this one lays the foundation.',
+      '<strong>The cheatsheet is live.</strong> The full formation table (<em>da/dar</em> and <em>wo/wor</em> — the linking <em>-r-</em> only before a vowel), the prepositions that refuse to form compounds (<em>*darohne</em>), the things-vs-people rule (<em>darauf</em> vs. <em>auf ihn</em>), and which verbs demand, allow, or forbid a Korrelat (<em>Ich freue mich darauf, dass …</em>).'
     ]
   },
   {

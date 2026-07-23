@@ -89,6 +89,7 @@ describe('cheatsheet content', () => {
   })
 
   test('every obligatory Korrelat example actually contains a da-compound', () => {
-    for (const e of KORRELAT.obligatory) expect(e.example).toMatch(/\bda(r)?\w+/)
+    for (const e of KORRELAT.obligatory)
+      expect(e.example).toMatch(/\bda(r)?(an|auf|aus|bei|durch|für|gegen|hinter|in|mit|nach|neben|über|um|unter|von|vor|zu|zwischen)\b/i)
   })
 })

@@ -127,7 +127,7 @@ export const KORRELAT: {
   ],
   excluded: [
     { expression: 'wissen, dass — nie *darüber',      example: 'Ich weiß, dass du recht hast. (nicht: *Ich weiß darüber, dass …)' },
-    { expression: 'glauben, dass — nie *daran',       example: 'Ich glaube, dass es morgen regnet. (nicht: *Ich glaube daran, dass …)' },
+    { expression: 'glauben (= meinen), dass — kein Korrelat', example: 'Ich glaube, dass es morgen regnet. (aber: fest an etwas glauben → Ich glaube daran, dass …)' },
     { expression: 'sagen, dass — nie *darüber',       example: 'Er sagt, dass er müde ist.' },
     { expression: 'denken (= meinen), dass — nie *daran', example: 'Ich denke, dass das eine gute Idee ist.' },
   ],
