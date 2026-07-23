@@ -73,6 +73,27 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'People vs things',
+    de: 'Sache oder Person',
+    cards: [
+      {
+        numeral: 'T8', route: 'dacompounds-transform',
+        title: 'Thing or person?', de: 'Sache oder Person',
+        desc: 'A sentence uses a fixed-preposition collocation — replace the object: a THING becomes a da-compound, a PERSON becomes Präposition + Personalpronomen.',
+      },
+      {
+        numeral: 'T9', route: 'dacompounds-wo-question',
+        title: 'Wo-questions', de: 'W-Fragen',
+        desc: 'A statement uses a collocation, its object left unflagged — decide for yourself: ask about a THING with a wo-compound, a PERSON with Präposition + wen/wem.',
+      },
+      {
+        numeral: 'T10', route: 'dacompounds-dialogue',
+        title: 'Dialogue', de: 'Dialog',
+        desc: 'The full pairing: a wo-question opens (Worauf wartest du?) and the reply answers with the da-compound as Korrelat (Ich warte darauf, dass …). Both gaps, one card.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [

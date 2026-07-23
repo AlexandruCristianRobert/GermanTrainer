@@ -16,6 +16,9 @@ async function mountHome() {
       { path: '/da-compounds/case', name: 'dacompounds-case', component: { template: '<div />' } },
       { path: '/da-compounds/pronoun-case', name: 'dacompounds-pronoun-case', component: { template: '<div />' } },
       { path: '/da-compounds/article', name: 'dacompounds-article', component: { template: '<div />' } },
+      { path: '/da-compounds/transform', name: 'dacompounds-transform', component: { template: '<div />' } },
+      { path: '/da-compounds/wo-question', name: 'dacompounds-wo-question', component: { template: '<div />' } },
+      { path: '/da-compounds/dialogue', name: 'dacompounds-dialogue', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -25,14 +28,48 @@ async function mountHome() {
 }
 
 describe('DaCompoundsHome', () => {
-  it('renders the module header, the Formation basics, Compound recall, Case tests, and Reference groups', async () => {
+  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
     const headings = wrapper.findAll('.group-heading').map(h => h.text())
     expect(headings[0]).toContain('Formation basics')
     expect(headings[1]).toContain('Compound recall')
     expect(headings[2]).toContain('Case tests')
-    expect(headings[3]).toContain('Reference')
+    expect(headings[3]).toContain('People vs things')
+    expect(headings[4]).toContain('Reference')
+  })
+
+  it('shows the T8 transform card in the People vs things group and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[3]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(3)
+    expect(groupCards[0].text()).toContain('Thing or person?')
+    await groupCards[0].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-transform')
+  })
+
+  it('shows the T9 wo-question card in the People vs things group right after T8 and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[3]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(3)
+    expect(groupCards[1].text()).toContain('Wo-questions')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-wo-question')
+  })
+
+  it('shows the T10 dialogue card in the People vs things group right after T9 and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[3]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(3)
+    expect(groupCards[2].text()).toContain('Dialogue')
+    await groupCards[2].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-dialogue')
   })
 
   it('shows the T5 case-pick card in the Case tests group and navigates on click', async () => {

@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.12.4'
+export const APP_VERSION = '1.12.5'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.5', date: '2026-07-23', kind: 'polish',
+    title: 'Da-Compounds · people vs. things',
+    notes: [
+      '<strong>The signature rule gets its own family.</strong> <em>T8 Thing or person?</em> — replace the object: <em>an Karl</em> → <em>an ihn</em>, but <em>nach dem Preis</em> → <em>danach</em>; the options test the rule and the pronoun case at once. <em>T9 Wo-questions</em> — ask after it: <em>Wovor hast du Angst?</em> for things, <em>Auf wen wartest du?</em> for people. <em>T10 Dialogue</em> — the full pairing: <em>Worauf wartest du? — Ich warte darauf, dass …</em>',
+      '<strong>150+ new hand-written sentences</strong>, every answer derived from the collocation\'s stored preposition and case — with the Phase-3 lesson baked in as a permanent invariant: no card can ever pair <em>es</em> with an accusative preposition (<em>*auf es</em> is not German).'
+    ]
+  },
   {
     version: '1.12.4', date: '2026-07-23', kind: 'polish',
     title: 'Da-Compounds · the case family',
