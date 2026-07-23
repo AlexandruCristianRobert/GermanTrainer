@@ -23,6 +23,9 @@ export type QuizHistoryType =
   | 'dac-transform'
   | 'dac-wo-question'
   | 'dac-dialogue'
+  | 'dac-korrelat'
+  | 'dac-paraphrase'
+  | 'dac-contrast'
   | 'prep-sentence'
   | 'prep-remedial'
   | 'verb-sentence'
@@ -62,6 +65,7 @@ export interface VerbDrillItem {
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation' | 'pick' | 'type'
   preps?: string[]   // Da-compound drills: preposition filter
+  kinds?: string[]   // Da-compound Korrelat drill (T11): status filter (obligatory/optional/excluded)
   groups?: string[]
   levels?: string[]
   types?: string[]

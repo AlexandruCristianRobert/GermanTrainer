@@ -94,6 +94,27 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Korrelat & meaning',
+    de: 'Korrelat',
+    cards: [
+      {
+        numeral: 'T11', route: 'dacompounds-korrelat',
+        title: 'Korrelat', de: 'darauf, dass …',
+        desc: 'Before a dass-/ob-/w-/zu-clause: some verbs demand a da-compound, some make it optional, some forbid it outright. Pick the compound, or "kein Korrelat" when nothing belongs.',
+      },
+      {
+        numeral: 'T12', route: 'dacompounds-paraphrase',
+        title: 'Paraphrase', de: 'Umformung',
+        desc: 'The same idea two ways: a noun-phrase sentence needs the bare preposition, its clause paraphrase needs the da-compound Korrelat. Fill both gaps — the card only counts once both are right.',
+      },
+      {
+        numeral: 'T13', route: 'dacompounds-contrast',
+        title: 'Meaning contrast', de: 'auf oder über?',
+        desc: 'One verb, competing prepositions, different meanings: sich freuen auf (ahead) vs. über (at hand), leiden an vs. unter, bestehen auf vs. aus. The sentence forces exactly one reading.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [

@@ -19,6 +19,9 @@ async function mountHome() {
       { path: '/da-compounds/transform', name: 'dacompounds-transform', component: { template: '<div />' } },
       { path: '/da-compounds/wo-question', name: 'dacompounds-wo-question', component: { template: '<div />' } },
       { path: '/da-compounds/dialogue', name: 'dacompounds-dialogue', component: { template: '<div />' } },
+      { path: '/da-compounds/korrelat', name: 'dacompounds-korrelat', component: { template: '<div />' } },
+      { path: '/da-compounds/paraphrase', name: 'dacompounds-paraphrase', component: { template: '<div />' } },
+      { path: '/da-compounds/contrast', name: 'dacompounds-contrast', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -28,7 +31,7 @@ async function mountHome() {
 }
 
 describe('DaCompoundsHome', () => {
-  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, and Reference groups', async () => {
+  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
     const headings = wrapper.findAll('.group-heading').map(h => h.text())
@@ -36,7 +39,41 @@ describe('DaCompoundsHome', () => {
     expect(headings[1]).toContain('Compound recall')
     expect(headings[2]).toContain('Case tests')
     expect(headings[3]).toContain('People vs things')
-    expect(headings[4]).toContain('Reference')
+    expect(headings[4]).toContain('Korrelat & meaning')
+    expect(headings[5]).toContain('Reference')
+  })
+
+  it('shows the T11 Korrelat card in the Korrelat & meaning group and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[4]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(3)
+    expect(groupCards[0].text()).toContain('Korrelat')
+    await groupCards[0].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-korrelat')
+  })
+
+  it('shows the T12 paraphrase card in the Korrelat & meaning group right after T11 and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[4]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(3)
+    expect(groupCards[1].text()).toContain('Paraphrase')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-paraphrase')
+  })
+
+  it('shows the T13 meaning-contrast card in the Korrelat & meaning group right after T12 and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[4]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(3)
+    expect(groupCards[2].text()).toContain('Meaning contrast')
+    await groupCards[2].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-contrast')
   })
 
   it('shows the T8 transform card in the People vs things group and navigates on click', async () => {

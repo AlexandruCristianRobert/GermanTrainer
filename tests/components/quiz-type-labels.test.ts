@@ -47,4 +47,16 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPE_LABEL['dac-dialogue']).toBe('Da-compounds · dialogue')
     expect(QUIZ_TYPE_DE['dac-dialogue']).toBe('Da-Compounds · Dialog')
   })
+
+  it('includes the three Korrelat & meaning Da-Compounds drill types with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dac-korrelat')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-paraphrase')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-contrast')
+    expect(QUIZ_TYPE_LABEL['dac-korrelat']).toBe('Da-compounds · Korrelat')
+    expect(QUIZ_TYPE_DE['dac-korrelat']).toBe('Da-Compounds · Korrelat')
+    expect(QUIZ_TYPE_LABEL['dac-paraphrase']).toBe('Da-compounds · paraphrase')
+    expect(QUIZ_TYPE_DE['dac-paraphrase']).toBe('Da-Compounds · Umformung')
+    expect(QUIZ_TYPE_LABEL['dac-contrast']).toBe('Da-compounds · meaning contrast')
+    expect(QUIZ_TYPE_DE['dac-contrast']).toBe('Da-Compounds · Bedeutungskontrast')
+  })
 })
