@@ -87,6 +87,10 @@ describe('VERBS invariants', () => {
     }
   })
 
+  test('B2.2 contains exactly 200 verbs', () => {
+    expect(VERBS.filter(v => v.level === 'B2.2').length).toBe(200)
+  })
+
   test('verbs gaining an umlaut in er-form supply imperativDu explicitly', () => {
     // The engine derives du-imperatives from the er-form; a→ä / o→ö / au→äu
     // verbs would keep the umlaut ("*fähr!"/"*stöß!") unless imperativDu is
