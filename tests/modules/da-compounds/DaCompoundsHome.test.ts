@@ -20,6 +20,7 @@ async function mountHome() {
       { path: '/da-compounds/wo-question', name: 'dacompounds-wo-question', component: { template: '<div />' } },
       { path: '/da-compounds/dialogue', name: 'dacompounds-dialogue', component: { template: '<div />' } },
       { path: '/da-compounds/korrelat', name: 'dacompounds-korrelat', component: { template: '<div />' } },
+      { path: '/da-compounds/paraphrase', name: 'dacompounds-paraphrase', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -45,11 +46,22 @@ describe('DaCompoundsHome', () => {
     const { wrapper, router } = await mountHome()
     const group = wrapper.findAll('.module-grid')[4]
     const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(1)
+    expect(groupCards).toHaveLength(2)
     expect(groupCards[0].text()).toContain('Korrelat')
     await groupCards[0].trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('dacompounds-korrelat')
+  })
+
+  it('shows the T12 paraphrase card in the Korrelat & meaning group right after T11 and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[4]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(2)
+    expect(groupCards[1].text()).toContain('Paraphrase')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-paraphrase')
   })
 
   it('shows the T8 transform card in the People vs things group and navigates on click', async () => {
