@@ -1,0 +1,1 @@
+import{e as s}from"./verbs-BTOA9Xuy.js";import{c as a}from"./pool-Cxbj_MKy.js";const t=a(s,{levels:e=>e.level,types:e=>e.type,cases:e=>e.case});function f(){function e(){return t.all()}function l(r){return t.filter(r)}function o(r,n={}){return t.sample(r,n)}return{all:e,filter:l,sample:o}}export{f as u};
