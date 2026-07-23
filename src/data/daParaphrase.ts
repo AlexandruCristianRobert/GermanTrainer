@@ -186,5 +186,5 @@ export const DA_PARAPHRASE: ParaphraseItem[] = [
     clauseSentence: 'Alle tragen ___ bei, dass das Fest wirklich schön wird.' },
   { id: 'pp-fuehren-zu', collocationId: 'fuehren-zu', level: 'B2',
     nounSentence: 'Die vielen Fehler führen ___ einem großen Vertrauensverlust.',
-    clauseSentence: 'Die vielen Fehler führen ___, dass niemand mehr vertraut.' },
+    clauseSentence: 'Die vielen Fehler führen ___, dass viele das Vertrauen verlieren.' },
 ]

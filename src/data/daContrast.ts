@@ -119,9 +119,9 @@ export const DA_CONTRAST: ContrastItem[] = [
 
   // ─── kämpfen: für (cause) vs. gegen (enemy) vs. um (to win/keep) ───
   { id: 'ct-kaempfen-1', contrastKey: 'kaempfen', correct: 'für', level: 'B2',
-    sentence: 'Viele Menschen kämpfen weltweit ___ den Frieden.' },
+    sentence: 'Die Gewerkschaft kämpft seit Jahren ___ die Interessen der Beschäftigten.' },
   { id: 'ct-kaempfen-2', contrastKey: 'kaempfen', correct: 'für', level: 'B2',
-    sentence: 'Die Bürgerinitiative kämpft entschlossen ___ eine sauberere Umwelt.' },
+    sentence: 'Die Anwältin kämpft vor Gericht ___ ihren unschuldigen Mandanten.' },
   { id: 'ct-kaempfen-3', contrastKey: 'kaempfen', correct: 'gegen', level: 'B2',
     sentence: 'Die Feuerwehr kämpft die ganze Nacht ___ die lodernden Flammen.' },
   { id: 'ct-kaempfen-4', contrastKey: 'kaempfen', correct: 'gegen', level: 'B2',

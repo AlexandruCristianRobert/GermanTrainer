@@ -167,7 +167,7 @@ export const DA_KORRELAT: KorrelatItem[] = [
     sentence: 'Ich weiß ganz genau ___, dass du am Ende recht behalten wirst.',
     explanation: 'wissen nimmt einen reinen dass-Satz — kein Korrelat (nicht *darüber). / "wissen" takes a plain dass-clause; no Korrelat.' },
   { id: 'ko-glauben', korrelat: 'excluded', level: 'B1',
-    sentence: 'Ich glaube ehrlich gesagt ___, dass es morgen endlich wieder regnet.',
+    sentence: 'Ich glaube ehrlich gesagt ___, dass er gestern einfach keine Zeit hatte.',
     explanation: 'glauben (= meinen) nimmt einen reinen dass-Satz — kein Korrelat (anders als "an etwas glauben"). / "glauben" (= to think) takes a plain dass-clause; no Korrelat.' },
   { id: 'ko-sagen', korrelat: 'excluded', level: 'B1',
     sentence: 'Er sagt immer wieder ___, dass er einfach zu müde sei.',
