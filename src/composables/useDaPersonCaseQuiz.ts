@@ -141,12 +141,14 @@ export function useDaPersonCaseQuiz(items: PersonCaseJoinedItem[], opts: PersonC
     q.isCorrect = option === q.answer
   }
 
-  /** Type mode: umlaut-folding grader. */
+  /** Type mode: umlaut-folding grader; alsoAccept alternatives count as correct. */
   function submitText(input: string): void {
     const q = questions.value[currentIndex.value]
     if (!q || q.isCorrect !== null) return
     q.typed = input
-    q.isCorrect = checkText(input, q.answer)
+    const alternatives = (q.colloc.alsoAccept ?? [])
+      .map(a => `${a.preposition} ${PRONOUN_FORMS[q.item.cue][a.case]}`)
+    q.isCorrect = checkText(input, q.answer, alternatives)
   }
 
   function advance(): void {

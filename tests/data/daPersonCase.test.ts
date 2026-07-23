@@ -25,6 +25,12 @@ describe('PRONOUN_FORMS', () => {
 })
 
 describe('DA_PERSON_CASE invariants', () => {
+  test("cue 'es' never pairs with an accusative collocation (*auf es is ungrammatical)", () => {
+    const byId = new Map(COLLOCATIONS.map(c => [c.id, c]))
+    const bad = DA_PERSON_CASE.filter(i => i.cue === 'es' && byId.get(i.collocationId)!.case === 'accusative')
+    expect(bad.map(i => i.id)).toEqual([])
+  })
+
   test('at least 50 items with unique ids and one item per collocation', () => {
     expect(DA_PERSON_CASE.length).toBeGreaterThanOrEqual(50)
     expect(new Set(DA_PERSON_CASE.map(i => i.id)).size).toBe(DA_PERSON_CASE.length)

@@ -116,6 +116,15 @@ describe('useDaPersonCaseQuiz — type mode', () => {
     expect(quiz.current.value!.isCorrect).toBe(true)
   })
 
+  test('accepts an alsoAccept alternative (mit ihnen for der Kontakt zu)', () => {
+    const ji = ALL.find(j => j.item.id === 'pc-der-kontakt-zu')
+    if (!ji) return // dataset may rotate; the semantics are covered by the engine contract
+    expect((ji.colloc.alsoAccept ?? []).some(a => a.preposition === 'mit')).toBe(true)
+    const quiz = useDaPersonCaseQuiz([ji], { mode: 'type' })
+    quiz.submitText('mit ihnen')
+    expect(quiz.current.value!.isCorrect).toBe(true)
+  })
+
   test('rejects a wrong answer and lands it in wrongItems once finished', () => {
     const ji = ALL[0]
     const quiz = useDaPersonCaseQuiz([ji], { mode: 'type' })

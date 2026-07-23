@@ -288,7 +288,13 @@ function caseName(c: CollocationCase): string {
               <span v-if="current.isAnDativeException" class="tag tag-danger article-exception-flag">an + Dativ</span>
             </div>
             <div class="sub-reveal-rule micro-mark">
-              Präpositionalobjekt → meistens Akkusativ; an + Dativ-Verben sind die Ausnahme.
+              <template v-if="current.colloc.preposition === 'an'">
+                Präpositionalobjekt → meistens Akkusativ; an + Dativ-Verben sind die Ausnahme.
+              </template>
+              <template v-else>
+                Der Kasus kommt vom Verb, nicht von der Präposition — feste Dativ-Verben
+                (bestehen auf, leiden unter, sich fürchten vor …) sind die Ausnahme.
+              </template>
             </div>
             <div class="sub-reveal-explanation">{{ current.colloc.coreIdeaExplanation }}</div>
           </div>

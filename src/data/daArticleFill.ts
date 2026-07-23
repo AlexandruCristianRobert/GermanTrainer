@@ -102,8 +102,8 @@ export const DA_ARTICLE_FILL: ArticleFillItem[] = [
     sentence: 'Ihr Großvater starb an ein___ schweren Lungenentzündung.' },
   { id: 'af-erkennen-an', collocationId: 'erkennen-an', level: 'B2', article: 'definite', gender: 'feminine',
     sentence: 'Ich erkenne ihn immer an d___ Stimme.' },
-  { id: 'af-scheitern-an', collocationId: 'scheitern-an', level: 'B2', article: 'indefinite', gender: 'feminine',
-    sentence: 'Das Projekt scheiterte an ein___ fehlenden Finanzierung.' },
+  { id: 'af-scheitern-an', collocationId: 'scheitern-an', level: 'B2', article: 'definite', gender: 'feminine',
+    sentence: 'Das Projekt scheiterte an d___ fehlenden Finanzierung.' },
   { id: 'af-sich-festhalten-an', collocationId: 'sich-festhalten-an', level: 'B2', article: 'definite', gender: 'feminine',
     sentence: 'Halt dich gut an d___ Leiter fest!' },
   { id: 'af-das-interesse-an', collocationId: 'das-interesse-an', level: 'B2', article: 'definite', gender: 'feminine',
@@ -116,8 +116,8 @@ export const DA_ARTICLE_FILL: ArticleFillItem[] = [
     sentence: 'Am Ende war niemand schuld an d___ Verspätung.' },
   { id: 'af-interessiert-an', collocationId: 'interessiert-an', level: 'B2', article: 'indefinite', gender: 'feminine',
     sentence: 'Die Firma ist an ein___ langfristigen Zusammenarbeit interessiert.' },
-  { id: 'af-der-mangel-an', collocationId: 'der-mangel-an', level: 'B2', article: 'indefinite', gender: 'masculine',
-    sentence: 'Der Mangel an ein___ klaren Plan war offensichtlich.' },
+  { id: 'af-der-mangel-an', collocationId: 'der-mangel-an', level: 'B2', article: 'definite', gender: 'feminine',
+    sentence: 'Der Mangel an d___ nötigen Ausrüstung wurde schnell offensichtlich.' },
 
   // ───────────────────── auf — Akkusativ (usual) ─────────────────────
   { id: 'af-warten-auf', collocationId: 'warten-auf', level: 'B1', article: 'definite', gender: 'masculine',
@@ -203,17 +203,17 @@ export const DA_ARTICLE_FILL: ArticleFillItem[] = [
   { id: 'af-sich-irren-in', collocationId: 'sich-irren-in', level: 'B2', article: 'indefinite', gender: 'masculine',
     sentence: 'Da irrst du dich in ein___ wichtigen Punkt.' },
   { id: 'af-gut-in', collocationId: 'gut-in', level: 'B1', article: 'definite', gender: 'feminine',
-    sentence: 'Meine Tochter ist richtig gut in d___ Mathematik.' },
+    sentence: 'Unsere Mannschaft ist richtig gut in d___ Verteidigung.' },
 
   // ───────────── unter — Dativ (the drilled exception) ─────────────
   { id: 'af-leiden-unter', collocationId: 'leiden-unter', level: 'B2', article: 'definite', gender: 'masculine',
     sentence: 'Viele Pendler leiden unter d___ täglichen Stress.' },
   { id: 'af-stehen-unter-druck', collocationId: 'stehen-unter-druck', level: 'B2', article: 'definite', gender: 'masculine',
-    sentence: 'Seit Wochen steht das Team unter d___ ständigen Druck.' },
+    sentence: 'Seit Wochen steht das Team unter d___ ständigen Druck der Öffentlichkeit.' },
   { id: 'af-verstehen-unter', collocationId: 'verstehen-unter', level: 'B2', article: 'definite', gender: 'masculine',
     sentence: 'Was verstehst du eigentlich unter d___ Begriff Freiheit?' },
-  { id: 'af-sich-vorstellen-unter', collocationId: 'sich-vorstellen-unter', level: 'B2', article: 'definite', gender: 'neuter',
-    sentence: 'Unter d___ Wort kann ich mir wenig vorstellen.' },
+  { id: 'af-sich-vorstellen-unter', collocationId: 'sich-vorstellen-unter', level: 'B2', article: 'definite', gender: 'masculine',
+    sentence: 'Unter d___ neuen Fachbegriff kann ich mir wenig vorstellen.' },
 
   // ───────────── unter — Akkusativ ─────────────
   { id: 'af-verstehen-unter-begriff', collocationId: 'verstehen-unter-begriff', level: 'C1', article: 'indefinite', gender: 'feminine',

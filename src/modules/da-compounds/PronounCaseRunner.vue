@@ -204,6 +204,11 @@ function restart() {
   router.push({ name: 'dacompounds-pronoun-case' })
 }
 
+/** Compact cue display: 'sie (Plural)' would nest parentheses in the chip. */
+function cueLabel(cue: string): string {
+  return cue === 'sie (Plural)' ? 'sie · Pl.' : cue
+}
+
 function caseName(c: CollocationCase): string {
   return c === 'accusative' ? 'Akkusativ' : 'Dativ'
 }
@@ -249,7 +254,7 @@ function caseName(c: CollocationCase): string {
       >
         <div class="result-word">
           <div class="german">{{ q.colloc.word }}</div>
-          <div class="result-word-meta">{{ q.colloc.preposition }} · {{ caseName(q.colloc.case) }} · ({{ q.item.cue }})</div>
+          <div class="result-word-meta">{{ q.colloc.preposition }} · {{ caseName(q.colloc.case) }} · ({{ cueLabel(q.item.cue) }})</div>
         </div>
         <div class="result-answer">
           <span class="result-picked" :class="q.isCorrect ? 'ok' : 'err'">{{ q.typed || '—' }}</span>
@@ -290,7 +295,7 @@ function caseName(c: CollocationCase): string {
       <!-- Prompt: the frame with a gap + the pronoun cue chip -->
       <div class="sub-prompt">
         <p class="sub-stem">
-          {{ frameParts!.pre }}<span class="sub-gap" :class="{ filled: submitted, ok: submitted && current.isCorrect, err: submitted && !current.isCorrect }">{{ submitted ? current.answer : '＿＿＿' }}</span> <span class="pc-cue">({{ current.item.cue }})</span>{{ frameParts!.post }}
+          {{ frameParts!.pre }}<span class="sub-gap" :class="{ filled: submitted, ok: submitted && current.isCorrect, err: submitted && !current.isCorrect }">{{ submitted ? current.answer : '＿＿＿' }}</span> <span class="pc-cue">({{ cueLabel(current.item.cue) }})</span>{{ frameParts!.post }}
         </p>
       </div>
 
