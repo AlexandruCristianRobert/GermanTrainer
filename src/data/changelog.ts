@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.11.34'
+export const APP_VERSION = '1.12.1'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.1', date: '2026-07-23', kind: 'polish',
+    title: 'History · the three practice drills now count',
+    notes: [
+      '<strong>Fixed prepositions, Principal parts, and Case government now record to History.</strong> Every finished round lands in your quiz history with its score and filters — so the practice family finally shows up in your stats, charts, and streaks alongside every other drill.',
+      '<strong>Retry rounds stay practice.</strong> Only the main round records; the focused retry-the-missed rounds remain unscored, as before.'
+    ]
+  },
   {
     version: '1.11.34', date: '2026-07-23', kind: 'polish',
     title: 'Verbs · new level B2.2 — 200 more verbs',

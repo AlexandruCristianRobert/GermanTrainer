@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import StammformenRunner from '../../../src/modules/verbs/StammformenRunner.vue'
@@ -7,6 +7,11 @@ import StammformenRunner from '../../../src/modules/verbs/StammformenRunner.vue'
 vi.mock('../../../src/composables/useBreakpoint', () => ({
   useBreakpoint: () => ({ isMobile: { value: false } }),
 }))
+
+vi.mock('../../../src/composables/useQuizHistory', () => ({
+  saveQuizRun: vi.fn(),
+}))
+import { saveQuizRun } from '../../../src/composables/useQuizHistory'
 
 function makeRouter() {
   return createRouter({
@@ -97,6 +102,43 @@ describe('StammformenRunner — smoke tests', () => {
     })
     // The quiz stage should still render (not an error state)
     expect(wrapper.find('.stammformen-stage').exists()).toBe(true)
+    wrapper.unmount()
+  })
+})
+
+describe('StammformenRunner — history recording (ADR-0010)', () => {
+  beforeEach(() => { vi.mocked(saveQuizRun).mockClear() })
+
+  async function completeOneCardWrong(wrapper: Awaited<ReturnType<typeof mountRunner>>['wrapper']) {
+    await wrapper.find('.input-praeteritum').setValue('xxx')   // guaranteed-wrong Präteritum
+    const sein = wrapper.findAll('button').find(b => b.text() === 'sein')
+    await sein!.trigger('click')
+    const submit = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
+    await submit!.trigger('click')
+    const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
+    await finish!.trigger('click')
+  }
+
+  it('records exactly one Run when the main round finishes', async () => {
+    const { wrapper } = await mountRunner({ levels: 'A1', types: 'irregular', count: '1' })
+    await completeOneCardWrong(wrapper)
+    expect(saveQuizRun).toHaveBeenCalledTimes(1)
+    expect(saveQuizRun).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'verb-stammformen',
+      count: 1,
+      correct: 0,
+      meta: expect.objectContaining({ levels: ['A1'], types: ['irregular'] }),
+    }))
+    wrapper.unmount()
+  })
+
+  it('does not record the retry round', async () => {
+    const { wrapper } = await mountRunner({ levels: 'A1', types: 'irregular', count: '1' })
+    await completeOneCardWrong(wrapper)
+    const retryBtn = wrapper.findAll('button').find(b => b.text().startsWith('Retry'))
+    await retryBtn!.trigger('click')
+    await completeOneCardWrong(wrapper)
+    expect(saveQuizRun).toHaveBeenCalledTimes(1)
     wrapper.unmount()
   })
 })

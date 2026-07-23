@@ -251,7 +251,7 @@ ignored — ordering is by dependency and pedagogy.
 
 | Phase | Contents | Gate check |
 |---|---|---|
-| 0 | Recording foundation: ADR-0010 retrofit — record-online/skip-offline helper + Run types for the three existing deterministic drills | Existing drills show up in History when online, stay silent offline |
+| 0 | Recording foundation: ADR-0010 retrofit — Run types + recording for the three existing deterministic drills (history is currently localStorage; the online/offline rule activates with the future Supabase backend) | The three drills appear in History with correct score/meta; retry rounds are not recorded |
 | 1 | Module scaffold: routes, nav, home card, section-headed module home + **Cheatsheet** + derived da-/wo-compound data and no-compound trap list | Module navigable on phone (~390px), cheatsheet correct |
 | 2 | Formation & recall drills: T1, T2, T3, T4 | Core drilling works end-to-end, records Runs |
 | 3 | Case drills: T5, T6, T7 | |

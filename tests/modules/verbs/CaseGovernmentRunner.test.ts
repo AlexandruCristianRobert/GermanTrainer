@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import CaseGovernmentRunner from '../../../src/modules/verbs/CaseGovernmentRunner.vue'
@@ -7,6 +7,11 @@ import CaseGovernmentRunner from '../../../src/modules/verbs/CaseGovernmentRunne
 vi.mock('../../../src/composables/useBreakpoint', () => ({
   useBreakpoint: () => ({ isMobile: { value: false } }),
 }))
+
+vi.mock('../../../src/composables/useQuizHistory', () => ({
+  saveQuizRun: vi.fn(),
+}))
+import { saveQuizRun } from '../../../src/composables/useQuizHistory'
 
 function makeRouter() {
   return createRouter({
@@ -112,6 +117,41 @@ describe('CaseGovernmentRunner — smoke tests', () => {
     })
     // count=0 → Math.max(1,0)=1, quiz should still load
     expect(wrapper.find('.cg-stage').exists()).toBe(true)
+    wrapper.unmount()
+  })
+})
+
+describe('CaseGovernmentRunner — history recording (ADR-0010)', () => {
+  beforeEach(() => { vi.mocked(saveQuizRun).mockClear() })
+
+  async function completeOneCardWrong(wrapper: Awaited<ReturnType<typeof mountRunner>>['wrapper']) {
+    // Every sampled verb governs dative (query cases: 'dative'); picking Genitiv is guaranteed wrong.
+    const genBtn = wrapper.findAll('.cg-choice').find(b => b.find('.cg-choice-label').text() === 'Genitiv')
+    await genBtn!.trigger('click')
+    const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
+    await finish!.trigger('click')
+  }
+
+  it('records exactly one Run when the main round finishes', async () => {
+    const { wrapper } = await mountRunner({ levels: 'A1', cases: 'dative', count: '1' })
+    await completeOneCardWrong(wrapper)   // pick Genitiv → wrong; then advance/finish
+    expect(saveQuizRun).toHaveBeenCalledTimes(1)
+    expect(saveQuizRun).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'verb-case-government',
+      count: 1,
+      correct: 0,
+      meta: expect.objectContaining({ levels: ['A1'], cases: ['dative'] }),
+    }))
+    wrapper.unmount()
+  })
+
+  it('does not record the retry round', async () => {
+    const { wrapper } = await mountRunner({ levels: 'A1', cases: 'dative', count: '1' })
+    await completeOneCardWrong(wrapper)
+    const retryBtn = wrapper.findAll('button').find(b => b.text().startsWith('Retry'))
+    await retryBtn!.trigger('click')
+    await completeOneCardWrong(wrapper)
+    expect(saveQuizRun).toHaveBeenCalledTimes(1)
     wrapper.unmount()
   })
 })

@@ -534,7 +534,7 @@ git commit -m "feat(verbs): Case government drill records a Run (ADR-0010)"
 
 **Interfaces:**
 - Consumes: Tasks 1-4 merged and green.
-- Produces: released version `1.11.35` on gh-pages.
+- Produces: released version `1.12.1` on gh-pages (version chosen by the user — jumps the minor to open the da-compounds module series).
 
 - [ ] **Step 1: ADR-0010 reality note**
 
@@ -557,11 +557,11 @@ In `docs/superpowers/specs/2026-07-23-da-compounds-module-design.md` §7, change
 
 - [ ] **Step 3: Changelog + version bump**
 
-`package.json`: `"version": "1.11.35"`. `src/data/changelog.ts`: `APP_VERSION = '1.11.35'` and prepend:
+`package.json`: `"version": "1.12.1"`. `src/data/changelog.ts`: `APP_VERSION = '1.12.1'` and prepend:
 
 ```ts
 {
-  version: '1.11.35', date: '2026-07-23', kind: 'polish',
+  version: '1.12.1', date: '2026-07-23', kind: 'polish',
   title: 'History · the three practice drills now count',
   notes: [
     '<strong>Fixed prepositions, Principal parts, and Case government now record to History.</strong> Every finished round lands in your quiz history with its score and filters — so the practice family finally shows up in your stats, charts, and streaks alongside every other drill.',
@@ -579,7 +579,7 @@ Then verify in the app (`npm run dev`): finish one short Fixed-prepositions dril
 
 ```bash
 git checkout main
-git merge --no-ff feat/phase0-recording -m "Merge feat/phase0-recording: deterministic drills record Runs — v1.11.35"
+git merge --no-ff feat/phase0-recording -m "Merge feat/phase0-recording: deterministic drills record Runs — v1.12.1"
 npm run deploy
 git push origin main
 ```

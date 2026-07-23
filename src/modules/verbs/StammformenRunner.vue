@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import { useStammformenQuiz } from '../../composables/useStammformenQuiz'
+import { saveQuizRun } from '../../composables/useQuizHistory'
 import { csv } from '../../composables/quizQuery'
 import { shuffle } from '../../data/pool'
 import { useBreakpoint } from '../../composables/useBreakpoint'
@@ -24,6 +25,8 @@ const ready   = ref(false)
 
 type Quiz = ReturnType<typeof useStammformenQuiz>
 const quiz = shallowRef<Quiz | null>(null)
+const startedAtMs = ref(0)
+const historySaved = ref(false)
 
 // ── per-card input state ────────────────────────────────────────────────────
 const inputPraeteritum = ref('')
@@ -50,6 +53,7 @@ onMounted(() => {
       error.value = 'Nothing to drill — adjust your filters.'
     } else {
       quiz.value = useStammformenQuiz(verbs)
+      startedAtMs.value = Date.now()
       ready.value = true
       resetInputs()
     }
@@ -119,8 +123,31 @@ function onFinished() {
   }
 }
 
+// Record the main round once; retry rounds are practice, never a Run (ADR-0010).
+function recordRun() {
+  if (historySaved.value || !quiz.value || quiz.value.total.value === 0) return
+  historySaved.value = true
+  const finishedAt = Date.now()
+  const qs = quiz.value.questions.value
+  saveQuizRun({
+    type: 'verb-stammformen',
+    startedAt: new Date(startedAtMs.value).toISOString(),
+    finishedAt: new Date(finishedAt).toISOString(),
+    durationMs: finishedAt - startedAtMs.value,
+    count: quiz.value.total.value,
+    correct: quiz.value.score.value,
+    meta: {
+      levels: Array.from(new Set(qs.map(q => q.verb.level))).sort(),
+      types: Array.from(new Set(qs.map(q => q.verb.type))).sort(),
+    },
+  })
+}
+
 watch(finished, (now) => {
-  if (now && ready.value) onFinished()
+  if (now && ready.value) {
+    recordRun()
+    onFinished()
+  }
 })
 
 function retryWrong() {

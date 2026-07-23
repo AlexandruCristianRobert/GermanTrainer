@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onBeforeUnmount, ref, shallowRef, watch 
 import { useRoute, useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import { useCaseGovernmentQuiz } from '../../composables/useCaseGovernmentQuiz'
+import { saveQuizRun } from '../../composables/useQuizHistory'
 import { csv } from '../../composables/quizQuery'
 import { shuffle } from '../../data/pool'
 import { useBreakpoint } from '../../composables/useBreakpoint'
@@ -44,6 +45,8 @@ const ready   = ref(false)
 
 type Quiz = ReturnType<typeof useCaseGovernmentQuiz>
 const quiz = shallowRef<Quiz | null>(null)
+const startedAtMs = ref(0)
+const historySaved = ref(false)
 
 // ── per-card state ──────────────────────────────────────────────────────────
 const submitted = ref(false)
@@ -70,6 +73,7 @@ onMounted(() => {
       error.value = 'Nothing to drill — adjust your filters.'
     } else {
       quiz.value = useCaseGovernmentQuiz(verbs)
+      startedAtMs.value = Date.now()
       ready.value = true
       nextTick(() => cardRef.value?.focus())
     }
@@ -140,10 +144,34 @@ function onKey(e: KeyboardEvent) {
   pick(CASE_VALUES[idx])
 }
 
-// Show retry modal when quiz finishes with wrong verbs
+// Record the main round once; retry rounds are practice, never a Run (ADR-0010).
+function recordRun() {
+  if (historySaved.value || !quiz.value || quiz.value.total.value === 0) return
+  historySaved.value = true
+  const finishedAt = Date.now()
+  const qs = quiz.value.questions.value
+  saveQuizRun({
+    type: 'verb-case-government',
+    startedAt: new Date(startedAtMs.value).toISOString(),
+    finishedAt: new Date(finishedAt).toISOString(),
+    durationMs: finishedAt - startedAtMs.value,
+    count: quiz.value.total.value,
+    correct: quiz.value.score.value,
+    meta: {
+      levels: Array.from(new Set(qs.map(q => q.verb.level))).sort(),
+      types: Array.from(new Set(qs.map(q => q.verb.type))).sort(),
+      cases: Array.from(new Set(qs.map(q => q.verb.case))).sort(),
+    },
+  })
+}
+
+// Record the main round finish, then show retry modal when quiz finishes with wrong verbs
 watch(finished, (now) => {
-  if (now && ready.value && wrongVerbs.value.length > 0 && !dismissed.value) {
-    showRetryModal.value = true
+  if (now && ready.value) {
+    recordRun()
+    if (wrongVerbs.value.length > 0 && !dismissed.value) {
+      showRetryModal.value = true
+    }
   }
 })
 
