@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import type { TranslationDirection } from '../../composables/useVerbQuiz'
-import { VERB_LEVELS, VERB_TYPES, VERB_CASES, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
+import { VERB_LEVELS, VERB_TYPES, VERB_CASES, migrateVerbLevels, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
 
 const STORAGE_KEY = 'verbTransSetup'
 
@@ -53,7 +53,7 @@ function saveStored(): void {
 onMounted(() => {
   const s = loadStored()
   if (!s) return
-  if (Array.isArray(s.levels)) levels.value = s.levels.filter(l => (VERB_LEVELS as readonly string[]).includes(l))
+  if (Array.isArray(s.levels)) levels.value = migrateVerbLevels(s.levels)
   if (Array.isArray(s.types)) types.value = s.types.filter(t => (VERB_TYPES as readonly string[]).includes(t))
   if (Array.isArray(s.cases)) cases.value = s.cases.filter(c => (VERB_CASES as readonly string[]).includes(c))
   if (s.direction === 'de-en' || s.direction === 'en-de') direction.value = s.direction

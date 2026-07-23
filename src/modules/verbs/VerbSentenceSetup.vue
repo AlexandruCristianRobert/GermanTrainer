@@ -5,7 +5,7 @@ import { useVerbs } from '../../composables/useVerbs'
 import { useNouns } from '../../composables/useNouns'
 import { useSettings } from '../../composables/useSettings'
 import { useToast } from '../../composables/useToast'
-import { VERB_LEVELS, VERB_TYPES, VERB_CASES, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
+import { VERB_LEVELS, VERB_TYPES, VERB_CASES, migrateVerbLevels, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
 import { NOUN_GROUPS, type NounGroup } from '../../db/types'
 import { nounToRef } from '../../composables/useSentenceQuiz'
 import { verbToRef, buildVerbSpecs, levelLabel, type WordsPer } from '../../composables/useVerbSentenceQuiz'
@@ -56,7 +56,7 @@ onMounted(async () => {
   nounCounts.value = await countsByGroup()
   const s = loadStored()
   if (s) {
-    if (Array.isArray(s.levels)) levels.value = s.levels.filter(l => (VERB_LEVELS as readonly string[]).includes(l))
+    if (Array.isArray(s.levels)) levels.value = migrateVerbLevels(s.levels)
     if (Array.isArray(s.types)) types.value = s.types.filter(t => (VERB_TYPES as readonly string[]).includes(t))
     if (Array.isArray(s.cases)) cases.value = s.cases.filter(c => (VERB_CASES as readonly string[]).includes(c))
     if (Array.isArray(s.groups)) groups.value = s.groups.filter(g => (NOUN_GROUPS as readonly string[]).includes(g))
