@@ -65,11 +65,15 @@ import {
 } from '../../src/composables/useVerbSentenceQuiz'
 
 describe('levelLabel', () => {
-  test('all four levels → A1–B2 range', () => {
-    expect(levelLabel(['A1', 'A2', 'B1', 'B2'])).toBe('A1–B2')
+  test('all five levels → A1–B2 range', () => {
+    expect(levelLabel(['A1', 'A2', 'B1', 'B2.1', 'B2.2'])).toBe('A1–B2')
   })
   test('subset → slash-joined', () => {
     expect(levelLabel(['A2', 'B1'])).toBe('A2/B1')
+  })
+  test('batch labels normalize to CEFR and dedupe', () => {
+    expect(levelLabel(['B2.1', 'B2.2'])).toBe('B2')
+    expect(levelLabel(['B1', 'B2.1'])).toBe('B1/B2')
   })
   test('empty → a sane default', () => {
     expect(levelLabel([])).toBe('A2–B1')

@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import {
-  VERB_LEVELS, VERB_TYPES,
+  VERB_LEVELS, VERB_TYPES, migrateVerbLevels,
   type VerbLevel, type VerbType,
 } from '../../data/verbs'
 
@@ -11,7 +11,7 @@ const STORAGE_KEY = 'gtStammformen'
 const router = useRouter()
 const { filter } = useVerbs()
 
-const levels = ref<VerbLevel[]>(['B1', 'B2'])
+const levels = ref<VerbLevel[]>(['B1', 'B2.1', 'B2.2'])
 const types  = ref<VerbType[]>(['irregular', 'mixed', 'modal'])
 
 type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
@@ -30,7 +30,7 @@ function load() {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return
     const s = JSON.parse(raw) as Stored
-    if (s.levels) levels.value = s.levels.filter(l => (VERB_LEVELS as readonly string[]).includes(l))
+    if (s.levels) levels.value = migrateVerbLevels(s.levels)
     if (s.types)  types.value  = s.types.filter(t => (VERB_TYPES as readonly string[]).includes(t))
     if (s.preset !== undefined) preset.value = s.preset
     if (s.customCount !== undefined) customCount.value = s.customCount

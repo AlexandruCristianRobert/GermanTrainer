@@ -1,5 +1,19 @@
-export const VERB_LEVELS = ["A1", "A2", "B1", "B2"] as const;
+export const VERB_LEVELS = ["A1", "A2", "B1", "B2.1", "B2.2"] as const;
 export type VerbLevel = (typeof VERB_LEVELS)[number];
+
+/** CEFR band a batch label belongs to — AI-facing text and run labels never
+ *  see batch labels like "B2.1" (ADR-0009). */
+export function verbLevelToCefr(level: VerbLevel): string {
+  return level.startsWith("B2") ? "B2" : level;
+}
+
+/** Saved-settings migration: level "B2" was renamed "B2.1" (ADR-0009).
+ *  Maps legacy labels, then drops anything not in VERB_LEVELS. */
+export function migrateVerbLevels(saved: readonly string[]): VerbLevel[] {
+  return saved
+    .map((l) => (l === "B2" ? "B2.1" : l))
+    .filter((l): l is VerbLevel => (VERB_LEVELS as readonly string[]).includes(l));
+}
 
 export const VERB_TYPES = [
   "regular",
@@ -3506,11 +3520,11 @@ export const VERBS: readonly Verb[] = [
     imperativDu: "gib",
   },
 
-  // ─── B2 verbs ────────────────────────────────────────────────────────
+  // ─── B2.1 verbs ──────────────────────────────────────────────────────
   {
     german: "beauftragen",
     english: "commission / assign",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3528,7 +3542,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bedauern",
     english: "regret",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3546,7 +3560,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "behandeln",
     english: "treat",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3564,7 +3578,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beibringen",
     english: "teach / impart",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -3583,7 +3597,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bemerken",
     english: "notice / remark",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3601,7 +3615,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beraten",
     english: "advise",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -3613,7 +3627,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beruhen",
     english: "be based on",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "haben",
@@ -3625,7 +3639,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beschließen",
     english: "decide / resolve",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -3643,7 +3657,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "besorgen",
     english: "obtain / take care of",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -3661,7 +3675,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "besprechen",
     english: "discuss",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -3680,7 +3694,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bestehen",
     english: "pass / consist of",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "varies",
     auxiliary: "haben",
@@ -3700,7 +3714,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bestätigen",
     english: "confirm",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3718,7 +3732,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bestimmen",
     english: "determine",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3736,7 +3750,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "betragen",
     english: "amount to",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -3755,7 +3769,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "betreffen",
     english: "concern / affect",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -3774,7 +3788,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "sich beziehen",
     english: "refer to",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "reflexive",
     auxiliary: "haben",
@@ -3793,7 +3807,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "einschätzen",
     english: "assess / evaluate",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -3812,7 +3826,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "enthalten",
     english: "contain",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -3831,7 +3845,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "entsprechen",
     english: "correspond to",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "dative",
     auxiliary: "haben",
@@ -3850,7 +3864,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "ergänzen",
     english: "supplement / add",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3868,7 +3882,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "sich ergeben",
     english: "result / arise",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "reflexive",
     auxiliary: "haben",
@@ -3880,7 +3894,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "ermöglichen",
     english: "make possible",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -3898,7 +3912,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erstellen",
     english: "create / produce",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3916,7 +3930,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erwarten",
     english: "expect",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3934,7 +3948,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erweitern",
     english: "expand / extend",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3952,7 +3966,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erzeugen",
     english: "produce / generate",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3970,7 +3984,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "fördern",
     english: "promote / support",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -3988,7 +4002,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "genehmigen",
     english: "approve / permit",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -4006,7 +4020,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "gestalten",
     english: "design / shape",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4024,7 +4038,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "herrschen",
     english: "rule / prevail",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "haben",
@@ -4042,7 +4056,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "hindern",
     english: "prevent / hinder",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4061,7 +4075,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "lehren",
     english: "teach",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4072,7 +4086,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "leisten",
     english: "achieve / accomplish",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4091,7 +4105,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "nutzen",
     english: "use / utilize",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4102,7 +4116,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "sich orientieren",
     english: "orient oneself",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "reflexive",
     auxiliary: "haben",
@@ -4121,7 +4135,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "realisieren",
     english: "realize / implement",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4139,7 +4153,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "recherchieren",
     english: "research",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4157,7 +4171,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "schätzen",
     english: "estimate / value",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4175,7 +4189,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "überprüfen",
     english: "verify / check",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4193,7 +4207,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "überraschen",
     english: "surprise",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4211,7 +4225,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "überzeugen",
     english: "convince",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4230,7 +4244,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "unterscheiden",
     english: "distinguish",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -4248,7 +4262,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "unterstützen",
     english: "support",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4266,7 +4280,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "untersuchen",
     english: "examine / investigate",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4284,7 +4298,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "veranstalten",
     english: "organize / hold",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4302,7 +4316,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verarbeiten",
     english: "process / digest",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4320,7 +4334,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verbinden",
     english: "connect / combine",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -4338,7 +4352,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "vereinbaren",
     english: "agree on / arrange",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4356,7 +4370,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "vereinfachen",
     english: "simplify",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4374,7 +4388,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verfassen",
     english: "compose / write",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4392,7 +4406,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verfügen",
     english: "have at one's disposal",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "haben",
@@ -4411,7 +4425,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "vergleichen",
     english: "compare",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -4429,7 +4443,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verhindern",
     english: "prevent",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4447,7 +4461,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "veröffentlichen",
     english: "publish",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4465,7 +4479,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verschwinden",
     english: "disappear",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "none",
     auxiliary: "sein",
@@ -4483,7 +4497,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verteilen",
     english: "distribute",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4501,7 +4515,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verursachen",
     english: "cause",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4519,7 +4533,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "wahrnehmen",
     english: "perceive",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4539,7 +4553,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "sich weigern",
     english: "refuse",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "reflexive",
     auxiliary: "haben",
@@ -4557,7 +4571,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "sich wenden",
     english: "turn to / contact",
-    level: "B2",
+    level: "B2.1",
     type: "mixed",
     case: "reflexive",
     auxiliary: "haben",
@@ -4569,7 +4583,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "widmen",
     english: "dedicate",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -4580,7 +4594,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "wirken",
     english: "have an effect",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "haben",
@@ -4591,7 +4605,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "zustimmen",
     english: "agree / consent",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "dative",
     auxiliary: "haben",
@@ -4608,11 +4622,11 @@ export const VERBS: readonly Verb[] = [
     partizip2: "zugestimmt",
   },
 
-  // ─── B2 verbs (expansion from Goethe top-500 list) ───────────────────
+  // ─── B2.1 verbs (expansion from Goethe top-500 list) ─────────────────
   {
     german: "abgeben",
     english: "hand over / deliver",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -4632,7 +4646,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "abrufen",
     english: "retrieve / call up",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4651,7 +4665,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "akzeptieren",
     english: "accept",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4669,7 +4683,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "ändern",
     english: "change / alter",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4680,7 +4694,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "angeben",
     english: "state / specify",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4700,7 +4714,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "anlegen",
     english: "invest / lay out",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4719,7 +4733,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "annehmen",
     english: "accept / assume",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4739,7 +4753,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "anpassen",
     english: "adapt / adjust",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4758,7 +4772,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "anschließen",
     english: "connect / join",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4777,7 +4791,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "ansehen",
     english: "look at / regard",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4797,7 +4811,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "anwenden",
     english: "apply / use",
-    level: "B2",
+    level: "B2.1",
     type: "mixed",
     case: "accusative",
     auxiliary: "haben",
@@ -4816,7 +4830,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "anzeigen",
     english: "display / report",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4835,7 +4849,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "aufweisen",
     english: "exhibit / show",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4854,7 +4868,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "ausführen",
     english: "carry out / execute",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4873,7 +4887,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "auswählen",
     english: "select / choose",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -4892,7 +4906,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "sich auswirken",
     english: "have an effect",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "reflexive",
     auxiliary: "haben",
@@ -4912,7 +4926,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "äußern",
     english: "express / utter",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4923,7 +4937,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beachten",
     english: "observe / pay attention to",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4941,7 +4955,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bearbeiten",
     english: "process / edit",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4959,7 +4973,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bedenken",
     english: "consider / bear in mind",
-    level: "B2",
+    level: "B2.1",
     type: "mixed",
     case: "accusative",
     auxiliary: "haben",
@@ -4977,7 +4991,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beeinflussen",
     english: "influence",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -4995,7 +5009,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beenden",
     english: "end / finish",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5013,7 +5027,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beibehalten",
     english: "maintain / keep",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -5033,7 +5047,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beinhalten",
     english: "contain / include",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5051,7 +5065,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beitragen",
     english: "contribute",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "none",
     auxiliary: "haben",
@@ -5072,7 +5086,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bekämpfen",
     english: "combat / fight against",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5090,7 +5104,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "benötigen",
     english: "need / require",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5108,7 +5122,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bereitstellen",
     english: "provide / make available",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -5127,7 +5141,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "berichten",
     english: "report",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "haben",
@@ -5146,7 +5160,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "berücksichtigen",
     english: "take into account",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5164,7 +5178,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beschleunigen",
     english: "accelerate",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5182,7 +5196,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "beschränken",
     english: "limit / restrict",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5201,7 +5215,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "besitzen",
     english: "own / possess",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -5219,7 +5233,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "betonen",
     english: "emphasize / stress",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5230,7 +5244,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "betrachten",
     english: "observe / contemplate",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5248,7 +5262,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "betreiben",
     english: "operate / run",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -5266,7 +5280,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bewerten",
     english: "evaluate / rate",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5284,7 +5298,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bewirken",
     english: "cause / bring about",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5302,7 +5316,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "bieten",
     english: "offer / provide",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -5313,7 +5327,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "darstellen",
     english: "depict / represent",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -5332,7 +5346,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "dienen",
     english: "serve",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "dative",
     auxiliary: "haben",
@@ -5343,7 +5357,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "diskutieren",
     english: "discuss",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5362,7 +5376,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "durchführen",
     english: "carry out / conduct",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -5381,7 +5395,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "einsetzen",
     english: "deploy / use / employ",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -5400,7 +5414,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "entstehen",
     english: "arise / emerge",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "none",
     auxiliary: "sein",
@@ -5418,7 +5432,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erfahren",
     english: "experience / learn about",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -5437,7 +5451,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erfassen",
     english: "capture / grasp",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5455,7 +5469,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erfolgen",
     english: "take place / occur",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "sein",
@@ -5473,7 +5487,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erfordern",
     english: "require / demand",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5491,7 +5505,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erfüllen",
     english: "fulfill / satisfy",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5509,7 +5523,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "ergreifen",
     english: "seize / grasp",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -5527,7 +5541,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erhalten",
     english: "receive / preserve",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -5546,7 +5560,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erheben",
     english: "raise / levy",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -5557,7 +5571,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erhöhen",
     english: "raise / increase",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5568,7 +5582,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erleben",
     english: "experience",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5579,7 +5593,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erleichtern",
     english: "facilitate / ease",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5597,7 +5611,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "ermitteln",
     english: "determine / investigate",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5615,7 +5629,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erreichen",
     english: "reach / achieve",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5633,7 +5647,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erscheinen",
     english: "appear",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "none",
     auxiliary: "sein",
@@ -5651,7 +5665,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "ersetzen",
     english: "replace / substitute",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5669,7 +5683,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "sich erstrecken",
     english: "extend / stretch",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "reflexive",
     auxiliary: "haben",
@@ -5688,7 +5702,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erteilen",
     english: "grant / issue",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -5706,7 +5720,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "erzielen",
     english: "achieve / attain",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5724,7 +5738,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "festlegen",
     english: "establish / determine",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -5743,7 +5757,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "feststellen",
     english: "realize / establish",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -5762,7 +5776,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "fordern",
     english: "demand / require",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5780,7 +5794,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "fortsetzen",
     english: "continue",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -5799,7 +5813,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "funktionieren",
     english: "function / work",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "haben",
@@ -5817,7 +5831,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "gelangen",
     english: "reach / arrive at",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "sein",
@@ -5835,7 +5849,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "gelten",
     english: "be valid / apply",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "none",
     auxiliary: "haben",
@@ -5847,7 +5861,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "geraten",
     english: "get into",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "none",
     auxiliary: "sein",
@@ -5859,7 +5873,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "gewährleisten",
     english: "ensure / guarantee",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5877,7 +5891,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "handeln",
     english: "act / trade",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "haben",
@@ -5896,7 +5910,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "identifizieren",
     english: "identify",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5914,7 +5928,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "informieren",
     english: "inform",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5933,7 +5947,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "sich konzentrieren",
     english: "concentrate",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "reflexive",
     auxiliary: "haben",
@@ -5952,7 +5966,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "kontrollieren",
     english: "check / control",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -5970,7 +5984,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "liefern",
     english: "deliver / supply",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -5988,7 +6002,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "mitteilen",
     english: "communicate / inform",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -6007,7 +6021,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "prüfen",
     english: "examine / test",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6018,7 +6032,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "reagieren",
     english: "react",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "haben",
@@ -6037,7 +6051,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "rechnen",
     english: "calculate / count on",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6056,7 +6070,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "reduzieren",
     english: "reduce",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6074,7 +6088,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "schaffen",
     english: "manage / accomplish",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6093,7 +6107,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "schützen",
     english: "protect",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6112,7 +6126,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "sicherstellen",
     english: "ensure",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -6131,7 +6145,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "speichern",
     english: "save / store",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6149,7 +6163,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "stammen",
     english: "originate / come from",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "none",
     auxiliary: "haben",
@@ -6161,7 +6175,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "stattfinden",
     english: "take place",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "none",
     auxiliary: "haben",
@@ -6180,7 +6194,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "steigern",
     english: "increase / raise",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6198,7 +6212,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "steuern",
     english: "steer / control",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6216,7 +6230,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "teilnehmen",
     english: "participate / take part",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "none",
     auxiliary: "haben",
@@ -6237,7 +6251,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "übermitteln",
     english: "transmit / convey",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -6255,7 +6269,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "übertragen",
     english: "transfer / transmit",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -6274,7 +6288,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "überwachen",
     english: "monitor / supervise",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6292,7 +6306,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "umfassen",
     english: "comprise / encompass",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6310,7 +6324,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "umsetzen",
     english: "implement",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -6329,7 +6343,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verfolgen",
     english: "pursue / follow",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6347,7 +6361,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verringern",
     english: "reduce / lessen",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6365,7 +6379,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verstärken",
     english: "reinforce / strengthen",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6383,7 +6397,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "vertreten",
     english: "represent / substitute",
-    level: "B2",
+    level: "B2.1",
     type: "irregular",
     case: "accusative",
     auxiliary: "haben",
@@ -6402,7 +6416,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "verwalten",
     english: "administer / manage",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6420,7 +6434,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "vorlegen",
     english: "present / submit",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "dative+accusative",
     auxiliary: "haben",
@@ -6439,7 +6453,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "vornehmen",
     english: "undertake / carry out",
-    level: "B2",
+    level: "B2.1",
     type: "separable",
     case: "accusative",
     auxiliary: "haben",
@@ -6459,7 +6473,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "wagen",
     english: "dare / venture",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",
@@ -6470,7 +6484,7 @@ export const VERBS: readonly Verb[] = [
   {
     german: "werten",
     english: "rate / evaluate",
-    level: "B2",
+    level: "B2.1",
     type: "regular",
     case: "accusative",
     auxiliary: "haben",

@@ -8,6 +8,7 @@
 // (ADR-0003). The learner reads the English and types the German.
 
 import { shuffle } from '../data/pool'
+import { VERB_LEVELS, verbLevelToCefr } from '../data/verbs'
 import type { Verb, VerbLevel } from '../data/verbs'
 import type { NounRef, HintInput } from './useSentenceQuiz'
 import type { AiClient } from './useClaude'
@@ -141,13 +142,14 @@ export const VERB_ANGLE_POOL = [
   'frame it as something overheard'
 ] as const
 
-/** Compact label for the chosen CEFR levels. */
+/** Compact CEFR label for the chosen verb levels — batch labels (B2.1/B2.2)
+ *  collapse to their CEFR band so the AI prompt and run records stay in
+ *  standard CEFR terms (ADR-0009). */
 export function levelLabel(levels: readonly VerbLevel[]): string {
   if (levels.length === 0) return 'A2–B1'
-  const order: VerbLevel[] = ['A1', 'A2', 'B1', 'B2']
-  const present = order.filter(l => levels.includes(l))
-  if (present.length >= 4) return 'A1–B2'
-  return present.join('/')
+  const present = VERB_LEVELS.filter(l => levels.includes(l))
+  if (present.length === VERB_LEVELS.length) return 'A1–B2'
+  return [...new Set(present.map(verbLevelToCefr))].join('/')
 }
 
 export const VERB_GEN_SYSTEM =
@@ -212,7 +214,7 @@ export function buildVerbGeneratePrompt(
 ): string {
   const lines = specs.map(s => {
     const verbs = s.verbs.length
-      ? s.verbs.map(v => `"${v.german}" (${v.english}) [${v.level}]`).join(' + ')
+      ? s.verbs.map(v => `"${v.german}" (${v.english}) [${verbLevelToCefr(v.level)}]`).join(' + ')
       : '(any fitting verb)'
     const nouns = s.nouns.length
       ? s.nouns.map(n => `${n.article} ${n.german} (${n.english})`).join(' + ')

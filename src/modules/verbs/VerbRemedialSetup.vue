@@ -10,6 +10,7 @@ import { NOUN_GROUPS } from '../../db/types'
 import { nounToRef, type NounRef } from '../../composables/useSentenceQuiz'
 import { verbToRef, buildVerbSpecs, levelLabel, type VerbRef } from '../../composables/useVerbSentenceQuiz'
 import { computeVerbWeakPoints, weakKeysForRemedial, selectRemedialPool } from '../../composables/useVerbSentenceStats'
+import { VERB_LEVELS } from '../../data/verbs'
 
 const STASH_KEY = 'gt:lastVerbSentenceQuiz'
 const router = useRouter()
@@ -51,7 +52,7 @@ async function start() {
 
   const specs = buildVerbSpecs(verbPool, nounPool, effective.value, 'mix', 'mix')
   sessionStorage.setItem(STASH_KEY, JSON.stringify({
-    specs, runType: 'verb-remedial', level: levelLabel(['A1', 'A2', 'B1', 'B2']), wordHints: wordHints.value,
+    specs, runType: 'verb-remedial', level: levelLabel([...VERB_LEVELS]), wordHints: wordHints.value,
     meta: { levels: [], types: [], cases: [], groups: [], verbsPer: 'mix', nounsPer: 'mix' }
   }))
   router.push({ name: 'verbs-sentence-run' })

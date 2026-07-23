@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import {
   VERB_LEVELS, VERB_TYPES, VERB_CASES,
-  VERB_TENSES, TENSE_LABELS, TENSE_LEVEL, PASSIVE_TENSE_SET,
+  VERB_TENSES, TENSE_LABELS, TENSE_LEVEL, PASSIVE_TENSE_SET, migrateVerbLevels,
   type VerbLevel, type VerbType, type VerbCase, type VerbTense, type TenseCEFR
 } from '../../data/verbs'
 
@@ -30,7 +30,7 @@ function load() {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return
     const s = JSON.parse(raw) as Stored
-    if (s.levels) levels.value = s.levels.filter(l => (VERB_LEVELS as readonly string[]).includes(l))
+    if (s.levels) levels.value = migrateVerbLevels(s.levels)
     if (s.types) types.value = s.types.filter(t => (VERB_TYPES as readonly string[]).includes(t))
     if (s.cases) cases.value = s.cases.filter(c => (VERB_CASES as readonly string[]).includes(c))
     if (s.tenses) tenses.value = s.tenses.filter(t => (VERB_TENSES as readonly string[]).includes(t))
