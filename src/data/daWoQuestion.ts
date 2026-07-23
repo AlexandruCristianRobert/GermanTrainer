@@ -118,7 +118,7 @@ export const DA_WO_QUESTION: WoQuestionItem[] = [
   { id: 'wq-sich-wehren-gegen', collocationId: 'sich-wehren-gegen', level: 'B2', objectKind: 'thing',
     statement: 'Sie wehrt sich gegen die Vorwürfe.', scaffold: '___ wehrt sie sich?' },
   { id: 'wq-bestehen-aus', collocationId: 'bestehen-aus', level: 'B2', objectKind: 'thing',
-    statement: 'Das Team besteht aus fünf Personen.', scaffold: '___ besteht das Team?' },
+    statement: 'Die Prüfung besteht aus drei Teilen.', scaffold: '___ besteht die Prüfung?' },
   { id: 'wq-verzichten-auf', collocationId: 'verzichten-auf', level: 'B2', objectKind: 'thing',
     statement: 'Ich verzichte auf den Nachtisch.', scaffold: '___ verzichtest du?' },
   // ─── C1 ───

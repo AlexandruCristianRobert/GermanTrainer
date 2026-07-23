@@ -183,7 +183,7 @@ export const DA_DIALOGUE: DialogueItem[] = [
     questionScaffold: '___ hast du dich entschlossen?',
     answerScaffold: 'Ich habe mich ___ entschlossen, das Studium zu wechseln.' },
   { id: 'dl-auffordern-zu', collocationId: 'auffordern-zu', level: 'B2',
-    questionScaffold: '___ fordert der Chef auf?',
+    questionScaffold: '___ fordert euch der Chef auf?',
     answerScaffold: 'Er fordert uns ___ auf, deutlich pünktlicher zu sein.' },
   { id: 'dl-protestieren-gegen', collocationId: 'protestieren-gegen', level: 'B2',
     questionScaffold: '___ protestieren die Leute?',

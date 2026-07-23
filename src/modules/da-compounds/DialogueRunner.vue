@@ -274,6 +274,7 @@ function restart() {
             v-model="woInput"
             class="input dlg-gap-input"
             type="text"
+            aria-label="Fragewort (wo-Form)"
             placeholder="Wo(r)…?"
             :readonly="submitted"
             autocomplete="off"
@@ -295,6 +296,7 @@ function restart() {
             v-model="daInput"
             class="input dlg-gap-input"
             type="text"
+            aria-label="Antwort (da-Form)"
             placeholder="da(r)…"
             :readonly="submitted"
             autocomplete="off"
@@ -395,7 +397,8 @@ function restart() {
   max-width: 220px;
   font-family: var(--font-mono);
   font-style: normal;
-  font-size: 0.85em;
+  /* Never below 16px — smaller focused inputs trigger iOS Safari's auto-zoom. */
+  font-size: max(16px, 0.85em);
   color: var(--accent);
   border: none;
   border-bottom: 2px solid var(--accent);

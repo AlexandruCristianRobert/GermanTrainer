@@ -104,7 +104,7 @@ export const DA_TRANSFORM: TransformItem[] = [
   { id: 'tr-protestieren-gegen', collocationId: 'protestieren-gegen', level: 'B2', objectKind: 'thing',
     sentence: 'Tausende protestieren gegen das neue Gesetz.', object: 'gegen das neue Gesetz' },
   { id: 'tr-bestehen-aus', collocationId: 'bestehen-aus', level: 'B2', objectKind: 'thing',
-    sentence: 'Unser Team besteht aus fünf Personen.', object: 'aus fünf Personen' },
+    sentence: 'Der Tisch besteht komplett aus recyceltem Holz.', object: 'aus recyceltem Holz' },
   { id: 'tr-abhaengen-von', collocationId: 'abhaengen-von', level: 'B2', objectKind: 'thing',
     sentence: 'Der Ausflug hängt ganz vom Wetter ab.', object: 'vom Wetter' },
   { id: 'tr-rechnen-mit', collocationId: 'rechnen-mit', level: 'B2', objectKind: 'thing',
