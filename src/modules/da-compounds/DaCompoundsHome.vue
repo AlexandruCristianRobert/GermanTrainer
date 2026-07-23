@@ -94,6 +94,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Korrelat & meaning',
+    de: 'Korrelat',
+    cards: [
+      {
+        numeral: 'T11', route: 'dacompounds-korrelat',
+        title: 'Korrelat', de: 'darauf, dass …',
+        desc: 'Before a dass-/ob-/w-/zu-clause: some verbs demand a da-compound, some make it optional, some forbid it outright. Pick the compound, or "kein Korrelat" when nothing belongs.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
