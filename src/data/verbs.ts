@@ -10,9 +10,9 @@ export function verbLevelToCefr(level: VerbLevel): string {
 /** Saved-settings migration: level "B2" was renamed "B2.1" (ADR-0009).
  *  Maps legacy labels, then drops anything not in VERB_LEVELS. */
 export function migrateVerbLevels(saved: readonly string[]): VerbLevel[] {
-  return saved
-    .map((l) => (l === "B2" ? "B2.1" : l))
-    .filter((l): l is VerbLevel => (VERB_LEVELS as readonly string[]).includes(l));
+  return [...new Set(saved.map((l) => (l === "B2" ? "B2.1" : l)))].filter(
+    (l): l is VerbLevel => (VERB_LEVELS as readonly string[]).includes(l),
+  );
 }
 
 export const VERB_TYPES = [
@@ -6768,7 +6768,7 @@ export const VERBS: readonly Verb[] = [
   },
   {
     german: "folgen",
-    english: "follow / obey",
+    english: "follow",
     level: "B2.2",
     type: "regular",
     case: "dative",
@@ -8051,7 +8051,7 @@ export const VERBS: readonly Verb[] = [
   },
   {
     german: "treten",
-    english: "step / kick / tread",
+    english: "step / tread",
     level: "B2.2",
     type: "irregular",
     case: "none",
@@ -8100,7 +8100,7 @@ export const VERBS: readonly Verb[] = [
   },
   {
     german: "eingehen",
-    english: "enter into / respond to / agree",
+    english: "respond to / address / perish",
     level: "B2.2",
     type: "separable",
     case: "none",
@@ -9015,7 +9015,7 @@ export const VERBS: readonly Verb[] = [
   },
   {
     german: "anfallen",
-    english: "accrue / arise / attack",
+    english: "accrue / arise",
     level: "B2.2",
     type: "separable",
     case: "none",
@@ -9207,7 +9207,7 @@ export const VERBS: readonly Verb[] = [
   },
   {
     german: "entfallen",
-    english: "be cancelled / be omitted / slip one's mind",
+    english: "be cancelled / be omitted",
     level: "B2.2",
     type: "irregular",
     case: "none",
@@ -9575,7 +9575,7 @@ export const VERBS: readonly Verb[] = [
   },
   {
     german: "senden",
-    english: "send / broadcast / transmit",
+    english: "send / dispatch",
     level: "B2.2",
     type: "mixed",
     case: "dative+accusative",

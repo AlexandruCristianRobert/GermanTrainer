@@ -34,7 +34,9 @@ function processSentence(tokens) {
     if (!t.xpos.startsWith('VV')) continue
     let lemma = t.lemma.toLowerCase()
     const prefix = prtByHead.get(t.id)
-    if (prefix) lemma = prefix + lemma
+    // Skip re-attachment when the treebank already lemmatized the prefix in
+    // (otherwise "an" + "anerkennen" would yield "ananerkennen").
+    if (prefix && !lemma.startsWith(prefix)) lemma = prefix + lemma
     // German infinitive shape only — drops tagger junk, numbers, foreign words.
     if (!/^[a-zäöüß]+n$/.test(lemma)) continue
     counts.set(lemma, (counts.get(lemma) ?? 0) + 1)

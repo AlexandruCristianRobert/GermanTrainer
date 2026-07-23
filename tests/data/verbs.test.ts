@@ -11,6 +11,9 @@ describe('migrateVerbLevels', () => {
   test('unknown labels are dropped', () => {
     expect(migrateVerbLevels(['A1', 'C1', 'garbage'])).toEqual(['A1'])
   })
+  test('migration never produces duplicates', () => {
+    expect(migrateVerbLevels(['B2', 'B2.1'])).toEqual(['B2.1'])
+  })
 })
 
 describe('verbLevelToCefr', () => {
@@ -67,6 +70,7 @@ describe('VERBS invariants', () => {
         expect(v.type, v.german).toBe('separable')
         expect(v.separablePrefix, v.german).toBeTruthy()
         expect(bareInfinitive(v).startsWith(v.separablePrefix!), v.german).toBe(true)
+        expect(v.partizip2.startsWith(v.separablePrefix!), `${v.german}: ${v.partizip2}`).toBe(true)
         for (const form of v.praesens) {
           expect(form.endsWith(` ${v.separablePrefix}`), `${v.german}: ${form}`).toBe(true)
         }
@@ -89,6 +93,15 @@ describe('VERBS invariants', () => {
 
   test('B2.2 contains exactly 200 verbs', () => {
     expect(VERBS.filter(v => v.level === 'B2.2').length).toBe(200)
+  })
+
+  test('core fields are non-empty', () => {
+    for (const v of VERBS) {
+      expect(v.english.trim(), v.german).toBeTruthy()
+      expect(v.praeteritumStem.trim(), v.german).toBeTruthy()
+      expect(v.partizip2.trim(), v.german).toBeTruthy()
+      for (const form of v.praesens) expect(form.trim(), `${v.german}: praesens`).toBeTruthy()
+    }
   })
 
   test('verbs gaining an umlaut in er-form supply imperativDu explicitly', () => {
