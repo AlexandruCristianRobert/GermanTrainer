@@ -10,6 +10,14 @@ function run(items: any[]): QuizHistoryEntry {
   }
 }
 
+function runAnswer(items: any[]): QuizHistoryEntry {
+  return {
+    id: 2, type: 'dac-answer', startedAt: '', finishedAt: '', durationMs: 0,
+    count: items.length, correct: items.filter(i => i.correct).length,
+    meta: { dacAnswerItems: items }
+  }
+}
+
 describe('computeDacWeakPoints', () => {
   test('ranks collocations by error rate weighted by log(seen)', () => {
     const entries = [run([
@@ -52,7 +60,7 @@ describe('computeDacWeakPoints', () => {
     expect(wp.weakPreps.find(p => p.prepGerman === 'auf')!.wrong).toBe(1)
   })
 
-  test.each(['preposition', 'compound', 'case', 'typo'] as const)(
+  test.each(['preposition', 'compound', 'case', 'typo', 'word-order'] as const)(
     'a "%s"-tagged miss blames the collocation',
     (tag) => {
       const wp = computeDacWeakPoints([run([
@@ -62,12 +70,46 @@ describe('computeDacWeakPoints', () => {
     }
   )
 
-  test('ignores non-dac-sentence run types', () => {
+  test('ignores non-dac run types', () => {
     const e = run([{ collocId: 'x', collocWord: 'x', prepGerman: 'y', correct: false }])
     e.type = 'dac-formation'
     const wp = computeDacWeakPoints([e])
     expect(wp.weakCollocs).toHaveLength(0)
     expect(wp.weakPreps).toHaveLength(0)
+  })
+
+  test('reads dac-answer entries from meta.dacAnswerItems (T17)', () => {
+    const wp = computeDacWeakPoints([runAnswer([
+      { collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', correct: false, tags: ['word-order'] },
+      { collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', correct: true }
+    ])])
+    expect(wp.weakCollocs[0].collocId).toBe('warten-auf')
+    expect(wp.weakCollocs[0].seen).toBe(2)
+    expect(wp.weakCollocs[0].wrong).toBe(1)
+    expect(wp.tagCounts['word-order']).toBe(1)
+  })
+
+  test('dac-sentence and dac-answer runs aggregate onto the same collocation and preposition', () => {
+    const wp = computeDacWeakPoints([
+      run([{ collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', correct: false, tags: ['preposition'] }]),
+      runAnswer([{ collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', correct: false, tags: ['word-order'] }])
+    ])
+    const colloc = wp.weakCollocs.find(c => c.collocId === 'warten-auf')!
+    const prep = wp.weakPreps.find(p => p.prepGerman === 'auf')!
+    expect(colloc.seen).toBe(2)
+    expect(colloc.wrong).toBe(2)
+    expect(prep.seen).toBe(2)
+    expect(prep.wrong).toBe(2)
+  })
+
+  test('a "word-order"-tagged miss in a dac-answer entry does not blame the noun', () => {
+    const wp = computeDacWeakPoints([runAnswer([
+      { collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', nounKeys: ['Katze'], correct: false, tags: ['word-order', 'noun'] }
+    ])])
+    const colloc = wp.weakCollocs.find(c => c.collocId === 'warten-auf')!
+    expect(colloc.wrong).toBe(1)
+    expect(wp.tagCounts.noun).toBe(1)
+    expect(wp.tagCounts['word-order']).toBe(1)
   })
 
   test('preps keyed by prepGerman aggregate across collocations', () => {

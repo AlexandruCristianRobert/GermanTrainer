@@ -24,6 +24,7 @@ async function mountHome() {
       { path: '/da-compounds/contrast', name: 'dacompounds-contrast', component: { template: '<div />' } },
       { path: '/da-compounds/sentence', name: 'dacompounds-sentence', component: { template: '<div />' } },
       { path: '/da-compounds/assembly', name: 'dacompounds-assembly', component: { template: '<div />' } },
+      { path: '/da-compounds/answer', name: 'dacompounds-answer', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -73,15 +74,26 @@ describe('DaCompoundsHome', () => {
     expect(headings[7]).toContain('Reference')
   })
 
-  it('shows the T16 sentence-assembly card in the new Production group and navigates to it on click', async () => {
+  it('shows the T16 and T17 cards in the Production group and navigates to T16 on click', async () => {
     const { wrapper, router } = await mountHome()
     const group = wrapper.findAll('.module-grid')[6]
     const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(1)
+    expect(groupCards).toHaveLength(2)
     expect(groupCards[0].text()).toContain('Sentence assembly')
+    expect(groupCards[1].text()).toContain('Answer the question')
     await groupCards[0].trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('dacompounds-assembly')
+  })
+
+  it('shows the T17 answer-the-question card right after T16 and navigates to it on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[6]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards[1].text()).toContain('Answer the question')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-answer')
   })
 
   it('shows the T14 and T15 sentence-translation cards in the new Sentence translation group and navigates with a direction query', async () => {
