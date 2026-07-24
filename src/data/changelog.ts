@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.12.9'
+export const APP_VERSION = '1.12.10'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,13 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.10', date: '2026-07-24', kind: 'polish',
+    title: 'Übersetzung · hint shortcut',
+    notes: [
+      '<strong>Shift+R toggles the hint without leaving the keyboard.</strong> While typing an answer in the verb translation quiz, press <code>Shift+R</code> to swap the German verb for its English hint and back. Double-click still works — the shortcut just keeps your hands on the keys. Plain <code>r</code> types normally; answers are lowercase, so the capital letter is free.'
+    ]
+  },
   {
     version: '1.12.9', date: '2026-07-24', kind: 'polish',
     title: 'Da-Compounds · the traps — module complete',
