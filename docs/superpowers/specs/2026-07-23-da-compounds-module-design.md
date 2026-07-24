@@ -3,6 +3,7 @@
 **Date:** 2026-07-23
 **Status:** Content spec — describes what the module should contain (test types + data). No implementation details.
 **Groomed:** 2026-07-23 grill session — naming, placement, selection, granularity, grading, recording (ADR-0010), and cheatsheet resolved; see §6 (decisions) and §7 (phase roadmap).
+**Completed:** 2026-07-24 — all 9 phases (0–8) implemented and released, v1.12.1 → v1.12.9. All 20 tests + cheatsheet + weak points live.
 
 A new module for German pronominal adverbs (dafür, davon, darüber, daran, …) and their
 interrogative counterparts (wofür, wovon, worüber, woran, …). It covers building sentences
@@ -248,6 +249,9 @@ Tests: when the wo-form is required, preferred, or wrong in relative clauses.
 Each phase is released and user-tested before the next one starts (a per-phase
 implementation plan is written when the phase is green-lit). Time cost deliberately
 ignored — ordering is by dependency and pedagogy.
+
+**STATUS: ALL PHASES COMPLETE** (released v1.12.1–v1.12.9, 2026-07-23/24; per-phase plans in
+docs/superpowers/plans/). Remaining backlog lives in §8 and the phase ledgers' Minor lists.
 
 | Phase | Contents | Gate check |
 |---|---|---|
