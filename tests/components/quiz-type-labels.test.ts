@@ -65,4 +65,13 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPE_LABEL['dac-sentence']).toBe('Da-compounds · sentence (AI)')
     expect(QUIZ_TYPE_DE['dac-sentence']).toBe('Da-Compounds · Satz (KI)')
   })
+
+  it('includes the Da-Compounds production drill types (T16 assembly, T17 answer) with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dac-assembly')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-answer')
+    expect(QUIZ_TYPE_LABEL['dac-assembly']).toBe('Da-compounds · assembly')
+    expect(QUIZ_TYPE_DE['dac-assembly']).toBe('Da-Compounds · Satzbau')
+    expect(QUIZ_TYPE_LABEL['dac-answer']).toBe('Da-compounds · answer (AI)')
+    expect(QUIZ_TYPE_DE['dac-answer']).toBe('Da-Compounds · Antworten (KI)')
+  })
 })

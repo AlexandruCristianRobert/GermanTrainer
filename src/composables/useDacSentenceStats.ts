@@ -21,7 +21,9 @@ export function weightedScore(wrong: number, seen: number): number {
 }
 
 function emptyTagCounts(): Record<DacErrorTag, number> {
-  return { preposition: 0, compound: 0, case: 0, noun: 0, typo: 0 }
+  // 'word-order' is T17's tag (Task 4 wires dac-answer entries into this
+  // computation); the record must be complete now that DacErrorTag has grown.
+  return { preposition: 0, compound: 0, case: 0, noun: 0, typo: 0, 'word-order': 0 }
 }
 
 function byScoreDesc(a: { score: number; wrong: number; seen: number }, b: { score: number; wrong: number; seen: number }): number {

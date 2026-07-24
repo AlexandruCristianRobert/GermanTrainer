@@ -27,6 +27,8 @@ export type QuizHistoryType =
   | 'dac-paraphrase'
   | 'dac-contrast'
   | 'dac-sentence'
+  | 'dac-assembly'
+  | 'dac-answer'
   | 'prep-sentence'
   | 'prep-remedial'
   | 'verb-sentence'
@@ -73,8 +75,10 @@ export interface VerbDrillItem {
  *  - case:        right preposition, wrong governed case ending ("auf dem Bus" for Akk)
  *  - noun:        a wrong theme noun (word, gender, or form)
  *  - typo:        a small slip elsewhere
+ *  - word-order:  verb-second (V2) violated, or a compound/da-compound misplaced
+ *                 in the sentence (T17 answer-the-question grading only)
  */
-export type DacErrorTag = 'preposition' | 'compound' | 'case' | 'noun' | 'typo'
+export type DacErrorTag = 'preposition' | 'compound' | 'case' | 'noun' | 'typo' | 'word-order'
 
 /** One recorded answer in a dac-sentence run (EN→DE only). */
 export interface DacDrillItem {
@@ -128,6 +132,14 @@ export interface QuizHistoryMeta {
   dacSentenceDirection?: 'en-de' | 'de-en'
   dacSentenceHints?: boolean
   dacSentenceItems?: DacDrillItem[]   // EN→DE only
+
+  // Da-compound answer-the-question (AI) — T17, AI-graded (single direction)
+  dacAnswerLevels?: string[]
+  dacAnswerRoles?: string[]
+  dacAnswerPreps?: string[]
+  dacAnswerGroups?: string[]
+  dacAnswerHints?: boolean
+  dacAnswerItems?: DacDrillItem[]
 
   declLevels?: string[]
   declCases?: string[]

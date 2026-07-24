@@ -141,6 +141,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Production',
+    de: 'Produktion',
+    cards: [
+      {
+        numeral: 'T16', route: 'dacompounds-assembly',
+        title: 'Sentence assembly', de: 'Satzbau',
+        desc: 'Tap pre-inflected tiles into the right order — a canonical order and, where genuinely idiomatic, a fronted variant both count (Für Briefmarken interessiert sich mein Vater is as right as the plain order).',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [

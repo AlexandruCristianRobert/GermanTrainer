@@ -111,6 +111,8 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'dac-paraphrase': 'da-compound paraphrase (noun phrase <-> Korrelat clause)',
   'dac-contrast': 'da-compound meaning-contrast (same verb, different preposition)',
   'dac-sentence': 'da-compound · sentence translation (AI, collocation + da-compound)',
+  'dac-assembly': 'da-compound · sentence assembly (offline tile ordering, canonical + fronting variants)',
+  'dac-answer': 'da-compound · answer the question (AI, free-typed German answer)',
   'prep-sentence': 'preposition · sentence translation (AI)',
   'prep-remedial': 'preposition · remedial weak-point drill',
   'verb-sentence': 'verb · sentence translation (AI)',
