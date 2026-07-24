@@ -22,6 +22,7 @@ async function mountHome() {
       { path: '/da-compounds/korrelat', name: 'dacompounds-korrelat', component: { template: '<div />' } },
       { path: '/da-compounds/paraphrase', name: 'dacompounds-paraphrase', component: { template: '<div />' } },
       { path: '/da-compounds/contrast', name: 'dacompounds-contrast', component: { template: '<div />' } },
+      { path: '/da-compounds/sentence', name: 'dacompounds-sentence', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -31,7 +32,7 @@ async function mountHome() {
 }
 
 describe('DaCompoundsHome', () => {
-  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, and Reference groups', async () => {
+  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, Sentence translation, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
     const headings = wrapper.findAll('.group-heading').map(h => h.text())
@@ -40,7 +41,32 @@ describe('DaCompoundsHome', () => {
     expect(headings[2]).toContain('Case tests')
     expect(headings[3]).toContain('People vs things')
     expect(headings[4]).toContain('Korrelat & meaning')
-    expect(headings[5]).toContain('Reference')
+    expect(headings[5]).toContain('Sentence translation')
+    expect(headings[6]).toContain('Reference')
+  })
+
+  it('shows the T14 and T15 sentence-translation cards in the new Sentence translation group and navigates with a direction query', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[5]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(2)
+    expect(groupCards[0].text()).toContain('Translate EN→DE')
+    expect(groupCards[1].text()).toContain('Translate DE→EN')
+
+    await groupCards[0].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-sentence')
+    expect(router.currentRoute.value.query.direction).toBe('en-de')
+  })
+
+  it('navigates the T15 card with direction=de-en', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[5]
+    const groupCards = group.findAll('.module-card')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-sentence')
+    expect(router.currentRoute.value.query.direction).toBe('de-en')
   })
 
   it('shows the T11 Korrelat card in the Korrelat & meaning group and navigates on click', async () => {
