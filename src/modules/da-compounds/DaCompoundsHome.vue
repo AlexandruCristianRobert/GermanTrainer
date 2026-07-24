@@ -165,6 +165,16 @@ const groups: Group[] = [
         title: 'Homographs', de: 'damit oder damit?',
         desc: 'The same word, two readings: damit the purpose conjunction ("so that") vs. damit = mit + Sache ("with it"). Each sentence forces exactly one — pick the reading it demands.',
       },
+      {
+        numeral: 'T19', route: 'dacompounds-register',
+        title: 'Register', de: 'gesprochen oder falsch?',
+        desc: 'Judge one phrase raw: is it Standard German — fine in speech AND writing — merely colloquial and never written, or ungrammatical in every register?',
+      },
+      {
+        numeral: 'T20', route: 'dacompounds-relative',
+        title: 'Relative clauses', de: 'worüber oder über das?',
+        desc: 'After a comma, the antecedent decides the link: alles/nichts demands the wo-form, a person forbids it, a concrete thing accepts both — über das or worüber.',
+      },
     ],
   },
   {
