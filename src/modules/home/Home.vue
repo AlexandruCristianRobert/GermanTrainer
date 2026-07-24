@@ -75,7 +75,7 @@ const modules: ModuleCard[] = [
     de: 'Pronominaladverbien',
     title: 'Da-Compounds',
     desc: 'dafür, darauf, davon — build them, pick their case, spot when a person needs a pronoun instead.',
-    meta: 'Cheatsheet live · drills arriving in phases'
+    meta: '20 drills · cheatsheet · weak points'
   },
   {
     numeral: 'IX',

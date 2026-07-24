@@ -157,6 +157,27 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Advanced traps',
+    de: 'Fallen (C1)',
+    cards: [
+      {
+        numeral: 'T18', route: 'dacompounds-homograph',
+        title: 'Homographs', de: 'damit oder damit?',
+        desc: 'The same word, two readings: damit the purpose conjunction ("so that") vs. damit = mit + Sache ("with it"). Each sentence forces exactly one — pick the reading it demands.',
+      },
+      {
+        numeral: 'T19', route: 'dacompounds-register',
+        title: 'Register', de: 'gesprochen oder falsch?',
+        desc: 'Judge one phrase raw: is it Standard German — fine in speech AND writing — merely colloquial and never written, or ungrammatical in every register?',
+      },
+      {
+        numeral: 'T20', route: 'dacompounds-relative',
+        title: 'Relative clauses', de: 'worüber oder über das?',
+        desc: 'After a comma, the antecedent decides the link: alles/nichts demands the wo-form, a person forbids it, a concrete thing accepts both — über das or worüber.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
@@ -182,7 +203,7 @@ function go(target: string, query?: Record<string, string>) {
         <h1 class="section-title">Da-Compounds<em>.</em></h1>
         <p class="section-subtitle">
           dafür, darauf, davon — one small word instead of preposition + pronoun.
-          Study the cheatsheet first; the drills arrive family by family.
+          Twenty drills from formation to free production, plus the cheatsheet.
         </p>
       </div>
     </header>

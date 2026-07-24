@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.12.8'
+export const APP_VERSION = '1.12.9'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.9', date: '2026-07-24', kind: 'polish',
+    title: 'Da-Compounds · the traps — module complete',
+    notes: [
+      '<strong>The last family: three C1 trap drills.</strong> <em>T18 Homographs</em> — the same word, two readings: <em>damit</em> the conjunction vs. <em>damit</em> = mit + it. <em>T19 Register</em> — judge <em>"Da weiß ich nichts von"</em> (spoken, fine) against <em>*darmit</em> (always wrong). <em>T20 Relative clauses</em> — <em>alles, worüber …</em> (wo-form required), <em>das Buch, über das …</em> (preferred), <em>die Frau, von der …</em> (wo-form forbidden).',
+      '<strong>The Da-Compounds module is complete:</strong> twenty drills across seven families — formation, matching, gap-fill, case, people-vs-things, Korrelat, meaning contrast, AI translation and answering, sentence assembly, and the traps — plus the cheatsheet and weak-point tracking. Every dataset hand-written, every answer derived from stored grammar, every release audited.'
+    ]
+  },
   {
     version: '1.12.8', date: '2026-07-24', kind: 'polish',
     title: 'Da-Compounds · production drills',

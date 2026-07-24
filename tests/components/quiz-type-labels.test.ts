@@ -74,4 +74,16 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPE_LABEL['dac-answer']).toBe('Da-compounds · answer (AI)')
     expect(QUIZ_TYPE_DE['dac-answer']).toBe('Da-Compounds · Antworten (KI)')
   })
+
+  it('includes the Da-Compounds advanced-trap drill types (T18 homograph, T19 register, T20 relative) with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dac-homograph')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-register')
+    expect(QUIZ_TYPES_ORDER).toContain('dac-relative')
+    expect(QUIZ_TYPE_LABEL['dac-homograph']).toBe('Da-compounds · homographs')
+    expect(QUIZ_TYPE_DE['dac-homograph']).toBe('Da-Compounds · Doppelgänger')
+    expect(QUIZ_TYPE_LABEL['dac-register']).toBe('Da-compounds · register')
+    expect(QUIZ_TYPE_DE['dac-register']).toBe('Da-Compounds · Register')
+    expect(QUIZ_TYPE_LABEL['dac-relative']).toBe('Da-compounds · relative clauses')
+    expect(QUIZ_TYPE_DE['dac-relative']).toBe('Da-Compounds · Relativsätze')
+  })
 })
