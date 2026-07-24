@@ -9,12 +9,14 @@ import { createPool, type FieldMatchers } from '../data/pool'
 export type CollocationFilter = {
   levels?: CollocationLevel[]
   roles?: CollocationRole[]
+  preps?: string[]
 }
 
-// Flat pool of collocations, filterable by level and role.
+// Flat pool of collocations, filterable by level, role, and governed preposition.
 const collocationPool = createPool<Collocation, CollocationFilter>(COLLOCATIONS, {
   levels: c => c.level,
   roles: c => c.role,
+  preps: c => c.preposition,
 } satisfies FieldMatchers<Collocation, CollocationFilter>)
 
 export function filterCollocations(f: CollocationFilter = {}): Collocation[] {

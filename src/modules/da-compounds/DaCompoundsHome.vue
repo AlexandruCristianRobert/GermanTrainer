@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { loadHistory } from '../../composables/useQuizHistory'
+import DacWeakPoints from '../../components/charts/DacWeakPoints.vue'
 
 const router = useRouter()
+
+// One-shot read from history for the weak-points panel above the groups —
+// this page isn't long-lived, so no reactivity is needed (mirrors
+// PrepositionsHome's weak-point snapshot).
+const historyEntries = loadHistory()
 
 interface Card {
   numeral: string
@@ -9,6 +16,7 @@ interface Card {
   title: string
   de: string
   desc: string
+  query?: Record<string, string>
 }
 
 interface Group {
@@ -115,6 +123,24 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Sentence translation',
+    de: 'Übersetzen (KI)',
+    cards: [
+      {
+        numeral: 'T14', route: 'dacompounds-sentence',
+        title: 'Translate EN→DE', de: 'Satzübersetzung',
+        desc: 'The AI writes an English sentence around one of your collocations and a theme noun — type the German. Both plain-preposition and da-compound constructions appear, with optional word hints.',
+        query: { direction: 'en-de' },
+      },
+      {
+        numeral: 'T15', route: 'dacompounds-sentence',
+        title: 'Translate DE→EN', de: 'Rückübersetzung',
+        desc: 'Now the German sentence comes first — decode the collocation and any da-compound, then type the English meaning. Graded on meaning only, no hints.',
+        query: { direction: 'de-en' },
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
@@ -127,8 +153,8 @@ const groups: Group[] = [
   },
 ]
 
-function go(target: string) {
-  router.push({ name: target })
+function go(target: string, query?: Record<string, string>) {
+  router.push(query ? { name: target, query } : { name: target })
 }
 </script>
 
@@ -145,6 +171,8 @@ function go(target: string) {
       </div>
     </header>
 
+    <DacWeakPoints :entries="historyEntries" />
+
     <template v-for="g in groups" :key="g.heading">
       <h2 class="group-heading">{{ g.heading }} · <span class="group-de">{{ g.de }}</span></h2>
       <div class="module-grid">
@@ -154,9 +182,9 @@ function go(target: string) {
           class="card module-card interactive"
           role="button"
           tabindex="0"
-          @click="go(c.route)"
-          @keydown.enter.prevent="go(c.route)"
-          @keydown.space.prevent="go(c.route)"
+          @click="go(c.route, c.query)"
+          @keydown.enter.prevent="go(c.route, c.query)"
+          @keydown.space.prevent="go(c.route, c.query)"
         >
           <div class="module-numeral">{{ c.numeral }}</div>
           <h2>{{ c.title }}</h2>

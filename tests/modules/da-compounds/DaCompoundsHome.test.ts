@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import DaCompoundsHome from '../../../src/modules/da-compounds/DaCompoundsHome.vue'
@@ -22,6 +22,7 @@ async function mountHome() {
       { path: '/da-compounds/korrelat', name: 'dacompounds-korrelat', component: { template: '<div />' } },
       { path: '/da-compounds/paraphrase', name: 'dacompounds-paraphrase', component: { template: '<div />' } },
       { path: '/da-compounds/contrast', name: 'dacompounds-contrast', component: { template: '<div />' } },
+      { path: '/da-compounds/sentence', name: 'dacompounds-sentence', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -31,7 +32,33 @@ async function mountHome() {
 }
 
 describe('DaCompoundsHome', () => {
-  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, and Reference groups', async () => {
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('hides the weak-points panel when there is no dac-sentence history', async () => {
+    const { wrapper } = await mountHome()
+    expect(wrapper.find('.weak-card').exists()).toBe(false)
+  })
+
+  it('shows the weak-points panel above the drill groups when dac-sentence runs have misses', async () => {
+    localStorage.setItem('gt:quizHistory', JSON.stringify([{
+      id: 1, type: 'dac-sentence', startedAt: '', finishedAt: '', durationMs: 0, count: 2, correct: 0,
+      meta: {
+        dacSentenceItems: [
+          { collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', correct: false, tags: ['preposition'] },
+          { collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', correct: false, tags: ['preposition'] }
+        ]
+      }
+    }]))
+    const { wrapper } = await mountHome()
+    const panel = wrapper.find('.weak-card')
+    expect(panel.exists()).toBe(true)
+    expect(panel.text()).toContain('warten')
+    expect(panel.text()).toContain('auf')
+  })
+
+  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, Sentence translation, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
     const headings = wrapper.findAll('.group-heading').map(h => h.text())
@@ -40,7 +67,32 @@ describe('DaCompoundsHome', () => {
     expect(headings[2]).toContain('Case tests')
     expect(headings[3]).toContain('People vs things')
     expect(headings[4]).toContain('Korrelat & meaning')
-    expect(headings[5]).toContain('Reference')
+    expect(headings[5]).toContain('Sentence translation')
+    expect(headings[6]).toContain('Reference')
+  })
+
+  it('shows the T14 and T15 sentence-translation cards in the new Sentence translation group and navigates with a direction query', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[5]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(2)
+    expect(groupCards[0].text()).toContain('Translate EN→DE')
+    expect(groupCards[1].text()).toContain('Translate DE→EN')
+
+    await groupCards[0].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-sentence')
+    expect(router.currentRoute.value.query.direction).toBe('en-de')
+  })
+
+  it('navigates the T15 card with direction=de-en', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[5]
+    const groupCards = group.findAll('.module-card')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-sentence')
+    expect(router.currentRoute.value.query.direction).toBe('de-en')
   })
 
   it('shows the T11 Korrelat card in the Korrelat & meaning group and navigates on click', async () => {

@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.12.6'
+export const APP_VERSION = '1.12.7'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.7', date: '2026-07-24', kind: 'polish',
+    title: 'Da-Compounds · AI sentence translation',
+    notes: [
+      '<strong>The module goes generative.</strong> <em>T14 EN→DE</em> — the AI writes an English sentence around a collocation from your selection plus nouns from your themes; you translate it, and the grader accepts both constructions (<em>auf das Konzert</em> or <em>darauf, dass …</em>) while tagging what went wrong: preposition, compound form, case, noun, or typo. <em>T15 DE→EN</em> — decode the compound in context (<em>darauf</em> is rarely "on it").',
+      '<strong>Weak points, da-compound edition.</strong> Wrong answers feed a new panel on the module home showing the collocations and prepositions you miss most — the groundwork for a remedial drill in a later phase.'
+    ]
+  },
   {
     version: '1.12.6', date: '2026-07-23', kind: 'polish',
     title: 'Da-Compounds · Korrelat, the B2 flagship',

@@ -28,6 +28,7 @@ import LevelAssessmentPanel from '../../components/charts/LevelAssessmentPanel.v
 import KonjunktivStats from '../../components/charts/KonjunktivStats.vue'
 import PrepWeakPoints from '../../components/charts/PrepWeakPoints.vue'
 import VerbWeakPoints from '../../components/charts/VerbWeakPoints.vue'
+import DacWeakPoints from '../../components/charts/DacWeakPoints.vue'
 import PassivStats from '../../components/charts/PassivStats.vue'
 import WritingStats from '../../components/charts/WritingStats.vue'
 import SimulatorStats from '../../components/charts/SimulatorStats.vue'
@@ -65,6 +66,7 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'dac-korrelat':     { label: 'Da-compounds · Korrelat', de: 'Da-Compounds · Korrelat', module: 'Da-Compounds' },
   'dac-paraphrase':   { label: 'Da-compounds · paraphrase', de: 'Da-Compounds · Umformung', module: 'Da-Compounds' },
   'dac-contrast':     { label: 'Da-compounds · meaning contrast', de: 'Da-Compounds · Bedeutungskontrast', module: 'Da-Compounds' },
+  'dac-sentence':     { label: 'Da-compounds · sentence (AI)', de: 'Da-Compounds · Satz (KI)', module: 'Da-Compounds' },
   'prep-sentence':    { label: 'Preposition · sentence (AI)', de: 'Präposition · Satz (KI)', module: 'Prepositions' },
   'prep-remedial':    { label: 'Preposition · remedial', de: 'Präposition · Schwachstellen', module: 'Prepositions' },
   'verb-sentence':  { label: 'Verb · sentence (AI)', de: 'Verb · Satz (KI)', module: 'Verbs' },
@@ -92,6 +94,7 @@ const typeOrder: QuizHistoryType[] = [
   'dac-case', 'dac-pronoun-case', 'dac-article',
   'dac-transform', 'dac-wo-question', 'dac-dialogue',
   'dac-korrelat', 'dac-paraphrase', 'dac-contrast',
+  'dac-sentence',
   'prep-sentence', 'prep-remedial',
   'decl-table', 'decl-article', 'decl-adjective',
   'decl-pronoun', 'decl-case-recognition',
@@ -410,6 +413,7 @@ function summariseMeta(it: QuizHistoryEntry): string {
         :stats="stats"
       />
       <VerbWeakPoints :entries="items" />
+      <DacWeakPoints :entries="items" />
       <KonjunktivStats :items="items" />
       <PassivStats :items="items" />
       <WritingStats :items="items" />

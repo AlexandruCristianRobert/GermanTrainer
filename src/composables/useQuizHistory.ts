@@ -26,6 +26,7 @@ export type QuizHistoryType =
   | 'dac-korrelat'
   | 'dac-paraphrase'
   | 'dac-contrast'
+  | 'dac-sentence'
   | 'prep-sentence'
   | 'prep-remedial'
   | 'verb-sentence'
@@ -62,6 +63,29 @@ export interface VerbDrillItem {
   tags?: VerbErrorTag[]  // why wrong; absent when correct
 }
 
+/**
+ * A da-compound sentence error category the AI grader may assign.
+ *  - preposition: the governed preposition is wrong or missing (warten *für → auf)
+ *  - compound:    the preposition is right but the da-compound is malformed
+ *                 (*daauf/*darmit → darauf/damit), OR a da-compound is used for a
+ *                 PERSON (should be preposition + pronoun: "auf ihn"), OR a
+ *                 preposition + pronoun is used for a THING (should be "darauf")
+ *  - case:        right preposition, wrong governed case ending ("auf dem Bus" for Akk)
+ *  - noun:        a wrong theme noun (word, gender, or form)
+ *  - typo:        a small slip elsewhere
+ */
+export type DacErrorTag = 'preposition' | 'compound' | 'case' | 'noun' | 'typo'
+
+/** One recorded answer in a dac-sentence run (EN→DE only). */
+export interface DacDrillItem {
+  collocId?: string       // stable collocation id (for weak-point keying)
+  collocWord?: string     // denormalized German headword for display
+  prepGerman?: string     // the governed preposition, denormalized for display
+  nounKeys?: string[]     // german surfaces of the theme nouns involved
+  correct: boolean
+  tags?: DacErrorTag[]    // why wrong; absent when correct
+}
+
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation' | 'pick' | 'type'
   preps?: string[]   // Da-compound drills: preposition filter
@@ -94,6 +118,16 @@ export interface QuizHistoryMeta {
   verbSentenceNounsPer?: 1 | 2 | 'mix'
   verbSentenceHints?: boolean
   verbSentenceItems?: VerbDrillItem[]
+
+  // Da-compound sentence-translation (AI) — T14 EN→DE / T15 DE→EN, AI-graded
+  dacSentenceLevels?: string[]
+  dacSentenceRoles?: string[]
+  dacSentencePreps?: string[]
+  dacSentenceGroups?: string[]
+  dacSentenceNounsPer?: 1 | 2 | 'mix'
+  dacSentenceDirection?: 'en-de' | 'de-en'
+  dacSentenceHints?: boolean
+  dacSentenceItems?: DacDrillItem[]   // EN→DE only
 
   declLevels?: string[]
   declCases?: string[]

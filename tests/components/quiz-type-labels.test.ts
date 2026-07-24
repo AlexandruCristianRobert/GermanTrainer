@@ -59,4 +59,10 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPE_LABEL['dac-contrast']).toBe('Da-compounds · meaning contrast')
     expect(QUIZ_TYPE_DE['dac-contrast']).toBe('Da-Compounds · Bedeutungskontrast')
   })
+
+  it('includes the Da-Compounds AI sentence-translation drill type with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dac-sentence')
+    expect(QUIZ_TYPE_LABEL['dac-sentence']).toBe('Da-compounds · sentence (AI)')
+    expect(QUIZ_TYPE_DE['dac-sentence']).toBe('Da-Compounds · Satz (KI)')
+  })
 })

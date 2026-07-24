@@ -110,6 +110,7 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'dac-korrelat': 'da-compound Korrelat completion (obligatory/optional/excluded)',
   'dac-paraphrase': 'da-compound paraphrase (noun phrase <-> Korrelat clause)',
   'dac-contrast': 'da-compound meaning-contrast (same verb, different preposition)',
+  'dac-sentence': 'da-compound · sentence translation (AI, collocation + da-compound)',
   'prep-sentence': 'preposition · sentence translation (AI)',
   'prep-remedial': 'preposition · remedial weak-point drill',
   'verb-sentence': 'verb · sentence translation (AI)',
