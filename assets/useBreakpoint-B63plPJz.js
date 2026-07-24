@@ -1,0 +1,1 @@
+import{g as a,j as s}from"./index-Bt5BDhur.js";const i="(max-width: 767.99px)";function c(){const e=window.matchMedia(i),n=a(e.matches);function t(o){n.value=o.matches}return e.addEventListener("change",t),s(()=>{e.removeEventListener("change",t)}),{isMobile:n}}export{c as u};
