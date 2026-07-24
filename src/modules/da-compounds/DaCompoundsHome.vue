@@ -203,7 +203,7 @@ function go(target: string, query?: Record<string, string>) {
         <h1 class="section-title">Da-Compounds<em>.</em></h1>
         <p class="section-subtitle">
           dafür, darauf, davon — one small word instead of preposition + pronoun.
-          Study the cheatsheet first; the drills arrive family by family.
+          Twenty drills from formation to free production, plus the cheatsheet.
         </p>
       </div>
     </header>
