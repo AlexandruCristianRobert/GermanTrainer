@@ -96,6 +96,11 @@ function correctLabel(q: { accepted: string[] }): string {
   return q.accepted[0]
 }
 
+/** German label for the antecedent kind in the result list (raw enum reads as jargon). */
+function kindLabel(kind: string): string {
+  return kind === 'indefinite' ? 'unbestimmt' : kind === 'person' ? 'Person' : 'Sache'
+}
+
 // ── actions ──────────────────────────────────────────────────────────────────
 function pick(option: string) {
   if (!quiz.value || submitted.value) return
@@ -214,7 +219,7 @@ function restart() {
       >
         <div class="result-word">
           <div class="german">{{ q.item.sentence }}</div>
-          <div class="result-word-meta">{{ q.item.level }} · {{ q.item.antecedentKind }}</div>
+          <div class="result-word-meta">{{ q.item.level }} · {{ kindLabel(q.item.antecedentKind) }}</div>
         </div>
         <div class="result-answer">
           <span class="result-picked" :class="q.isCorrect ? 'ok' : 'err'">{{ q.picked || '—' }}</span>
