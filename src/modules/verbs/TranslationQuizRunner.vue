@@ -104,6 +104,19 @@ function toggleTip(i: number) {
   showTip.value[i] = !showTip.value[i]
 }
 
+// Shift+R while typing toggles the row's hint (de-en only — answers are
+// lowercase, so the capital R never collides with real input).
+function onInputKeydown(e: KeyboardEvent, i: number) {
+  if (
+    direction.value === 'de-en'
+    && e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey
+    && e.key.toLowerCase() === 'r'
+  ) {
+    e.preventDefault()
+    toggleTip(i)
+  }
+}
+
 const filledCount = computed(() => answers.value.filter(a => a.trim().length > 0).length)
 const total = computed(() => deck.value.length)
 
@@ -186,7 +199,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
           <h1 class="section-title">Übersetzung<em>.</em></h1>
           <p v-if="direction === 'de-en'" class="section-subtitle">
             Type the English meaning of each verb. "to" is optional, and where several meanings are listed any one counts. Press Enter to jump to the next line.
-            <em class="hint-aside">Double-click a verb for an English hint that nudges you toward the meaning.</em>
+            <em class="hint-aside">Double-click a verb — or press Shift+R while typing — for an English hint that nudges you toward the meaning.</em>
           </p>
           <p v-else class="section-subtitle">
             Type the German infinitive for each meaning. For reflexive verbs "sich" is optional. Press Enter to jump to the next line.
@@ -224,7 +237,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
                 v-if="direction === 'de-en'"
                 class="test-verb"
                 :class="{ 'with-tip': showTip[i] }"
-                :title="showTip[i] ? 'Double-click to show the verb' : 'Double-click for an English hint'"
+                :title="showTip[i] ? 'Double-click or Shift+R to show the verb' : 'Double-click or Shift+R for an English hint'"
                 @dblclick="toggleTip(i)"
               >{{ showTip[i] ? getVerbTip(verb.german) : verb.german }}</span>
               <span v-else class="test-verb">{{ verb.english }}</span>
@@ -242,6 +255,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
               :value="answers[i]"
               @input="setAnswer(i, ($event.target as HTMLInputElement).value)"
               @keydown.enter="onEnter($event, i)"
+              @keydown="onInputKeydown($event, i)"
               @focus="onRowFocus($event)"
               autocomplete="off"
               spellcheck="false"
