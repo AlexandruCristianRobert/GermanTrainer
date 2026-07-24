@@ -28,6 +28,7 @@ import LevelAssessmentPanel from '../../components/charts/LevelAssessmentPanel.v
 import KonjunktivStats from '../../components/charts/KonjunktivStats.vue'
 import PrepWeakPoints from '../../components/charts/PrepWeakPoints.vue'
 import VerbWeakPoints from '../../components/charts/VerbWeakPoints.vue'
+import DacWeakPoints from '../../components/charts/DacWeakPoints.vue'
 import PassivStats from '../../components/charts/PassivStats.vue'
 import WritingStats from '../../components/charts/WritingStats.vue'
 import SimulatorStats from '../../components/charts/SimulatorStats.vue'
@@ -412,6 +413,7 @@ function summariseMeta(it: QuizHistoryEntry): string {
         :stats="stats"
       />
       <VerbWeakPoints :entries="items" />
+      <DacWeakPoints :entries="items" />
       <KonjunktivStats :items="items" />
       <PassivStats :items="items" />
       <WritingStats :items="items" />
