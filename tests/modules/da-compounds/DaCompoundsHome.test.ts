@@ -25,6 +25,7 @@ async function mountHome() {
       { path: '/da-compounds/sentence', name: 'dacompounds-sentence', component: { template: '<div />' } },
       { path: '/da-compounds/assembly', name: 'dacompounds-assembly', component: { template: '<div />' } },
       { path: '/da-compounds/answer', name: 'dacompounds-answer', component: { template: '<div />' } },
+      { path: '/da-compounds/homograph', name: 'dacompounds-homograph', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -60,7 +61,7 @@ describe('DaCompoundsHome', () => {
     expect(panel.text()).toContain('auf')
   })
 
-  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, Sentence translation, Production, and Reference groups', async () => {
+  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, Sentence translation, Production, Advanced traps, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
     const headings = wrapper.findAll('.group-heading').map(h => h.text())
@@ -71,7 +72,19 @@ describe('DaCompoundsHome', () => {
     expect(headings[4]).toContain('Korrelat & meaning')
     expect(headings[5]).toContain('Sentence translation')
     expect(headings[6]).toContain('Production')
-    expect(headings[7]).toContain('Reference')
+    expect(headings[7]).toContain('Advanced traps')
+    expect(headings[8]).toContain('Reference')
+  })
+
+  it('shows the T18 homograph card in the new Advanced traps group and navigates on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[7]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(1)
+    expect(groupCards[0].text()).toContain('Homographs')
+    await groupCards[0].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-homograph')
   })
 
   it('shows the T16 and T17 cards in the Production group and navigates to T16 on click', async () => {

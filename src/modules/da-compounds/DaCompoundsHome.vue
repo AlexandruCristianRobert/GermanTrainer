@@ -157,6 +157,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Advanced traps',
+    de: 'Fallen (C1)',
+    cards: [
+      {
+        numeral: 'T18', route: 'dacompounds-homograph',
+        title: 'Homographs', de: 'damit oder damit?',
+        desc: 'The same word, two readings: damit the purpose conjunction ("so that") vs. damit = mit + Sache ("with it"). Each sentence forces exactly one — pick the reading it demands.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
