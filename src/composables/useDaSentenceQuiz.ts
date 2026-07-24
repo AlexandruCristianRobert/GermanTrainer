@@ -425,7 +425,10 @@ export interface DacAnswerGrade {
   tags?: DacErrorTag[]
 }
 
-const DAC_ERROR_TAGS: readonly DacErrorTag[] = ['preposition', 'compound', 'case', 'noun', 'typo']
+// The full 6-tag set (parse filters accept all of them); T14/T15's own grading
+// prompt below still only DEFINES/ASKS for the original five — 'word-order' is
+// T17's tag (verb-second / compound placement) but harmless to accept here too.
+const DAC_ERROR_TAGS: readonly DacErrorTag[] = ['preposition', 'compound', 'case', 'noun', 'typo', 'word-order']
 
 const DAC_GRADE_SCHEMA = {
   type: 'object',

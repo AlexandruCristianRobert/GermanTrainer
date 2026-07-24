@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.12.7'
+export const APP_VERSION = '1.12.8'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.8', date: '2026-07-24', kind: 'polish',
+    title: 'Da-Compounds · production drills',
+    notes: [
+      '<strong>Build it, don\'t just pick it.</strong> <em>T16 Sentence assembly</em> — tap pre-inflected tiles into order; curated fronting variants count too (<em>Für Briefmarken interessiert sich mein Vater</em> is as right as the plain order). <em>T17 Answer the question</em> — the AI asks (<em>Freust du dich auf das Wochenende?</em>), you answer freely; Mittelfeld and fronted compounds both accepted, and a new <em>word-order</em> tag joins the weak-point tracking.',
+      '<strong>Weak points now learn from both AI drills</strong> — translation and answering feed the same collocation/preposition panel on the module home.'
+    ]
+  },
   {
     version: '1.12.7', date: '2026-07-24', kind: 'polish',
     title: 'Da-Compounds · AI sentence translation',

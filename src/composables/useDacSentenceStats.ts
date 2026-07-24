@@ -11,9 +11,14 @@ export interface DacWeakPoints {
   tagCounts: Record<DacErrorTag, number>
 }
 
-const DAC_SENTENCE_TYPES = new Set(['dac-sentence'])
-// A miss blames the collocation/preposition unless it was purely the noun's fault.
-const DAC_FAULT_TAGS: DacErrorTag[] = ['preposition', 'compound', 'case', 'typo']
+// Both AI drills feed this same weak-point computation: dac-sentence (T14/T15,
+// EN→DE only) and dac-answer (T17) — each reads its own meta key below.
+const DAC_HISTORY_TYPES = new Set(['dac-sentence', 'dac-answer'])
+// A miss blames the collocation/preposition unless it was purely the noun's
+// fault. 'word-order' (T17: verb-second violated, or the compound/reflexive/
+// object misplaced) is a grammar fault on the collocation's construction, same
+// as the other four tags.
+const DAC_FAULT_TAGS: DacErrorTag[] = ['preposition', 'compound', 'case', 'typo', 'word-order']
 
 /** Error-rate weighted by log of attempts (1-of-1 wrong → 0). */
 export function weightedScore(wrong: number, seen: number): number {
@@ -21,7 +26,13 @@ export function weightedScore(wrong: number, seen: number): number {
 }
 
 function emptyTagCounts(): Record<DacErrorTag, number> {
-  return { preposition: 0, compound: 0, case: 0, noun: 0, typo: 0 }
+  return { preposition: 0, compound: 0, case: 0, noun: 0, typo: 0, 'word-order': 0 }
+}
+
+/** The per-item drill array for one history entry, keyed by its own run type. */
+function itemsFor(entry: QuizHistoryEntry): DacDrillItem[] {
+  if (entry.type === 'dac-answer') return entry.meta.dacAnswerItems ?? []
+  return entry.meta.dacSentenceItems ?? []
 }
 
 function byScoreDesc(a: { score: number; wrong: number; seen: number }, b: { score: number; wrong: number; seen: number }): number {
@@ -36,8 +47,8 @@ export function computeDacWeakPoints(entries: QuizHistoryEntry[]): DacWeakPoints
   const tagCounts = emptyTagCounts()
 
   for (const entry of entries) {
-    if (!DAC_SENTENCE_TYPES.has(entry.type)) continue
-    const items: DacDrillItem[] = entry.meta.dacSentenceItems ?? []
+    if (!DAC_HISTORY_TYPES.has(entry.type)) continue
+    const items = itemsFor(entry)
     for (const item of items) {
       const tags = item.tags
       const hasTags = Array.isArray(tags) && tags.length > 0

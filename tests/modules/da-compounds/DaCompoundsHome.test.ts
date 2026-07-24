@@ -23,6 +23,8 @@ async function mountHome() {
       { path: '/da-compounds/paraphrase', name: 'dacompounds-paraphrase', component: { template: '<div />' } },
       { path: '/da-compounds/contrast', name: 'dacompounds-contrast', component: { template: '<div />' } },
       { path: '/da-compounds/sentence', name: 'dacompounds-sentence', component: { template: '<div />' } },
+      { path: '/da-compounds/assembly', name: 'dacompounds-assembly', component: { template: '<div />' } },
+      { path: '/da-compounds/answer', name: 'dacompounds-answer', component: { template: '<div />' } },
     ],
   })
   await router.push({ name: 'dacompounds' })
@@ -58,7 +60,7 @@ describe('DaCompoundsHome', () => {
     expect(panel.text()).toContain('auf')
   })
 
-  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, Sentence translation, and Reference groups', async () => {
+  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, Sentence translation, Production, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
     const headings = wrapper.findAll('.group-heading').map(h => h.text())
@@ -68,7 +70,30 @@ describe('DaCompoundsHome', () => {
     expect(headings[3]).toContain('People vs things')
     expect(headings[4]).toContain('Korrelat & meaning')
     expect(headings[5]).toContain('Sentence translation')
-    expect(headings[6]).toContain('Reference')
+    expect(headings[6]).toContain('Production')
+    expect(headings[7]).toContain('Reference')
+  })
+
+  it('shows the T16 and T17 cards in the Production group and navigates to T16 on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[6]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards).toHaveLength(2)
+    expect(groupCards[0].text()).toContain('Sentence assembly')
+    expect(groupCards[1].text()).toContain('Answer the question')
+    await groupCards[0].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-assembly')
+  })
+
+  it('shows the T17 answer-the-question card right after T16 and navigates to it on click', async () => {
+    const { wrapper, router } = await mountHome()
+    const group = wrapper.findAll('.module-grid')[6]
+    const groupCards = group.findAll('.module-card')
+    expect(groupCards[1].text()).toContain('Answer the question')
+    await groupCards[1].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('dacompounds-answer')
   })
 
   it('shows the T14 and T15 sentence-translation cards in the new Sentence translation group and navigates with a direction query', async () => {

@@ -141,6 +141,22 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Production',
+    de: 'Produktion',
+    cards: [
+      {
+        numeral: 'T16', route: 'dacompounds-assembly',
+        title: 'Sentence assembly', de: 'Satzbau',
+        desc: 'Tap pre-inflected tiles into the right order — a canonical order and, where genuinely idiomatic, a fronted variant both count (Für Briefmarken interessiert sich mein Vater is as right as the plain order).',
+      },
+      {
+        numeral: 'T17', route: 'dacompounds-answer',
+        title: 'Answer the question', de: 'Antworten (KI)',
+        desc: 'The AI asks a natural German question about your theme (Freust du dich auf das Wochenende?) — type a free German answer. Mittelfeld and fronted compounds both count, graded on content and grammar together, word order included.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
