@@ -99,10 +99,11 @@ export const DAC_ANSWER_GEN_SYSTEM =
   'The answer must keep German verb-second word order: even with a fronted compound the finite verb stays ' +
   'in second position ("Darauf freue ich mich schon.").\n' +
   'CRITICAL da-compound rule: a da-compound (darauf, damit, daran, darüber, dafür …) may ONLY stand for a ' +
-  'THING, a fact, or a clause — NEVER for a PERSON. Build EVERY question around a thing / fact / clause ' +
-  'object (use the theme noun(s), which are things) so the answer can naturally take a da-compound. If a ' +
-  'collocation\'s most natural object were a PERSON, the exampleAnswer must instead use preposition + ' +
-  'personal pronoun ("auf ihn", "an sie") — do NOT force a da-compound onto a person, and never write ' +
+  'THING, a fact, or a clause — NEVER for a PERSON. Prefer building the question around a thing / fact / ' +
+  'clause object so the answer can naturally take a da-compound. If a given theme noun (or the ' +
+  'collocation\'s natural object) is a PERSON — der Bruder, das Baby, die Kollegin … — you may still build ' +
+  'the question around it, but the exampleAnswer must then use preposition + personal pronoun ' +
+  '("auf ihn", "an sie") — do NOT force a da-compound onto a person, and never write ' +
   '"darauf"/"daran" to mean a person. ' +
   'Return JSON {"items":[{"index":<number>,"question":"...","exampleAnswer":"..."}]} with exactly one entry ' +
   'per requested index.'
@@ -146,8 +147,9 @@ export function buildAnswerGeneratePrompt(
     `governed case, and be answerable with that collocation (yes/no OR wh-question):\n` +
     lines.join('\n') +
     `\nEvery exampleAnswer MUST be a full German sentence that uses the da-compound (darauf, damit, daran …) ` +
-    `to refer back to the thing / fact / clause asked about — NEVER a da-compound for a person; if the object ` +
-    `were a person use preposition + pronoun ("auf ihn") instead. Keep verb-second word order even when the ` +
+    `to refer back to the thing / fact / clause asked about — NEVER a da-compound for a person; if the given ` +
+    `theme noun or the asked-about object is a person, use preposition + pronoun ("auf ihn", "an sie") ` +
+    `instead. Keep verb-second word order even when the ` +
     `compound is fronted ("Darauf freue ich mich schon.").` +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.`
@@ -301,8 +303,10 @@ export function buildAnswerGradePrompt(opts: DacAnswerGradeInput): { system: str
     'a full noun phrase that repeats the object ("Ich freue mich auf das Wochenende."); ' +
     'and a short but complete answer that still shows the collocation/compound structure. ' +
     'An answer may open with ja / nein / doch — that is always fine and never an error by itself. ' +
-    'Reject only a bare answer with no structure (a lone "Ja." showing neither the collocation nor a ' +
-    'compound is NOT enough). ' +
+    'A prepositional-phrase fragment answering a wh-question ("Worauf freust du dich?" — "Auf das ' +
+    'Wochenende!") ALSO counts as correct: it demonstrates the target preposition and case. ' +
+    'Among short answers, reject only a bare one with no structure (a lone "Ja." showing neither the ' +
+    'collocation nor a compound is NOT enough); grammatical errors elsewhere are judged normally. ' +
     'When "correct" is false, set "tip" to ONE short English sentence pinpointing the single most important ' +
     'mistake, and set "errorTags" to every applicable value from EXACTLY these six: ' +
     '"preposition" (the governed preposition is wrong or missing — e.g. "warten für" instead of "warten auf"); ' +

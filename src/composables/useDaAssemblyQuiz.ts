@@ -84,10 +84,20 @@ export interface AssemblyQuestion extends AssemblyJoinedItem {
   usedVariant: boolean
 }
 
+/** Deal a shuffled pool that never spells out an accepted order top-to-bottom (bounded retries). */
+function dealPool(item: AssemblyItem, rng: Rng): { index: number; tile: string }[] {
+  const accepted = acceptedOrders(item).map(o => o.join(','))
+  let pool = shuffle(item.tiles.map((tile, index) => ({ index, tile })), item.tiles.length, rng)
+  for (let attempt = 0; attempt < 8 && accepted.includes(pool.map(t => t.index).join(',')); attempt++) {
+    pool = shuffle(item.tiles.map((tile, index) => ({ index, tile })), item.tiles.length, rng)
+  }
+  return pool
+}
+
 export function useDaAssemblyQuiz(items: AssemblyJoinedItem[], rng: Rng = Math.random) {
   const questions = ref<AssemblyQuestion[]>(items.map(ji => ({
     ...ji,
-    pool: shuffle(ji.item.tiles.map((tile, index) => ({ index, tile })), ji.item.tiles.length, rng),
+    pool: dealPool(ji.item, rng),
     placed: [],
     submitted: false,
     isCorrect: null,

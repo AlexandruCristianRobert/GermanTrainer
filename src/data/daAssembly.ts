@@ -65,7 +65,7 @@ export const DA_ASSEMBLY: AssemblyItem[] = [
   // Fronting variant: "Schon lange warte ich auf den Bus."
   { id: 'as-warten-auf', collocationId: 'warten-auf', level: 'B1',
     tiles: ['ich', 'warte', 'schon lange', 'auf den Bus'],
-    variants: [[2, 1, 0, 3]], punctuation: '.' },
+    variants: [[2, 1, 0, 3], [3, 1, 0, 2]], punctuation: '.' },
   // Korrelat (darauf, dass …) — enthusiastic.
   { id: 'as-sich-freuen-auf', collocationId: 'sich-freuen-auf', level: 'B1',
     tiles: ['ich', 'freue mich', 'darauf,', 'dass du kommst'],
@@ -86,7 +86,7 @@ export const DA_ASSEMBLY: AssemblyItem[] = [
   // Fronting variant: "Oft erzählen die Kinder von der Schule."
   { id: 'as-erzaehlen-von', collocationId: 'erzaehlen-von', level: 'B1',
     tiles: ['die Kinder', 'erzählen', 'oft', 'von der Schule'],
-    variants: [[2, 1, 0, 3]], punctuation: '.' },
+    variants: [[2, 1, 0, 3], [3, 1, 0, 2]], punctuation: '.' },
   // Brief's model item. Fronting: "Für Briefmarken interessiert sich mein Vater sehr."
   { id: 'as-sich-interessieren-fuer', collocationId: 'sich-interessieren-fuer', level: 'B1',
     tiles: ['mein Vater', 'interessiert sich', 'sehr', 'für Briefmarken'],
@@ -94,19 +94,19 @@ export const DA_ASSEMBLY: AssemblyItem[] = [
   // Fronting variant: "Jeden Tag sorgen die Eltern für ihre Kinder."
   { id: 'as-sorgen-fuer', collocationId: 'sorgen-fuer', level: 'B1',
     tiles: ['die Eltern', 'sorgen', 'jeden Tag', 'für ihre Kinder'],
-    variants: [[2, 1, 0, 3]], punctuation: '.' },
+    variants: [[2, 1, 0, 3], [3, 1, 0, 2]], punctuation: '.' },
   // Fronting variant: "Oft denke ich an meine Kindheit."
   { id: 'as-denken-an', collocationId: 'denken-an', level: 'B1',
     tiles: ['ich', 'denke', 'oft', 'an meine Kindheit'],
-    variants: [[2, 1, 0, 3]], punctuation: '.' },
+    variants: [[2, 1, 0, 3], [3, 1, 0, 2]], punctuation: '.' },
   // Korrelat (daran, dass …).
   { id: 'as-sich-erinnern-an', collocationId: 'sich-erinnern-an', level: 'B1',
-    tiles: ['ich', 'erinnere mich', 'daran,', 'dass wir uns kennen'],
+    tiles: ['ich', 'erinnere mich', 'daran,', 'dass wir uns schon mal getroffen haben'],
     punctuation: '.' },
   // Fronting variant: "Heute sprechen wir über die Zukunft."
   { id: 'as-sprechen-ueber', collocationId: 'sprechen-ueber', level: 'B1',
     tiles: ['wir', 'sprechen', 'heute', 'über die Zukunft'],
-    variants: [[2, 1, 0, 3]], punctuation: '.' },
+    variants: [[2, 1, 0, 3], [3, 1, 0, 2]], punctuation: '.' },
   // Reflexive + full-noun subject. Fronting: "Um den Hund kümmert sich meine Schwester liebevoll."
   { id: 'as-sich-kuemmern-um', collocationId: 'sich-kuemmern-um', level: 'B1',
     tiles: ['meine Schwester', 'kümmert sich', 'liebevoll', 'um den Hund'],
@@ -127,7 +127,7 @@ export const DA_ASSEMBLY: AssemblyItem[] = [
   // "Oft hilft mir meine Mutter bei den Hausaufgaben."
   { id: 'as-helfen-bei', collocationId: 'helfen-bei', level: 'B1',
     tiles: ['meine Mutter', 'hilft mir', 'oft', 'bei den Hausaufgaben'],
-    variants: [[2, 1, 0, 3]], punctuation: '.' },
+    variants: [[2, 1, 0, 3], [3, 1, 0, 2]], punctuation: '.' },
 
   // ─────────────────────────────── B2 ───────────────────────────────
   // Fronting variant: "Auf den Nachtisch verzichte ich gern."
@@ -211,7 +211,7 @@ export const DA_ASSEMBLY: AssemblyItem[] = [
   // Fronting variant: "Nach Anerkennung strebt er sein Leben lang."
   { id: 'as-streben-nach', collocationId: 'streben-nach', level: 'C1',
     tiles: ['er', 'strebt', 'sein Leben lang', 'nach Anerkennung'],
-    variants: [[3, 1, 0, 2]], punctuation: '.' },
+    variants: [[3, 1, 0, 2], [2, 1, 0, 3]], punctuation: '.' },
   // Reflexive + full-noun subject. Fronting: "Von der Aussage distanziert sich die Partei klar."
   { id: 'as-sich-distanzieren-von', collocationId: 'sich-distanzieren-von', level: 'C1',
     tiles: ['die Partei', 'distanziert sich', 'klar', 'von der Aussage'],
@@ -223,7 +223,7 @@ export const DA_ASSEMBLY: AssemblyItem[] = [
   // Fronting variant: "Über viel Kapital verfügt die Firma inzwischen."
   { id: 'as-verfuegen-ueber', collocationId: 'verfuegen-ueber', level: 'C1',
     tiles: ['die Firma', 'verfügt', 'inzwischen', 'über viel Kapital'],
-    variants: [[3, 1, 0, 2]], punctuation: '.' },
+    variants: [[3, 1, 0, 2], [2, 1, 0, 3]], punctuation: '.' },
   // Korrelat (dazu, zu … Perfekt) — reflexive.
   { id: 'as-sich-bekennen-zu', collocationId: 'sich-bekennen-zu', level: 'C1',
     tiles: ['sie', 'bekennt sich', 'dazu,', 'einen Fehler gemacht zu haben'],
