@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { loadHistory } from '../../composables/useQuizHistory'
+import DacWeakPoints from '../../components/charts/DacWeakPoints.vue'
 
 const router = useRouter()
+
+// One-shot read from history for the weak-points panel above the groups —
+// this page isn't long-lived, so no reactivity is needed (mirrors
+// PrepositionsHome's weak-point snapshot).
+const historyEntries = loadHistory()
 
 interface Card {
   numeral: string
@@ -163,6 +170,8 @@ function go(target: string, query?: Record<string, string>) {
         </p>
       </div>
     </header>
+
+    <DacWeakPoints :entries="historyEntries" />
 
     <template v-for="g in groups" :key="g.heading">
       <h2 class="group-heading">{{ g.heading }} · <span class="group-de">{{ g.de }}</span></h2>

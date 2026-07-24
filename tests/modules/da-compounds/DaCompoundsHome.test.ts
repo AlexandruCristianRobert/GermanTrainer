@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import DaCompoundsHome from '../../../src/modules/da-compounds/DaCompoundsHome.vue'
@@ -32,6 +32,32 @@ async function mountHome() {
 }
 
 describe('DaCompoundsHome', () => {
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('hides the weak-points panel when there is no dac-sentence history', async () => {
+    const { wrapper } = await mountHome()
+    expect(wrapper.find('.weak-card').exists()).toBe(false)
+  })
+
+  it('shows the weak-points panel above the drill groups when dac-sentence runs have misses', async () => {
+    localStorage.setItem('gt:quizHistory', JSON.stringify([{
+      id: 1, type: 'dac-sentence', startedAt: '', finishedAt: '', durationMs: 0, count: 2, correct: 0,
+      meta: {
+        dacSentenceItems: [
+          { collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', correct: false, tags: ['preposition'] },
+          { collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', correct: false, tags: ['preposition'] }
+        ]
+      }
+    }]))
+    const { wrapper } = await mountHome()
+    const panel = wrapper.find('.weak-card')
+    expect(panel.exists()).toBe(true)
+    expect(panel.text()).toContain('warten')
+    expect(panel.text()).toContain('auf')
+  })
+
   it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, Sentence translation, and Reference groups', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
