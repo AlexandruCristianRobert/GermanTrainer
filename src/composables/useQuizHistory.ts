@@ -46,6 +46,7 @@ export type QuizHistoryType =
   | 'passiv-transform'
   | 'writing-grade'
   | 'simulator-c1'
+  | 'sprechen-teil2'
 
 export type PrepErrorTag = 'preposition' | 'case' | 'noun' | 'typo'
 
@@ -82,6 +83,13 @@ export interface VerbDrillItem {
  *                 in the sentence (T17 answer-the-question grading only)
  */
 export type DacErrorTag = 'preposition' | 'compound' | 'case' | 'noun' | 'typo' | 'word-order'
+
+/**
+ * A Sprechen error tag (see CONTEXT.md) — classification of one marked
+ * mistake in a learner's Discussion turns. Unlike the drill tags, exactly
+ * ONE kind per marked mistake (each annotation is a single span).
+ */
+export type SprechenErrorTag = 'grammar' | 'word-order' | 'vocabulary' | 'spelling' | 'register'
 
 /** One recorded answer in a dac-sentence run (EN→DE only). */
 export interface DacDrillItem {
@@ -177,6 +185,20 @@ export interface QuizHistoryMeta {
   task2Score?: number
   combinedScore?: number
   passes?: boolean
+
+  // Sprechen Teil 2 (Discussion) — summary only, no transcript (spec decision)
+  topicTitle?: string
+  turnTarget?: number
+  learnerTurns?: number
+  sprechenScore?: number                                  // 0–100
+  sprechenPraedikat?: string
+  sprechenCriteria?: Array<{ key: string; score: number; maxPoints: number }>
+  sprechenMistakeCounts?: Partial<Record<SprechenErrorTag, number>>
+  kiTippCount?: number
+  sprechenStrengths?: Array<{ de: string; en: string }>
+  sprechenWeaknesses?: Array<{ de: string; en: string }>
+  sprechenOverallDe?: string
+  sprechenOverallEn?: string
 }
 
 export interface QuizHistoryEntry {

@@ -43,6 +43,9 @@ export const USER_DATA_KEYS = [
   'declPronounSetup',
   'declCRSetup',
   'declArticleAISetup',
+  'sprechenTeil2Setup',
+  // sprechen custom topics
+  'gt:sprechenCustomTopics',
   // legacy keys — still readable for migration during import
   'nounQuizGroups',
   'adjectiveQuizGroups',
@@ -72,6 +75,8 @@ const KEY_LABELS: Record<UserDataKey, { label: string; group: string }> = {
   declPronounSetup: { label: 'Declension pronoun quiz setup', group: 'Quiz setup' },
   declCRSetup: { label: 'Declension case-recognition quiz setup', group: 'Quiz setup' },
   declArticleAISetup: { label: 'Declension AI article quiz setup', group: 'Quiz setup' },
+  sprechenTeil2Setup: { label: 'Sprechen Teil 2 setup', group: 'Quiz setup' },
+  'gt:sprechenCustomTopics': { label: 'Sprechen custom topics', group: 'Quiz setup' },
   nounQuizGroups: { label: 'Noun groups (legacy)', group: 'Quiz setup' },
   adjectiveQuizGroups: { label: 'Adjective groups (legacy)', group: 'Quiz setup' },
   'gt:quizHistory': { label: 'Quiz history', group: 'History' }

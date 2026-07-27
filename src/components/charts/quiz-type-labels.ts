@@ -44,7 +44,8 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'konjunktiv-rewrite': 'Konjunktiv I — indirect speech',
   'passiv-transform': 'Passiv transformation',
   'writing-grade': 'Writing · graded essay',
-  'simulator-c1': 'Goethe C1 · Mock exam'
+  'simulator-c1': 'Goethe C1 · Mock exam',
+  'sprechen-teil2': 'Sprechen · Teil 2 discussion'
 }
 
 export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
@@ -91,7 +92,8 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'konjunktiv-rewrite': 'Konjunktiv I · Indirekte Rede',
   'passiv-transform': 'Passiv · Transformation',
   'writing-grade': 'Schreiben · benoteter Aufsatz',
-  'simulator-c1': 'Goethe C1 · Prüfungssimulation'
+  'simulator-c1': 'Goethe C1 · Prüfungssimulation',
+  'sprechen-teil2': 'Sprechen · Teil 2 Diskussion'
 }
 
 export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
@@ -138,5 +140,6 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'konjunktiv-rewrite',
   'passiv-transform',
   'writing-grade',
-  'simulator-c1'
+  'simulator-c1',
+  'sprechen-teil2'
 ]
