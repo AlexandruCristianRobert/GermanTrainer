@@ -39,7 +39,7 @@
   --prep-gegen-wash: color-mix(in srgb, var(--prep-gegen) 9%, transparent);
   --prep-vor: #7A4FA3;
   --prep-vor-wash: color-mix(in srgb, var(--prep-vor) 9%, transparent);
-  --prep-auf: #B87E1F;
+  --prep-auf: #D69E2A;
   --prep-auf-wash: color-mix(in srgb, var(--prep-auf) 9%, transparent);
   --prep-ueber: #3E7CB1;
   --prep-ueber-wash: color-mix(in srgb, var(--prep-ueber) 9%, transparent);
@@ -51,9 +51,9 @@
   --prep-zu-wash: color-mix(in srgb, var(--prep-zu) 9%, transparent);
   --prep-nach: #44519E;
   --prep-nach-wash: color-mix(in srgb, var(--prep-nach) 9%, transparent);
-  --prep-an: #B85C25;
+  --prep-an: #C25A24;
   --prep-an-wash: color-mix(in srgb, var(--prep-an) 9%, transparent);
-  --prep-von: #7F5B3B;
+  --prep-von: #6A4B33;
   --prep-von-wash: color-mix(in srgb, var(--prep-von) 9%, transparent);
   --prep-um: #A33E7C;
   --prep-um-wash: color-mix(in srgb, var(--prep-um) 9%, transparent);
@@ -97,7 +97,7 @@
   --prep-gegen-wash: color-mix(in srgb, var(--prep-gegen) 18%, transparent);
   --prep-vor: #AD8ACE;
   --prep-vor-wash: color-mix(in srgb, var(--prep-vor) 18%, transparent);
-  --prep-auf: #E9B154;
+  --prep-auf: #F2C25B;
   --prep-auf-wash: color-mix(in srgb, var(--prep-auf) 18%, transparent);
   --prep-ueber: #7DAED8;
   --prep-ueber-wash: color-mix(in srgb, var(--prep-ueber) 18%, transparent);
@@ -109,9 +109,9 @@
   --prep-zu-wash: color-mix(in srgb, var(--prep-zu) 18%, transparent);
   --prep-nach: #7A86CE;
   --prep-nach-wash: color-mix(in srgb, var(--prep-nach) 18%, transparent);
-  --prep-an: #E5905E;
+  --prep-an: #EB8B4B;
   --prep-an-wash: color-mix(in srgb, var(--prep-an) 18%, transparent);
-  --prep-von: #BF8D61;
+  --prep-von: #A9794E;
   --prep-von-wash: color-mix(in srgb, var(--prep-von) 18%, transparent);
   --prep-um: #D275AE;
   --prep-um-wash: color-mix(in srgb, var(--prep-um) 18%, transparent);

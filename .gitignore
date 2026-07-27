@@ -10,5 +10,5 @@ coverage
 !.vscode/extensions.json
 *.log
 *.tsbuildinfo
-.superpowers/
+
 .claude/settings.local.json
