@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.13.00'
+export const APP_VERSION = '1.13.01'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.13.01', date: '2026-07-27', kind: 'fix',
+    title: 'Local Claude · reliable generation everywhere',
+    notes: [
+      '<strong>Every AI prompt now spells out its JSON shape.</strong> The local-Claude dev bridge never forwards Gemini\'s response schema, so prompts that said <em>"answer per the schema"</em> pointed at nothing — the model replied in prose and burned every retry. All thirteen call sites, from the adjective sentences to the Sprechen grader, now describe their exact envelope in the prompt text itself; the discussion partner and the KI-Tipp additionally accept a bare-text reply when no JSON arrives.',
+      '<strong>Graders judge your German, not the model\'s arithmetic.</strong> The Sprechen and Schreiben validators used to reject a whole analysis when the echoed total didn\'t exactly match the criterion sum — routine for a model without schema enforcement. <code>totalScore</code> and the pass flag are now derived locally from the per-criterion scores, criteria match by key in any order, and fractional points are rounded. Local-Claude analyses land on the first attempt, and the preposition color set got a small polish (<em>auf · an · von</em>).'
+    ]
+  },
   {
     version: '1.13.00', date: '2026-07-27', kind: 'module',
     title: 'Sprechen · Teil 2 Diskussion',
