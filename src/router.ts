@@ -116,7 +116,14 @@ const routes: RouteRecordRaw[] = [
   { path: '/writing/compare/:draftA/:draftB', name: 'writing-compare', component: () => import('./modules/writing/DraftCompare.vue') },
   { path: '/simulator', name: 'simulator-c1', component: () => import('./modules/simulator-c1/SimulatorHome.vue') },
   { path: '/simulator/run/:sessionId', name: 'simulator-run', component: () => import('./modules/simulator-c1/SimulatorRun.vue') },
-  { path: '/simulator/result/:sessionId', name: 'simulator-result', component: () => import('./modules/simulator-c1/SimulatorResult.vue') }
+  { path: '/simulator/result/:sessionId', name: 'simulator-result', component: () => import('./modules/simulator-c1/SimulatorResult.vue') },
+  // Sprechen. Route names share the hyphen-free head 'sprechen' because
+  // NavShell derives the active tab via name.split('-')[0].
+  { path: '/sprechen', name: 'sprechen', component: () => import('./modules/sprechen/SprechenHome.vue') },
+  { path: '/sprechen/cheatsheet', name: 'sprechen-cheatsheet', component: () => import('./modules/sprechen/SprechenCheatsheet.vue') },
+  { path: '/sprechen/teil2', name: 'sprechen-teil2', component: () => import('./modules/sprechen/Teil2Setup.vue') },
+  { path: '/sprechen/teil2/run', name: 'sprechen-teil2-run', component: () => import('./modules/sprechen/Teil2Runner.vue') },
+  { path: '/sprechen/teil2/result', name: 'sprechen-teil2-result', component: () => import('./modules/sprechen/Teil2Result.vue') }
 ]
 
 export const router = createRouter({

@@ -79,6 +79,14 @@ const modules: ModuleCard[] = [
   },
   {
     numeral: 'IX',
+    route: 'sprechen',
+    de: 'Sprechen · Teil 2',
+    title: 'Discussion',
+    desc: 'Argue a controversial Topic with an AI partner in typed turns — Redemittel cheatsheet, layered hints, and a Goethe-B2 evaluation that marks every mistake.',
+    meta: '100 topics · AI partner · B2-graded'
+  },
+  {
+    numeral: 'X',
     route: 'settings',
     de: 'Einstellungen',
     title: 'Settings',
@@ -101,7 +109,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/IX</div>
+        <div class="breadcrumb">Frontispiece · I/X</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,
