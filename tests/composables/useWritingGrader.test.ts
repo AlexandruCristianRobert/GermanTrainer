@@ -53,9 +53,21 @@ describe('validateGradeResult — structural rejection', () => {
 })
 
 describe('validateGradeResult — criteria checks', () => {
-  test('wrong criterion order rejected', () => {
+  test('criteria matched by key — reordering the array still validates', () => {
+    // local-claude has no responseSchema and may echo criteria in any order;
+    // the validator matches by `key`, not position.
     const bad = makeValidResult()
     bad.criteria = [bad.criteria[1], bad.criteria[0], ...bad.criteria.slice(2)]
+    const r = validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)
+    expect(r).not.toBeNull()
+    expect(r?.criteria.map(c => c.key).sort()).toEqual(
+      GOETHE_C1.criteria.map(c => c.key).sort()
+    )
+    expect(r?.totalScore).toBe(60)
+  })
+  test('missing a rubric key rejected', () => {
+    const bad = makeValidResult()
+    bad.criteria = bad.criteria.slice(1) // drop 'erfuellung'
     expect(validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)).toBeNull()
   })
   test('score out of range rejected', () => {
@@ -68,18 +80,39 @@ describe('validateGradeResult — criteria checks', () => {
     bad.criteria[0].score = -1
     expect(validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)).toBeNull()
   })
+  test('echoed labelDe/maxPoints are ignored — rubric values win', () => {
+    const bad = makeValidResult()
+    bad.criteria[0].labelDe = 'Falsches Label'
+    ;(bad.criteria[0] as unknown as Record<string, unknown>).maxPoints = 999
+    const r = validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)
+    expect(r).not.toBeNull()
+    expect(r?.criteria[0].labelDe).toBe(GOETHE_C1.criteria[0].labelDe)
+    expect(r?.criteria[0].maxPoints).toBe(GOETHE_C1.criteria[0].maxPoints)
+  })
+  test('fractional score is rounded to the nearest integer', () => {
+    const bad = makeValidResult()
+    bad.criteria[0].score = 12.6 // rounds to 13
+    const r = validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)
+    expect(r).not.toBeNull()
+    expect(r?.criteria[0].score).toBe(13)
+    expect(r?.totalScore).toBe(61) // 13 + 12 + 12 + 12 + 12
+  })
 })
 
-describe('validateGradeResult — total + passes consistency', () => {
-  test('totalScore mismatch rejected', () => {
+describe('validateGradeResult — total + passes are derived', () => {
+  test('totalScore is derived from the criterion sum — echoed totalScore is ignored', () => {
     const bad = makeValidResult()
-    bad.totalScore = 80   // criteria still sum to 60
-    expect(validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)).toBeNull()
+    bad.totalScore = 80   // criteria still sum to 60 — must be ignored, not rejected
+    const r = validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)
+    expect(r).not.toBeNull()
+    expect(r?.totalScore).toBe(60)
   })
-  test('passes flag inconsistent with totalScore rejected', () => {
+  test('passes is derived from totalScore vs passingScore — echoed passes is ignored', () => {
     const bad = makeValidResult()
-    bad.passes = false    // totalScore is 60, passing
-    expect(validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)).toBeNull()
+    bad.passes = false    // totalScore is 60, passing — must be ignored, not rejected
+    const r = validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)
+    expect(r).not.toBeNull()
+    expect(r?.passes).toBe(true)
   })
 })
 
@@ -130,13 +163,16 @@ describe('validateGradeResult — inline notes', () => {
 })
 
 describe('validateGradeResult — paragraphFeedback', () => {
-  test('rejects paragraphFeedback length greater than paragraphs in draft', () => {
+  test('truncates paragraphFeedback longer than paragraphs in draft, instead of rejecting', () => {
     const bad = makeValidResult()
     bad.paragraphFeedback = [
       { paragraphIndex: 0, summaryDe: 'a' },
       { paragraphIndex: 1, summaryDe: 'b' }   // draft has only one paragraph
     ]
-    expect(validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)).toBeNull()
+    const r = validateGradeResult(bad, GOETHE_C1, DRAFT_TEXT)
+    expect(r).not.toBeNull()
+    expect(r?.paragraphFeedback).toHaveLength(1)
+    expect(r?.paragraphFeedback[0].summaryDe).toBe('a')
   })
 })
 
@@ -229,7 +265,11 @@ describe('gradeDraft — retry once on validation failure', () => {
   })
 
   test('retries when first response fails validation, succeeds on second', async () => {
-    const bad = { ...makeValidGradePayload(), totalScore: 999 }
+    // totalScore/passes are now derived and ignored, so a mismatch there no
+    // longer fails validation — use a missing rubric-criterion key instead,
+    // which the validator still rejects.
+    const payload = makeValidGradePayload()
+    const bad = { ...payload, criteria: payload.criteria.slice(1) }
     const client = makeMockClient([
       { text: JSON.stringify(bad) },
       { text: JSON.stringify(makeValidGradePayload()) }
