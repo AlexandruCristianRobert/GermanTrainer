@@ -116,6 +116,32 @@ _Avoid_: base form, lemma, citation form
 A word as it actually appears in a sentence after declension/conjugation (`den Tisch`). The learner must produce this themselves; hints never reveal it.
 _Avoid_: surface form, conjugated form
 
+### Sprechen
+
+**Discussion** (de Diskussion):
+A Teil 2 speaking-practice conversation between the learner and the AI partner, arguing a [Topic] in typed turns. Resumable while in progress; once graded it is recorded as a [Run] — the conversation itself is never kept.
+_Avoid_: session, chat, dialogue, Diskussionsrunde
+
+**Topic** (de Thema):
+A controversial statement or question a [Discussion] argues — drawn from the app's seeded pool or AI-generated into the learner's custom pool.
+_Avoid_: theme (a noun vocabulary category), subject, statement
+
+**Sprechen error tag**:
+A classification the post-Discussion analysis assigns to each marked mistake in a learner's turns, naming *what* went wrong. One of: `grammar` (case, conjugation, endings, agreement), `word-order` (verb-second, verb-final, separable-prefix placement), `vocabulary` (wrong word, false friend, broken collocation), `spelling`, `register` (du/Sie slips, tone). Unlike [Error tag] and [Verb error tag], exactly one kind per marked mistake — each annotation is a single span with a single explanation.
+_Avoid_: mistake type, error category
+
+**Move**:
+A named discussion tactic — agree, disagree, partially agree, ask back, give an example, summarize — under which the Sprechen cheatsheet and the in-Discussion hint panel group their stock phrases (Redemittel). A seventh, stating an opinion, appears in the cheatsheet only.
+_Avoid_: hint category, strategy, tactic chip
+
+**KI-Tipp**:
+An on-demand AI-generated suggestion during the learner's turn in a [Discussion]: a strategic direction for what to argue next, never ready-made text. Uses are counted and shown with the result, but never affect the score.
+_Avoid_: AI hint, tip (unqualified)
+
+**Prädikat**:
+The Goethe grade band a graded [Discussion]'s score maps to: *sehr gut* (90+), *gut* (80+), *befriedigend* (70+), *ausreichend* (60+), *nicht bestanden* (below 60).
+_Avoid_: grade, mark, rating
+
 ### Identity & history
 
 **User**:
