@@ -3677,6 +3677,14 @@ Deployment (`npm run deploy`) is deliberately NOT part of this plan — the user
 - **The two "Note:" callouts** (Task 13 `useToast` API, Task 14 quiz-meter class) are the only two places where this plan's code guesses at an internal API it has not read — verify each against the actual source file before relying on it; both are one-line fixes if the guess is wrong.
 - **Spec deviations:** none intended. If a conflict emerges between this plan and the spec, the spec wins; update the plan in place.
 
+## Post-merge follow-ups (final whole-branch review, v1.13.00 — all non-blocking)
+
+1. Make the runner's grading pipeline idempotent: a local `saved` flag in `runGrading()` so a retry after a post-`saveQuizRun` failure can't record a duplicate Run.
+2. Clear `gt:lastSprechenResult` in Setup's `start()` so browser-Back can't show a stale verdict mid-new-run.
+3. Trim mistake quotes before re-anchoring (`reAnchor(m.quote.trim(), …)`) so whitespace doesn't drop valid annotations.
+4. Consider having `saveQuizRun` return `safeWrite`'s success and gating `deleteDiscussion` on it — sprechen is the first caller that destroys its source row after the call.
+5. Plan-level observation: `count: 100, correct: totalScore` diverges from writing-grade/simulator's `count: 1` convention — each discussion adds 100 to the history "total questions" aggregate; revisit if stats read oddly.
+
 
 
 

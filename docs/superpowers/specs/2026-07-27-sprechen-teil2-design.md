@@ -28,7 +28,7 @@ A new **Sprechen** module for Goethe-Zertifikat B2 speaking practice, starting w
   - `sprechen-cheatsheet` — tabbed Spickzettel
   - `sprechen-teil2` — setup
   - `sprechen-teil2-run` — discussion runner
-  - `sprechen-teil2-result` — analysis view (also reopens past sessions by id)
+  - `sprechen-teil2-result` — analysis view (one-time, stash-fed; no reopen-by-id — nothing is retained)
 - `src/modules/sprechen/`: `SprechenHome.vue`, `SprechenCheatsheet.vue`, `Teil2Setup.vue`, `Teil2Runner.vue`, `Teil2Result.vue`.
 - Nav item in `NavShell.vue`; Home card **X · Sprechen** in `Home.vue` (numerals become I–X; update the hardcoded `I/IX` breadcrumb).
 - `SprechenHome.vue`: cards for *Spickzettel · Cheatsheet* and *Teil 2 · Diskussion*, plus a "Recent discussions" list (Konjunktiv-home style) showing each past Run's summary from history: topic, score, Prädikat, mistake counts. (No transcript replay — see §5.)
@@ -73,7 +73,7 @@ A new **Sprechen** module for Goethe-Zertifikat B2 speaking practice, starting w
   turnTarget: 6 | 8 | 10
   stance: 'pro' | 'contra'          // partner's stance, resolved at start
   status: 'in_progress' | 'submitted'   // no graded/abandoned states — those rows are deleted, not kept
-  turns: { role: 'learner' | 'partner', textDe: string, at: string }[]
+  turns: { role: 'learner' | 'partner', textDe: string, at: number }[]   // ms epoch
   startedAt / endedAt?
 }
 ```
