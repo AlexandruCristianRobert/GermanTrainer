@@ -140,7 +140,9 @@ export function buildTopicGeneratorPrompt(
     'VERMEIDE thematische Überschneidung mit diesen bereits vorhandenen oder ' +
     `bereits diskutierten Themen:\n${avoid.map(t => `- ${t}`).join('\n')}\n\n` +
     `(Variations-Seed, nicht ausgeben: ${seed}.)\n` +
-    'Antworte ausschließlich als JSON nach dem responseSchema.'
+    'Antworte ausschließlich als JSON-Objekt exakt dieser Form — keine ' +
+    'Markdown-Fences: {"topics": [{"titleDe": "…", "statementDe": "…", ' +
+    '"tags": ["…"]}]}'
   )
 }
 

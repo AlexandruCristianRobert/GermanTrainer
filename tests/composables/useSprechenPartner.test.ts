@@ -113,6 +113,18 @@ describe('generatePartnerTurn', () => {
     const { client } = fakeClient(['nope'])
     await expect(generatePartnerTurn(client, 'test-model', disc(), 'reply')).rejects.toThrow()
   })
+
+  it('accepts a bare (non-JSON) German reply — local-claude sends no responseSchema', async () => {
+    const { client, calls } = fakeClient(['Da bin ich anderer Meinung, denn ein Tempolimit rettet nachweislich Leben.'])
+    const reply = await generatePartnerTurn(client, 'test-model', disc(), 'reply')
+    expect(reply).toBe('Da bin ich anderer Meinung, denn ein Tempolimit rettet nachweislich Leben.')
+    expect(calls.length).toBe(1)
+  })
+
+  it('does not accept broken JSON as prose', async () => {
+    const { client } = fakeClient(['{"replyDe": "abgeschnitten'])
+    await expect(generatePartnerTurn(client, 'test-model', disc(), 'reply')).rejects.toThrow()
+  })
 })
 
 describe('generateKiTipp', () => {
@@ -120,5 +132,11 @@ describe('generateKiTipp', () => {
     const { client } = fakeClient([JSON.stringify({ tippDe: 'Du könntest widersprechen und ein Alltagsbeispiel bringen.' })])
     const tipp = await generateKiTipp(client, 'test-model', disc())
     expect(tipp).toContain('widersprechen')
+  })
+
+  it('accepts a bare (non-JSON) tip — local-claude sends no responseSchema', async () => {
+    const { client } = fakeClient(['Du könntest hier nachfragen und ein Beispiel aus deinem Alltag bringen.'])
+    const tipp = await generateKiTipp(client, 'test-model', disc())
+    expect(tipp).toContain('nachfragen')
   })
 })

@@ -61,7 +61,8 @@ export function buildPartnerSystem(d: SprechenDiscussion): string {
     '- Korrigiere NIEMALS die Sprache des Lernenden — weder direkt noch ' +
     'indirekt. Sprachliche Rückmeldung gibt es erst in der Auswertung.\n' +
     '- Sieze den Lernenden.\n\n' +
-    'Antworte ausschließlich als JSON nach dem responseSchema — kein Prosa-' +
+    'Antworte ausschließlich als JSON-Objekt mit genau einem Feld "replyDe", ' +
+    'z. B. {"replyDe": "Da bin ich anderer Meinung, weil …"} — kein Prosa-' +
     'Vorspann, keine Markdown-Fences.'
   )
 }
@@ -124,17 +125,19 @@ export async function generatePartnerTurn(
           topP: 0.95
         }
       })
-      const text = response.text ?? ''
-      let parsed: unknown
+      const text = (response.text ?? '').trim()
+      let reply: string | null = null
       try {
-        parsed = JSON.parse(text)
-      } catch {
-        lastError = 'malformed JSON'
-        continue
+        reply = validatePartnerReply(JSON.parse(text))
+      } catch { /* not JSON — try the bare-text fallback below */ }
+      // Local-claude fallback: the dev CLI bridge forwards no responseSchema,
+      // so the model may answer with the bare German reply instead of
+      // {"replyDe": …}. Accept prose that isn't attempted-but-broken JSON.
+      if (reply === null && text.length > 0 && !text.startsWith('{') && !text.startsWith('[')) {
+        reply = validatePartnerReply({ replyDe: text })
       }
-      const reply = validatePartnerReply(parsed)
       if (reply === null) {
-        lastError = 'validation failed'
+        lastError = 'no usable reply in response'
         continue
       }
       return reply
@@ -164,7 +167,8 @@ export function buildKiTippPrompt(d: SprechenDiscussion): string {
     'Lernende als Nächstes argumentativ tun könnte — z. B. widersprechen, ' +
     'abwägen, ein konkretes Beispiel bringen, nachfragen. Formuliere KEINEN ' +
     'fertigen Satz zum Abschreiben, nur die Richtung. ' +
-    'Antworte ausschließlich als JSON nach dem responseSchema.'
+    'Antworte ausschließlich als JSON-Objekt mit genau einem Feld "tippDe", ' +
+    'z. B. {"tippDe": "Du könntest …"} — keine Markdown-Fences.'
   )
 }
 
@@ -183,10 +187,19 @@ export async function generateKiTipp(
       topP: 0.95
     }
   })
-  const text = response.text ?? ''
-  const parsed = JSON.parse(text) as Record<string, unknown>
-  if (!parsed || typeof parsed.tippDe !== 'string' || parsed.tippDe.trim().length === 0) {
-    throw new Error('KI-Tipp returned no usable text')
+  const text = (response.text ?? '').trim()
+  let tipp: string | null = null
+  try {
+    const parsed = JSON.parse(text) as Record<string, unknown>
+    if (parsed && typeof parsed.tippDe === 'string' && parsed.tippDe.trim().length > 0) {
+      tipp = parsed.tippDe.trim()
+    }
+  } catch { /* not JSON — try the bare-text fallback below */ }
+  // Local-claude fallback: no responseSchema reaches the CLI bridge, so the
+  // tip may arrive as bare prose. Accept it unless it's broken JSON.
+  if (tipp === null && text.length > 0 && !text.startsWith('{') && !text.startsWith('[')) {
+    tipp = text
   }
-  return parsed.tippDe.trim()
+  if (tipp === null) throw new Error('KI-Tipp returned no usable text')
+  return tipp
 }

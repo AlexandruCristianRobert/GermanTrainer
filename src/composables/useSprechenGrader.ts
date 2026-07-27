@@ -258,7 +258,17 @@ export function buildSprechenGraderPrompt(
     'Begründung auf Deutsch UND Englisch. totalScore ist die exakte Summe der ' +
     'vier Kriterien; passes ist totalScore >= 60. Danach Stärken, Schwächen und ' +
     'ein Gesamturteil, jeweils Deutsch und Englisch.\n' +
-    'Antworte ausschließlich als JSON gemäß responseSchema — kein Prosa-Vorspann.\n\n' +
+    'Antworte ausschließlich als EIN JSON-Objekt exakt dieser Form — kein ' +
+    'Prosa-Vorspann, keine Markdown-Fences:\n' +
+    '{"totalScore": <ganze Zahl>, "passes": <true|false>, ' +
+    '"criteria": [{"key": "<erfuellung|kohaerenz|wortschatz|strukturen>", ' +
+    '"score": <ganze Zahl 0-25>, "justificationDe": "…", "justificationEn": "…"}, ' +
+    '… genau 4, in genau dieser Reihenfolge], ' +
+    '"mistakes": [{"turnIndex": <Zahl>, "quote": "…", "suggested": "…", ' +
+    '"kind": "<grammar|word-order|vocabulary|spelling|register>", ' +
+    '"reasonDe": "…", "reasonEn": "…"}], ' +
+    '"strengths": [{"de": "…", "en": "…"}], "weaknesses": [{"de": "…", "en": "…"}], ' +
+    '"overallDe": "…", "overallEn": "…"}\n\n' +
     rubricLines.join('\n')
 
   let li = 0
