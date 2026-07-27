@@ -2,12 +2,12 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { TURN_TARGETS, type PartnerStance, type SprechenDiscussion, type TurnTarget } from '../../data/sprechen'
-import type { SprechenTopic } from '../../data/sprechenTopics'
+import { SPRECHEN_TOPICS, type SprechenTopic } from '../../data/sprechenTopics'
 import {
   abandonDiscussion, findActiveDiscussion
 } from '../../composables/useSprechenDiscussion'
 import {
-  allTopics, deleteCustomTopic, generateTopics, addCustomTopics, loadCustomTopics, pickRandomTopic
+  deleteCustomTopic, generateTopics, addCustomTopics, loadCustomTopics, pickRandomTopic
 } from '../../composables/useSprechenTopics'
 import { resolveAiClient } from '../../composables/localClaude'
 import { useSettings } from '../../composables/useSettings'
@@ -37,7 +37,7 @@ const generating = ref(false)
 const customTopics = ref<SprechenTopic[]>([])
 const active = ref<SprechenDiscussion | null>(null)
 
-const topics = computed(() => allTopics())
+const topics = computed(() => [...SPRECHEN_TOPICS, ...customTopics.value])
 
 onMounted(async () => {
   await loadSettings()
