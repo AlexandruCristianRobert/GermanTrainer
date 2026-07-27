@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.12.10'
+export const APP_VERSION = '1.13.00'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.13.00', date: '2026-07-27', kind: 'module',
+    title: 'Sprechen · Teil 2 Diskussion',
+    notes: [
+      '<strong>Module X: argue with the machine.</strong> Goethe B2 Sprechen Teil 2 as a typed discussion — pick one of <em>100 seeded Topics</em> (or let the AI generate fresh ones that remember what you\'ve already discussed), choose 6, 8, or 10 turns, and defend your position against an AI partner that concedes good points, plays devil\'s advocate, and never corrects you mid-conversation.',
+      '<strong>Hints, layered.</strong> Six Move chips (<em>Zustimmen · Widersprechen · Teilweise zustimmen · Nachfragen · Beispiel geben · Zusammenfassen</em>) reveal Redemittel from the new tabbed Spickzettel instantly; an optional <em>KI-Tipp</em> suggests a direction without writing your sentence. Neither affects the score.',
+      '<strong>The reckoning.</strong> Afterwards, every mistake in your turns is marked in place, corrected, and explained — German or English, one toggle. Four criteria à 25 points (Aussprache excluded, stated openly), Prädikat like the real Zeugnis. The verdict is a one-time view: history keeps the summary, never the conversation.'
+    ]
+  },
   {
     version: '1.12.10', date: '2026-07-24', kind: 'polish',
     title: 'Übersetzung · hint shortcut',
