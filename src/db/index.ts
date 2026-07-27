@@ -2,6 +2,7 @@ import Dexie, { type Table, type Transaction } from 'dexie'
 import type { Adjective, Noun, NounGroup, Settings } from './types'
 import type { WritingDraft } from '../data/writingPrompts'
 import type { SimulatorSession } from '../data/simulatorC1'
+import type { SprechenDiscussion } from '../data/sprechen'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
 
@@ -11,6 +12,7 @@ export class GermanTrainerDb extends Dexie {
   settings!: Table<Settings, 'singleton'>
   writingDrafts!: Table<WritingDraft, string>
   simulatorSessions!: Table<SimulatorSession, string>
+  sprechenDiscussions!: Table<SprechenDiscussion, string>
 
   constructor() {
     super('GermanTrainerDb')
@@ -105,6 +107,14 @@ export class GermanTrainerDb extends Dexie {
       // seedIfEmpty. Same top-up as version(7): add missing germans, re-group where
       // the seed changed it, leave user-added nouns untouched.
       await topUpNounsFromSeed(tx)
+    })
+    this.version(9).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt',
+      sprechenDiscussions: '&id, status, startedAt'
     })
   }
 }
