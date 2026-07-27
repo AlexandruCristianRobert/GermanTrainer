@@ -47,25 +47,26 @@ export function validateGradeResult(
   if (typeof r.rubric !== 'string' || !VERDICTS.includes(r.rubric as RubricSystem)) return null
   if (r.rubric !== rubric.system) return null
   if (typeof r.bandEstimate !== 'string' || !BAND_ESTIMATES.includes(r.bandEstimate as BandEstimate)) return null
-  if (typeof r.totalScore !== 'number') return null
-  if (typeof r.passes !== 'boolean') return null
   if (typeof r.overallDe !== 'string' || typeof r.overallEn !== 'string') return null
   if (!Array.isArray(r.criteria)) return null
   if (!Array.isArray(r.inlineNotes)) return null
   if (!Array.isArray(r.paragraphFeedback)) return null
 
-  // Criteria — must match rubric order and each score in range
-  if (r.criteria.length !== rubric.criteria.length) return null
+  // Criteria — matched by KEY (local-claude gets no responseSchema and may
+  // reorder or echo stale labelDe/maxPoints), scores rounded to the nearest
+  // integer, range-checked against the rubric's OWN maxPoints (not the
+  // model's echo). Every rubric key must be present exactly once.
+  const cList = (r.criteria as unknown[]).filter(
+    (x): x is Record<string, unknown> => !!x && typeof x === 'object'
+  )
   const validatedCriteria: GradeCriterion[] = []
   let sum = 0
-  for (let i = 0; i < r.criteria.length; i++) {
-    const expected = rubric.criteria[i]
-    const c = r.criteria[i] as Record<string, unknown>
-    if (typeof c.key !== 'string' || c.key !== expected.key) return null
-    if (typeof c.labelDe !== 'string') return null
-    if (typeof c.maxPoints !== 'number' || c.maxPoints !== expected.maxPoints) return null
-    if (typeof c.score !== 'number') return null
-    if (c.score < 0 || c.score > expected.maxPoints) return null
+  for (const expected of rubric.criteria) {
+    const c = cList.find(x => x.key === expected.key)
+    if (!c) return null
+    if (typeof c.score !== 'number' || !Number.isFinite(c.score)) return null
+    const score = Math.round(c.score)
+    if (score < 0 || score > expected.maxPoints) return null
     if (typeof c.strengthsDe !== 'string') return null
     if (typeof c.weaknessesDe !== 'string') return null
     if (!Array.isArray(c.evidence)) return null
@@ -82,23 +83,24 @@ export function validateGradeResult(
       }
     }).filter((x): x is NonNullable<typeof x> => x !== null)
 
-    sum += c.score
+    sum += score
     validatedCriteria.push({
-      key: c.key as string,
-      labelDe: c.labelDe as string,
-      maxPoints: c.maxPoints as number,
-      score: c.score as number,
+      key: expected.key,
+      labelDe: expected.labelDe,
+      maxPoints: expected.maxPoints,
+      score,
       strengthsDe: c.strengthsDe as string,
       weaknessesDe: c.weaknessesDe as string,
       evidence: reanchoredEvidence
     })
   }
 
-  // totalScore must equal the sum of criterion scores (strict, no tolerance).
-  if (sum !== r.totalScore) return null
-
-  // passes must agree with totalScore vs rubric.passingScore.
-  if ((r.totalScore as number) >= rubric.passingScore !== r.passes) return null
+  // totalScore and passes are DERIVED from the criterion scores — the
+  // per-criterion scores are the source of truth. local-claude has no
+  // schema enforcement, so the model's own echoed totalScore/passes are
+  // ignored rather than rejected on arithmetic mismatch.
+  const totalScore = sum
+  const passes = totalScore >= rubric.passingScore
 
   // Inline notes — drop any whose `before` doesn't match the span in the draft.
   const validatedInlineNotes = (r.inlineNotes as Array<Record<string, unknown>>).flatMap(n => {
@@ -121,25 +123,28 @@ export function validateGradeResult(
     }]
   })
 
-  // Paragraph feedback — length cap.
+  // Paragraph feedback — local-claude sometimes hallucinates extra entries;
+  // truncate to the actual paragraph count instead of rejecting the whole
+  // result over it.
   const draftParagraphs = countParagraphs(draftText)
-  if (r.paragraphFeedback.length > draftParagraphs) return null
-  const validatedParagraphFeedback = (r.paragraphFeedback as Array<Record<string, unknown>>).map(p => {
-    if (typeof p.paragraphIndex !== 'number') return null
-    if (typeof p.summaryDe !== 'string') return null
-    return {
-      paragraphIndex: p.paragraphIndex as number,
-      summaryDe: p.summaryDe as string,
-      upgradedText: typeof p.upgradedText === 'string' ? (p.upgradedText as string) : undefined,
-      upgradedAt: typeof p.upgradedAt === 'number' ? (p.upgradedAt as number) : undefined
-    }
-  }).filter((x): x is NonNullable<typeof x> => x !== null)
+  const validatedParagraphFeedback = (r.paragraphFeedback as Array<Record<string, unknown>>)
+    .slice(0, draftParagraphs)
+    .map(p => {
+      if (typeof p.paragraphIndex !== 'number') return null
+      if (typeof p.summaryDe !== 'string') return null
+      return {
+        paragraphIndex: p.paragraphIndex as number,
+        summaryDe: p.summaryDe as string,
+        upgradedText: typeof p.upgradedText === 'string' ? (p.upgradedText as string) : undefined,
+        upgradedAt: typeof p.upgradedAt === 'number' ? (p.upgradedAt as number) : undefined
+      }
+    }).filter((x): x is NonNullable<typeof x> => x !== null)
 
   return {
     rubric: r.rubric as RubricSystem,
-    totalScore: r.totalScore as number,
+    totalScore,
     bandEstimate: r.bandEstimate as BandEstimate,
-    passes: r.passes as boolean,
+    passes,
     criteria: validatedCriteria,
     inlineNotes: validatedInlineNotes,
     paragraphFeedback: validatedParagraphFeedback,
@@ -194,14 +199,26 @@ export function buildGraderPrompt(
   const system =
     'Du bist eine strenge, kalibrierte Prüferin für deutsche schriftliche ' +
     'Abschlussprüfungen auf Niveau C1. Du benotest den Text der Studentin/des ' +
-    'Studenten ausschließlich nach der unten angegebenen Rubrik. Deine Antwort ' +
-    'ist ausschließlich JSON gemäß dem responseSchema — kein Prosa-Vorspann, ' +
-    'keine Markdown-Fences. Für jedes Kriterium gibst du eine ganzzahlige ' +
-    'Punktzahl im erlaubten Bereich, sowie kurze Stärken- und Schwächen-' +
-    'Begründungen auf Deutsch. Belege (EvidenceQuote) zitierst du WÖRTLICH aus ' +
-    'dem eingereichten Text und gibst die korrekten Zeichenpositionen (0-' +
-    'indiziert, Halb-Offen) an. Anschließend formulierst du ein holistisches ' +
-    'Gesamturteil auf Deutsch (3–5 Sätze) und auf Englisch (2–3 Sätze).\n\n' +
+    'Studenten ausschließlich nach der unten angegebenen Rubrik. Für jedes ' +
+    'Kriterium gibst du eine ganzzahlige Punktzahl im erlaubten Bereich, sowie ' +
+    'kurze Stärken- und Schwächen-Begründungen auf Deutsch. Belege ' +
+    '(EvidenceQuote) zitierst du WÖRTLICH aus dem eingereichten Text und gibst ' +
+    'die korrekten Zeichenpositionen (0-indiziert, Halb-Offen) an. Anschließend ' +
+    'formulierst du ein holistisches Gesamturteil auf Deutsch (3–5 Sätze) und ' +
+    'auf Englisch (2–3 Sätze).\n\n' +
+    'Antworte ausschließlich als EIN JSON-Objekt exakt dieser Form — kein ' +
+    'Prosa-Vorspann, keine Markdown-Fences:\n' +
+    `{"rubric": "${rubric.system}", "totalScore": <ganze Zahl 0-${rubric.totalMax}>, ` +
+    '"bandEstimate": "<B2|C1-|C1|C1+>", "passes": <true|false>, ' +
+    '"criteria": [{"key": "<Kriterienschlüssel wie unten>", "labelDe": "…", ' +
+    '"maxPoints": <Zahl>, "score": <ganze Zahl 0-maxPoints>, "strengthsDe": "…", ' +
+    '"weaknessesDe": "…", "evidence": [{"quote": "…", "commentDe": "…"}]}, ' +
+    `… genau ${rubric.criteria.length}, je einmal, in beliebiger Reihenfolge], ` +
+    '"inlineNotes": [{"spanStart": <Zahl>, "spanEnd": <Zahl>, ' +
+    '"kind": "<fix|upgrade|comment>", "before": "…", "suggested": "…", ' +
+    '"reasonDe": "…"}], ' +
+    '"paragraphFeedback": [{"paragraphIndex": <Zahl>, "summaryDe": "…"}], ' +
+    '"overallDe": "…", "overallEn": "…"}\n\n' +
     rubricBlock(rubric)
 
   const overWords = draft.wordCount > prompt.targetWords.max
@@ -280,7 +297,9 @@ const UPGRADE_SYSTEM_INSTRUCTION =
   'mehr Nominalisierung, formelle Konnektoren (folglich, hinsichtlich, ' +
   'insofern als, mithin), Verzicht auf umgangssprachliche Wendungen, ' +
   'idiomatische Kollokationen. Bedeutung und Aussage bleiben erhalten. ' +
-  'Antworte ausschließlich als JSON nach dem responseSchema, ohne Prosa.'
+  'Antworte ausschließlich als EIN JSON-Objekt exakt dieser Form — kein ' +
+  'Prosa-Vorspann, keine Markdown-Fences: ' +
+  '{"upgradedText": "…", "rationaleDe": "…"}'
 
 // Rhetorical strategies — a random subset is picked per call so re-clicking
 // "Upgrade" on the same paragraph yields a different rewrite each time.
