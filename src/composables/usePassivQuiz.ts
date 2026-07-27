@@ -155,7 +155,8 @@ REQUIREMENTS for every entry:
   "Das Gerät" templates): ${domains.join(' · ')}.
 - Batch variation seed (use as inspiration, do not echo): ${seed}.
 
-Return ONLY valid JSON matching the schema. No prose. No markdown fences.`
+Return ONLY one JSON object of exactly this shape (no markdown fences, no prose):
+{"entries": [{"active": "...", "target": "<vorgangspassiv|zustandspassiv|sich-lassen|sein-zu|bar-adjektiv|man-konstruktion>", "legalTypes": ["<one or more of the same six values>"], "referenceAnswer": "...", "rationale": "...", "difficulty": "<easy|medium|hard>"}, … exactly ${count} entries].`
 }
 
 export interface PassivGenerateOptions {
@@ -234,7 +235,15 @@ const PASSIV_JUDGE_SYSTEM_INSTRUCTION =
   'sein-zu, bar-adjektiv, man-konstruktion, or "unknown"), set formCheck.usedType ' +
   'and formCheck.matchesTarget accordingly. Reject answers that are grammatically ' +
   'correct but use the wrong type — verdict "partially_correct" — and explain the ' +
-  'type mismatch in feedback.'
+  'type mismatch in feedback. ' +
+  'Return ONLY one JSON object of exactly this shape (no markdown fences, no prose): ' +
+  '{"verdict": "<correct|partially_correct|incorrect>", "expected": "...", ' +
+  '"acceptedVariants": ["...", …], "feedback": "...", ' +
+  '"formCheck": {"usedType": "<vorgangspassiv|zustandspassiv|sich-lassen|sein-zu|bar-adjektiv|' +
+  'man-konstruktion|unknown>", "matchesTarget": <true|false>}}. ' +
+  '"expected" is the canonical correct rewrite for the target transformation; ' +
+  '"acceptedVariants" lists other phrasings you would also accept (empty array if none); ' +
+  '"feedback" is one short English sentence for the student.'
 
 function normalize(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, ' ')
