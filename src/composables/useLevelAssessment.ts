@@ -239,7 +239,8 @@ INSTRUCTIONS
    passiv-transform → passiv; writing-grade / simulator-c1 → writing.
 
 OUTPUT
-Return ONLY valid JSON matching the schema. No prose. No markdown fences.
+Return ONLY one JSON object of exactly this shape (no markdown fences, no prose):
+{"cefrLevel": "<A1|A2|B1|B2|C1|C2>", "confidence": "<low|medium|high>", "overallSummaryDe": "...", "strengths": ["...", … 3-5 items], "weaknesses": ["...", … 3-5 items], "nextSteps": ["...", … 3-5 items], "perModule": {"nouns": {"score": <0-100>, "comment": "..."}, "adjectives": {"score": <0-100>, "comment": "..."}, "verbs": {"score": <0-100>, "comment": "..."}, "prepositions": {"score": <0-100>, "comment": "..."}, "declension": {"score": <0-100>, "comment": "..."}, "konjunktiv": {"score": <0-100>, "comment": "..."}, "passiv": {"score": <0-100>, "comment": "..."}, "writing": {"score": <0-100>, "comment": "..."}}}
 Variation seed (do not echo): ${seed}.`
 }
 
