@@ -37,6 +37,7 @@ const hintsOn = ref(true)
 const activeMove = ref<Move | null>(null)
 const kiTipp = ref<string | null>(null)
 const kiTippBusy = ref(false)
+const sending = ref(false)
 const partnerBusy = ref(false)
 const partnerFailed = ref(false)
 const grading = ref(false)
@@ -113,14 +114,19 @@ async function ensurePartnerTurn() {
 async function send() {
   const d = discussion.value
   const text = input.value.trim()
-  if (!d || !myTurn.value || text.length === 0) return
-  const turn = { role: 'learner' as const, textDe: text, at: Date.now() }
-  await appendTurn(d.id, turn)
-  d.turns = [...d.turns, turn]
-  input.value = ''
-  kiTipp.value = null
-  activeMove.value = null
-  scrollToEnd()
+  if (!d || !myTurn.value || sending.value || text.length === 0) return
+  sending.value = true
+  try {
+    const turn = { role: 'learner' as const, textDe: text, at: Date.now() }
+    await appendTurn(d.id, turn)
+    d.turns = [...d.turns, turn]
+    input.value = ''
+    kiTipp.value = null
+    activeMove.value = null
+    scrollToEnd()
+  } finally {
+    sending.value = false
+  }
   await ensurePartnerTurn()
 }
 
@@ -321,12 +327,12 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
           v-model="input"
           class="input chat-input"
           rows="3"
-          :disabled="!myTurn"
+          :disabled="!myTurn || sending"
           :placeholder="myTurn ? 'Dein Beitrag auf Deutsch… (Enter senden, Shift+Enter neue Zeile)' : 'Der Partner ist am Zug…'"
           @keydown.enter="onEnter"
         />
         <button class="btn btn-accent" type="button"
-          :disabled="!myTurn || input.trim().length === 0" @click="send">Senden</button>
+          :disabled="!myTurn || sending || input.trim().length === 0" @click="send">Senden</button>
       </div>
       <div class="hint-toggle-row">
         <button class="btn btn-quiet" type="button" @click="hintsOn = !hintsOn">
