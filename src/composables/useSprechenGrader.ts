@@ -326,3 +326,19 @@ export async function gradeDiscussion(
   }
   throw new SprechenGraderError(`Grader exhausted ${attempts} attempts. Last error: ${lastError}`, attempts)
 }
+
+// ── Result stash (runner → result page, sessionStorage) ─────────
+
+export const SPRECHEN_RESULT_KEY = 'gt:lastSprechenResult'
+
+/** One-time payload for the result page. Dies with the tab — by design. */
+export interface SprechenResultStash {
+  topic: { id: string; titleDe: string; statementDe: string; source: 'seed' | 'custom' }
+  stance: 'pro' | 'contra'
+  turnTarget: number
+  turns: DiscussionTurn[]
+  kiTippCount: number
+  startedAt: number
+  finishedAt: number
+  result: SprechenGradeResult
+}
