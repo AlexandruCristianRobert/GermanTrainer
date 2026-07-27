@@ -13,6 +13,13 @@ const recent = computed(() =>
 
 function go(name: string) { router.push({ name }) }
 function back() { router.push({ name: 'home' }) }
+
+function onCardKey(e: KeyboardEvent, name: string) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    go(name)
+  }
+}
 </script>
 
 <template>
@@ -32,7 +39,7 @@ function back() { router.push({ name: 'home' }) }
 
     <div class="module-grid sprechen-grid">
       <article class="card module-card interactive" role="button" tabindex="0"
-        @click="go('sprechen-cheatsheet')" @keydown.enter="go('sprechen-cheatsheet')">
+        @click="go('sprechen-cheatsheet')" @keydown="onCardKey($event, 'sprechen-cheatsheet')">
         <div class="module-numeral">I</div>
         <h2>Cheatsheet</h2>
         <div class="module-de">Spickzettel · Redemittel</div>
@@ -44,7 +51,7 @@ function back() { router.push({ name: 'home' }) }
       </article>
 
       <article class="card module-card interactive" role="button" tabindex="0"
-        @click="go('sprechen-teil2')" @keydown.enter="go('sprechen-teil2')">
+        @click="go('sprechen-teil2')" @keydown="onCardKey($event, 'sprechen-teil2')">
         <div class="module-numeral">II</div>
         <h2>Diskussion</h2>
         <div class="module-de">Teil 2 · mit KI-Partner</div>
