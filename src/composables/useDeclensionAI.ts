@@ -136,7 +136,9 @@ REQUIREMENTS for every sentence:
 - "rationale" is a short English explanation of WHY this case applies (e.g. "Dativ: indirect object of geben").
 - "gloss" is a natural English translation of the full sentence.
 
-Return ONLY valid JSON matching the schema. No prose. No markdown fences.`
+Return ONLY one JSON object of exactly this shape (no prose, no markdown fences):
+{"entries": [{"template": "...", "sentence": "...", "gloss": "...", "blanks": [{"answer": "...", "case": "<nominative|accusative|dative|genitive>", "gender": "<masculine|feminine|neuter|plural>", "determiner": "<definite|indefinite|possessive>", "rationale": "..."}]}]}
+"entries" MUST contain exactly ${count} item(s), one per requested sentence, each with one "blanks" entry per "___" in its "template".`
 }
 
 // ── Gemini call with retry ──────────────────────────────────────

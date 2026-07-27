@@ -312,16 +312,17 @@ const GEN_SYSTEM =
   'in the required case and naturally incorporates the given noun(s), then give a ' +
   'faithful, natural English translation of that sentence. The German sentence MUST ' +
   'contain the preposition (a contracted form such as "im" or "am" is fine). Keep ' +
-  'sentences concise (6–14 words) and at the requested CEFR level. Return JSON of the ' +
-  'form {"items":[{"index":<number>,"english":"...","german":"..."}]} with exactly one ' +
-  'entry per requested index. ' +
-  'Also return, per item, "prepSpanEn" = the exact word(s) in YOUR English sentence that ' +
-  'express the given preposition, copied verbatim from the sentence (the preposition itself, ' +
-  'WITHOUT a surrounding article), and "nounSpansEn" = an array with one entry per given noun ' +
-  'in the SAME order, each the exact word(s) you used for that noun copied verbatim (the noun ' +
-  'head, WITHOUT its article). These MUST be exact substrings of your English sentence so they ' +
-  'can be located, and there must be exactly one "nounSpansEn" entry per given noun (use an ' +
-  'empty array when no nouns were given).'
+  'sentences concise (6–14 words) and at the requested CEFR level. ' +
+  'Return ONLY one JSON object of exactly this shape (no prose, no markdown fences): ' +
+  '{"items":[{"index":<number>,"english":"...","german":"...","prepSpanEn":"...",' +
+  '"nounSpansEn":["..."]}]} — exactly one entry per requested index. ' +
+  '"prepSpanEn" = the exact word(s) in YOUR English sentence that express the given ' +
+  'preposition, copied verbatim from the sentence (the preposition itself, WITHOUT a ' +
+  'surrounding article). "nounSpansEn" = an array with one entry per given noun in the ' +
+  'SAME order, each the exact word(s) you used for that noun copied verbatim (the noun ' +
+  'head, WITHOUT its article). These MUST be exact substrings of your English sentence so ' +
+  'they can be located, and there must be exactly one "nounSpansEn" entry per given noun ' +
+  '(use an empty array when no nouns were given).'
 
 const GEN_SCHEMA = {
   type: 'object',
@@ -489,9 +490,9 @@ const PREP_ERROR_TAGS: readonly PrepErrorTag[] = ['preposition', 'case', 'noun',
 export function buildGradePrompt(opts: GradeAnswerOptions): { system: string; user: string } {
   const caseName = caseLabel(opts.case)
   const common =
-    'You are a German teacher grading one translation exercise. Respond ONLY as ' +
-    'JSON matching the schema {"correct": boolean, "tip": string} — no prose, no ' +
-    'markdown fences. Set "correct" to true when the learner\'s answer is an ' +
+    'You are a German teacher grading one translation exercise. Return ONLY one JSON ' +
+    'object of exactly this shape (no prose, no markdown fences): {"correct": <true|false>, ' +
+    '"tip": "<string>"}. Set "correct" to true when the learner\'s answer is an ' +
     'acceptable translation, false otherwise. If "correct" is false, set "tip" to ' +
     'ONE short English sentence pinpointing the specific mistake (wrong case, ' +
     'wrong or missing preposition, wrong word, or a drift in meaning). When ' +
@@ -505,8 +506,10 @@ export function buildGradePrompt(opts: GradeAnswerOptions): { system: string; us
       `that uses the target preposition "${opts.prepGerman}" in the ${caseName}. ` +
       'Accept natural alternative phrasings and word order — do not require an exact ' +
       'match to the reference. ' +
-      'When "correct" is false, ALSO return "errorTags": an array naming every way the ' +
-      'answer is wrong, drawn from exactly these values: "preposition" (a wrong or missing ' +
+      'When "correct" is false, ALSO add "errorTags" to the JSON object, so the full ' +
+      'shape becomes {"correct": false, "tip": "<string>", "errorTags": ' +
+      '["<preposition|case|noun|typo>", …]} — an array naming every way the answer is ' +
+      'wrong, drawn from exactly these values: "preposition" (a wrong or missing ' +
       'preposition word), "case" (the correct preposition but the WRONG governed case — ' +
       'e.g. "mit den Bus" instead of "mit dem Bus", a mis-inflected article or ending), ' +
       '"noun" (a wrong assigned theme noun — wrong word, gender, or form), "typo" (a slip ' +
