@@ -152,7 +152,8 @@ REQUIREMENTS for every entry:
 - About 30–40% of entries SHOULD deliberately require the K-II fallback so the
   drill reinforces the collision rule.
 
-Return ONLY valid JSON matching the schema. No prose. No markdown fences.`
+Return ONLY one JSON object of exactly this shape (no prose, no markdown fences):
+{"entries": [{"source": "…", "reportingClause": "…", "referenceAnswer": "…", "expectedMood": "K1|K2-fallback", "rationale": "…", "difficulty": "…"}]}`
 }
 
 // ── Generator with retry ────────────────────────────────────────
@@ -232,7 +233,11 @@ const KI_JUDGE_SYSTEM_INSTRUCTION =
   'the meaning. When Konjunktiv I coincides with the indicative (typical for plural ' +
   'and 1st-person), Konjunktiv II is required — flag this in moodCheck. ' +
   'Set moodCheck.used to "K1", "K2", "indicative", or "other". Set moodCheck.ok=true ' +
-  'when the chosen mood is appropriate for the source quote.'
+  'when the chosen mood is appropriate for the source quote. ' +
+  'Return ONLY one JSON object of exactly this shape (no markdown fences, no prose): ' +
+  '{"verdict": "correct|partially_correct|incorrect", "expected": "…", ' +
+  '"acceptedVariants": ["…"], "feedback": "…", ' +
+  '"moodCheck": {"used": "K1|K2|indicative|other", "ok": true|false}}.'
 
 function normalize(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, ' ')

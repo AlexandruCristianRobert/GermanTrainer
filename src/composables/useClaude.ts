@@ -38,7 +38,10 @@ const SYSTEM_PROMPT =
   'form (German or its direct English translation). ' +
   'Use the field names "adjective_base" and "adjective_inflected" even for non-adjectives ' +
   '(verbs, adverbs); they refer to the base/dictionary form and the form as it appears in ' +
-  'the sentence.'
+  'the sentence. ' +
+  'Return ONLY one JSON object of exactly this shape (no markdown fences, no prose): ' +
+  '{"sentences": [{"adjective_base": "…", "adjective_inflected": "…", "sentence": "…", ' +
+  '"hint": "…"}, …]}.'
 
 const RESPONSE_SCHEMA = {
   type: 'object',
