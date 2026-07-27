@@ -35,10 +35,12 @@ export async function findActiveDiscussion(): Promise<SprechenDiscussion | null>
 }
 
 export async function appendTurn(id: string, turn: DiscussionTurn): Promise<void> {
-  const row = await db.sprechenDiscussions.get(id)
-  if (!row) throw new Error(`Discussion ${id} not found`)
-  row.turns = [...row.turns, turn]
-  await db.sprechenDiscussions.put(row)
+  await db.transaction('rw', db.sprechenDiscussions, async () => {
+    const row = await db.sprechenDiscussions.get(id)
+    if (!row) throw new Error(`Discussion ${id} not found`)
+    row.turns = [...row.turns, turn]
+    await db.sprechenDiscussions.put(row)
+  })
 }
 
 export async function markSubmitted(id: string): Promise<void> {
@@ -46,9 +48,11 @@ export async function markSubmitted(id: string): Promise<void> {
 }
 
 export async function incrementKiTipp(id: string): Promise<void> {
-  const row = await db.sprechenDiscussions.get(id)
-  if (!row) throw new Error(`Discussion ${id} not found`)
-  await db.sprechenDiscussions.update(id, { kiTippCount: row.kiTippCount + 1 })
+  await db.transaction('rw', db.sprechenDiscussions, async () => {
+    const row = await db.sprechenDiscussions.get(id)
+    if (!row) throw new Error(`Discussion ${id} not found`)
+    await db.sprechenDiscussions.update(id, { kiTippCount: row.kiTippCount + 1 })
+  })
 }
 
 /** Abandon = the learner walked away. The row is deleted, nothing recorded. */
