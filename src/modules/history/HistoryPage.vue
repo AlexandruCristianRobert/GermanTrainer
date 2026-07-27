@@ -85,7 +85,8 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'konjunktiv-rewrite': { label: 'Konjunktiv I — indirect speech', de: 'Konjunktiv I · Indirekte Rede', module: 'Grammatik' },
   'passiv-transform':   { label: 'Passiv transformation',          de: 'Passiv · Transformation',     module: 'Grammatik' },
   'writing-grade':      { label: 'Writing — graded essay',         de: 'Schreiben · benoteter Aufsatz', module: 'Schreiben' },
-  'simulator-c1':       { label: 'Goethe C1 — mock exam',          de: 'Goethe C1 · Prüfungssimulation', module: 'Schreiben' }
+  'simulator-c1':       { label: 'Goethe C1 — mock exam',          de: 'Goethe C1 · Prüfungssimulation', module: 'Schreiben' },
+  'sprechen-teil2':     { label: 'Sprechen — Teil 2 discussion',    de: 'Sprechen · Teil 2 Diskussion', module: 'Sprechen' }
 }
 
 const typeOrder: QuizHistoryType[] = [
@@ -109,7 +110,8 @@ const typeOrder: QuizHistoryType[] = [
   'konjunktiv-rewrite',
   'passiv-transform',
   'writing-grade',
-  'simulator-c1'
+  'simulator-c1',
+  'sprechen-teil2'
 ]
 
 const filtered = computed(() =>

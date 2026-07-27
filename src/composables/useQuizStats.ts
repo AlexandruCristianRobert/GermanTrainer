@@ -130,7 +130,8 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'konjunktiv-rewrite': 0,
     'passiv-transform': 0,
     'writing-grade': 0,
-    'simulator-c1': 0
+    'simulator-c1': 0,
+    'sprechen-teil2': 0
   }
 }
 
@@ -179,7 +180,8 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'konjunktiv-rewrite': emptyBucket(),
     'passiv-transform': emptyBucket(),
     'writing-grade': emptyBucket(),
-    'simulator-c1': emptyBucket()
+    'simulator-c1': emptyBucket(),
+    'sprechen-teil2': emptyBucket()
   }
 }
 
