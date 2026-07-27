@@ -61,19 +61,41 @@ describe('validateSprechenGrade', () => {
     expect(learnerText.slice(r!.mistakes[0].spanStart, r!.mistakes[0].spanEnd)).toBe('das ein Tempolimit gut ist')
   })
 
-  it('rejects when criterion sum ≠ totalScore', () => {
+  it('derives totalScore from the criteria when the model total disagrees', () => {
     const raw = validRaw()
-    raw.totalScore = 99
-    expect(validateSprechenGrade(raw, disc())).toBeNull()
+    raw.totalScore = 99                       // model arithmetic slip — ignored
+    const r = validateSprechenGrade(raw, disc())
+    expect(r).not.toBeNull()
+    expect(r!.totalScore).toBe(74)            // 20+18+19+17
   })
 
-  it('rejects when passes disagrees with the 60-point threshold', () => {
+  it('derives passes from the threshold, ignoring the model flag', () => {
     const raw = validRaw()
     raw.passes = false
-    expect(validateSprechenGrade(raw, disc())).toBeNull()
+    const r = validateSprechenGrade(raw, disc())
+    expect(r).not.toBeNull()
+    expect(r!.passes).toBe(true)
   })
 
-  it('rejects wrong criterion keys/order', () => {
+  it('accepts criteria in any order (matched by key)', () => {
+    const raw = validRaw()
+    raw.criteria.reverse()
+    const r = validateSprechenGrade(raw, disc())
+    expect(r).not.toBeNull()
+    expect(r!.criteria.map(c => c.key)).toEqual(['erfuellung', 'kohaerenz', 'wortschatz', 'strukturen'])
+    expect(r!.totalScore).toBe(74)
+  })
+
+  it('rounds fractional criterion scores to the nearest integer', () => {
+    const raw = validRaw()
+    raw.criteria[0].score = 19.6
+    const r = validateSprechenGrade(raw, disc())
+    expect(r).not.toBeNull()
+    expect(r!.criteria[0].score).toBe(20)
+    expect(r!.totalScore).toBe(74)            // 20+18+19+17
+  })
+
+  it('rejects when a rubric key is missing', () => {
     const raw = validRaw()
     raw.criteria[0].key = 'aussprache'
     expect(validateSprechenGrade(raw, disc())).toBeNull()

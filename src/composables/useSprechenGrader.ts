@@ -147,37 +147,42 @@ export function validateSprechenGrade(
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Record<string, unknown>
 
-  if (typeof r.totalScore !== 'number') return null
-  if (typeof r.passes !== 'boolean') return null
   if (typeof r.overallDe !== 'string' || typeof r.overallEn !== 'string') return null
   if (!Array.isArray(r.criteria) || !Array.isArray(r.mistakes)) return null
   if (!Array.isArray(r.strengths) || !Array.isArray(r.weaknesses)) return null
 
-  // Criteria — must match the rubric in order, integer score in range.
-  if (r.criteria.length !== SPRECHEN_B2_TEIL2.criteria.length) return null
+  // Criteria — matched by KEY (local-claude gets no responseSchema and may
+  // reorder), scores rounded to the nearest integer, range-checked. Every
+  // rubric key must be present exactly once.
+  const cList = (r.criteria as unknown[]).filter(
+    (x): x is Record<string, unknown> => !!x && typeof x === 'object'
+  )
   const criteria: SprechenCriterionScore[] = []
   let sum = 0
-  for (let i = 0; i < r.criteria.length; i++) {
-    const expected = SPRECHEN_B2_TEIL2.criteria[i]
-    const c = r.criteria[i] as Record<string, unknown>
-    if (c.key !== expected.key) return null
-    if (typeof c.score !== 'number' || !Number.isInteger(c.score)) return null
-    if (c.score < 0 || c.score > expected.maxPoints) return null
+  for (const expected of SPRECHEN_B2_TEIL2.criteria) {
+    const c = cList.find(x => x.key === expected.key)
+    if (!c) return null
+    if (typeof c.score !== 'number' || !Number.isFinite(c.score)) return null
+    const score = Math.round(c.score)
+    if (score < 0 || score > expected.maxPoints) return null
     if (typeof c.justificationDe !== 'string' || typeof c.justificationEn !== 'string') return null
-    sum += c.score
+    sum += score
     criteria.push({
       key: expected.key,
       labelDe: expected.labelDe,
       maxPoints: expected.maxPoints,
-      score: c.score,
+      score,
       justificationDe: c.justificationDe,
       justificationEn: c.justificationEn
     })
   }
 
-  // Strict consistency: sum and pass flag (writing-grader convention).
-  if (sum !== r.totalScore) return null
-  if ((r.totalScore >= SPRECHEN_B2_TEIL2.passingScore) !== r.passes) return null
+  // totalScore and passes are DERIVED from the criterion scores — the
+  // per-criterion scores are the source of truth. Rejecting on the model's
+  // own arithmetic (sum/pass-flag echoes) burned retries on local-claude,
+  // which has no schema enforcement; the echoed fields are ignored instead.
+  const totalScore = sum
+  const passes = totalScore >= SPRECHEN_B2_TEIL2.passingScore
 
   // Mistakes — silently drop what cannot be verified against the transcript.
   const lTurns = learnerTurns(d)
@@ -208,9 +213,9 @@ export function validateSprechenGrade(
     )
 
   return {
-    totalScore: r.totalScore,
-    passes: r.passes,
-    praedikat: praedikat(r.totalScore),
+    totalScore,
+    passes,
+    praedikat: praedikat(totalScore),
     criteria,
     mistakes,
     strengths: notes(r.strengths),
