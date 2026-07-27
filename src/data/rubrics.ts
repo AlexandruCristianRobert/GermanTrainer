@@ -299,3 +299,98 @@ export const PARAGRAPH_UPGRADE_SCHEMA = {
   },
   required: ['upgradedText', 'rationaleDe']
 } as const
+
+// ── Sprechen B2 · Teil 2 (Diskussion) — adapted ──────────────────
+//
+// Adapted from the official Goethe B2 Sprechen assessment grid: the official
+// grid spans both Teile and includes Aussprache, which a typed Discussion
+// cannot assess. Aussprache is EXCLUDED (the result page says so) and the
+// remaining four criteria are weighted equally at 25 points each — a
+// deliberate, documented adaptation (see the module spec).
+// Deliberately NOT part of RubricSystem: the writing grader's validator
+// enumerates that union, and this rubric never flows through it.
+
+export interface SprechenCriterion {
+  key: 'erfuellung' | 'kohaerenz' | 'wortschatz' | 'strukturen'
+  labelDe: string
+  labelEn: string
+  maxPoints: number
+  descriptorDe: string
+}
+
+export interface SprechenRubric {
+  labelDe: string
+  totalMax: number
+  passingScore: number
+  criteria: SprechenCriterion[]
+  notes: string
+}
+
+export const SPRECHEN_B2_TEIL2: SprechenRubric = {
+  labelDe: 'Goethe-Zertifikat B2 · Sprechen Teil 2 (adaptiert, ohne Aussprache)',
+  totalMax: 100,
+  passingScore: 60,
+  criteria: [
+    {
+      key: 'erfuellung',
+      labelDe: 'Erfüllung / Interaktion',
+      labelEn: 'Task fulfilment / interaction',
+      maxPoints: 25,
+      descriptorDe:
+        'Vertritt die Person eine eigene Position zum Thema und begründet sie? ' +
+        'Reagiert sie auf die Argumente des Gesprächspartners (zustimmen, ' +
+        'widersprechen, abwägen) statt Monologe zu halten? Hält sie die ' +
+        'Diskussion aktiv am Laufen, z. B. durch Nachfragen? Sehr kurze, ' +
+        'einsilbige Beiträge mindern die Punktzahl in diesem Kriterium.'
+    },
+    {
+      key: 'kohaerenz',
+      labelDe: 'Kohärenz & Flüssigkeit',
+      labelEn: 'Coherence & flow',
+      maxPoints: 25,
+      descriptorDe:
+        'Sind die Beiträge in sich logisch aufgebaut und an den Gesprächsverlauf ' +
+        'angeschlossen? Werden Konnektoren und Verweismittel (deshalb, trotzdem, ' +
+        'einerseits/andererseits, dabei, darauf) passend eingesetzt? Für die ' +
+        'schriftliche Form angepasst: Flüssigkeit heißt hier natürlicher ' +
+        'Gesprächsfluss, nicht Sprechtempo.'
+    },
+    {
+      key: 'wortschatz',
+      labelDe: 'Wortschatz',
+      labelEn: 'Vocabulary',
+      maxPoints: 25,
+      descriptorDe:
+        'Ist der Wortschatz für B2 angemessen breit und präzise? Werden ' +
+        'Redemittel der Diskussion (Zustimmung, Widerspruch, Abwägung) ' +
+        'variantenreich verwendet? Führen Wortschatzlücken zu Umschreibungen ' +
+        'oder Brüchen?'
+    },
+    {
+      key: 'strukturen',
+      labelDe: 'Strukturen',
+      labelEn: 'Structures',
+      maxPoints: 25,
+      descriptorDe:
+        'Wie korrekt und variantenreich sind die grammatischen Strukturen ' +
+        '(Nebensätze, Konjunktiv II für Vorschläge, Passiv, Verbstellung)? ' +
+        'Wie häufig und wie schwerwiegend sind Fehler, und beeinträchtigen ' +
+        'sie das Verständnis?'
+    }
+  ],
+  notes:
+    'Adaptierte Bewertung für getippte Diskussionsübungen: Aussprache wird ' +
+    'nicht bewertet; vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. ' +
+    'Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, ' +
+    '60+ ausreichend, darunter nicht bestanden.'
+}
+
+export type Praedikat = 'sehr gut' | 'gut' | 'befriedigend' | 'ausreichend' | 'nicht bestanden'
+
+export function praedikat(score: number): Praedikat {
+  if (score >= 90) return 'sehr gut'
+  if (score >= 80) return 'gut'
+  if (score >= 70) return 'befriedigend'
+  if (score >= 60) return 'ausreichend'
+  return 'nicht bestanden'
+}
