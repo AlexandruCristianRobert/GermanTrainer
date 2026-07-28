@@ -85,6 +85,10 @@ const routes: RouteRecordRaw[] = [
   { path: '/da-compounds/register/run', name: 'dacompounds-register-run', component: () => import('./modules/da-compounds/RegisterRunner.vue') },
   { path: '/da-compounds/relative', name: 'dacompounds-relative', component: () => import('./modules/da-compounds/RelativeSetup.vue') },
   { path: '/da-compounds/relative/run', name: 'dacompounds-relative-run', component: () => import('./modules/da-compounds/RelativeRunner.vue') },
+  // Direction Words (hin & her). Route names are hyphen-free ('directionwords')
+  // because NavShell derives the active tab via name.split('-')[0].
+  { path: '/direction-words', name: 'directionwords', component: () => import('./modules/direction-words/DirectionWordsHome.vue') },
+  { path: '/direction-words/cheatsheet', name: 'directionwords-cheatsheet', component: () => import('./modules/direction-words/DirectionWordsCheatsheet.vue') },
   { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
   { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
   { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },

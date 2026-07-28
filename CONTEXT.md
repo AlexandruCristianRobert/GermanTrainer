@@ -116,6 +116,32 @@ _Avoid_: base form, lemma, citation form
 A word as it actually appears in a sentence after declension/conjugation (`den Tisch`). The learner must produce this themselves; hints never reveal it.
 _Avoid_: surface form, conjugated form
 
+### Direction words
+
+**Perspective adverb**:
+A hin/her word — bare *hin*/*her* or a preposition compound (*hinein/herein*, *hinauf/herauf*, *hinaus/heraus*, *hinunter/herunter*, *hinüber/herüber*, *herum*, *hervor*, *hindurch*) — encoding motion relative to the speaker's position: *hin* = away from the speaker, *her* = toward the speaker. The subject matter of the **Direction Words** module. Not to be confused with [Direction], which is the EN→DE/DE→EN axis of a translation drill.
+_Avoid_: directional adverb, direction word (collides with [Direction]), hin/her word, movement adverb
+
+**Adverb pair**:
+The hin-/her- twins built on one preposition (*hinauf/herauf*), differing only in speaker perspective. The unit the Direction Words drills filter by and track [Weak point]s against — the module's analogue of a governed preposition.
+_Avoid_: compound pair, twin forms
+
+**R-form**:
+The colloquial contraction of a [Perspective adverb] compound — *rein, raus, rauf, runter, rüber* — which collapses the hin/her distinction entirely. Spoken-register standard, written-register marked; never itself wrong, unlike misformed compounds (\**hinrein*).
+_Avoid_: short form, slang form, contraction (too generic)
+
+**Lexicalized prefix verb**:
+A verb whose hin-/her- separable prefix no longer means direction — *herstellen* (produce), *hinweisen* (point out), *hinrichten* (execute), *herausfinden* (find out). Vocabulary, not perspective: the perspective rule does not apply and cannot be used to guess the meaning.
+_Avoid_: idiom verb, faded-direction verb, prefix verb (unqualified)
+
+**Direction error tag**:
+A classification the grader assigns to a wrong Direction Words sentence answer. `direction` (any wrong [Perspective adverb]: wrong hin/her side, wrong compound, or a misformed one like \**hinrein*) joins the reused `conjugation`, `case`, `word-order`, `noun`, and `typo` tags. A single answer may carry several; `direction` errors feed [Weak point]s per [Adverb pair].
+_Avoid_: perspective error, compound error (the da-compounds tag)
+
+**Scene diagram**:
+A schematic picture shown with a Direction Words drill card that fixes where the speaker stands and which way the motion goes — the information the perspective rule needs and the sentence alone may not give. Drawn from a small set of reusable scene archetypes (stairs, doorway, window, street, hill, room); its one-line text description doubles as the accessible fallback.
+_Avoid_: illustration, image, picture hint
+
 ### Sprechen
 
 **Discussion** (de Diskussion):
