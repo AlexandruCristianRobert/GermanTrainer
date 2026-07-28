@@ -31,6 +31,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Compound pairs',
+    de: 'Die Paare',
+    cards: [
+      {
+        numeral: 'T2', route: 'directionwords-compounds',
+        title: 'Compound gap-fill', de: 'Zusammensetzungen',
+        desc: 'hinauf or herauf? The scene decides. Four options crossing both axes — or type it yourself at B2.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
