@@ -74,5 +74,11 @@ describe('useDirectionDrill', () => {
     drill.pickOption(drill.current.value!.answers[0])
     drill.pickOption('hier')
     expect(drill.current.value!.isCorrect).toBe(true)
+
+    const drill2 = useDirectionDrill(buildHinHerQuestions(HIN_HER_ITEMS.slice(0, 1)))
+    drill2.submitText('')
+    expect(drill2.current.value!.isCorrect).toBe(false)
+    drill2.submitText(drill2.current.value!.answers[0])
+    expect(drill2.current.value!.isCorrect).toBe(false)
   })
 })
