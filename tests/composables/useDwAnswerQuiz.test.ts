@@ -7,6 +7,7 @@ import * as answerModule from '../../src/composables/useDwAnswerQuiz'
 import {
   DW_ANSWER_ANGLE_POOL,
   DW_ANSWER_GEN_SYSTEM,
+  DW_GRADE_RULES,
   buildDwAnswerGeneratePrompt,
   validateDwQuestion,
   generateDwQuestionBatch,
@@ -36,6 +37,9 @@ describe('re-exports from useDwSentenceQuiz (Task 1 shared-sampling pattern)', (
   })
   test('dwLevelLabel is the same function reference as the sentence module', () => {
     expect(answerModule.dwLevelLabel).toBe(sentenceModule.dwLevelLabel)
+  })
+  test('DW_GRADE_RULES is the exact same string constant as the sentence module (single-sourced rubric)', () => {
+    expect(answerModule.DW_GRADE_RULES).toBe(sentenceModule.DW_GRADE_RULES)
   })
 })
 
@@ -283,9 +287,14 @@ describe('buildDwAnswerGradePrompt', () => {
     expect(p.system).toContain('"noun"')
     expect(p.system).toContain('"typo"')
   })
-  test('states the same drill rubric as T6: twins, r-forms (written-form tip), kommen-toward-addressee, wrong side', () => {
+  // Single-sourcing: the rubric bullets must be the imported DW_GRADE_RULES
+  // constant verbatim, not a hand-copied paraphrase that could drift from T6.
+  test('states the same drill rubric as T6 by containing the imported DW_GRADE_RULES verbatim', () => {
     const p = buildDwAnswerGradePrompt({ q, answer: 'x' })
-    const low = p.system.toLowerCase()
+    expect(p.system).toContain(DW_GRADE_RULES)
+  })
+  test('DW_GRADE_RULES itself covers twins, r-forms (written-form tip), kommen-toward-addressee, wrong side', () => {
+    const low = DW_GRADE_RULES.toLowerCase()
     expect(low).toContain('hinab=hinunter')
     expect(low).toContain('rauf, runter, rein, raus, rüber')
     expect(low).toContain('written')

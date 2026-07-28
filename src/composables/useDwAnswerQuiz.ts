@@ -21,12 +21,16 @@ import { ADVERB_PAIRS, hinForm, herForm } from '../data/directionWords'
 import type { PromptVariation } from './useVerbSentenceQuiz'
 import type { AiClient } from './useClaude'
 import type { DwErrorTag, DwDrillItem } from './useQuizHistory'
-import { twinCompound } from './useDwSentenceQuiz'
+import { twinCompound, DW_GRADE_RULES } from './useDwSentenceQuiz'
 import type { DwSentenceSpec, DwAnswerGrade } from './useDwSentenceQuiz'
 
 // Re-export the shared building blocks so a view can pull everything for the
 // answer quiz from one module (specs are identical to the sentence quiz).
-export { buildDwSpecs, dwLevelLabel, twinCompound } from './useDwSentenceQuiz'
+// DW_GRADE_RULES in particular is the single source of truth for the drill
+// rubric bullets — T6 (useDwSentenceQuiz) owns the text, T7 imports it
+// verbatim below rather than keeping a second hand-copied paraphrase that
+// could drift out of sync.
+export { buildDwSpecs, dwLevelLabel, twinCompound, DW_GRADE_RULES } from './useDwSentenceQuiz'
 export type { DwSentenceSpec, DwSide, DwAnswerGrade } from './useDwSentenceQuiz'
 export type { DwErrorTag } from './useQuizHistory'
 
@@ -267,26 +271,17 @@ const DW_ANSWER_GRADE_SCHEMA = {
   required: ['correct']
 }
 
-/**
- * The T6 drill rubric (twins, r-forms, kommen-toward-addressee, wrong side),
- * reused verbatim here so T7's grading prompt applies the exact same rules —
- * only the surrounding Q&A framing differs from the translation quiz.
- */
-export const DW_GRADE_RULES =
-  'Apply these drill-specific rules: the directional adverb must express the right perspective for the scenario; ' +
-  'the exact reference compound is not required — its vertical synonym (hinab=hinunter, herab=herunter) is ' +
-  'fully correct; colloquial short forms (rauf, runter, rein, raus, rüber) are CORRECT — mention the written ' +
-  'full form in the tip, but do not mark the answer wrong or tag it; with "kommen" toward the addressee, both ' +
-  'herauf and hinauf (etc.) are acceptable, prefer her- in the tip; the WRONG side (herauf where the speaker ' +
-  'is below, hinein where the speaker is inside) is incorrect: tag "direction"; misformed words (hinrein, rab) ' +
-  'are incorrect: tag "direction".'
+// DW_GRADE_RULES (the T6 drill rubric — twins, r-forms, kommen-toward-
+// addressee, wrong side) is imported above from useDwSentenceQuiz, the single
+// source of truth, and spliced in verbatim below. Only the surrounding Q&A
+// framing differs from the translation quiz's grading prompt.
 
 const DW_ANSWER_GRADE_SYSTEM =
   "You grade a learner's German answer in a directional-adverb speaking drill (hin = away from the speaker, " +
   'her = toward the speaker). The learner READ a German scenario + question and TYPED a free German answer. ' +
   'Judge TWO things together: (a) does the answer actually answer the question naturally, and (b) does it use ' +
-  'the directional adverb correctly. ' +
-  `${DW_GRADE_RULES} ` +
+  'the directional adverb correctly. Apply these drill-specific rules:\n' +
+  `${DW_GRADE_RULES}\n` +
   'errorTags values: "direction" (wrong side, wrong compound, misformed), "conjugation" (verb form), "case" ' +
   '(wrong case ending), "word-order" (verb-second or adverb placement), "noun" (wrong theme noun), "typo" ' +
   '(small slip elsewhere). Multiple tags allowed; empty when correct.\n' +

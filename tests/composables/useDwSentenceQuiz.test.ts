@@ -336,7 +336,7 @@ describe('buildDwHintInputs', () => {
 })
 
 import {
-  buildDwGradePrompt, parseDwGrade, gradeDwAnswer, buildDwDrillItem
+  buildDwGradePrompt, parseDwGrade, gradeDwAnswer, buildDwDrillItem, DW_GRADE_RULES
 } from '../../src/composables/useDwSentenceQuiz'
 
 describe('buildDwGradePrompt', () => {
@@ -374,6 +374,13 @@ describe('buildDwGradePrompt', () => {
     expect(p.system).toContain(
       'Return ONLY JSON in exactly this shape: {"correct": true|false, "tip": "...", "errorTags": ["..."]}'
     )
+  })
+  // DW_GRADE_RULES is exported specifically so T7 (useDwAnswerQuiz) can import
+  // the rubric verbatim instead of keeping a second hand-copied paraphrase
+  // that could drift out of sync. This locks the single-sourcing in place.
+  test('DW_GRADE_SYSTEM (via buildDwGradePrompt) contains DW_GRADE_RULES verbatim — single-sourced, no drift', () => {
+    const p = buildDwGradePrompt({ spec, answer: 'x' })
+    expect(p.system).toContain(DW_GRADE_RULES)
   })
 })
 

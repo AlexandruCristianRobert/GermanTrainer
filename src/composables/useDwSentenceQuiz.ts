@@ -430,12 +430,22 @@ const DW_GRADE_SCHEMA = {
   required: ['correct']
 }
 
-const DW_GRADE_SYSTEM = `You grade a learner's German translation in a directional-adverb drill (hin = away from the speaker, her = toward the speaker).
-Judge the answer against the English sentence and the reference German. The answer is CORRECT when it preserves the meaning and is acceptable German. Apply these drill-specific rules:
-- The directional adverb must express the right perspective for the scenario. The exact reference compound is not required: its vertical synonym (hinab=hinunter, herab=herunter) is fully correct; colloquial short forms (rauf, runter, rein, raus, rüber) are CORRECT — mention the written full form in the tip, but do not mark the answer wrong or tag it.
+/**
+ * The drill-specific rule bullets shared by both direction-word grading
+ * prompts (T6 sentence-translation and T7 answer-the-question) — exported so
+ * T7's module imports these verbatim instead of hand-copying a paraphrase
+ * that could drift out of sync. Kept byte-for-byte identical to the text
+ * that shipped in `DW_GRADE_SYSTEM` before this extraction (see the
+ * regression test asserting `DW_GRADE_SYSTEM.includes(DW_GRADE_RULES)`).
+ */
+export const DW_GRADE_RULES = `- The directional adverb must express the right perspective for the scenario. The exact reference compound is not required: its vertical synonym (hinab=hinunter, herab=herunter) is fully correct; colloquial short forms (rauf, runter, rein, raus, rüber) are CORRECT — mention the written full form in the tip, but do not mark the answer wrong or tag it.
 - With "kommen" toward the addressee, both herauf and hinauf (etc.) are acceptable; prefer her- in the tip.
 - The WRONG side (herauf where the speaker is below, hinein where the speaker is inside) is incorrect: tag "direction".
-- Misformed words (hinrein, rab) are incorrect: tag "direction".
+- Misformed words (hinrein, rab) are incorrect: tag "direction".`
+
+const DW_GRADE_SYSTEM = `You grade a learner's German translation in a directional-adverb drill (hin = away from the speaker, her = toward the speaker).
+Judge the answer against the English sentence and the reference German. The answer is CORRECT when it preserves the meaning and is acceptable German. Apply these drill-specific rules:
+${DW_GRADE_RULES}
 errorTags values: "direction" (wrong side, wrong compound, misformed), "conjugation" (verb form), "case" (wrong case ending), "word-order" (verb-second or adverb placement), "noun" (wrong theme noun), "typo" (small slip elsewhere). Multiple tags allowed; empty when correct.
 "tip": ONE short sentence, English, naming what to fix (or reinforcing why the answer is right). Never reveal an unrelated better translation.
 Return ONLY JSON in exactly this shape: {"correct": true|false, "tip": "...", "errorTags": ["..."]}
