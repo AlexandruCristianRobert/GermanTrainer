@@ -17,8 +17,19 @@ interface Group {
   cards: Card[]
 }
 
-// Drill cards arrive family by family (spec §7 phases); Phase 1 ships the reference.
+// Drill cards arrive family by family (spec §7 phases).
 const groups: Group[] = [
+  {
+    heading: 'The perspective rule',
+    de: 'Hin oder her?',
+    cards: [
+      {
+        numeral: 'T1', route: 'directionwords-hinher',
+        title: 'Hin or her?', de: 'Die Grundregel',
+        desc: 'A scene diagram shows where you stand; pick hin or her — and don\'t fall for the hier button.',
+      },
+    ],
+  },
   {
     heading: 'Reference',
     de: 'Nachschlagen',
