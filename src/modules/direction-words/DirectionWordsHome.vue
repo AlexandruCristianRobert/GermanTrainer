@@ -53,6 +53,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Register',
+    de: 'Kurzformen',
+    cards: [
+      {
+        numeral: 'T4', route: 'directionwords-register',
+        title: 'R-forms & register', de: 'rein, raus, rüber',
+        desc: 'Standard, spoken-only, or plain wrong? Judge rüber and friends — and learn why *hinrein never was a word.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
