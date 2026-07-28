@@ -30,6 +30,39 @@ describe('builders', () => {
     }
   })
 
+  test('T2 vertical-twin regression: hinunter/hinab (and herunter/herab) are synonyms — twin never a wrong distractor, always an accepted typed alternative', () => {
+    const rng = () => 0.42
+    const qs = buildCompoundQuestions(COMPOUND_ITEMS, rng)
+    const twinOf: Record<string, string> = { unter: 'ab', ab: 'unter' }
+
+    for (const q of qs) {
+      const item = COMPOUND_ITEMS[q.sourceIndex]
+      const el = item.pair!
+      const side = q.answers[0] === hinForm(el) ? 'hin' : 'her'
+      const twinEl = twinOf[el]
+
+      // No option outside q.answers is itself an accepted answer for this question.
+      for (const o of q.options) {
+        if (q.answers.includes(o)) continue
+        expect(twinEl ? o === side + twinEl : false).toBe(false)
+      }
+
+      if (twinEl) {
+        const twinCompound = side + twinEl
+        expect(q.answers).toContain(twinCompound)
+        expect(q.options).not.toContain(twinCompound)
+      }
+    }
+
+    const unterQ = qs.find(q => COMPOUND_ITEMS[q.sourceIndex].pair === 'unter')!
+    const unterSide = unterQ.answers[0] === 'hinunter' ? 'hin' : 'her'
+    expect(unterQ.answers).toContain(unterSide + 'ab')
+
+    const abQ = qs.find(q => COMPOUND_ITEMS[q.sourceIndex].pair === 'ab')!
+    const abSide = abQ.answers[0] === 'hinab' ? 'hin' : 'her'
+    expect(abQ.answers).toContain(abSide + 'unter')
+  })
+
   test('T3: stored options pass through; note becomes revealNote', () => {
     const qs = buildQuestionWordQuestions(QUESTION_ITEMS)
     for (const q of qs) {
