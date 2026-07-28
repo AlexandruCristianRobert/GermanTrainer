@@ -171,12 +171,15 @@ export function validSceneSpec(spec: SceneSpec): boolean {
 
 export type DirectionLevel = 'A2' | 'B1' | 'B2' | 'C1'
 
+export const DIRECTION_LEVELS = ['A2', 'B1', 'B2', 'C1'] as const satisfies readonly DirectionLevel[]
+
 export interface PerspectiveItem {
   id: string
   level: DirectionLevel
   sentence: string     // German sentence with a ___ gap
   answers: string[]    // accepted forms; first entry is the canonical reveal
   pair: string | null  // AdverbPair element ('ein', 'auf', …) for pair-filtered drills; null for bare hin/her
+  hierTrap?: boolean   // T1 only: show the 'hier' trap button ('Komm *hier!' transfer error); 'hier' is never the answer
   scene: SceneSpec
   translation: string  // English rendering shown on the reveal
 }

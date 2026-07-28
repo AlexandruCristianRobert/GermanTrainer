@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.14.00'
+export const APP_VERSION = '1.14.01'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.14.01', date: '2026-07-28', kind: 'polish',
+    title: 'Direction Words · the first three drills',
+    notes: [
+      '<strong>The perspective rule, drilled.</strong> <em>T1 Hin or her?</em> — a scene diagram pins where you stand, you pick the direction; the <em>hier</em> button lies in wait for the English reflex (<em>*Komm hier!</em>). <em>T2 Compound gap-fill</em> — <em>hinauf</em> or <em>herauf</em>? The scene decides; four options crossing both axes, or type it yourself at B2. <em>T3 Wo, wohin or woher?</em> — three ways to ask "where", plus the pointers (<em>dahin, dorthin</em>) and the spoken splits (<em>Wo gehst du hin?</em>).',
+      '<strong>110+ hand-written items</strong>, each anchored to a scene diagram wherever perspective matters, guarded by automated invariants — an item whose answer contradicts its own scene cannot ship. Every drill filters by level (T2 also by pair), records to History, and offers the usual retry round.'
+    ]
+  },
   {
     version: '1.14.00', date: '2026-07-28', kind: 'module',
     title: 'Direction Words · a new module opens',

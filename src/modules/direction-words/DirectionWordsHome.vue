@@ -17,8 +17,41 @@ interface Group {
   cards: Card[]
 }
 
-// Drill cards arrive family by family (spec §7 phases); Phase 1 ships the reference.
+// Drill cards arrive family by family (spec §7 phases).
 const groups: Group[] = [
+  {
+    heading: 'The perspective rule',
+    de: 'Hin oder her?',
+    cards: [
+      {
+        numeral: 'T1', route: 'directionwords-hinher',
+        title: 'Hin or her?', de: 'Die Grundregel',
+        desc: 'A scene diagram shows where you stand; pick hin or her — and don\'t fall for the hier button.',
+      },
+    ],
+  },
+  {
+    heading: 'Compound pairs',
+    de: 'Die Paare',
+    cards: [
+      {
+        numeral: 'T2', route: 'directionwords-compounds',
+        title: 'Compound gap-fill', de: 'Zusammensetzungen',
+        desc: 'hinauf or herauf? The scene decides. Four options crossing both axes — or type it yourself at B2.',
+      },
+    ],
+  },
+  {
+    heading: 'Questions & pointers',
+    de: 'Wo, wohin, woher',
+    cards: [
+      {
+        numeral: 'T3', route: 'directionwords-questions',
+        title: 'Wo, wohin or woher?', de: 'Fragewörter',
+        desc: 'Three ways to ask "where" — plus the pointers (dahin, dorthin) and the spoken splits (Wo gehst du hin?).',
+      },
+    ],
+  },
   {
     heading: 'Reference',
     de: 'Nachschlagen',

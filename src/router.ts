@@ -89,6 +89,12 @@ const routes: RouteRecordRaw[] = [
   // because NavShell derives the active tab via name.split('-')[0].
   { path: '/direction-words', name: 'directionwords', component: () => import('./modules/direction-words/DirectionWordsHome.vue') },
   { path: '/direction-words/cheatsheet', name: 'directionwords-cheatsheet', component: () => import('./modules/direction-words/DirectionWordsCheatsheet.vue') },
+  { path: '/direction-words/hin-her', name: 'directionwords-hinher', component: () => import('./modules/direction-words/HinHerSetup.vue') },
+  { path: '/direction-words/hin-her/run', name: 'directionwords-hinher-run', component: () => import('./modules/direction-words/HinHerRunner.vue') },
+  { path: '/direction-words/compounds', name: 'directionwords-compounds', component: () => import('./modules/direction-words/CompoundSetup.vue') },
+  { path: '/direction-words/compounds/run', name: 'directionwords-compounds-run', component: () => import('./modules/direction-words/CompoundRunner.vue') },
+  { path: '/direction-words/questions', name: 'directionwords-questions', component: () => import('./modules/direction-words/QuestionWordSetup.vue') },
+  { path: '/direction-words/questions/run', name: 'directionwords-questions-run', component: () => import('./modules/direction-words/QuestionWordRunner.vue') },
   { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
   { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
   { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },
