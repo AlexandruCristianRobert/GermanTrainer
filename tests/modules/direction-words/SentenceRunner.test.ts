@@ -31,17 +31,21 @@ vi.mock('../../../src/composables/useQuizHistory', () => ({
 }))
 import { saveQuizRun } from '../../../src/composables/useQuizHistory'
 
+// pair 'unter' has a vertical twin ('ab') per VERTICAL_TWIN in
+// useDwSentenceQuiz.ts, so hin+unter's target 'hinunter' twins to 'hinab' —
+// this lets one fixture exercise buildDwHintInputs' filtering of BOTH the
+// exact target and its vertical-synonym twin, not just the target.
 const SPEC: DwSentenceSpec = {
   index: 0,
-  pair: 'auf',
-  side: 'her',
-  target: 'herauf',
+  pair: 'unter',
+  side: 'hin',
+  target: 'hinunter',
   nouns: [{ german: 'Treppe', article: 'die', english: 'staircase' }]
 }
 
-const GENERATED_ENGLISH = 'Grandma calls up the staircase for you to come visit soon.'
-const GENERATED_GERMAN = 'Oma ruft: Komm die Treppe herauf, wir warten schon!'
-const GRADE_TIP = 'Wrong side — Grandma is above you, so it should be herauf, not hinauf.'
+const GENERATED_ENGLISH = 'Someone waves you down the staircase, calling out to hurry.'
+const GENERATED_GERMAN = 'Jemand ruft: Geh die Treppe hinunter, beeil dich!'
+const GRADE_TIP = 'Wrong side — the speaker is below, calling you down, so it should be hinunter, not herunter.'
 
 function makeRouter() {
   return createRouter({
@@ -80,7 +84,17 @@ describe('SentenceRunner (T6 AI sentence translation)', () => {
             english: GENERATED_ENGLISH,
             german: GENERATED_GERMAN,
             nounSpansEn: ['staircase'],
-            extraWords: [{ en: 'calls', de: 'rufen', kind: 'verb' }]
+            // 'waves' is a legitimate extra-word hint. The other two are
+            // deliberate LEAK CANDIDATES the real AI might plausibly return —
+            // one revealing the exact target compound, one revealing its
+            // vertical twin — planted here so the test can prove the Runner
+            // routes hints through buildDwHintInputs' filtering rather than
+            // rendering every AI-supplied extraWord verbatim.
+            extraWords: [
+              { en: 'waves', de: 'winken', kind: 'verb' },
+              { en: 'hurry', de: 'hinunter', kind: 'verb' },
+              { en: 'down', de: 'hinab', kind: 'noun' }
+            ]
           }]
         })
       }
@@ -88,7 +102,7 @@ describe('SentenceRunner (T6 AI sentence translation)', () => {
     sessionStorage.setItem(STASH_KEY, JSON.stringify({
       specs: [SPEC],
       levels: ['A2', 'B1'],
-      pairs: ['auf'],
+      pairs: ['unter'],
       groups: ['House'],
       nounsPer: 1,
       hints: true
@@ -101,23 +115,45 @@ describe('SentenceRunner (T6 AI sentence translation)', () => {
     expect(wrapper.text()).toContain('staircase')
   })
 
-  it('shows a noun hint, but never a hint that leaks the target compound', async () => {
+  it('shows the legitimate hints, but never a hint that leaks the target compound or its twin', async () => {
     const { wrapper } = await mountRunner()
     const hints = wrapper.findAll('.hint')
-    expect(hints.length).toBeGreaterThan(0)
+
+    // The legitimate hints still render: the theme noun, and the one
+    // extra-word ('waves' → 'winken') that doesn't touch the target/twin.
     const nounHint = hints.find(h => h.classes().includes('hint-noun'))
     expect(nounHint).toBeTruthy()
-    expect(nounHint!.text().toLowerCase()).not.toContain('herauf')
+    expect(nounHint!.text()).toContain('staircase')
+    const wavesHint = hints.find(h => h.text().includes('waves'))
+    expect(wavesHint).toBeTruthy()
+    expect(wavesHint!.text()).toContain('winken')
+
+    // Exactly the two legitimate hints render — the two leak candidates
+    // ('hurry'→'hinunter' and 'down'→'hinab') were dropped by
+    // buildDwHintInputs, not merely coincidentally free of the leaked text.
+    expect(hints.length).toBe(2)
+    const hurryHint = hints.find(h => h.text().includes('hurry'))
+    const downHint = hints.find(h => h.text().includes('down'))
+    expect(hurryHint).toBeUndefined()
+    expect(downHint).toBeUndefined()
+
+    // Belt and suspenders: whatever DOES render as a hint must never expose
+    // the target compound or its vertical twin, in the visible surface, the
+    // reveal popover, or the aria-label.
     for (const h of hints) {
-      expect(h.text().toLowerCase()).not.toContain('herauf')
-      expect((h.attributes('aria-label') ?? '').toLowerCase()).not.toContain('herauf')
+      const text = h.text().toLowerCase()
+      const ariaLabel = (h.attributes('aria-label') ?? '').toLowerCase()
+      expect(text).not.toContain('hinunter')
+      expect(text).not.toContain('hinab')
+      expect(ariaLabel).not.toContain('hinunter')
+      expect(ariaLabel).not.toContain('hinab')
     }
   })
 
   it('on a wrong submit, shows the AI tip and a "direction" tag chip', async () => {
     const { wrapper } = await mountRunner()
     const textarea = wrapper.find('textarea')
-    await textarea.setValue('Oma ruft: Komm die Treppe hinauf!')
+    await textarea.setValue('Geh die Treppe herunter!')
     await wrapper.find('form').trigger('submit')
     await flushPromises()
     await flushPromises()
@@ -130,7 +166,7 @@ describe('SentenceRunner (T6 AI sentence translation)', () => {
   it('records a dw-sentence history run whose item carries the direction tag', async () => {
     const { wrapper } = await mountRunner()
     const textarea = wrapper.find('textarea')
-    await textarea.setValue('Oma ruft: Komm die Treppe hinauf!')
+    await textarea.setValue('Geh die Treppe herunter!')
     await wrapper.find('form').trigger('submit')
     await flushPromises()
     await flushPromises()
