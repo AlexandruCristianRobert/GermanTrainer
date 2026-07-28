@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { loadHistory } from '../../composables/useQuizHistory'
+import DwWeakPoints from '../../components/charts/DwWeakPoints.vue'
 
 const router = useRouter()
+
+// One-shot read from history for the weak-points panel above the groups —
+// this page isn't long-lived, so no reactivity is needed (dac home pattern).
+const historyEntries = loadHistory()
 
 interface Card {
   numeral: string
@@ -114,6 +120,8 @@ function go(target: string) {
         </p>
       </div>
     </header>
+
+    <DwWeakPoints :entries="historyEntries" />
 
     <template v-for="g in groups" :key="g.heading">
       <h2 class="group-heading">{{ g.heading }} · <span class="group-de">{{ g.de }}</span></h2>
