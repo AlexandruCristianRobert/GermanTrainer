@@ -88,15 +88,26 @@ export function forbiddenDirectionWords(pair: string): string[] {
 }
 
 /**
- * Whole-word, case-insensitive check for whether `text` contains any of
- * `words` — word-boundary-aware so a short r-form like "rein" does not
- * false-positive inside an unrelated word that merely contains it as a
- * substring (e.g. "Verein", "Bereich"). Mirrors the \b-bounded regex
- * convention already used for surface/leak matching elsewhere in the sentence
- * quizzes (see escapeRegExp + buildHintSegments in useSentenceQuiz.ts).
+ * LEFT-boundary, case-insensitive check for whether `text` contains any of
+ * `words` — a boundary is required BEFORE the word but NOT after it. This is
+ * deliberately asymmetric:
+ * - The leading \b still rejects a short r-form (e.g. "rein") merely embedded
+ *   inside an unrelated word (e.g. "Verein", "Bereich", "darüber"): in each
+ *   case the character immediately before the embedded match is itself a
+ *   word character (the "e" in Ver-ein, the "a" in d-a-r-über), so no
+ *   boundary exists there and the match is correctly rejected.
+ * - Dropping the trailing \b is required to catch fused separable-verb forms
+ *   — "hereinkommen", "hinaufgehen", "reinkommen", "raufgehen" — where the
+ *   forbidden word sits at the START of the fused word with more letters
+ *   glued directly after it (no boundary there at all). A symmetric \b on
+ *   both sides misses these; the leading \b alone is exactly the boundary
+ *   that's actually load-bearing for the false-positive fix.
+ * Mirrors the \b-bounded regex convention used elsewhere in the sentence
+ * quizzes (see escapeRegExp + buildHintSegments in useSentenceQuiz.ts), just
+ * one-sided.
  */
 export function containsDirectionWord(text: string, words: readonly string[]): boolean {
-  return words.some(w => new RegExp(`\\b${w}\\b`, 'i').test(text))
+  return words.some(w => new RegExp(`\\b${w}`, 'i').test(text))
 }
 
 /** A spec once the AI has produced the sentence pair + highlight surfaces. */

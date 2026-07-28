@@ -265,7 +265,7 @@ describe('generateDwSentenceBatch', () => {
   })
 })
 
-import { buildDwHintInputs, forbiddenDirectionWords, type GeneratedDwSentence } from '../../src/composables/useDwSentenceQuiz'
+import { buildDwHintInputs, forbiddenDirectionWords, containsDirectionWord, type GeneratedDwSentence } from '../../src/composables/useDwSentenceQuiz'
 import { buildHintSegments } from '../../src/composables/useSentenceQuiz'
 
 describe('forbiddenDirectionWords', () => {
@@ -340,6 +340,10 @@ describe('buildDwHintInputs', () => {
     {
       ...sentence,
       extraWords: [{ en: 'quick', de: 'rauf', kind: 'noun' }] // leaks the r-form
+    },
+    {
+      ...sentence,
+      extraWords: [{ en: 'climb', de: 'raufgehen', kind: 'verb' }] // leaks the r-form FUSED into a separable verb
     }
   ]
   test.each(FIXTURES.map((fx, i) => [i, fx] as const))(
@@ -356,14 +360,19 @@ describe('buildDwHintInputs', () => {
     }
   )
 
-  test('fixtures planting the other side or the r-form actually get dropped (not just coincidentally clean)', () => {
+  test('fixtures planting the other side, the r-form, or a fused separable verb actually get dropped (not just coincidentally clean)', () => {
     const otherSideFixture = FIXTURES[4]
     const rFormFixture = FIXTURES[5]
+    const fusedFormFixture = FIXTURES[6]
     expect(buildDwHintInputs(otherSideFixture).some(h => h.surface === 'up')).toBe(false)
     expect(buildDwHintInputs(rFormFixture).some(h => h.surface === 'quick')).toBe(false)
+    expect(buildDwHintInputs(fusedFormFixture).some(h => h.surface === 'climb')).toBe(false)
   })
 
-  test('word-boundary-aware: a reveal like "der Verein" (pair ein) is NOT filtered merely for containing "rein" as a substring', () => {
+  // Left-boundary-only matching (see containsDirectionWord): a boundary is
+  // required BEFORE the forbidden word but not after it. These cases prove
+  // both halves of that trade-off still hold for real German vocabulary.
+  test('word-boundary-aware: reveals that merely CONTAIN a short r-form mid-word are NOT filtered (Verein/rein, Brause/raus, darüber/rüber)', () => {
     const einSentence: GeneratedDwSentence = {
       index: 0, pair: 'ein', side: 'hin', target: 'hinein',
       nouns: [{ german: 'Verein', article: 'der', english: 'club' }],
@@ -372,8 +381,36 @@ describe('buildDwHintInputs', () => {
       nounSpansEn: ['club'],
       extraWords: []
     }
-    const hints = buildDwHintInputs(einSentence)
-    expect(hints).toContainEqual({ surface: 'club', kind: 'noun', reveal: 'der Verein' })
+    expect(buildDwHintInputs(einSentence)).toContainEqual({ surface: 'club', kind: 'noun', reveal: 'der Verein' })
+
+    const ausSentence: GeneratedDwSentence = {
+      index: 0, pair: 'aus', side: 'hin', target: 'hinaus',
+      nouns: [{ german: 'Brause', article: 'die', english: 'shower' }],
+      english: 'The shower is broken.',
+      german: 'Die Brause ist kaputt.',
+      nounSpansEn: ['shower'],
+      extraWords: []
+    }
+    expect(buildDwHintInputs(ausSentence)).toContainEqual({ surface: 'shower', kind: 'noun', reveal: 'die Brause' })
+
+    const uberSentence: GeneratedDwSentence = {
+      index: 0, pair: 'über', side: 'hin', target: 'hinüber',
+      nouns: [],
+      english: 'They talked about it for a long time.',
+      german: 'Sie haben lange darüber gesprochen.',
+      nounSpansEn: [],
+      extraWords: [{ en: 'talked about it', de: 'darüber gesprochen', kind: 'verb' }]
+    }
+    expect(buildDwHintInputs(uberSentence)).toContainEqual({ surface: 'talked about it', kind: 'verb', reveal: 'darüber gesprochen' })
+  })
+
+  test('left-boundary matching still catches a forbidden word FUSED at the start of a longer word (hereinkommen, hinaufgehen, reinkommen, raufgehen)', () => {
+    const forbiddenAuf = forbiddenDirectionWords('auf')
+    const forbiddenEin = forbiddenDirectionWords('ein')
+    expect(containsDirectionWord('hereinkommen', forbiddenEin)).toBe(true)
+    expect(containsDirectionWord('hinaufgehen', forbiddenAuf)).toBe(true)
+    expect(containsDirectionWord('reinkommen', forbiddenEin)).toBe(true)
+    expect(containsDirectionWord('raufgehen', forbiddenAuf)).toBe(true)
   })
 })
 

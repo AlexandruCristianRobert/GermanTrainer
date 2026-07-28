@@ -190,6 +190,14 @@ describe('validateDwQuestion', () => {
     )
     expect(out).not.toBeNull()
   })
+  test('rejects a question containing a fused separable-verb form with the forbidden word at its start (e.g. "hereinkommen" for pair ein)', () => {
+    const einSpec: DwSentenceSpec = { index: 0, pair: 'ein', side: 'her', target: 'herein', nouns: [] }
+    const out = validateDwQuestion(
+      { index: 0, question: 'Darf ich hereinkommen?', exampleAnswer: 'Ja, komm doch herein!' },
+      einSpec
+    )
+    expect(out).toBeNull()
+  })
   test('accepts the vertical twin in exampleAnswer instead of the exact target', () => {
     const unterSpec: DwSentenceSpec = { index: 0, pair: 'unter', side: 'hin', target: 'hinunter', nouns: [] }
     const out = validateDwQuestion(
