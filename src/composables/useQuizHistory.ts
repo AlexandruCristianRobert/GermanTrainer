@@ -37,6 +37,8 @@ export type QuizHistoryType =
   | 'dw-question'
   | 'dw-register'
   | 'dw-assembly'
+  | 'dw-sentence'
+  | 'dw-answer'
   | 'prep-sentence'
   | 'prep-remedial'
   | 'verb-sentence'
@@ -106,6 +108,22 @@ export interface DacDrillItem {
   tags?: DacErrorTag[]    // why wrong; absent when correct
 }
 
+/**
+ * A direction-word (hin-/her-) sentence error category the AI grader may
+ * assign. 'direction' covers the drill's own mistake (wrong side, wrong
+ * compound, misformed word) — the other five mirror the verb-sentence tags.
+ */
+export type DwErrorTag = 'direction' | 'conjugation' | 'case' | 'word-order' | 'noun' | 'typo'
+
+/** One recorded answer in a dw-sentence or dw-answer run. */
+export interface DwDrillItem {
+  pair?: string          // adverb-pair element ('auf')
+  compound?: string      // the target compound ('herauf'), denormalized for display
+  nounKeys?: string[]    // german surfaces of the theme nouns involved
+  correct: boolean
+  tags?: DwErrorTag[]    // why wrong; absent when correct
+}
+
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation' | 'pick' | 'type'
   preps?: string[]   // Da-compound drills: preposition filter
@@ -157,6 +175,20 @@ export interface QuizHistoryMeta {
   dacAnswerGroups?: string[]
   dacAnswerHints?: boolean
   dacAnswerItems?: DacDrillItem[]
+
+  // Direction-words sentence-translation (AI) — T6, EN→DE, AI-graded
+  dwSentenceLevels?: string[]
+  dwSentencePairs?: string[]
+  dwSentenceGroups?: string[]
+  dwSentenceNounsPer?: 1 | 2 | 'mix'
+  dwSentenceHints?: boolean
+  dwSentenceItems?: DwDrillItem[]
+
+  // Direction-words answer-the-question (AI) — T7, AI-graded (single direction)
+  dwAnswerLevels?: string[]
+  dwAnswerPairs?: string[]
+  dwAnswerGroups?: string[]
+  dwAnswerItems?: DwDrillItem[]
 
   declLevels?: string[]
   declCases?: string[]

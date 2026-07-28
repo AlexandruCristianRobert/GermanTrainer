@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { loadHistory } from '../../composables/useQuizHistory'
+import DwWeakPoints from '../../components/charts/DwWeakPoints.vue'
 
 const router = useRouter()
+
+// One-shot read from history for the weak-points panel above the groups —
+// this page isn't long-lived, so no reactivity is needed (dac home pattern).
+const historyEntries = loadHistory()
 
 interface Card {
   numeral: string
@@ -72,6 +78,16 @@ const groups: Group[] = [
         title: 'Sentence assembly', de: 'Satzbau',
         desc: 'Tap the tiles into order — the direction word lands at the clause end, and idiomatic frontings count too.',
       },
+      {
+        numeral: 'T6', route: 'directionwords-sentence',
+        title: 'Sentence translation (AI)', de: 'Satz (KI)',
+        desc: 'The AI writes the scene in English — where the speaker stands is in the words. You write the German; wrong-side compounds get called out as perspective errors.',
+      },
+      {
+        numeral: 'T7', route: 'directionwords-answer',
+        title: 'Answer the question (AI)', de: 'Antworten (KI)',
+        desc: 'The AI sets the scene in German and asks; you answer with the right direction word — fronted or mid-field, both count.',
+      },
     ],
   },
   {
@@ -104,6 +120,8 @@ function go(target: string) {
         </p>
       </div>
     </header>
+
+    <DwWeakPoints :entries="historyEntries" />
 
     <template v-for="g in groups" :key="g.heading">
       <h2 class="group-heading">{{ g.heading }} · <span class="group-de">{{ g.de }}</span></h2>

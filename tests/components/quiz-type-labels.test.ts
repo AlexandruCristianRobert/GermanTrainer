@@ -107,4 +107,13 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPE_LABEL['dw-assembly']).toBe('Direction words · assembly')
     expect(QUIZ_TYPE_DE['dw-assembly']).toBe('Hin & Her · Satzbau')
   })
+
+  it('includes the Direction Words AI drill types (T6 sentence, T7 answer) with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dw-sentence')
+    expect(QUIZ_TYPES_ORDER).toContain('dw-answer')
+    expect(QUIZ_TYPE_LABEL['dw-sentence']).toBe('Direction words · sentence (AI)')
+    expect(QUIZ_TYPE_DE['dw-sentence']).toBe('Hin & Her · Satz (KI)')
+    expect(QUIZ_TYPE_LABEL['dw-answer']).toBe('Direction words · answer (AI)')
+    expect(QUIZ_TYPE_DE['dw-answer']).toBe('Hin & Her · Antworten (KI)')
+  })
 })

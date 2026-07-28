@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.14.02'
+export const APP_VERSION = '1.14.03'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.14.03', date: '2026-07-28', kind: 'polish',
+    title: 'Direction Words · AI sentence production',
+    notes: [
+      '<strong>T6 Sentence translation (KI).</strong> The AI writes the scene in English — where the speaker stands is in the words — and you write the German. Grading is perspective-aware: <em>herauf</em> where the speaker is below gets a <em>direction</em> tag, <em>hinab</em> counts for <em>hinunter</em>, and spoken short forms (<em>rauf</em>) pass with a written-form tip. Word hints reveal nouns and unknown words — never the direction word.',
+      '<strong>T7 Answer the question (KI).</strong> A German scenario asks; you answer freely with the right direction word — Mittelfeld or fronted, both count. <strong>Weak points</strong> from both AI drills now sit on the module home: your shakiest pairs, by the numbers.'
+    ]
+  },
   {
     version: '1.14.02', date: '2026-07-28', kind: 'polish',
     title: 'Direction Words · register & sentence assembly',

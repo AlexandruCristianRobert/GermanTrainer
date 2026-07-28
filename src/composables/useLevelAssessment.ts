@@ -121,6 +121,8 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'dw-question': 'wo/wohin/woher choice',
   'dw-register': 'r-form register judgment',
   'dw-assembly': 'direction sentence assembly',
+  'dw-sentence': 'direction sentence translation',
+  'dw-answer': 'direction answer-the-question',
   'prep-sentence': 'preposition · sentence translation (AI)',
   'prep-remedial': 'preposition · remedial weak-point drill',
   'verb-sentence': 'verb · sentence translation (AI)',
