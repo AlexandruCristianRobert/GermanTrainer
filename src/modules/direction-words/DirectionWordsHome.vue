@@ -64,6 +64,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Production',
+    de: 'Satzbau',
+    cards: [
+      {
+        numeral: 'T5', route: 'directionwords-assembly',
+        title: 'Sentence assembly', de: 'Satzbau',
+        desc: 'Tap the tiles into order — the direction word lands at the clause end, and idiomatic frontings count too.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
