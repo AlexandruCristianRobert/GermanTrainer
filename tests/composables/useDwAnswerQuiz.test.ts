@@ -41,6 +41,9 @@ describe('re-exports from useDwSentenceQuiz (Task 1 shared-sampling pattern)', (
   test('DW_GRADE_RULES is the exact same string constant as the sentence module (single-sourced rubric)', () => {
     expect(answerModule.DW_GRADE_RULES).toBe(sentenceModule.DW_GRADE_RULES)
   })
+  test('forbiddenDirectionWords is the same function reference as the sentence module (shared leak screen)', () => {
+    expect(answerModule.forbiddenDirectionWords).toBe(sentenceModule.forbiddenDirectionWords)
+  })
 })
 
 // ───────────────────────── generation prompt ──────────────────────────
@@ -151,6 +154,41 @@ describe('validateDwQuestion', () => {
       spec
     )
     expect(out).toBeNull()
+  })
+  test('rejects a question containing the pair\'s r-form (e.g. "rauf" for auf)', () => {
+    const out = validateDwQuestion(
+      { index: 0, question: 'Sagst du einfach "rauf" zu deiner Oma?', exampleAnswer: 'Komm herauf!' },
+      spec
+    )
+    expect(out).toBeNull()
+  })
+  test('rejects a question containing the vertical-twin pair\'s compound (e.g. "hinab" while drilling unter)', () => {
+    const unterSpec: DwSentenceSpec = { index: 0, pair: 'unter', side: 'hin', target: 'hinunter', nouns: [] }
+    const out = validateDwQuestion(
+      { index: 0, question: 'Ist "hinab" das passende Wort fuer den Berg?', exampleAnswer: 'Ich komme gleich hinunter!' },
+      unterSpec
+    )
+    expect(out).toBeNull()
+  })
+  test('rejects a question containing the twin pair\'s r-form (e.g. "runter" while drilling ab, whose twin is unter)', () => {
+    const abSpec: DwSentenceSpec = { index: 0, pair: 'ab', side: 'hin', target: 'hinab', nouns: [] }
+    const out = validateDwQuestion(
+      { index: 0, question: 'Sagst du einfach "runter" zu deinem Freund am Berg?', exampleAnswer: 'Ich komme gleich hinab!' },
+      abSpec
+    )
+    expect(out).toBeNull()
+  })
+  test('word-boundary-aware: a question containing "Verein" (pair ein) is NOT rejected merely for containing "rein" as a substring', () => {
+    const einSpec: DwSentenceSpec = { index: 0, pair: 'ein', side: 'hin', target: 'hinein', nouns: [] }
+    const out = validateDwQuestion(
+      {
+        index: 0,
+        question: 'Ihr seid Mitglieder im selben Verein. Was rufst du deinem Freund zu?',
+        exampleAnswer: 'Komm doch hinein!'
+      },
+      einSpec
+    )
+    expect(out).not.toBeNull()
   })
   test('accepts the vertical twin in exampleAnswer instead of the exact target', () => {
     const unterSpec: DwSentenceSpec = { index: 0, pair: 'unter', side: 'hin', target: 'hinunter', nouns: [] }
@@ -305,6 +343,19 @@ describe('buildDwAnswerGradePrompt', () => {
   test('judges whether the answer actually answers the question (Q&A framing)', () => {
     const p = buildDwAnswerGradePrompt({ q, answer: 'x' })
     expect(p.system.toLowerCase()).toContain('answer the question')
+  })
+  // Finding 1 (final review): T7 must NOT require a match to the example
+  // answer — any natural, grammatical answer with the right perspective is
+  // correct, mirroring the dac answer quiz's acceptance block (Mittelfeld,
+  // fronted-with-V2, short complete answers, ja/nein/doch openers).
+  test('acceptance rules: does not require a match to the example answer, and accepts Mittelfeld, fronted, and ja/nein/doch (dac-style)', () => {
+    const p = buildDwAnswerGradePrompt({ q, answer: 'x' })
+    const low = p.system.toLowerCase()
+    expect(low).toContain('do not require a match to the example answer')
+    expect(low).toContain('mittelfeld')
+    expect(low).toContain('fronted')
+    expect(low).toContain('verb-second')
+    expect(low).toContain('doch')
   })
   test('system contains the literal JSON-shape line verbatim (local-claude convention)', () => {
     const p = buildDwAnswerGradePrompt({ q, answer: 'x' })

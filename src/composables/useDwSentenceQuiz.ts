@@ -62,6 +62,43 @@ export function twinCompound(spec: DwSentenceSpec): string | null {
   return spec.side === 'hin' ? hinForm(twinPair) : herForm(twinPair)
 }
 
+/**
+ * Every direction-word surface form that must never leak into a hint or a
+ * generated question for this pair's drill: both sides of the pair itself
+ * (hinX/herX — not just the drilled side, since the sibling side would still
+ * hand the learner the answer to a hin-vs-her choice), the pair's colloquial
+ * r-form (rX, when one exists — not every pair has one, e.g. ab has no
+ * *rab), and the same forms for the pair's vertical twin (e.g. pair 'unter'
+ * also forbids ab's hinab/herab, since those are accepted "vertical synonym"
+ * answers for unter — see VERTICAL_TWIN). Shared by buildDwHintInputs (T6
+ * hints) and validateDwQuestion (T7 question-leak screen) so both drills
+ * screen against the same forbidden set.
+ */
+export function forbiddenDirectionWords(pair: string): string[] {
+  const words = [hinForm(pair), herForm(pair)]
+  const rForm = ADVERB_PAIRS.find(p => p.element === pair)?.rForm
+  if (rForm) words.push(rForm)
+  const twinPair = VERTICAL_TWIN[pair]
+  if (twinPair) {
+    words.push(hinForm(twinPair), herForm(twinPair))
+    const twinRForm = ADVERB_PAIRS.find(p => p.element === twinPair)?.rForm
+    if (twinRForm) words.push(twinRForm)
+  }
+  return words
+}
+
+/**
+ * Whole-word, case-insensitive check for whether `text` contains any of
+ * `words` — word-boundary-aware so a short r-form like "rein" does not
+ * false-positive inside an unrelated word that merely contains it as a
+ * substring (e.g. "Verein", "Bereich"). Mirrors the \b-bounded regex
+ * convention already used for surface/leak matching elsewhere in the sentence
+ * quizzes (see escapeRegExp + buildHintSegments in useSentenceQuiz.ts).
+ */
+export function containsDirectionWord(text: string, words: readonly string[]): boolean {
+  return words.some(w => new RegExp(`\\b${w}\\b`, 'i').test(text))
+}
+
 /** A spec once the AI has produced the sentence pair + highlight surfaces. */
 export interface GeneratedDwSentence extends DwSentenceSpec {
   english: string
@@ -365,18 +402,14 @@ export async function generateDwSentenceBatch(
 // Per design decision 1: the direction word is NEVER hinted — it's the whole
 // drill. Only theme nouns (OUR stored German) and incidental extra words (the
 // AI's German, per ADR-0003) are hinted, and each candidate is defensively
-// filtered so neither its surface nor its reveal can leak the TARGET compound
-// or its vertical twin, even if the model echoes it into an extra word.
+// filtered against forbiddenDirectionWords so neither its surface nor its
+// reveal can leak the pair's compounds (either side), r-form, or the vertical
+// twin's compounds/r-form, even if the model echoes one into an extra word.
 
 /** Build the (surface, kind, reveal) inputs for buildHintSegments. */
 export function buildDwHintInputs(s: GeneratedDwSentence): HintInput[] {
-  const forbidden = [s.target.toLowerCase()]
-  const twin = twinCompound(s)
-  if (twin) forbidden.push(twin.toLowerCase())
-  const leaksTarget = (text: string): boolean => {
-    const low = text.toLowerCase()
-    return forbidden.some(f => low.includes(f))
-  }
+  const forbidden = forbiddenDirectionWords(s.pair)
+  const leaksTarget = (text: string): boolean => containsDirectionWord(text, forbidden)
 
   const hints: HintInput[] = []
   ;(s.nounSpansEn ?? []).forEach((surf, i) => {
@@ -440,7 +473,7 @@ const DW_GRADE_SCHEMA = {
  */
 export const DW_GRADE_RULES = `- The directional adverb must express the right perspective for the scenario. The exact reference compound is not required: its vertical synonym (hinab=hinunter, herab=herunter) is fully correct; colloquial short forms (rauf, runter, rein, raus, rüber) are CORRECT — mention the written full form in the tip, but do not mark the answer wrong or tag it.
 - With "kommen" toward the addressee, both herauf and hinauf (etc.) are acceptable; prefer her- in the tip.
-- The WRONG side (herauf where the speaker is below, hinein where the speaker is inside) is incorrect: tag "direction".
+- The WRONG side (herauf where the speaker is below, hinein where the speaker is inside) is incorrect (except in the kommen case above): tag "direction".
 - Misformed words (hinrein, rab) are incorrect: tag "direction".`
 
 const DW_GRADE_SYSTEM = `You grade a learner's German translation in a directional-adverb drill (hin = away from the speaker, her = toward the speaker).

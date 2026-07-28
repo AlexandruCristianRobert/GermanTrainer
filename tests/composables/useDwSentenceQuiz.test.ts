@@ -265,8 +265,23 @@ describe('generateDwSentenceBatch', () => {
   })
 })
 
-import { buildDwHintInputs, type GeneratedDwSentence } from '../../src/composables/useDwSentenceQuiz'
+import { buildDwHintInputs, forbiddenDirectionWords, type GeneratedDwSentence } from '../../src/composables/useDwSentenceQuiz'
 import { buildHintSegments } from '../../src/composables/useSentenceQuiz'
+
+describe('forbiddenDirectionWords', () => {
+  test('pair with an r-form and no vertical twin (auf): both sides + r-form only', () => {
+    expect(forbiddenDirectionWords('auf')).toEqual(['hinauf', 'herauf', 'rauf'])
+  })
+  test('unter (has its own r-form; twin ab has none): both sides + own r-form + twin sides, no twin r-form', () => {
+    expect(forbiddenDirectionWords('unter')).toEqual(['hinunter', 'herunter', 'runter', 'hinab', 'herab'])
+  })
+  test('ab (no r-form of its own; twin unter has runter): both sides + twin sides + twin r-form', () => {
+    expect(forbiddenDirectionWords('ab')).toEqual(['hinab', 'herab', 'hinunter', 'herunter', 'runter'])
+  })
+  test('ein (has an r-form, no twin): both sides + r-form', () => {
+    expect(forbiddenDirectionWords('ein')).toEqual(['hinein', 'herein', 'rein'])
+  })
+})
 
 describe('buildDwHintInputs', () => {
   const sentence: GeneratedDwSentence = {
@@ -293,9 +308,10 @@ describe('buildDwHintInputs', () => {
     expect(hints).toEqual([])
   })
 
-  // Property test: NEVER emit a hint whose surface or reveal contains the
-  // target compound (or its vertical twin) — even when a crafted fixture
-  // tries to smuggle it in via an "extra word" or a noun span.
+  // Property test: NEVER emit a hint whose surface or reveal contains any
+  // forbidden direction word for the pair — both sides of the pair, its
+  // r-form, or the vertical twin's forms — even when a crafted fixture tries
+  // to smuggle one in via an "extra word" or a noun span.
   const FIXTURES: GeneratedDwSentence[] = [
     {
       ...sentence,
@@ -316,23 +332,49 @@ describe('buildDwHintInputs', () => {
       german: 'Geh schnell hinab in den Keller.', // twin form present
       nounSpansEn: ['cellar'],
       extraWords: [{ en: 'quickly', de: 'hinab', kind: 'noun' }] // leaks the TWIN
+    },
+    {
+      ...sentence,
+      extraWords: [{ en: 'up', de: 'hinauf', kind: 'noun' }] // leaks the pair's OTHER side
+    },
+    {
+      ...sentence,
+      extraWords: [{ en: 'quick', de: 'rauf', kind: 'noun' }] // leaks the r-form
     }
   ]
   test.each(FIXTURES.map((fx, i) => [i, fx] as const))(
-    'fixture %i: no hint surface or reveal contains the target compound or its twin',
+    'fixture %i: no hint surface or reveal contains any forbidden direction word for the pair',
     (_i, fx) => {
       const hints = buildDwHintInputs(fx)
-      const twin = twinCompound(fx)
+      const forbidden = forbiddenDirectionWords(fx.pair)
       for (const h of hints) {
-        expect(h.surface.toLowerCase()).not.toContain(fx.target.toLowerCase())
-        expect(h.reveal.toLowerCase()).not.toContain(fx.target.toLowerCase())
-        if (twin) {
-          expect(h.surface.toLowerCase()).not.toContain(twin.toLowerCase())
-          expect(h.reveal.toLowerCase()).not.toContain(twin.toLowerCase())
+        for (const f of forbidden) {
+          expect(h.surface.toLowerCase()).not.toContain(f.toLowerCase())
+          expect(h.reveal.toLowerCase()).not.toContain(f.toLowerCase())
         }
       }
     }
   )
+
+  test('fixtures planting the other side or the r-form actually get dropped (not just coincidentally clean)', () => {
+    const otherSideFixture = FIXTURES[4]
+    const rFormFixture = FIXTURES[5]
+    expect(buildDwHintInputs(otherSideFixture).some(h => h.surface === 'up')).toBe(false)
+    expect(buildDwHintInputs(rFormFixture).some(h => h.surface === 'quick')).toBe(false)
+  })
+
+  test('word-boundary-aware: a reveal like "der Verein" (pair ein) is NOT filtered merely for containing "rein" as a substring', () => {
+    const einSentence: GeneratedDwSentence = {
+      index: 0, pair: 'ein', side: 'hin', target: 'hinein',
+      nouns: [{ german: 'Verein', article: 'der', english: 'club' }],
+      english: 'We are going into the club soon.',
+      german: 'Wir gehen bald in den Verein hinein.',
+      nounSpansEn: ['club'],
+      extraWords: []
+    }
+    const hints = buildDwHintInputs(einSentence)
+    expect(hints).toContainEqual({ surface: 'club', kind: 'noun', reveal: 'der Verein' })
+  })
 })
 
 import {

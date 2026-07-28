@@ -6,10 +6,11 @@
 // German scenario + question and TYPES a German answer. The AI generates, per
 // drilled pair-element + side (⇒ TARGET compound), ONE question that spells
 // out the learner's position explicitly (so hin vs. her is determined by the
-// scene, not a coin flip) WITHOUT ever using the target compound or its
-// hin-/her- sibling in the question text — that would hand the learner the
-// answer — plus one example answer that models the TARGET compound (or its
-// vertical twin where one exists, e.g. hinab≈hinunter).
+// scene, not a coin flip) WITHOUT ever using any word in forbiddenDirectionWords
+// (both sides of the pair, its r-form, or the vertical twin's forms) in the
+// question text — that would hand the learner the answer — plus one example
+// answer that models the TARGET compound (or its vertical twin where one
+// exists, e.g. hinab≈hinunter).
 //
 // Spec building, level labels, and the vertical-twin helper are shared
 // verbatim with the sentence quiz — imported, not duplicated (ADR-0004: all
@@ -17,11 +18,11 @@
 
 import { shuffle } from '../data/pool'
 import type { Rng } from '../data/pool'
-import { ADVERB_PAIRS, hinForm, herForm } from '../data/directionWords'
+import { ADVERB_PAIRS } from '../data/directionWords'
 import type { PromptVariation } from './useVerbSentenceQuiz'
 import type { AiClient } from './useClaude'
 import type { DwErrorTag, DwDrillItem } from './useQuizHistory'
-import { twinCompound, DW_GRADE_RULES } from './useDwSentenceQuiz'
+import { twinCompound, DW_GRADE_RULES, forbiddenDirectionWords, containsDirectionWord } from './useDwSentenceQuiz'
 import type { DwSentenceSpec, DwAnswerGrade } from './useDwSentenceQuiz'
 
 // Re-export the shared building blocks so a view can pull everything for the
@@ -30,7 +31,7 @@ import type { DwSentenceSpec, DwAnswerGrade } from './useDwSentenceQuiz'
 // rubric bullets — T6 (useDwSentenceQuiz) owns the text, T7 imports it
 // verbatim below rather than keeping a second hand-copied paraphrase that
 // could drift out of sync.
-export { buildDwSpecs, dwLevelLabel, twinCompound, DW_GRADE_RULES } from './useDwSentenceQuiz'
+export { buildDwSpecs, dwLevelLabel, twinCompound, DW_GRADE_RULES, forbiddenDirectionWords } from './useDwSentenceQuiz'
 export type { DwSentenceSpec, DwSide, DwAnswerGrade } from './useDwSentenceQuiz'
 export type { DwErrorTag } from './useQuizHistory'
 
@@ -153,10 +154,7 @@ export function validateDwQuestion(
   const exampleAnswer = trimStr(e.exampleAnswer)
   if (question.length < 3 || exampleAnswer.length < 3) return null
 
-  const lowQuestion = question.toLowerCase()
-  const hin = hinForm(spec.pair).toLowerCase()
-  const her = herForm(spec.pair).toLowerCase()
-  if (lowQuestion.includes(hin) || lowQuestion.includes(her)) return null
+  if (containsDirectionWord(question, forbiddenDirectionWords(spec.pair))) return null
 
   const lowAnswer = exampleAnswer.toLowerCase()
   const twin = twinCompound(spec)
@@ -282,6 +280,11 @@ const DW_ANSWER_GRADE_SYSTEM =
   'Judge TWO things together: (a) does the answer actually answer the question naturally, and (b) does it use ' +
   'the directional adverb correctly. Apply these drill-specific rules:\n' +
   `${DW_GRADE_RULES}\n` +
+  'Set "correct" true for ANY natural, grammatical answer that answers the question with the right ' +
+  'perspective — do NOT require a match to the example answer. ACCEPT all of these equally: the directional ' +
+  'adverb placed in the Mittelfeld ("Ich komme gleich herauf."); a FRONTED adverb with verb-second word order ' +
+  '("Herauf komme ich gleich."); and a short but complete answer that still shows the right adverb. An answer ' +
+  'may open with ja / nein / doch — that is always fine and never an error by itself.\n' +
   'errorTags values: "direction" (wrong side, wrong compound, misformed), "conjugation" (verb form), "case" ' +
   '(wrong case ending), "word-order" (verb-second or adverb placement), "noun" (wrong theme noun), "typo" ' +
   '(small slip elsewhere). Multiple tags allowed; empty when correct.\n' +
