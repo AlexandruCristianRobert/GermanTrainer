@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import AssemblyRunner from '../../../src/modules/direction-words/AssemblyRunner.vue'
-import { dwAssemblySentence } from '../../../src/data/directionAssembly'
+import { DIRECTION_ASSEMBLY, dwAssemblySentence } from '../../../src/data/directionAssembly'
 
 vi.mock('../../../src/composables/useQuizHistory', () => ({
   saveQuizRun: vi.fn(),
@@ -81,6 +81,11 @@ async function submit(wrapper: VueWrapper) {
 const FIRST = filterDwAssemblyItems({})[0]!
 const QUERY = { count: '1', levels: 'A2,B1,B2,C1' }
 
+// An item with a curated fronting variant, pinned via a one-off override of
+// the sampleDwAssemblyItems mock (same technique as the default factory
+// above, just scoped to a single mountRunner() call with mockReturnValueOnce).
+const VARIANT_ITEM = DIRECTION_ASSEMBLY.find(i => i.id === 'dwa-komm-her')!
+
 describe('AssemblyRunner — tile drill', () => {
   let randomSpy: ReturnType<typeof vi.spyOn>
   beforeEach(() => {
@@ -157,6 +162,20 @@ describe('AssemblyRunner — tile drill', () => {
     expect(wrapper.find('.asm-canonical').text()).toBe(dwAssemblySentence(FIRST))
     expect(wrapper.text()).toContain(FIRST.translation)
     expect(wrapper.find('.asm-also-correct').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('assembling a curated variant order grades correct and shows the "variant accepted" tag', async () => {
+    expect(VARIANT_ITEM.variants?.length ?? 0).toBeGreaterThan(0)
+    vi.mocked(sampleDwAssemblyItems).mockReturnValueOnce([VARIANT_ITEM])
+    const { wrapper } = await mountRunner(QUERY)
+    await placeInOrder(wrapper, VARIANT_ITEM.variants![0]!)
+    await submit(wrapper)
+    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(false)
+    expect(wrapper.find('.asm-also-correct').exists()).toBe(true)
+    expect(wrapper.find('.asm-also-correct').text()).toContain('variant accepted')
+    expect(wrapper.find('.asm-also-correct').text()).toContain(dwAssemblySentence(VARIANT_ITEM, VARIANT_ITEM.variants![0]!))
     wrapper.unmount()
   })
 

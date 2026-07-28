@@ -165,7 +165,7 @@ export const DIRECTION_REGISTER: DwRegisterItem[] = [
     explanation: '„gehen" verlangt die Perspektive weg vom Sprecher, also „hin-", nicht „her-". / "gehen" requires the away-from-speaker perspective ("hin-"), not "her-" — correct: "hineingegangen".' },
   { id: 'dwr-37', verdict: 'wrong', level: 'B2', pair: null,
     phrase: 'Geh mal eben her und hilf mir!',
-    explanation: '„gehen" (weg) passt nicht zu „her" (zum Sprecher) — Verb und Partikel widersprechen sich. / "gehen" (away) clashes with "her" (toward the speaker) — correct: "Komm her".' },
+    explanation: '„gehen" (weg) passt nicht zu „her" (zum Sprecher) — Verb und Partikel widersprechen sich. (süddt. ugs. „geh her" gilt nicht als Standard) / "gehen" (away) clashes with "her" (toward the speaker) — correct: "Komm her".' },
   { id: 'dwr-38', verdict: 'wrong', level: 'C1', pair: 'aus',
     phrase: 'Sie ist herraus gerannt, als sie den Lärm hörte.',
     explanation: '„herraus" existiert nicht — „raus" ERSETZT bereits heraus/hinaus. / "herraus" does not exist; "raus" already replaced the full compound — spoken "raus" alone is fine; written correct: "heraus".' },

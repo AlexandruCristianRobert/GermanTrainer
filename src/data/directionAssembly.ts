@@ -74,9 +74,11 @@ export const DIRECTION_ASSEMBLY: DwAssemblyItem[] = [
   { id: 'dwa-treppe-hinunter', level: 'A2',
     tiles: ['er', 'geht', 'die Treppe', 'hinunter'],
     punctuation: '.', translation: 'He goes down the stairs.' },
+  // Fronting variant: "Bitte komm sofort her!"
   { id: 'dwa-komm-her', level: 'A2',
     tiles: ['komm', 'bitte', 'sofort', 'her'],
-    punctuation: '!', translation: 'Please come here at once!' },
+    variants: [[1, 0, 2, 3]], punctuation: '!',
+    translation: 'Please come here at once!' },
   { id: 'dwa-geh-hinein', level: 'A2',
     tiles: ['geh', 'doch', 'einfach', 'hinein'],
     punctuation: '!', translation: 'Just go on in already!' },
@@ -86,9 +88,11 @@ export const DIRECTION_ASSEMBLY: DwAssemblyItem[] = [
   { id: 'dwa-kommst-du-her', level: 'A2',
     tiles: ['kommst', 'du', 'denn', 'her'],
     punctuation: '?', translation: 'Are you coming over here, then?' },
+  // Fronting variant: "Jetzt gehen wir hinaus."
   { id: 'dwa-wir-gehen-hinaus', level: 'A2',
     tiles: ['wir', 'gehen', 'jetzt', 'hinaus'],
-    punctuation: '.', translation: 'We are going outside now.' },
+    variants: [[2, 1, 0, 3]], punctuation: '.',
+    translation: 'We are going outside now.' },
   { id: 'dwa-woher-kommst-du', level: 'A2',
     tiles: ['woher', 'kommst', 'du', 'denn'],
     punctuation: '?', translation: 'Where are you from, then?' },
@@ -113,15 +117,22 @@ export const DIRECTION_ASSEMBLY: DwAssemblyItem[] = [
     translation: 'I pace back and forth all day long.' },
   // Modal + fused infinitive (fusion gate): the direction element attaches to
   // the infinitive, never sits as a bare tile before it.
+  // Fronting variant: "Jetzt müssen wir hinübergehen."
   { id: 'dwa-wir-muessen-hinuebergehen', level: 'B1',
     tiles: ['wir', 'müssen', 'jetzt', 'hinübergehen'],
-    punctuation: '.', translation: 'We have to go over there now.' },
+    variants: [[2, 1, 0, 3]], punctuation: '.',
+    translation: 'We have to go over there now.' },
+  // Placement variant: 'eigentlich' can sit right after the finite verb.
+  // "Woher kommt eigentlich das Wasser?"
   { id: 'dwa-woher-kommt-das-wasser', level: 'B1',
     tiles: ['woher', 'kommt', 'das Wasser', 'eigentlich'],
-    punctuation: '?', translation: 'Where does the water actually come from?' },
+    variants: [[0, 1, 3, 2]], punctuation: '?',
+    translation: 'Where does the water actually come from?' },
+  // Fronting variant: "Bitte lauf ihm doch nicht immer hinterher!"
   { id: 'dwa-lauf-nicht-immer-hinterher', level: 'B1',
     tiles: ['lauf', 'ihm', 'doch', 'bitte', 'nicht', 'immer', 'hinterher'],
-    punctuation: '!', translation: 'Please do not always run after him!' },
+    variants: [[3, 0, 1, 2, 4, 5, 6]], punctuation: '!',
+    translation: 'Please do not always run after him!' },
   // Fronting variant: "Im Garten laufen die Kinder herum."
   { id: 'dwa-kinder-laufen-herum', level: 'B1',
     tiles: ['die Kinder', 'laufen', 'im Garten', 'herum'],
@@ -144,9 +155,11 @@ export const DIRECTION_ASSEMBLY: DwAssemblyItem[] = [
     variants: [[2, 1, 0, 3, 4]], punctuation: '.',
     translation: 'The children ran quickly into the house.' },
   // Perfect tense, fused participle.
+  // Fronting variant: "Letztes Jahr ist er ganz allein zu seiner Schwester hinübergefahren."
   { id: 'dwa-schwester-hinuebergefahren', level: 'B2',
     tiles: ['er', 'ist', 'letztes Jahr', 'ganz allein', 'zu seiner Schwester', 'hinübergefahren'],
-    punctuation: '.', translation: 'Last year he traveled over to his sister, all alone.' },
+    variants: [[2, 1, 0, 3, 4, 5]], punctuation: '.',
+    translation: 'Last year he traveled over to his sister, all alone.' },
   // Perfect tense, fused participle.
   { id: 'dwa-berg-hinaufgeklettert', level: 'B2',
     tiles: ['sie', 'ist', 'mutig', 'auf den Berg', 'hinaufgeklettert'],
