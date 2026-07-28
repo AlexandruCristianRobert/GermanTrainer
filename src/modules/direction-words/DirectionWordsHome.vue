@@ -72,6 +72,11 @@ const groups: Group[] = [
         title: 'Sentence assembly', de: 'Satzbau',
         desc: 'Tap the tiles into order — the direction word lands at the clause end, and idiomatic frontings count too.',
       },
+      {
+        numeral: 'T6', route: 'directionwords-sentence',
+        title: 'Sentence translation (AI)', de: 'Satz (KI)',
+        desc: 'The AI writes the scene in English — where the speaker stands is in the words. You write the German; wrong-side compounds get called out as perspective errors.',
+      },
     ],
   },
   {
