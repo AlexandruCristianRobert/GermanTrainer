@@ -87,6 +87,14 @@ const modules: ModuleCard[] = [
   },
   {
     numeral: 'X',
+    route: 'directionwords',
+    de: 'hin & her',
+    title: 'Direction Words',
+    desc: 'hinein or herein? The perspective rule with scene diagrams, the six hin/her pairs, rein/raus shortcuts, and the verbs where direction has faded.',
+    meta: 'Cheatsheet live · drills arriving in phases'
+  },
+  {
+    numeral: 'XI',
     route: 'settings',
     de: 'Einstellungen',
     title: 'Settings',
@@ -109,7 +117,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/X</div>
+        <div class="breadcrumb">Frontispiece · I/XI</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,

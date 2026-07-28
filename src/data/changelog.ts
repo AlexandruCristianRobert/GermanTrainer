@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.13.01'
+export const APP_VERSION = '1.14.00'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.14.00', date: '2026-07-28', kind: 'module',
+    title: 'Direction Words · a new module opens',
+    notes: [
+      '<strong>Module X: Direction Words (hin &amp; her).</strong> <em>hinein</em> oder <em>herein</em>? It depends on where you stand. The perspective adverbs get their own home — reachable from the top nav and the front page. The drills arrive family by family over the coming releases; this one lays the foundation.',
+      '<strong>The cheatsheet is live — with pictures.</strong> The perspective rule shown as two scene diagrams (same staircase, flipped speaker), the six hin/her pairs with their <em>rein/raus</em> shortcuts and register rules, <em>wo/wohin/woher</em> with the spoken splits (<em>Wo gehst du hin?</em>), the verbs where the direction has faded (<em>herstellen</em> means manufacturing, not fetching), and the idioms from <em>hin und her</em> to <em>lange her</em>.'
+    ]
+  },
   {
     version: '1.13.01', date: '2026-07-27', kind: 'fix',
     title: 'Local Claude · reliable generation everywhere',
