@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.14.01'
+export const APP_VERSION = '1.14.02'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.14.02', date: '2026-07-28', kind: 'polish',
+    title: 'Direction Words · register & sentence assembly',
+    notes: [
+      '<strong>T4 R-forms &amp; register.</strong> <em>Komm rüber!</em> — fine, say it all day. Write it in an essay? Keep <em>herüber</em>. And <em>*hinrein</em> was never a word: judge every phrase as standard, spoken-only, or plain wrong, with the correction on every miss.',
+      '<strong>T5 Sentence assembly.</strong> Tap pre-inflected tiles into order and put the direction word where German wants it — clause-final after the finite verb (<em>Wo gehst du denn hin?</em>), fused when it must be (<em>hineingelaufen</em> is one tile, one word). Curated fronting variants count as correct. Both drills record to History and filter by level.'
+    ]
+  },
   {
     version: '1.14.01', date: '2026-07-28', kind: 'polish',
     title: 'Direction Words · the first three drills',

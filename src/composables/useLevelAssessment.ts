@@ -119,6 +119,8 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'dw-hinher': 'hin-or-her choice',
   'dw-compound': 'direction compound gap-fill',
   'dw-question': 'wo/wohin/woher choice',
+  'dw-register': 'r-form register judgment',
+  'dw-assembly': 'direction sentence assembly',
   'prep-sentence': 'preposition · sentence translation (AI)',
   'prep-remedial': 'preposition · remedial weak-point drill',
   'verb-sentence': 'verb · sentence translation (AI)',
