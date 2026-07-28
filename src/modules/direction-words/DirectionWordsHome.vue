@@ -77,6 +77,11 @@ const groups: Group[] = [
         title: 'Sentence translation (AI)', de: 'Satz (KI)',
         desc: 'The AI writes the scene in English — where the speaker stands is in the words. You write the German; wrong-side compounds get called out as perspective errors.',
       },
+      {
+        numeral: 'T7', route: 'directionwords-answer',
+        title: 'Answer the question (AI)', de: 'Antworten (KI)',
+        desc: 'The AI sets the scene in German and asks; you answer with the right direction word — fronted or mid-field, both count.',
+      },
     ],
   },
   {
