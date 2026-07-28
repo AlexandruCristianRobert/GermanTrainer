@@ -42,6 +42,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Questions & pointers',
+    de: 'Wo, wohin, woher',
+    cards: [
+      {
+        numeral: 'T3', route: 'directionwords-questions',
+        title: 'Wo, wohin or woher?', de: 'Fragewörter',
+        desc: 'Three ways to ask "where" — plus the pointers (dahin, dorthin) and the spoken splits (Wo gehst du hin?).',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
