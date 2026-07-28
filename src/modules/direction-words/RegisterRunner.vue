@@ -43,7 +43,11 @@ const dismissed = ref(false)
 onMounted(() => {
   const count = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
   const levels = csv<DirectionLevel>(route.query.levels, DIRECTION_LEVELS)
-  const pairs = csv<string>(route.query.pairs, PAIR_ELEMENTS)
+  // 'none' is RegisterSetup's explicit sentinel for "no pairs selected" —
+  // csv() can't express that itself (an empty string means "no param", which
+  // defaults to all pairs), so it's special-cased here, before csv() runs.
+  // A missing/absent pairs param still falls through to the all-pairs default.
+  const pairs = route.query.pairs === 'none' ? [] : csv<string>(route.query.pairs, PAIR_ELEMENTS)
 
   try {
     const items = sampleDwRegisterItems(count, { levels, pairs })

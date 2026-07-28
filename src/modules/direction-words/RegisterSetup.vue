@@ -66,7 +66,11 @@ function start() {
     query: {
       count: String(effectiveCount.value),
       levels: levels.value.join(','),
-      pairs: pairs.value.join(','),
+      // 'none' is an explicit sentinel for "no pairs selected" — an empty
+      // string round-trips through csv() as "all values" (its no-param
+      // default), which would silently widen the pool back to every pair
+      // and contradict what Setup just displayed (null-pair items only).
+      pairs: pairs.value.length ? pairs.value.join(',') : 'none',
     },
   })
 }

@@ -129,3 +129,45 @@ describe('RegisterRunner — history recording (ADR-0010)', () => {
     wrapper.unmount()
   })
 })
+
+// The 'none' sentinel (RegisterSetup.start() sends this when every pair chip
+// is deselected — a reachable state, since null-pair items keep the setup's
+// availableItems > 0) must produce the null-pair-only pool, not silently
+// widen back to every pair. It exists precisely because csv() can't express
+// "explicitly zero pairs": an empty/absent query param is indistinguishable
+// from "no filter given" and defaults to all pairs. With levels covering
+// every level and Math.random pinned to 0, the filtered pool preserves
+// DIRECTION_REGISTER's original order, so a count:1 round draws its first
+// pair:null item ('dwr-8').
+const NULL_QUERY = { count: '1', levels: 'A2,B1,B2,C1', pairs: 'none' }
+const SAMPLED_NULL = DIRECTION_REGISTER.find(i => i.pair === null)!
+const WRONG_LABEL_NULL = DW_REGISTER_OPTIONS.find(o => o.verdict !== SAMPLED_NULL.verdict)!.label
+
+describe('RegisterRunner — pairs "none" sentinel (no pair chips selected)', () => {
+  let randomSpy: ReturnType<typeof vi.spyOn>
+  beforeEach(() => {
+    vi.mocked(saveQuizRun).mockClear()
+    randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0)
+  })
+  afterEach(() => randomSpy.mockRestore())
+
+  it('samples a pair-independent item, not the full pair-inclusive pool', async () => {
+    const { wrapper } = await mountRunner(NULL_QUERY)
+    expect(wrapper.find('.sub-stem').text()).toContain(SAMPLED_NULL.phrase)
+    wrapper.unmount()
+  })
+
+  it('records meta.pairs as [] (not widened back to all six pairs)', async () => {
+    const { wrapper } = await mountRunner(NULL_QUERY)
+    const buttons = wrapper.findAll('.sub-choice')
+    const wrongBtn = buttons.find(b => b.text().includes(WRONG_LABEL_NULL))!
+    await wrongBtn.trigger('click')
+    const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
+    await finish!.trigger('click')
+    expect(saveQuizRun).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'dw-register',
+      meta: expect.objectContaining({ pairs: [] }),
+    }))
+    wrapper.unmount()
+  })
+})
