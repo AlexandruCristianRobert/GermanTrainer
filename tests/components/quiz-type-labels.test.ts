@@ -98,4 +98,13 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPE_LABEL['dw-question']).toBe('Direction words · wo/wohin/woher')
     expect(QUIZ_TYPE_DE['dw-question']).toBe('Hin & Her · Fragewörter')
   })
+
+  it('includes the Direction Words register/assembly drill types with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dw-register')
+    expect(QUIZ_TYPES_ORDER).toContain('dw-assembly')
+    expect(QUIZ_TYPE_LABEL['dw-register']).toBe('Direction words · register')
+    expect(QUIZ_TYPE_DE['dw-register']).toBe('Hin & Her · Kurzformen')
+    expect(QUIZ_TYPE_LABEL['dw-assembly']).toBe('Direction words · assembly')
+    expect(QUIZ_TYPE_DE['dw-assembly']).toBe('Hin & Her · Satzbau')
+  })
 })

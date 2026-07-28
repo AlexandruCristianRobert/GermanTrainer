@@ -35,6 +35,8 @@ export type QuizHistoryType =
   | 'dw-hinher'
   | 'dw-compound'
   | 'dw-question'
+  | 'dw-register'
+  | 'dw-assembly'
   | 'prep-sentence'
   | 'prep-remedial'
   | 'verb-sentence'
