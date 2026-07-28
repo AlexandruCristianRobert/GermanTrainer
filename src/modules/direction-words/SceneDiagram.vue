@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 import { otherPosition, type SceneSpec, type ScenePosition } from '../../data/directionWords'
 
 const props = defineProps<{ scene: SceneSpec }>()
+
+const uid = useId()
+const markerId = `dw-arrowhead-${uid}`
 
 interface Pt { x: number; y: number }
 
 interface Geometry {
   paths: string[]                                  // stroke-only background line art
   anchors: Partial<Record<ScenePosition, Pt>>      // figure foot points for the two positions
+  mover?: Pt                                        // explicit mover foot point; overrides the anchor midpoint
 }
 
 // viewBox is 0 0 220 130 for every archetype. Figures are ~33 units tall.
@@ -16,10 +20,12 @@ const GEOMETRIES: Record<SceneSpec['archetype'], Geometry> = {
   stairs: {
     paths: ['M10 118 H210', 'M40 118 V104 H70 V90 H100 V76 H130 V62 H160 V48 H190'],
     anchors: { bottom: { x: 24, y: 118 }, top: { x: 196, y: 48 } },
+    mover: { x: 110, y: 76 },
   },
   hill: {
     paths: ['M10 118 Q110 10 210 118'],
     anchors: { bottom: { x: 20, y: 118 }, top: { x: 110, y: 64 } },
+    mover: { x: 65, y: 75 },
   },
   doorway: {
     paths: ['M10 118 H210', 'M118 118 V20 H210', 'M130 118 V44 H164 V118'],
@@ -47,11 +53,16 @@ const moverPos = computed(() => otherPosition(props.scene.archetype, props.scene
 const speakerPt = computed<Pt>(() => geometry.value.anchors[speakerPos.value]!)
 const farPt = computed<Pt>(() => geometry.value.anchors[moverPos.value]!)
 
-// The mover walks mid-path between the two anchors.
-const moverPt = computed<Pt>(() => ({
-  x: (speakerPt.value.x + farPt.value.x) / 2,
-  y: (speakerPt.value.y + farPt.value.y) / 2,
-}))
+// The mover walks mid-path between the two anchors — or sits on an explicit
+// mover anchor when the background isn't a straight line (e.g. the hill's
+// quadratic curve, where the linear midpoint would sink below the surface).
+const moverPt = computed<Pt>(() => {
+  if (geometry.value.mover) return geometry.value.mover
+  return {
+    x: (speakerPt.value.x + farPt.value.x) / 2,
+    y: (speakerPt.value.y + farPt.value.y) / 2,
+  }
+})
 
 // her = motion toward the speaker; hin = away from the speaker.
 const arrowTo = computed<ScenePosition>(() =>
@@ -83,7 +94,7 @@ const arrow = computed(() => {
     <svg viewBox="0 0 220 130" role="img" :aria-label="scene.description">
       <title>{{ scene.description }}</title>
       <defs>
-        <marker id="dw-arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <marker :id="markerId" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
           <path d="M0 0 L8 4 L0 8 Z" fill="currentColor" />
         </marker>
       </defs>
@@ -115,7 +126,7 @@ const arrow = computed(() => {
           :x1="arrow.from.x" :y1="arrow.from.y"
           :x2="arrow.to.x" :y2="arrow.to.y"
           stroke-width="2"
-          marker-end="url(#dw-arrowhead)"
+          :marker-end="`url(#${markerId})`"
         />
       </g>
     </svg>

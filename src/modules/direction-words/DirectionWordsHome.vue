@@ -60,7 +60,8 @@ function go(target: string) {
           role="button"
           tabindex="0"
           @click="go(c.route)"
-          @keydown.enter="go(c.route)"
+          @keydown.enter.prevent="go(c.route)"
+          @keydown.space.prevent="go(c.route)"
         >
           <div class="module-numeral">{{ c.numeral }}</div>
           <h2>{{ c.title }}</h2>

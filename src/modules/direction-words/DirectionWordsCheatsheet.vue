@@ -240,6 +240,68 @@ const sceneHin: SceneSpec = {
 </template>
 
 <style scoped>
+.cheatsheet-section-header { margin-bottom: 48px; }
+.back-link { text-decoration: none; border-bottom: 0; }
+
+.grammatik-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 64px;
+  max-width: 1160px;
+  margin: 0 auto;
+  align-items: start;
+}
+.grammatik-main { max-width: 720px; min-width: 0; }
+
+.chapter {
+  position: relative;
+  margin: 0 0 88px 0;
+  scroll-margin-top: 96px;
+  animation: chapter-in 400ms ease-out both;
+}
+.chapter:first-of-type { margin-top: 0; }
+
+@keyframes chapter-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chapter-numeral {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.chapter-numeral::before { content: 'Kapitel '; color: var(--mute); }
+
+.chapter-title { font-size: 44px; font-weight: 600; line-height: 1.1; margin-bottom: 4px; }
+.chapter-subtitle { font-size: 18px; font-style: italic; color: var(--ink-soft); margin: 0; }
+
+.pattern-heading {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 22px 0 2px 0;
+  color: var(--accent);
+}
+
+/* Tablet — 640–1023px */
+@media (max-width: 1023px) {
+  .grammatik-layout { grid-template-columns: 1fr; gap: 24px; }
+  .chapter-title { font-size: 36px; }
+}
+
+/* Mobile — < 640px */
+@media (max-width: 639px) {
+  .chapter { margin: 0 0 56px 0; }
+  .chapter-title { font-size: 30px; }
+  .chapter-subtitle { font-size: 16px; }
+}
+
 .dw-table-wrap { overflow-x: auto; }
 .dw-table, .dw-questions-table { width: 100%; border-collapse: collapse; font-size: 15px; }
 .dw-table th, .dw-questions-table th {

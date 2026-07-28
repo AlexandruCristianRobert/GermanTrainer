@@ -87,7 +87,7 @@ export const POINTER_WORDS: PointerWord[] = [
   { word: 'dahin',   gloss: 'to there — to the place just mentioned', example: 'Fährst du nach Rom? — Ja, ich fahre morgen dahin.' },
   { word: 'dorthin', gloss: 'to that place — pointing more firmly',   example: 'Stell die Kiste bitte dorthin.' },
   { word: 'hierher', gloss: 'to here — toward the speaker',           example: 'Komm bitte hierher.' },
-  { word: 'daher',   gloss: 'from there — and, as a trap, „therefore"', example: 'Daher kommt der Lärm. / Daher weiß ich es (= deshalb).' },
+  { word: 'daher',   gloss: 'from there — and, as a trap, „therefore“', example: 'Daher kommt der Lärm. / Daher weiß ich es (= deshalb).' },
 ]
 
 export interface LexicalizedVerb {
