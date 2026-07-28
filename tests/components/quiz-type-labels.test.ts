@@ -86,4 +86,16 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPE_LABEL['dac-relative']).toBe('Da-compounds · relative clauses')
     expect(QUIZ_TYPE_DE['dac-relative']).toBe('Da-Compounds · Relativsätze')
   })
+
+  it('includes the three Direction Words drill types with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dw-hinher')
+    expect(QUIZ_TYPES_ORDER).toContain('dw-compound')
+    expect(QUIZ_TYPES_ORDER).toContain('dw-question')
+    expect(QUIZ_TYPE_LABEL['dw-hinher']).toBe('Direction words · hin or her')
+    expect(QUIZ_TYPE_DE['dw-hinher']).toBe('Hin & Her · Grundregel')
+    expect(QUIZ_TYPE_LABEL['dw-compound']).toBe('Direction words · compounds')
+    expect(QUIZ_TYPE_DE['dw-compound']).toBe('Hin & Her · Zusammensetzungen')
+    expect(QUIZ_TYPE_LABEL['dw-question']).toBe('Direction words · wo/wohin/woher')
+    expect(QUIZ_TYPE_DE['dw-question']).toBe('Hin & Her · Fragewörter')
+  })
 })

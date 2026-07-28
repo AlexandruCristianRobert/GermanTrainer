@@ -32,6 +32,9 @@ export type QuizHistoryType =
   | 'dac-homograph'
   | 'dac-register'
   | 'dac-relative'
+  | 'dw-hinher'
+  | 'dw-compound'
+  | 'dw-question'
   | 'prep-sentence'
   | 'prep-remedial'
   | 'verb-sentence'
@@ -104,6 +107,7 @@ export interface DacDrillItem {
 export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation' | 'pick' | 'type'
   preps?: string[]   // Da-compound drills: preposition filter
+  pairs?: string[]   // Direction Words compound drill: adverb-pair element filter
   kinds?: string[]   // Da-compound Korrelat drill (T11): status filter (obligatory/optional/excluded)
   groups?: string[]
   levels?: string[]
