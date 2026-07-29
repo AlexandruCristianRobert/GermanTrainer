@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
 import {
   useDwLexicalQuiz, filterLexicalItems, sampleLexicalItems, splitVerbSentence,
 } from '../../src/composables/useDwLexicalQuiz'
@@ -61,6 +61,25 @@ describe('useDwLexicalQuiz — option composition', () => {
     const quiz = useDwLexicalQuiz([DIRECTION_VERBS[0]])
     const readings = quiz.current.value!.options.map(o => o.reading).sort()
     expect(readings).toEqual(['directional', 'lexicalized'])
+  })
+
+  // Every other option test here is order-agnostic, so deleting shuffle() from
+  // buildOptions would keep the whole suite green — and with the bank at 26
+  // lexicalized vs. 14 directional items, a fixed button order would let a
+  // learner press one slot for ~65% without reading any German. buildOptions
+  // authors the pair as [directional, lexicalized] and shuffles it; shuffle()
+  // (src/data/pool.ts) resolves its `rng` default per call, so pinning
+  // Math.random to 0.99 makes the single Fisher-Yates step over n = 2 swap the
+  // pair — an order that is unreachable if the shuffle goes away.
+  test('the two options are SHUFFLED, not left in authoring order (pinned rng)', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    try {
+      const lexicalizedItem = DIRECTION_VERBS.find(i => i.reading === 'lexicalized')!
+      const quiz = useDwLexicalQuiz([lexicalizedItem])
+      expect(quiz.current.value!.options.map(o => o.reading)).toEqual(['lexicalized', 'directional'])
+    } finally {
+      randomSpy.mockRestore()
+    }
   })
 
   test('options are built ONCE — repeated reads of `current` return the identical array, same order', () => {

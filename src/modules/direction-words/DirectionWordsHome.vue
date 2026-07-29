@@ -91,6 +91,17 @@ const groups: Group[] = [
     ],
   },
   {
+    heading: 'Traps',
+    de: 'Fallen',
+    cards: [
+      {
+        numeral: 'T8', route: 'directionwords-lexical',
+        title: 'Directional or lexicalized?', de: 'Verblasste Richtung',
+        desc: 'Die Firma stellt Möbel her — nobody is fetching anything. Decide whether the prefix still means direction or the verb is just vocabulary.',
+      },
+    ],
+  },
+  {
     heading: 'Reference',
     de: 'Nachschlagen',
     cards: [
