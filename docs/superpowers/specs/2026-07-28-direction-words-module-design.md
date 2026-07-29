@@ -5,6 +5,7 @@
 **Groomed:** 2026-07-28 grill session — scope, placement, naming, scene diagrams, filters, error
 tagging, and phasing resolved; see §6 (decisions) and §7 (phase roadmap). Glossary terms added
 to `CONTEXT.md` under *Direction words*.
+**Completed:** 2026-07-29 — all 5 phases implemented and released, v1.14.00 → v1.14.04. All 9 tests (T1–T9) + cheatsheet + weak points live.
 
 A new module for the German hin/her system: the perspective rule (*hin* = away from the
 speaker, *her* = toward the speaker), the compound pairs (*hinein/herein*, *hinauf/herauf*, …),
@@ -205,8 +206,7 @@ Tests: the fixed expressions as vocabulary, incl. temporal *her*.
 
 ## 7. Phase roadmap
 
-Each phase is released and user-tested before the next one starts (a per-phase
-implementation plan is written when the phase is green-lit).
+**STATUS: ALL PHASES COMPLETE** (released v1.14.00–v1.14.04, 2026-07-28/29; per-phase plans in docs/superpowers/plans/).
 
 | Phase | Contents | Gate check |
 |---|---|---|

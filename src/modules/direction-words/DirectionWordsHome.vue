@@ -99,6 +99,11 @@ const groups: Group[] = [
         title: 'Directional or lexicalized?', de: 'Verblasste Richtung',
         desc: 'Die Firma stellt Möbel her — nobody is fetching anything. Decide whether the prefix still means direction or the verb is just vocabulary.',
       },
+      {
+        numeral: 'T9', route: 'directionwords-idioms',
+        title: 'Idiom gap-fill', de: 'Redewendungen',
+        desc: 'hin und her or hin und wieder? Back-and-forth versus now-and-then — plus the two time idioms that point in opposite directions.',
+      },
     ],
   },
   {

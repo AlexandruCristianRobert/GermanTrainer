@@ -74,8 +74,12 @@ describe('useDwLexicalQuiz — option composition', () => {
   test('the two options are SHUFFLED, not left in authoring order (pinned rng)', () => {
     const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.99)
     try {
-      const lexicalizedItem = DIRECTION_VERBS.find(i => i.reading === 'lexicalized')!
-      const quiz = useDwLexicalQuiz([lexicalizedItem])
+      // A DIRECTIONAL item, deliberately: the swapped order is then
+      // [distractor, correct], so this passes only for the authored order having
+      // been swapped — it cannot be satisfied by an engine that (say) sorted the
+      // correct reading into the first slot.
+      const directionalItem = DIRECTION_VERBS.find(i => i.reading === 'directional')!
+      const quiz = useDwLexicalQuiz([directionalItem])
       expect(quiz.current.value!.options.map(o => o.reading)).toEqual(['lexicalized', 'directional'])
     } finally {
       randomSpy.mockRestore()

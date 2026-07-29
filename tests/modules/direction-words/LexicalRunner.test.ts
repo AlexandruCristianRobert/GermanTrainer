@@ -132,6 +132,29 @@ describe('LexicalRunner — reveal after a wrong pick', () => {
     expect(buttons.find(b => b.text().includes(WRONG_LABEL))!.classes()).toContain('wrong')
     wrapper.unmount()
   })
+
+  // The spec's "the reveal always shows both readings" is a claim about the
+  // CORRECT path too — a reveal that only listed the two labels when the learner
+  // missed would satisfy the test above.
+  it('reveals the explanation and BOTH labels after a CORRECT pick as well', async () => {
+    const { wrapper } = await mountRunner(QUERY)
+    const rightBtn = wrapper.findAll('.sub-choice').find(b => b.text().includes(CORRECT_LABEL))!
+    await rightBtn.trigger('click')
+
+    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.sub-reveal-explanation').text()).toBe(SAMPLED.explanation)
+
+    const revealText = wrapper.find('.sub-reveal').text()
+    expect(revealText).toContain(ENTRY.directionalLabel)
+    expect(revealText).toContain(ENTRY.lexicalizedLabel)
+
+    const lines = wrapper.findAll('.sub-reveal .contrast-sense-line')
+    expect(lines).toHaveLength(2)
+    const marked = lines.filter(l => l.classes().includes('correct'))
+    expect(marked).toHaveLength(1)
+    expect(marked[0].text()).toContain(CORRECT_LABEL)
+    wrapper.unmount()
+  })
 })
 
 describe('LexicalRunner — history recording (ADR-0010)', () => {

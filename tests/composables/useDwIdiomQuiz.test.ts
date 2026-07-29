@@ -1,4 +1,5 @@
 import { describe, test, expect, vi, afterEach } from 'vitest'
+import { toRaw } from 'vue'
 import {
   useDwIdiomQuiz, filterIdiomItems, sampleIdiomItems,
 } from '../../src/composables/useDwIdiomQuiz'
@@ -79,6 +80,10 @@ describe('useDwIdiomQuiz — options are the item\'s options, SHUFFLED', () => {
     // forgot to shuffle would leave index 0 correct on all 28 items.
     const quiz = useDwIdiomQuiz(DIRECTION_IDIOMS)
     for (const q of quiz.questions.value) {
+      // Precondition on the DATA: if an item ever stops authoring the answer
+      // first, this test stops proving anything about the shuffle — so fail here,
+      // accusing directionIdioms.ts, rather than below, accusing the engine.
+      expect(q.item.options[0], `${q.item.id} must author the answer first`).toBe(q.item.answer)
       expect(q.options[0], q.item.id).not.toBe(q.item.answer)
       expect(q.options.indexOf(q.item.answer), q.item.id).toBeGreaterThan(0)
     }
@@ -172,6 +177,9 @@ describe('DIRECTION_IDIOMS is never mutated in place', () => {
 
   test('a question\'s options array is a COPY, not the item\'s own array', () => {
     const q = useDwIdiomQuiz([threeOptionItem]).current.value!
-    expect(q.options).not.toBe(threeOptionItem.options)
+    // toRaw() first: the questions ref hands out a reactive PROXY, which is never
+    // === the raw array, so the bare identity check would pass even if the engine
+    // handed out the item's own array.
+    expect(toRaw(q.options)).not.toBe(threeOptionItem.options)
   })
 })
