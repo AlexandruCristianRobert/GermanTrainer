@@ -43,10 +43,16 @@ describe('DIRECTION_IDIOMS invariants', () => {
     expect(IDIOMS.map(i => i.idiom).filter(k => !drilled.has(k))).toEqual([])
   })
 
-  test('NEAR-MISS GATE: hin und her / hin und wieder always distract each other', () => {
+  // BOTH pairs the data file's header presents as the teaching payload. The
+  // way/how-often pair was gated from the start; the time-since/time-until pair
+  // held by authoring choice alone until this record was widened to cover it —
+  // it is the same claim, so it belongs in the same gate, not beside it.
+  test('NEAR-MISS GATE: both twin pairs always distract each other', () => {
     const TWINS: Record<string, string> = {
-      'hin und her': 'hin und wieder',
+      'hin und her': 'hin und wieder',    // the WAY      ↔ HOW OFTEN
       'hin und wieder': 'hin und her',
+      'lange her': 'noch lange hin',      // time SINCE   ↔ time UNTIL
+      'noch lange hin': 'lange her',
     }
     const bad = DIRECTION_IDIOMS.filter(i =>
       TWINS[i.answer] !== undefined && !i.options.includes(TWINS[i.answer]))
@@ -76,11 +82,27 @@ describe('DIRECTION_IDIOMS invariants', () => {
 // German in the reveal. Two positions this catches today:
 //   'Sie schrie ihn an: „___ dem Geld!"'  → must capitalise; the helper would not
 //   'Seit dem 1. ___ war alles anders.'   → must NOT capitalise; the helper would
-// Either failure is fixed by teaching fillIdiomGap the position (and only then),
-// never by loosening this test.
+//
+// WHICH SIDE IS WRONG DEPENDS ON THE POSITION — this test is not automatically
+// the oracle:
+//   • the „-opener above: the HELPER is wrong (it does not see through the
+//     quote). Teach fillIdiomGap that position; never loosen this test.
+//   • the ordinal's period above: the HELPER is too eager (the period after
+//     "1." ends no sentence). Narrow its trigger; never loosen this test.
+//   • but a gap after REAL terminal punctuation ('Genug geredet. ___ dem Geld!'):
+//     the HELPER is right. German capitalises after a Satzschlusszeichen — that
+//     is exactly what its `.!?…` branch is for, and what the sibling unit test
+//     in tests/composables/useDwIdiomQuiz.test.ts pins. There it is THIS
+//     derivation (`before === '' || before.endsWith(':')`) that is the narrow
+//     side: widen it for the new item's shape and leave the helper's branch
+//     intact. Deleting that branch would ship wrong German and break the sibling.
 describe('DIRECTION_IDIOMS · the filled reveal capitalises iff the gap opens a sentence', () => {
-  /** Opening quotes/brackets do not end a sentence — they sit inside the new one. */
-  const OPENERS = /[„“"«‚‘'([]+$/
+  /**
+   * Opening quotes/brackets do not end a sentence — they sit inside the new one.
+   * German OPENING marks only: „ … “ and » … « are both German pairs, so the
+   * openers are „ and », never “ or «. ASCII " and ' are ambiguous and included.
+   */
+  const OPENERS = /[„»"‚‘'([]+$/
 
   function gapOpensSentence(sentence: string): boolean {
     const before = sentence.slice(0, sentence.indexOf('___')).trimEnd().replace(OPENERS, '').trimEnd()

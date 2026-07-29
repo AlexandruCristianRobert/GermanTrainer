@@ -10,7 +10,9 @@
 // (ADR-0010). This is the opposite of the Phase-4 AI drills.
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useDwIdiomQuiz, sampleIdiomItems, splitIdiomGap } from '../../composables/useDwIdiomQuiz'
+import {
+  useDwIdiomQuiz, sampleIdiomItems, splitIdiomGap, filterIdiomItems,
+} from '../../composables/useDwIdiomQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { csv } from '../../composables/quizQuery'
 import { shuffle } from '../../data/pool'
@@ -98,6 +100,19 @@ const pips = computed(() => {
   return out
 })
 
+/**
+ * The queried levels, minus the ones this bank has no items for — what the Run
+ * actually drilled. useQuizStats credits EVERY level listed in meta.levels with
+ * the whole run, so recording a level the bank cannot serve invents an accuracy
+ * bucket out of nothing: DIRECTION_IDIOMS carries no A2 item, yet the setup's
+ * "All" button — and an empty chip set, which the runner's csv() default expands
+ * to all four levels — puts A2 in the query. The A2 chip and its zero-available
+ * warning stay exactly as they are; that dead end is deliberate.
+ */
+const recordedLevels = computed(() =>
+  queriedLevels.value.filter(l => filterIdiomItems({ levels: [l] }).length > 0)
+)
+
 // The prompt sentence split around its single ___ gap, so the gap can be styled
 // independently while the rest of the sentence renders as plain text.
 const promptParts = computed(() => current.value ? current.value.item.sentence.split('___') : [])
@@ -158,7 +173,7 @@ function recordRun() {
     durationMs: finishedAt - startedAtMs.value,
     count: quiz.value.total.value,
     correct: quiz.value.score.value,
-    meta: { levels: queriedLevels.value },
+    meta: { levels: recordedLevels.value },
   })
 }
 

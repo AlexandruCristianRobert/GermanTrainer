@@ -30,6 +30,7 @@ vi.mock('../../../src/composables/useDwLexicalQuiz', async (importOriginal) => {
 })
 import { sampleLexicalItems, filterLexicalItems } from '../../../src/composables/useDwLexicalQuiz'
 import { verbEntryFor } from '../../../src/data/directionVerbs'
+import { DIRECTION_LEVELS } from '../../../src/data/directionWords'
 
 function makeRouter() {
   return createRouter({
@@ -180,6 +181,23 @@ describe('LexicalRunner — history recording (ADR-0010)', () => {
       correct: 0,
       meta: expect.objectContaining({ levels: [...LEVELS] }),
     }))
+    wrapper.unmount()
+  })
+
+  // useQuizStats credits EVERY level in meta.levels with the whole run, so a
+  // level the bank cannot serve would show up as an accuracy bucket for a drill
+  // that asked nothing at that level. A2 is queryable (the chip exists, "All"
+  // selects it) but DIRECTION_VERBS has no A2 item — it must not be recorded.
+  it('records only the levels the bank carries — an "All" query books no phantom A2 bucket', async () => {
+    expect(DIRECTION_LEVELS).toContain('A2')                     // A2 IS queryable…
+    expect(filterLexicalItems({ levels: ['A2'] })).toEqual([])   // …and carries nothing
+
+    const { wrapper } = await mountRunner({ count: '1', levels: DIRECTION_LEVELS.join(',') })
+    await completeOneCardWrong(wrapper)
+    expect(saveQuizRun).toHaveBeenCalledTimes(1)
+    const recorded = vi.mocked(saveQuizRun).mock.calls[0][0].meta!.levels
+    expect(recorded).not.toContain('A2')
+    expect(recorded).toEqual([...LEVELS])
     wrapper.unmount()
   })
 

@@ -208,6 +208,9 @@ Tests: the fixed expressions as vocabulary, incl. temporal *her*.
 
 **STATUS: ALL PHASES COMPLETE** (released v1.14.00–v1.14.04, 2026-07-28/29; per-phase plans in docs/superpowers/plans/).
 
+Each phase is released and user-tested before the next one starts (a per-phase
+implementation plan is written when the phase is green-lit).
+
 | Phase | Contents | Gate check |
 |---|---|---|
 | 1 | Module scaffold: routes, nav, home card, section-headed module home + **Cheatsheet** + scene archetype components + seed data schema | Module navigable on phone (~390px), cheatsheet correct, all archetypes render in both themes |

@@ -59,10 +59,10 @@
 //     vs 'hin und wieder' (now and then, HOW OFTEN it happens)
 //   'lange her'    (time SINCE — the arrow points back)
 //     vs 'noch lange hin' (time UNTIL — the arrow points forward)
-// The first pair is forced to face each other by an invariant whenever either is
-// the answer; the second pair does the same by authoring choice, and the "bis zu
-// X ist es ___" frame is what makes it bite: there 'lange her' is perfectly
-// grammatical and only the direction of time is wrong.
+// BOTH pairs are forced to face each other by an invariant whenever either one is
+// the answer (the NEAR-MISS GATE in tests/data/directionIdioms.test.ts), and for
+// the second pair the "bis zu X ist es ___" frame is what makes it bite: there
+// 'lange her' is perfectly grammatical and only the direction of time is wrong.
 //
 // ── Two smaller authoring rules ──────────────────────────────────────────────
 // • Orthography: with a finite verb, hin und her stands as separate words

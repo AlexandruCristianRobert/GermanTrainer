@@ -11,7 +11,7 @@
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  useDwLexicalQuiz, sampleLexicalItems, splitVerbSentence,
+  useDwLexicalQuiz, sampleLexicalItems, splitVerbSentence, filterLexicalItems,
   type DwLexicalQuestion, type DwVerbReading,
 } from '../../composables/useDwLexicalQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
@@ -101,6 +101,19 @@ const pips = computed(() => {
   return out
 })
 
+/**
+ * The queried levels, minus the ones this bank has no items for — what the Run
+ * actually drilled. useQuizStats credits EVERY level listed in meta.levels with
+ * the whole run, so recording a level the bank cannot serve invents an accuracy
+ * bucket out of nothing: DIRECTION_VERBS carries no A2 item, yet the setup's
+ * "All" button — and an empty chip set, which the runner's csv() default expands
+ * to all four levels — puts A2 in the query. The A2 chip and its zero-available
+ * warning stay exactly as they are; that dead end is deliberate.
+ */
+const recordedLevels = computed(() =>
+  queriedLevels.value.filter(l => filterLexicalItems({ levels: [l] }).length > 0)
+)
+
 /** The sentence split around its 1–2 verb surfaces, so they can be bolded in place. */
 const sentenceParts = computed(() =>
   current.value ? splitVerbSentence(current.value.item) : []
@@ -154,7 +167,7 @@ function recordRun() {
     durationMs: finishedAt - startedAtMs.value,
     count: quiz.value.total.value,
     correct: quiz.value.score.value,
-    meta: { levels: queriedLevels.value },
+    meta: { levels: recordedLevels.value },
   })
 }
 
