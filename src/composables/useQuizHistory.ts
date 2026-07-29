@@ -39,6 +39,8 @@ export type QuizHistoryType =
   | 'dw-assembly'
   | 'dw-sentence'
   | 'dw-answer'
+  | 'dw-lexical'
+  | 'dw-idiom'
   | 'prep-sentence'
   | 'prep-remedial'
   | 'verb-sentence'

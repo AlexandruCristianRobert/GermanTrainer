@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.14.03'
+export const APP_VERSION = '1.14.04'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.14.04', date: '2026-07-29', kind: 'polish',
+    title: 'Direction Words · the traps — module complete',
+    notes: [
+      '<strong>T8 Directional or lexicalized?</strong> <em>Die Firma stellt Möbel her</em> — nobody is fetching anything. Some verbs kept the direction (<em>Findest du allein wieder heraus?</em>), others turned into plain vocabulary (<em>herausfinden</em> = ermitteln), and a handful do both depending on the sentence. Decide which reading each sentence admits; the reveal shows both and explains what blocks the other.',
+      '<strong>T9 Idiom gap-fill.</strong> <em>hin und her</em> or <em>hin und wieder</em>? Back-and-forth versus now-and-then, <em>lange her</em> (looking back) against <em>noch lange hin</em> (still ahead) — every distractor is a real idiom in the wrong slot.',
+      '<strong>The Direction Words module is complete:</strong> nine drills — the perspective rule with scene diagrams, compound pairs, question words, r-form register, sentence assembly, two AI production drills with perspective-aware grading and weak points, and now the traps — plus the six-chapter cheatsheet. Every item hand-written, every scene-anchored answer machine-checked against its own diagram.'
+    ]
+  },
   {
     version: '1.14.03', date: '2026-07-28', kind: 'polish',
     title: 'Direction Words · AI sentence production',

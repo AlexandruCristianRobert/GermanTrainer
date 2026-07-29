@@ -123,6 +123,8 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'dw-assembly': 'direction sentence assembly',
   'dw-sentence': 'direction sentence translation',
   'dw-answer': 'direction answer-the-question',
+  'dw-lexical': 'directional-or-lexicalized choice',
+  'dw-idiom': 'idiom gap-fill',
   'prep-sentence': 'preposition · sentence translation (AI)',
   'prep-remedial': 'preposition · remedial weak-point drill',
   'verb-sentence': 'verb · sentence translation (AI)',

@@ -116,4 +116,13 @@ describe('quiz-type-labels', () => {
     expect(QUIZ_TYPE_LABEL['dw-answer']).toBe('Direction words · answer (AI)')
     expect(QUIZ_TYPE_DE['dw-answer']).toBe('Hin & Her · Antworten (KI)')
   })
+
+  it('includes the Direction Words trap drill types (T8 lexicalized verbs, T9 idioms) with EN/DE labels', () => {
+    expect(QUIZ_TYPES_ORDER).toContain('dw-lexical')
+    expect(QUIZ_TYPES_ORDER).toContain('dw-idiom')
+    expect(QUIZ_TYPE_LABEL['dw-lexical']).toBe('Direction words · lexicalized verbs')
+    expect(QUIZ_TYPE_DE['dw-lexical']).toBe('Hin & Her · Verblasste Richtung')
+    expect(QUIZ_TYPE_LABEL['dw-idiom']).toBe('Direction words · idioms')
+    expect(QUIZ_TYPE_DE['dw-idiom']).toBe('Hin & Her · Redewendungen')
+  })
 })
