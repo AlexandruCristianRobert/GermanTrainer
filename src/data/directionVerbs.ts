@@ -22,9 +22,19 @@
 // collocation the fixed sense needs (aus dem Haus, den Hang, in den Hof; no
 // über-/auf-phrase for hinausgehen/hinauslaufen, no auf-object for hereinfallen).
 //
-// DW_VERB_ENTRIES.bothReadings is an attestation claim, not a convenience flag:
-// it is true only for verbs whose BOTH readings are real, current German. The
-// eight flagged verbs, with one attested usage per reading:
+// `level` grades how hard the DISCRIMINATION is, not just the vocabulary: rejecting
+// the dominant modern sense of herunterfahren (= abschalten) is B2 work even in a
+// simple sledging sentence, and the rare literal senses (aus einem Labyrinth
+// herausfinden, jemanden aus dem Haus herausbringen, Licht fällt herein) are C1.
+// Because the engine filters by level, EVERY level must carry both readings —
+// otherwise a level-filtered session is answerable by pressing one button without
+// reading any German. Keep that true when adding items (see the invariant floors).
+//
+// DW_VERB_ENTRIES.bothReadings says which verbs THIS BANK drills in both
+// readings. Every flagged verb is attested both ways in real German — the flag is
+// never set to pad a count — but the converse does not hold: a false flag means
+// the bank drills one reading only, not that the other reading is impossible (see
+// herausstellen below). The eight flagged verbs, with one attested usage each:
 //
 //   herausfinden    ermitteln: "Wir haben herausgefunden, warum …"
 //                   wörtlich:  "Ich finde aus diesem Wald nicht mehr heraus."
@@ -44,7 +54,10 @@
 //                   wörtlich:        "Sie brachten ihn aus dem Haus heraus."
 //
 // Verbs flagged false contribute items in ONE reading only; their opposite label
-// is the drill's distractor. hereinbrechen was evaluated and rejected: its
+// is the drill's distractor. Some of them do have a second reading in German that
+// this bank simply does not drill — "die Mülltonne herausstellen" (literally put
+// outside) exists alongside the reflexive "sich herausstellen" = sich erweisen, and
+// only the latter is drilled here. hereinbrechen was evaluated and rejected: its
 // physical inrush ("die Wassermassen brachen herein") and its "descend upon"
 // use ("die Nacht bricht herein") are the same sense read literally vs.
 // figuratively, so a two-button pick over it would be arbitrary.
@@ -62,7 +75,12 @@ export interface DwVerbEntry {
   directionalLabel: string
   /** German+EN label for the fused, non-directional meaning. */
   lexicalizedLabel: string
-  /** True only when real German attests BOTH readings for this verb. */
+  /**
+   * True when THIS BANK drills both of the verb's readings; every flagged verb is
+   * attested both ways (evidence in the file header). A false flag does not deny
+   * that the other reading exists in German — it only says this bank does not
+   * drill it, so the opposite label is a pure distractor here.
+   */
   bothReadings: boolean
 }
 
@@ -176,7 +194,7 @@ export const DIRECTION_VERBS: DwVerbItem[] = [
   { id: 'lx-4', verb: 'hinrichten', reading: 'lexicalized', level: 'B2',
     sentence: 'Der Verräter wurde 1601 im Hof der Festung hingerichtet.',
     surfaces: ['hingerichtet'],
-    explanation: 'hinrichten = die Todesstrafe vollstrecken; "dorthin richten" ergibt bei einer Person keinen Sinn. / Lexicalized: execute. Nobody "aimed" the traitor anywhere — the passive plus the date fixes the fused sense.' },
+    explanation: 'hinrichten = die Todesstrafe vollstrecken; "dorthin richten" ergibt bei einer Person keinen Sinn. / Lexicalized: execute. The object is a person, and people are not aimed or directed anywhere, so the literal prefix reading is absurd.' },
   { id: 'lx-5', verb: 'hinrichten', reading: 'lexicalized', level: 'C1',
     sentence: 'Das Gericht verhängte die Todesstrafe, und drei Wochen später richtete man ihn hin.',
     surfaces: ['richtete', 'hin'],
@@ -266,7 +284,7 @@ export const DIRECTION_VERBS: DwVerbItem[] = [
     sentence: 'Der Wald ist groß — findest du allein wieder heraus?',
     surfaces: ['findest', 'heraus'],
     explanation: 'Hier wörtlich: den Weg nach draußen finden. / Directional: find your way out of the forest — a physical exit, not a fact.' },
-  { id: 'lx-21', verb: 'herausfinden', reading: 'directional', level: 'B2',
+  { id: 'lx-21', verb: 'herausfinden', reading: 'directional', level: 'C1',
     sentence: 'Das Kellergewölbe ist ein Labyrinth — ohne Führer findet man kaum wieder heraus.',
     surfaces: ['findet', 'heraus'],
     explanation: 'Wörtlich: aus dem Gewölbe herausfinden; es fehlt jedes Objekt und jeder w-Satz. / Directional: find your way out of the vault. With no object and no clause, "ermitteln" has nothing to discover.' },
@@ -310,11 +328,11 @@ export const DIRECTION_VERBS: DwVerbItem[] = [
     sentence: 'Fahren Sie den Rechner vor dem Update bitte ordentlich herunter.',
     surfaces: ['Fahren', 'herunter'],
     explanation: 'herunterfahren = abschalten; ein Rechner wird keinen Berg hinuntergefahren. / Lexicalized: shut down. The object is a computer and the context is an update, so no slope is involved.' },
-  { id: 'lx-29', verb: 'herunterfahren', reading: 'directional', level: 'B1',
+  { id: 'lx-29', verb: 'herunterfahren', reading: 'directional', level: 'B2',
     sentence: 'Wir sind mit den Rädern den ganzen Pass heruntergefahren.',
     surfaces: ['heruntergefahren'],
     explanation: 'Wörtlich: den Pass hinab, zum Sprecher hin gedacht. / Directional: ride down the pass. Bicycles and a mountain pass leave no room for "shut down".' },
-  { id: 'lx-30', verb: 'herunterfahren', reading: 'directional', level: 'B1',
+  { id: 'lx-30', verb: 'herunterfahren', reading: 'directional', level: 'B2',
     sentence: 'Die Kinder fuhren mit dem Schlitten den Hang herunter.',
     surfaces: ['fuhren', 'herunter'],
     explanation: 'Wörtlich: den Hang hinab. / Directional: sledge down the slope — a stated slope blocks the "shut down / scale back" sense.' },
@@ -358,7 +376,7 @@ export const DIRECTION_VERBS: DwVerbItem[] = [
     sentence: 'Auf diesen billigen Trick ist sogar der Anwalt hereingefallen.',
     surfaces: ['hereingefallen'],
     explanation: 'auf etwas hereinfallen = sich täuschen lassen; in einen Trick fällt man nicht körperlich. / Lexicalized: be taken in. Physically falling into a trick is absurd; the auf-object marks the fixed sense.' },
-  { id: 'lx-38', verb: 'hereinfallen', reading: 'directional', level: 'B2',
+  { id: 'lx-38', verb: 'hereinfallen', reading: 'directional', level: 'C1',
     sentence: 'Durch das offene Dachfenster fiel morgens helles Sonnenlicht herein.',
     surfaces: ['fiel', 'herein'],
     explanation: 'Wörtlich: durch das Fenster nach innen, wo der Sprecher ist. / Directional: light falls in through the skylight. Sunlight cannot be duped, and there is no auf-object.' },
@@ -370,7 +388,7 @@ export const DIRECTION_VERBS: DwVerbItem[] = [
     sentence: 'Der Verlag bringt im Frühjahr eine neue Krimireihe heraus.',
     surfaces: ['bringt', 'heraus'],
     explanation: 'herausbringen = veröffentlichen; eine Reihe wird nicht aus einem Zimmer getragen. / Lexicalized: publish. A book series is not carried out of a room; the season names a release date.' },
-  { id: 'lx-40', verb: 'herausbringen', reading: 'directional', level: 'B2',
+  { id: 'lx-40', verb: 'herausbringen', reading: 'directional', level: 'C1',
     sentence: 'Die Feuerwehr brachte alle Bewohner unverletzt aus dem Haus heraus.',
     surfaces: ['brachte', 'heraus'],
     explanation: 'Wörtlich: aus dem Haus nach draußen, zum Sprecher hin. / Directional: bring the residents out of the house — people and "aus dem Haus" block the publishing sense.' },
