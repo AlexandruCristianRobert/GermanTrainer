@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import { DIRECTION_IDIOMS, DW_IDIOM_SURFACES } from '../../src/data/directionIdioms'
 import { DIRECTION_LEVELS, IDIOMS } from '../../src/data/directionWords'
+import { fillIdiomGap } from '../../src/composables/useDwIdiomQuiz'
 
 const KEYS = new Set(IDIOMS.map(i => i.idiom))
 
@@ -60,5 +61,58 @@ describe('DIRECTION_IDIOMS invariants', () => {
     expect(n('B1')).toBeGreaterThanOrEqual(8)
     expect(n('B2')).toBeGreaterThanOrEqual(8)
     expect(n('C1')).toBeGreaterThanOrEqual(4)
+  })
+})
+
+// ── The reveal's orthography, swept over the whole bank ──────────────────────
+// The T9 reveal drops the answer into the gap, and where the gap sits decides
+// whether German capitalises it (id-5 in the Vorfeld, id-26 after a colon). The
+// runner tests pin four concrete sentences; this sweep is what covers item 29.
+//
+// The expectation below is re-derived from the SENTENCE, independently of
+// fillIdiomGap's own trigger set, and it is deliberately quote-aware: a gap
+// behind an opening „ still opens a sentence. So an added item in a position the
+// helper does not handle fails HERE, naming the item, rather than shipping wrong
+// German in the reveal. Two positions this catches today:
+//   'Sie schrie ihn an: „___ dem Geld!"'  → must capitalise; the helper would not
+//   'Seit dem 1. ___ war alles anders.'   → must NOT capitalise; the helper would
+// Either failure is fixed by teaching fillIdiomGap the position (and only then),
+// never by loosening this test.
+describe('DIRECTION_IDIOMS · the filled reveal capitalises iff the gap opens a sentence', () => {
+  /** Opening quotes/brackets do not end a sentence — they sit inside the new one. */
+  const OPENERS = /[„“"«‚‘'([]+$/
+
+  function gapOpensSentence(sentence: string): boolean {
+    const before = sentence.slice(0, sentence.indexOf('___')).trimEnd().replace(OPENERS, '').trimEnd()
+    return before === '' || before.endsWith(':')
+  }
+
+  test('every item: the inserted surface is capitalised exactly when the gap is sentence-initial or post-colon', () => {
+    const bad: string[] = []
+    for (const item of DIRECTION_IDIOMS) {
+      const shouldCapitalise = gapOpensSentence(item.sentence)
+      const surface = shouldCapitalise
+        ? item.answer.charAt(0).toUpperCase() + item.answer.slice(1)
+        : item.answer
+      const expected = item.sentence.replace('___', surface)
+      if (fillIdiomGap(item.sentence, item.answer) !== expected) {
+        bad.push(`${item.id}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(fillIdiomGap(item.sentence, item.answer))}`)
+      }
+    }
+    expect(bad).toEqual([])
+  })
+
+  test('the sweep is not vacuous: the bank exercises BOTH branches', () => {
+    const capitalising = DIRECTION_IDIOMS.filter(i => gapOpensSentence(i.sentence))
+    expect(capitalising.map(i => i.id)).toEqual(['id-5', 'id-26'])
+    expect(DIRECTION_IDIOMS.length - capitalising.length).toBeGreaterThan(0)
+    // …and the two are the two positions, not two of the same
+    expect(DIRECTION_IDIOMS.find(i => i.id === 'id-5')!.sentence.startsWith('___')).toBe(true)
+    expect(DIRECTION_IDIOMS.find(i => i.id === 'id-26')!.sentence).toContain(': ___')
+  })
+
+  test('the filled sentence never leaves the gap marker behind', () => {
+    const bad = DIRECTION_IDIOMS.filter(i => fillIdiomGap(i.sentence, i.answer).includes('___'))
+    expect(bad.map(i => i.id)).toEqual([])
   })
 })

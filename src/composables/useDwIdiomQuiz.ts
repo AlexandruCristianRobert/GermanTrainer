@@ -18,6 +18,12 @@
 // Grading compares the picked surface against item.answer; a second pick on an
 // answered question is a no-op. The reveal (built in the runner from
 // `item.explanation`) names the meaning AND why the tempting near-miss fails.
+//
+// The reveal's filled sentence is built here too — splitIdiomGap/fillIdiomGap —
+// because dropping a surface into a gap is an ORTHOGRAPHIC operation, not a
+// string replace: sentence-initial and post-colon gaps capitalise it. Keeping the
+// rule in the engine keeps it unit-testable and lets a bank-wide invariant sweep
+// every item (tests/data/directionIdioms.test.ts).
 
 import { computed, ref } from 'vue'
 import { DIRECTION_IDIOMS, type DwIdiomItem } from '../data/directionIdioms'
@@ -43,6 +49,49 @@ export function filterIdiomItems(f: DwIdiomFilter = {}): DwIdiomItem[] {
 /** A fresh random sample of up to `count` items matching the filter. */
 export function sampleIdiomItems(count: number, f: DwIdiomFilter = {}): DwIdiomItem[] {
   return idiomPool.sample(count, f)
+}
+
+/**
+ * Does a surface dropped into this gap start a sentence? True when the gap opens
+ * the sentence (id-5 puts it in the Vorfeld) and when the text before it ends in
+ * a colon or in terminal punctuation — Duden capitalises a full utterance after a
+ * colon, which is what "…nur eines: Her mit dem Geld!" (id-26) needs. A bare
+ * Gedankenstrich is NOT a trigger: it starts no new sentence, so "Nicht lange
+ * diskutieren — her mit dem Schlüssel" (id-27) stays lowercase; a dash that
+ * follows terminal punctuation does count.
+ *
+ * The bank-wide guard on this rule lives in tests/data/directionIdioms.test.ts:
+ * it re-derives "sentence-initial or post-colon" independently (and quote-aware)
+ * for every item, so an added item whose gap sits in a position this helper does
+ * not handle — after an opening „ , after an ordinal's period — fails there
+ * instead of silently rendering wrong German in the reveal.
+ */
+function startsSentence(before: string): boolean {
+  const trimmed = before.trimEnd()
+  if (trimmed === '') return true
+  return /[:.!?…](\s*[—–-]+)?$/.test(trimmed)
+}
+
+/**
+ * The sentence in three pieces around its single ___ gap, with the surface
+ * capitalised where German capitalises (see startsSentence). Splitting rather
+ * than only joining lets the UI mark the inserted surface up in place — the
+ * splitVerbSentence pattern in useDwLexicalQuiz.
+ */
+export function splitIdiomGap(sentence: string, surface: string): { before: string; filled: string; after: string } {
+  const idx = sentence.indexOf('___')
+  if (idx < 0) return { before: sentence, filled: '', after: '' }
+  const before = sentence.slice(0, idx)
+  const filled = startsSentence(before)
+    ? surface.charAt(0).toUpperCase() + surface.slice(1)
+    : surface
+  return { before, filled, after: sentence.slice(idx + '___'.length) }
+}
+
+/** The gap-filled sentence — splitIdiomGap, joined. */
+export function fillIdiomGap(sentence: string, surface: string): string {
+  const { before, filled, after } = splitIdiomGap(sentence, surface)
+  return before + filled + after
 }
 
 export interface DwIdiomQuestion {

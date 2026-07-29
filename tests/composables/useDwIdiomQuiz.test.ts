@@ -1,7 +1,7 @@
 import { describe, test, expect, vi, afterEach } from 'vitest'
 import { toRaw } from 'vue'
 import {
-  useDwIdiomQuiz, filterIdiomItems, sampleIdiomItems,
+  useDwIdiomQuiz, filterIdiomItems, sampleIdiomItems, splitIdiomGap, fillIdiomGap,
 } from '../../src/composables/useDwIdiomQuiz'
 import { DIRECTION_IDIOMS, DW_IDIOM_SURFACES, type DwIdiomItem } from '../../src/data/directionIdioms'
 import { shuffle } from '../../src/data/pool'
@@ -100,6 +100,65 @@ describe('useDwIdiomQuiz — options are the item\'s options, SHUFFLED', () => {
     quiz.pick(order[0]) // answering must not re-roll them either
     expect(quiz.current.value!.options).toBe(first)
     expect(quiz.current.value!.options).toEqual(order)
+  })
+})
+
+// Dropping a surface into a gap is an ORTHOGRAPHIC operation, not a string
+// replace. These are the rule's own unit tests; the bank-wide guard that no
+// shipped item lands in an unhandled position lives in
+// tests/data/directionIdioms.test.ts, and IdiomRunner.test.ts pins the four
+// concrete sentences the reveal renders.
+describe('splitIdiomGap / fillIdiomGap — the reveal\'s capitalisation rule', () => {
+  test('a gap in the Vorfeld capitalises the surface', () => {
+    expect(fillIdiomGap('___ gehe ich ins Kino.', 'hin und wieder'))
+      .toBe('Hin und wieder gehe ich ins Kino.')
+  })
+
+  test('a gap after a colon capitalises (Duden: a full utterance follows)', () => {
+    expect(fillIdiomGap('Er wollte nur eines: ___ dem Geld!', 'her mit'))
+      .toBe('Er wollte nur eines: Her mit dem Geld!')
+  })
+
+  test('a mid-sentence gap is left alone', () => {
+    expect(fillIdiomGap('Wir haben lange ___ überlegt.', 'hin und her'))
+      .toBe('Wir haben lange hin und her überlegt.')
+  })
+
+  test('a bare Gedankenstrich starts no new sentence, so the surface stays lowercase', () => {
+    expect(fillIdiomGap('Nicht diskutieren — ___ dem Schlüssel!', 'her mit'))
+      .toBe('Nicht diskutieren — her mit dem Schlüssel!')
+  })
+
+  test('a dash that FOLLOWS terminal punctuation does capitalise', () => {
+    expect(fillIdiomGap('Genug geredet. — ___ dem Geld!', 'her mit'))
+      .toBe('Genug geredet. — Her mit dem Geld!')
+    expect(fillIdiomGap('Und jetzt? — ___ dem Geld!', 'her mit'))
+      .toBe('Und jetzt? — Her mit dem Geld!')
+  })
+
+  // KNOWN LIMITATION, recorded so a failure here is legible rather than
+  // surprising: an opening quotation mark between the colon and the gap is not
+  // seen through, so the surface stays lowercase where German would capitalise.
+  // No item in DIRECTION_IDIOMS sits in that position, and the bank-wide
+  // invariant in tests/data/directionIdioms.test.ts is quote-aware, so adding
+  // one fails THERE — the fix is then to teach the rule this position and update
+  // this expectation, never to loosen the invariant.
+  test('an opening „ before the gap is NOT yet seen through (documented limitation)', () => {
+    expect(fillIdiomGap('Sie schrie ihn an: „___ dem Geld!“', 'her mit'))
+      .toBe('Sie schrie ihn an: „her mit dem Geld!“')
+  })
+
+  test('splitIdiomGap hands back the three pieces, so the UI can mark the surface up', () => {
+    expect(splitIdiomGap('Der Flug ___ war billig.', 'hin und zurück'))
+      .toEqual({ before: 'Der Flug ', filled: 'hin und zurück', after: ' war billig.' })
+    expect(splitIdiomGap('___ gehe ich ins Kino.', 'hin und wieder'))
+      .toEqual({ before: '', filled: 'Hin und wieder', after: ' gehe ich ins Kino.' })
+  })
+
+  test('a sentence with no gap is returned untouched (no crash, nothing invented)', () => {
+    expect(splitIdiomGap('Kein Platzhalter hier.', 'hin und her'))
+      .toEqual({ before: 'Kein Platzhalter hier.', filled: '', after: '' })
+    expect(fillIdiomGap('Kein Platzhalter hier.', 'hin und her')).toBe('Kein Platzhalter hier.')
   })
 })
 

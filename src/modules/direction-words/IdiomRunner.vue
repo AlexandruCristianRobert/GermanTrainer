@@ -10,7 +10,7 @@
 // (ADR-0010). This is the opposite of the Phase-4 AI drills.
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useDwIdiomQuiz, sampleIdiomItems } from '../../composables/useDwIdiomQuiz'
+import { useDwIdiomQuiz, sampleIdiomItems, splitIdiomGap } from '../../composables/useDwIdiomQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { csv } from '../../composables/quizQuery'
 import { shuffle } from '../../data/pool'
@@ -102,42 +102,18 @@ const pips = computed(() => {
 // independently while the rest of the sentence renders as plain text.
 const promptParts = computed(() => current.value ? current.value.item.sentence.split('___') : [])
 
-/**
- * Does a surface dropped into this gap start a sentence? True when the gap opens
- * the sentence (id-5 puts it in the Vorfeld) and when the text before it ends in
- * a colon or in terminal punctuation — Duden capitalises a full utterance after a
- * colon, which is what "…nur eines: Her mit dem Geld!" (id-26) needs. A bare
- * Gedankenstrich is NOT a trigger: it starts no new sentence, so "Nicht lange
- * diskutieren — her mit dem Schlüssel" (id-27) stays lowercase; a dash that
- * follows terminal punctuation does count.
- */
-function startsSentence(before: string): boolean {
-  const trimmed = before.trimEnd()
-  if (trimmed === '') return true
-  return /[:.!?…](\s*[—–-]+)?$/.test(trimmed)
-}
-
-/** The sentence in three pieces, with the surface capitalised where German does. */
-function gapParts(sentence: string, surface: string): { before: string; filled: string; after: string } {
-  const idx = sentence.indexOf('___')
-  if (idx < 0) return { before: sentence, filled: '', after: '' }
-  const before = sentence.slice(0, idx)
-  const filled = startsSentence(before)
-    ? surface.charAt(0).toUpperCase() + surface.slice(1)
-    : surface
-  return { before, filled, after: sentence.slice(idx + '___'.length) }
-}
-
-/** The reveal's filled sentence for the current card. */
+// The reveal's filled sentence for the current card. splitIdiomGap owns the
+// orthography (a sentence-initial or post-colon gap capitalises the surface) and
+// is guarded bank-wide in tests/data/directionIdioms.test.ts.
 const filledParts = computed(() =>
   current.value
-    ? gapParts(current.value.item.sentence, current.value.item.answer)
+    ? splitIdiomGap(current.value.item.sentence, current.value.item.answer)
     : { before: '', filled: '', after: '' }
 )
 
 /** The summary rows, each with its sentence pre-split around the filled gap. */
 const resultRows = computed(() =>
-  questions.value.map(q => ({ q, parts: gapParts(q.item.sentence, q.item.answer) }))
+  questions.value.map(q => ({ q, parts: splitIdiomGap(q.item.sentence, q.item.answer) }))
 )
 
 // ── actions ──────────────────────────────────────────────────────────────────
