@@ -33,6 +33,11 @@
   --success-tint: rgba(92, 122, 82, 0.18);
   --danger: #A03B2B;
   --danger-tint: rgba(160, 59, 43, 0.18);
+  /* --warn: referenced 16× across the app (the `var(--warn, #b58800)` fallback
+     pattern) before this token existed. Matches --ochre, the hue those hardcoded
+     fallbacks were approximating. */
+  --warn: #B8852F;
+  --warn-tint: rgba(184, 133, 47, 0.20);
 
   /* Preposition colors — memory anchors for the Fixed prepositions drill (CONTEXT.md: Preposition color) */
   --prep-gegen: #B0392F;
@@ -91,6 +96,8 @@
   --success-tint: rgba(143, 174, 130, 0.22);
   --danger: #D4604E;
   --danger-tint: rgba(212, 96, 78, 0.22);
+  --warn: #E2B158;
+  --warn-tint: rgba(226, 177, 88, 0.22);
 
   /* Preposition colors — lighter for legibility on dark paper; wash mixed stronger */
   --prep-gegen: #DE7167;

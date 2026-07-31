@@ -1,0 +1,611 @@
+/* ─── Module layer: Direction Words (Die Achse) + Da-Compounds (Die Tafel) ───
+   Ported from the claude.ai design project's `styles-modules.css` (the
+   design's delta over the base handoff already in tokens.css). This file is
+   GLOBAL — no `scoped` attribute anywhere it's consumed — and loads in
+   src/main.ts immediately after `./styles/tokens.css`. Load order matters:
+   several rules here intentionally win over pre-existing scoped component
+   styles by matching the same class name at equal specificity.
+
+   Two deliberately different hub architectures share one drill vocabulary:
+   Direction Words = sticky rail + family panels + card rows.
+   Da-Compounds    = typographic masthead + dense ledger index + marginalia.
+
+   Font-token note: the design source uses --font-text in its base stylesheet;
+   this particular file never does (already --font-display/--font-body/--font-mono
+   throughout), so no renames were needed here.
+
+   NOT ported: the design's `.nav-links`/`.nav-burger` rules (base rule, its
+   1160px padding tweak, and the 980px display-toggle). NavShell.vue owns the
+   app's responsive nav at 720px; none of that is "the shared drill vocabulary"
+   this file exists for, and the 980px toggle would silently move the burger
+   breakpoint app-wide as a side effect. See §8 for the one nav-adjacent
+   exclusion called out explicitly by the design-import spec. */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §2 — Shared drill vocabulary (bodies exactly as the design declares them,
+   except where §3's canonical hoist supersedes a same-named class — see the
+   note above §3).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.lvl-chip {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  padding: 1px 4px 0;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.lvl-chip.is-ai { color: var(--ochre); border-color: var(--ochre-tint); background: var(--ochre-tint); }
+
+/* Mastery: five upright strokes (Direction Words rail) */
+.mast { display: inline-flex; gap: 2.5px; align-items: flex-end; height: 15px; }
+.mast i { display: block; width: 3px; height: 100%; background: var(--hairline); border-radius: 0.5px; transition: background 0.2s, transform 0.2s; }
+.mast i.on { background: var(--accent); }
+.mast-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.mast-num { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.1em; color: var(--mute); white-space: nowrap; }
+
+/* Mastery: five dots (Da-Compounds ledger) */
+.mdot { display: inline-flex; gap: 4px; align-items: center; }
+.mdot i { display: block; width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--hairline); background: transparent; }
+.mdot i.on { background: var(--accent); border-color: var(--accent); }
+.mdot i.half { background: linear-gradient(90deg, var(--accent) 50%, transparent 50%); border-color: var(--accent); }
+
+.drill-arrow { font-family: var(--font-mono); font-size: 15px; color: var(--mute); transition: transform 0.2s, color 0.2s; }
+
+/* Scene diagram — hin/her perspective graphic (ported from SceneDiagram.vue:
+   stroke-only line art in currentColor). .dw-speaker/.dw-mover are markup-only
+   hooks on the <g> groups in SceneDiagram.vue's SVG — neither the design source
+   nor the current component styles them, so there is no body to port. */
+.scene-diagram { margin: 0; color: var(--ink); display: block; }
+.scene-diagram svg { display: block; width: 100%; height: auto; }
+.dw-arrow { opacity: 0.85; }
+[data-theme="dark"] .scene-diagram { color: var(--ink-soft); }
+
+/* Drill stage furniture shared by both modules' runners */
+.drill-scene {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 22px 0 20px;
+  margin-bottom: 26px;
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+.drill-scene-cap {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-top: 12px;
+  line-height: 1.7;
+}
+.drill-sentence {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.2vw, 40px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.28;
+  text-wrap: pretty;
+}
+/* .drill-gap and .type-row are NOT declared here — the design's own versions
+   (.drill-gap.no, min-width 2.6em, italic; a .type-row .input variant keyed to
+   the generic .input class) are superseded by §3's canonical bodies, which
+   come from the app's existing (byte-identical) scoped setup/runner CSS and
+   keep the app's .ok/.err verdict-modifier convention instead of the design's
+   .no. See §3 for both. */
+.drill-en { font-style: italic; color: var(--mute); font-size: 16px; margin-top: 12px; line-height: 1.5; }
+
+.choice-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 28px 0 0; }
+.choice-row.quad { display: grid; grid-template-columns: 1fr 1fr; }
+.choice {
+  flex: 1 1 140px;
+  min-width: 120px;
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  padding: 16px 14px 13px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.16s, box-shadow 0.16s, background 0.16s, border-color 0.16s;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  position: relative;
+}
+.choice:hover:not([aria-disabled="true"]) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.4);
+  border-color: var(--accent);
+}
+.choice .c-sub { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); font-weight: 400; }
+.choice.correct { border-color: var(--success); background: var(--success-tint); color: var(--success); }
+.choice.correct .c-sub { color: var(--success); }
+.choice.wrong { border-color: var(--danger); background: var(--danger-tint); color: var(--danger); }
+.choice.wrong .c-sub { color: var(--danger); }
+.choice.trap-tag::after {
+  /* Design source hardcodes content:'Falle' here. Kept as a template-driven
+     attribute instead, so the label isn't German copy buried in CSS — the box,
+     position and colour are the same "trap" stamp; the word comes from
+     data-trap on the element. */
+  content: attr(data-trap);
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--ochre-tint);
+  color: var(--ochre);
+  padding: 2px 4px 1px;
+}
+.choice.mono-face { font-family: var(--font-mono); font-size: 18px; letter-spacing: 0.01em; }
+
+.reveal { margin-top: 26px; border-left: 2px solid var(--accent); background: var(--accent-wash); padding: 16px 20px; }
+.reveal.is-wrong { border-left-color: var(--danger); background: var(--danger-tint); }
+.reveal-l { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mute); margin-bottom: 8px; }
+.reveal-t { font-family: var(--font-display); font-size: 19px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.35; margin-bottom: 6px; }
+.reveal-b { font-size: 14.5px; line-height: 1.6; color: var(--ink-soft); margin: 0; text-wrap: pretty; }
+.reveal-b strong { color: var(--ink); }
+.reveal-b code { font-family: var(--font-mono); font-size: 13px; background: var(--paper-deep); padding: 1px 4px; border-radius: 2px; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §3 — Hoisted canonical bodies (quoted verbatim from the migration reference's
+   "Canonical CSS bodies to hoist" block — extracted byte-identical from the
+   28 setup screens + 28 runners' own scoped CSS). These replace that
+   copy-pasted scoped CSS; where a name here also appears in the design source
+   with a genuinely different body (.grading-hint, .type-row, .drill-gap), THIS
+   block wins — see the §2 comment above .drill-en for why.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* page frames — 28 runners + 28 setups */
+.setup-page { max-width: 720px; }
+.result-page { max-width: 880px; }
+.loading-state { text-align: center; padding-top: 120px; }
+
+/* setup fields */
+.field-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; gap: 12px; flex-wrap: wrap; }
+.count-row { align-items: center; gap: 12px; }
+.field-actions { display: flex; gap: 4px; }
+.count-avail { margin-left: auto; }
+.grading-hint { margin: 8px 0 0; }
+.custom-count { width: 80px; font-size: 17px; padding: 4px 0; }
+/* .chip-count is deliberately NOT hoisted here: tokens.css already owns it globally
+   (plus a .chip.selected .chip-count accent rule) for 11 files across other modules.
+   Hoisting the DW/DAC variant would silently add margin-left + opacity to 6 unrelated
+   setup screens. The four DW/DAC setups that want the variant keep it scoped. */
+.setup-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; gap: 16px; }
+@media (max-width: 720px) { .setup-actions { flex-direction: column-reverse; align-items: stretch; } .setup-actions .btn { justify-content: center; } }
+
+/* result rows */
+.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 720px) { .result-actions { flex-direction: column; align-items: stretch; } .result-actions .btn { justify-content: center; } }
+.tag-success { background: var(--success-tint); color: var(--success); }
+.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
+.result-correct, .ok { color: var(--success); }
+.err { color: var(--danger); }
+.result-answer { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 13px; }
+.result-word-meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mute); margin-top: 2px; font-weight: 400; }
+.result-explanation { grid-column: 1 / -1; font-family: var(--font-body); font-size: 13.5px; line-height: 1.5; color: var(--ink); margin-top: 8px; padding-top: 8px; border-top: 1px dotted var(--hairline); }
+.prep-accent-text { color: var(--prep-accent); font-weight: 600; }
+
+/* drill stage */
+.drill-stage { max-width: 640px; margin: 0 auto; outline: none; }
+.drill-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
+.drill-prompt { text-align: center; padding: 20px 0 8px; border-bottom: 1px solid var(--hairline); margin-bottom: 20px; }
+.drill-instruction { margin: 0 0 10px; }
+.drill-feedback { margin-top: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.drill-advance { margin-top: 16px; }
+.drill-hint { margin-top: 20px; text-align: center; color: var(--mute); min-height: 16px; }
+.drill-context { font-family: var(--font-body); font-size: 17px; color: var(--ink-soft); margin: 0 0 14px; }
+.drill-context strong { color: var(--ink); }
+.drill-caption { margin: 0 0 18px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; color: var(--mute); }
+.drill-object { font-style: normal; color: var(--accent); }
+
+/* choices */
+.c-key { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 4px; font-size: 11px; letter-spacing: 0; color: var(--mute); border: 1px solid var(--hairline); border-radius: 2px; background: var(--paper); flex-shrink: 0; }
+.choice.correct .c-key { border-color: var(--success); color: var(--success); }
+.choice.wrong   .c-key { border-color: var(--danger);  color: var(--danger); }
+
+/* gap + typed input */
+.drill-gap { display: inline-block; font-family: var(--font-mono); font-style: normal; color: var(--accent); border-bottom: 2px solid var(--accent); padding: 0 2px; min-width: 2.5em; }
+.drill-gap.ok  { color: var(--success); border-color: var(--success); }
+.drill-gap.err { color: var(--danger);  border-color: var(--danger); }
+.type-row { display: flex; gap: 12px; align-items: center; }
+.type-input { flex: 1; font-family: var(--font-display); font-size: 18px; }
+.type-input.ok  { color: var(--success); border-bottom-color: var(--success); }
+.type-input.err { color: var(--danger);  border-bottom-color: var(--danger); }
+@media (max-width: 720px) { .type-row { flex-direction: column; align-items: stretch; } .type-row .btn { justify-content: center; } }
+
+/* drill result row — NOTE the explicit display:grid (.sub-result-row never
+   declared it, inheriting from global .result-list .result-row at equal
+   specificity resolved only by injection order — this one declares it itself) */
+.drill-result-row { display: grid; grid-template-columns: 180px 1fr auto; align-items: center; padding: 14px 16px; background: var(--paper-card); }
+.drill-result-row.is-prep { background: var(--prep-wash); }
+@media (max-width: 720px) {
+  .drill-result-row { grid-template-areas: "word verdict" "answer answer" "expl expl"; grid-template-columns: 1fr auto; }
+  .drill-result-row .result-word { grid-area: word; }
+  .drill-result-row .result-answer { grid-area: answer; }
+  .drill-result-row .result-verdict { grid-area: verdict; align-self: start; }
+  .drill-result-row .result-explanation { grid-area: expl; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §4 — AI-graded drill vocabulary (dw/AnswerRunner, dw/SentenceRunner,
+   dac/AnswerRunner, dac/SentenceRunner — all four byte-identical; bodies below
+   read from direction-words/SentenceRunner.vue's <style scoped>). This
+   vocabulary is disjoint from the design source (styles-modules.css never
+   declares any of it) and is NOT renamed, with one exception: `.result-row`
+   collides with the global `.result-list .result-row` grid already in
+   tokens.css, so it is hoisted here as `.ai-result-row`. The four runner files
+   themselves are untouched by this task — a later task removes their scoped
+   blocks and updates the template + tests to match.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.quiz-card { max-width: 720px; margin: 0 auto; }
+/* .quiz-meta and .quiz-counter are deliberately NOT hoisted here. tokens.css owns both
+   globally and 51 files depend on them; the AI-graded runners' local margin-bottom of
+   16px (against the global 24px) is a genuine local variant, so it stays scoped in
+   those four files rather than becoming the app-wide default. */
+.sentence-progress { margin-bottom: 36px; }
+.en-sentence { font-family: var(--font-display); font-weight: 500; font-size: 30px; line-height: 1.3; letter-spacing: -0.005em; color: var(--ink); }
+.en-hint { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); margin-top: 14px; }
+
+.hint { position: relative; cursor: help; text-decoration: underline dotted; text-underline-offset: 4px; border-radius: 2px; padding: 0 1px; transition: background-color 120ms ease; outline: none; }
+.hint-verb { text-decoration-color: var(--accent); }
+.hint-verb:hover, .hint-verb:focus-visible, .hint-verb.revealed { background-color: var(--accent-tint); }
+.hint-noun { text-decoration-color: var(--cobalt); }
+.hint-noun:hover, .hint-noun:focus-visible, .hint-noun.revealed { background-color: var(--cobalt-tint); }
+.hint-pop { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); max-width: min(80vw, 260px); white-space: normal; text-align: center; font-family: var(--font-mono); font-size: 13px; line-height: 1.2; padding: 4px 8px; border-radius: 4px; background: var(--paper-card, #fff); color: var(--ink); border: 1px solid var(--rule); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 120ms ease; z-index: 2; }
+.hint:hover .hint-pop, .hint:focus-visible .hint-pop, .hint.revealed .hint-pop { opacity: 1; visibility: visible; }
+
+.prep-input-wrap { display: flex; gap: 12px; align-items: flex-end; margin-top: 36px; }
+.prep-input { flex: 1; text-align: left; font-size: 19px; font-family: inherit; resize: vertical; border: 0; border-bottom: 2px solid var(--rule); padding: 8px 0; background: transparent; }
+.prep-input:focus { border-bottom-color: var(--accent); outline: none; }
+.prep-feedback { margin-top: 18px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
+.prep-feedback-mark { font-family: var(--font-display); font-style: italic; font-size: 17px; }
+.prep-feedback-ok { color: var(--success); }
+.prep-feedback-bad { color: var(--danger); }
+.prep-feedback-full { font-family: var(--font-display); font-size: 18px; color: var(--ink); }
+.prep-feedback-tip { font-size: 14px; color: var(--ink-soft); }
+.prep-feedback-tags { margin-top: 4px; display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.tag.tag-error { background: var(--danger-tint); color: var(--danger); }
+
+.result-rows { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+.ai-result-row { border: 1px solid var(--rule); border-left: 3px solid var(--rule); border-radius: 3px; padding: 14px 16px; }
+.ai-result-row.good { border-left-color: var(--sage, #6b8e6b); }
+.ai-result-row.bad { border-left-color: var(--clay, #b5654a); }
+.rr-head { display: flex; align-items: baseline; gap: 10px; }
+.rr-mark { font-family: var(--font-mono); font-weight: 600; }
+.ai-result-row.good .rr-mark { color: var(--sage, #6b8e6b); }
+.ai-result-row.bad .rr-mark { color: var(--clay, #b5654a); }
+.rr-en { flex: 1; font-family: var(--font-body); color: var(--ink); }
+.rr-tags { margin-left: auto; display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.rr-you, .rr-ref, .rr-tip { font-family: var(--font-mono); font-size: 14px; margin-top: 6px; color: var(--ink-soft); }
+.rr-you-empty { opacity: 0.6; }
+.rr-ref { color: var(--ink); }
+.rr-label { display: inline-block; min-width: 56px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
+.result-cta { display: flex; gap: 12px; }
+@media (max-width: 720px) {
+  .en-sentence { font-size: clamp(20px, 6vw, 26px); }
+  .result-cta { flex-direction: column; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §5 — Direction Words (Die Achse): sticky rail + family panels + card rows,
+   plus the her/hin perspective pairs key. Ported verbatim from the design
+   source; responsive rules for this family are in §8.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.dw-layout { display: grid; grid-template-columns: 302px minmax(0, 1fr); gap: 64px; align-items: start; margin-top: 44px; }
+.dw-rail { position: sticky; top: 92px; display: flex; flex-direction: column; gap: 26px; }
+
+/* Rail: interactive perspective study */
+.dw-study { border: 1px solid var(--rule); background: var(--paper-card); padding: 0; overflow: hidden; }
+.dw-study-head { display: flex; justify-content: space-between; align-items: baseline; padding: 11px 14px 9px; border-bottom: 1px solid var(--hairline); }
+.dw-study-head .micro-mark { font-size: 9.5px; }
+.dw-study-body { padding: 14px 14px 4px; background: var(--paper); }
+.dw-study-out { padding: 12px 14px 14px; border-top: 1px solid var(--hairline); background: var(--paper-card); }
+.dw-word { font-family: var(--font-display); font-size: 34px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; display: block; }
+.dw-word .dw-pfx { color: var(--accent); font-style: italic; }
+.dw-gloss { font-family: var(--font-body); font-style: italic; font-size: 13.5px; color: var(--ink-soft); margin-top: 6px; display: block; line-height: 1.45; text-wrap: pretty; }
+.dw-flip { margin-top: 12px; width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: transparent; border: 1px dashed var(--hairline); color: var(--ink-soft); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; padding: 7px 10px; cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s; }
+.dw-flip:hover { border-color: var(--accent); color: var(--accent); border-style: solid; background: var(--accent-wash); }
+.dw-elems { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 11px; }
+.dw-elem { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; padding: 3px 6px 2px; border: 1px solid var(--hairline); background: transparent; color: var(--mute); cursor: pointer; transition: all 0.15s; border-radius: 2px; }
+.dw-elem:hover { color: var(--ink); border-color: var(--ink-soft); }
+.dw-elem.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+/* Rail: progress dial + family nav */
+.dw-prog { display: flex; align-items: center; gap: 14px; padding-bottom: 20px; border-bottom: 1px solid var(--hairline); }
+.dw-dial { position: relative; width: 56px; height: 56px; flex: none; }
+.dw-dial svg { transform: rotate(-90deg); display: block; }
+.dw-dial-track { fill: none; stroke: var(--hairline); stroke-width: 3; }
+.dw-dial-fill { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+.dw-dial-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 12px; color: var(--ink); }
+.dw-prog-txt { font-size: 13px; line-height: 1.45; color: var(--ink-soft); text-wrap: pretty; }
+.dw-prog-txt strong { font-family: var(--font-display); font-size: 15px; }
+
+.dw-fams { display: flex; flex-direction: column; }
+.dw-fam { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 9px 0; background: transparent; border: 0; border-bottom: 1px dotted var(--hairline); text-align: left; cursor: pointer; color: var(--ink-soft); transition: color 0.18s; }
+.dw-fam:hover { color: var(--ink); }
+.dw-fam-n { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--mute); transition: color 0.18s; }
+.dw-fam-t { font-family: var(--font-body); font-size: 14.5px; line-height: 1.3; }
+.dw-fam.active { color: var(--ink); }
+.dw-fam.active .dw-fam-n { color: var(--accent); }
+.dw-fam.active .dw-fam-t { font-weight: 600; }
+.dw-rail-foot { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); line-height: 1.9; }
+
+/* Panels */
+.dw-panels { display: flex; flex-direction: column; gap: 52px; min-width: 0; }
+.dw-panel { scroll-margin-top: 96px; }
+.dw-panel-head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 11px; border-bottom: 1px solid var(--rule); margin-bottom: 0; }
+.dw-panel-num { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; color: var(--accent); padding-top: 5px; }
+.dw-panel-t { font-family: var(--font-display); font-size: 27px; font-weight: 500; letter-spacing: -0.015em; line-height: 1.1; }
+.dw-panel-de { font-family: var(--font-display); font-style: italic; font-size: 17px; color: var(--mute); margin-left: auto; white-space: nowrap; }
+
+.dw-rows { display: flex; flex-direction: column; }
+.dw-row { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto auto; align-items: start; gap: 20px; padding: 19px 14px 19px 0; border-bottom: 1px solid var(--hairline); background: transparent; border-left: 0; border-right: 0; border-top: 0; text-align: left; cursor: pointer; color: var(--ink); position: relative; transition: padding-left 0.22s ease, background 0.22s; }
+.dw-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform 0.22s ease; }
+.dw-row:hover { padding-left: 16px; background: var(--accent-wash); }
+.dw-row:hover::before { transform: scaleY(1); }
+.dw-row:hover .drill-arrow { transform: translateX(4px); color: var(--accent); }
+.dw-row:focus-visible { outline: 1px dotted var(--rule); outline-offset: 3px; }
+.dw-code { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--mute); padding-top: 6px; }
+.dw-row:hover .dw-code { color: var(--accent); }
+.dw-main { min-width: 0; }
+.dw-title { font-family: var(--font-display); font-size: 21px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.2; display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.dw-title-de { font-family: var(--font-display); font-style: italic; font-size: 14.5px; color: var(--mute); font-weight: 400; }
+.dw-title.dw-title-plain { display: block; gap: 0; }
+.dw-desc { font-size: 14.5px; line-height: 1.52; color: var(--ink-soft); margin: 5px 0 0; text-wrap: pretty; max-width: 60ch; }
+.dw-desc em { color: var(--accent); font-style: italic; }
+.dw-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding-top: 4px; }
+.dw-arrow-cell { padding-top: 5px; }
+
+/* Pairs table — the six compound twins across the axis */
+.dw-axis { border: 1px solid var(--rule); background: var(--paper-card); overflow: hidden; }
+.dw-axis-head { display: grid; grid-template-columns: 1fr 88px 1fr 92px; gap: 0; border-bottom: 1px solid var(--rule); background: var(--paper-deep); }
+.dw-axis-head > div { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); padding: 9px 16px 8px; }
+.dw-axis-head > div:nth-child(2), .dw-axis-head > div:nth-child(4) { text-align: center; }
+.dw-axis-head .ah-her { color: var(--cobalt); }
+.dw-axis-head .ah-hin { color: var(--clay); text-align: right; }
+.dw-axis-row { display: grid; grid-template-columns: 1fr 88px 1fr 92px; align-items: center; border-bottom: 1px dotted var(--hairline); }
+.dw-axis-row:last-child { border-bottom: 0; }
+.dw-axis-row > * { padding: 11px 16px; }
+.dw-af { font-family: var(--font-display); font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+.dw-af.her { color: var(--cobalt); }
+.dw-af.hin { color: var(--clay); text-align: right; }
+.dw-ae { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); text-align: center; border-left: 1px dotted var(--hairline); border-right: 1px dotted var(--hairline); align-self: stretch; display: flex; align-items: center; justify-content: center; }
+.dw-ar { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-soft); text-align: center; border-left: 1px dotted var(--hairline); align-self: stretch; display: flex; align-items: center; justify-content: center; }
+.dw-ar.none { color: var(--mute); font-style: normal; }
+.dw-axis-gloss { grid-column: 1 / -1; font-size: 13px; font-style: italic; color: var(--mute); padding: 0 16px 11px; margin-top: -4px; }
+
+/* her/hin perspective key (cheatsheet) */
+.persp-pairs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--hairline); }
+.pp-col { padding: 16px 18px; }
+.pp-col + .pp-col { border-left: 1px solid var(--hairline); }
+.pp-h { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 14px; }
+.pp-h.her { color: var(--cobalt); }
+.pp-h.hin { color: var(--clay); }
+.pp-s { font-family: var(--font-display); font-size: 19px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.3; }
+.pp-n { font-size: 13px; font-style: italic; color: var(--mute); margin: 3px 0 16px; line-height: 1.45; }
+.pp-item:last-child .pp-n { margin-bottom: 0; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §6 — Da-Compounds (Die Tafel): typographic masthead + dense ledger index +
+   marginalia, plus the ●◐○ Korrelat key. Ported verbatim from the design
+   source; responsive rules for this family are in §8. (.dac-context* is
+   physically grouped with the shared drill-runner rules in the design source,
+   but is namespaced dac- and belongs here with the rest of the .dac-* family.)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.dac-masthead { border-top: 2px solid var(--rule); border-bottom: 1px solid var(--rule); margin-top: 38px; display: grid; grid-template-columns: minmax(0, 1fr) 292px; }
+.dac-mh-main { padding: 30px 34px 28px; border-right: 1px solid var(--hairline); min-width: 0; }
+.dac-mh-side { padding: 26px 26px 24px; background: var(--paper-deep); }
+.dac-mh-lbl { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mute); margin-bottom: 16px; }
+
+/* The formation transform: da + (r) + prep = darauf */
+.dac-formula { display: flex; align-items: baseline; gap: 0; flex-wrap: wrap; font-family: var(--font-display); font-weight: 500; letter-spacing: -0.025em; line-height: 1; font-size: clamp(30px, 4.4vw, 54px); }
+.dac-formula .f-stem { color: var(--ink-soft); }
+.dac-formula .f-r { color: var(--accent); font-style: italic; }
+.dac-formula .f-r.off { color: var(--mute); opacity: 0.28; text-decoration: line-through; text-decoration-thickness: 1px; }
+.dac-formula .f-prep { color: var(--ink); }
+.dac-formula .f-eq { font-family: var(--font-mono); font-size: 0.36em; color: var(--mute); letter-spacing: 0; padding: 0 0.5em; transform: translateY(-0.28em); }
+.dac-formula .f-out { color: var(--ink); border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
+.dac-formula .f-x { color: var(--mute); text-decoration: line-through; text-decoration-thickness: 1.5px; text-decoration-color: var(--clay); }
+.dac-wo { font-family: var(--font-display); font-size: clamp(17px, 1.7vw, 21px); color: var(--mute); margin-top: 16px; letter-spacing: -0.01em; }
+.dac-wo b { color: var(--ink-soft); font-weight: 500; }
+.dac-wo i { color: var(--accent); font-style: italic; }
+.dac-rule { font-size: 14.5px; font-style: italic; color: var(--ink-soft); margin: 18px 0 0; max-width: 56ch; line-height: 1.55; text-wrap: pretty; }
+.dac-preps { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 20px; }
+.dac-prep { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.03em; padding: 4px 7px 3px; border: 1px solid var(--hairline); background: transparent; color: var(--ink-soft); cursor: pointer; transition: all 0.15s; border-radius: 2px; }
+.dac-prep:hover { border-color: var(--ink-soft); color: var(--ink); }
+.dac-prep.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.dac-prep.trap { color: var(--clay); border-color: var(--clay-tint); }
+.dac-prep.trap.active { background: var(--clay); border-color: var(--clay); color: var(--paper); }
+
+/* Masthead side: mastery summary bar */
+.dac-sum-num { font-family: var(--font-display); font-size: 44px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; }
+.dac-sum-num span { color: var(--mute); font-size: 22px; }
+.dac-sum-txt { font-size: 13px; font-style: italic; color: var(--ink-soft); line-height: 1.5; margin: 8px 0 18px; text-wrap: pretty; }
+.dac-bars { display: flex; flex-direction: column; gap: 8px; }
+.dac-bar { display: grid; grid-template-columns: 1fr 34px; align-items: center; gap: 10px; }
+.dac-bar-l { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.dac-bar-t { grid-column: 1 / -1; height: 3px; background: var(--hairline); position: relative; }
+.dac-bar-f { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+.dac-bar-f.weak { background: var(--clay); }
+.dac-bar-v { font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-soft); text-align: right; }
+
+/* Toolbar: search + phase filter */
+.dac-tools { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.dac-search { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 9px; border-bottom: 1px solid var(--hairline); padding-bottom: 5px; }
+.dac-search:focus-within { border-bottom-color: var(--accent); }
+.dac-search input { flex: 1; background: transparent; border: 0; outline: 0; font-family: var(--font-body); font-size: 16px; color: var(--ink); }
+.dac-search input::placeholder { color: var(--mute); font-style: italic; }
+.dac-search-ic { font-family: var(--font-mono); font-size: 12px; color: var(--mute); }
+.dac-sort { display: flex; gap: 0; border: 1px solid var(--hairline); border-radius: 2px; overflow: hidden; }
+.dac-sort button { background: transparent; border: 0; border-right: 1px solid var(--hairline); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); padding: 6px 11px 5px; cursor: pointer; transition: all 0.15s; }
+.dac-sort button:last-child { border-right: 0; }
+.dac-sort button.active { background: var(--ink); color: var(--paper); }
+.dac-sort button:hover:not(.active) { background: var(--paper-deep); color: var(--ink); }
+.dac-count { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+
+/* Body: ledger + marginalia */
+.dac-body { display: grid; grid-template-columns: minmax(0, 1fr) 252px; gap: 56px; align-items: start; margin-top: 0; }
+.dac-ledger { min-width: 0; }
+
+.dac-phase { display: grid; grid-template-columns: 64px minmax(0, 1fr); border-bottom: 1px solid var(--hairline); }
+.dac-phase-gut { border-right: 1px solid var(--hairline); padding: 18px 12px 18px 0; text-align: right; position: relative; }
+.dac-phase-num { font-family: var(--font-display); font-size: 23px; font-style: italic; color: var(--accent); line-height: 1; position: sticky; top: 96px; }
+.dac-phase-rows { min-width: 0; }
+.dac-phase-h { display: flex; align-items: baseline; gap: 10px; padding: 16px 0 9px 14px; flex-wrap: wrap; }
+.dac-phase-t { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); }
+.dac-phase-de { font-family: var(--font-display); font-style: italic; font-size: 14px; color: var(--mute); }
+
+.dac-lrow { display: grid; grid-template-columns: 44px minmax(0, 1fr) 96px 46px 18px; align-items: center; gap: 16px; width: 100%; padding: 12px 0 12px 14px; border: 0; border-top: 1px dotted var(--hairline); background: transparent; text-align: left; color: var(--ink); cursor: pointer; transition: background 0.18s, padding-left 0.18s; }
+.dac-lrow:hover { background: var(--accent-wash); padding-left: 20px; }
+.dac-lrow:hover .drill-arrow { color: var(--accent); transform: translateX(3px); }
+.dac-lrow:focus-visible { outline: 1px dotted var(--rule); outline-offset: 2px; }
+.dac-num { font-family: var(--font-mono); font-size: 11px; color: var(--mute); letter-spacing: 0.06em; }
+.dac-lrow:hover .dac-num { color: var(--accent); }
+.dac-lmain { min-width: 0; }
+.dac-lt { font-family: var(--font-display); font-size: 17.5px; font-weight: 500; letter-spacing: -0.005em; line-height: 1.25; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.dac-lde { font-family: var(--font-display); font-style: italic; font-size: 13px; color: var(--mute); font-weight: 400; }
+.dac-ld { font-size: 13.5px; color: var(--ink-soft); line-height: 1.45; margin: 3px 0 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-wrap: pretty; }
+.dac-lrow.open .dac-ld { -webkit-line-clamp: unset; display: block; }
+.dac-lvl { display: flex; justify-content: flex-end; }
+.dac-empty { padding: 44px 0; font-style: italic; color: var(--mute); text-align: center; font-size: 15px; }
+.dac-empty button { background: transparent; border: 0; color: var(--accent); font: inherit; font-style: italic; cursor: pointer; border-bottom: 1px solid var(--accent-tint); padding: 0; }
+
+.dac-marg { position: sticky; top: 92px; display: flex; flex-direction: column; gap: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); }
+.dac-marg-s { padding: 20px 0; border-top: 1px solid var(--hairline); }
+.dac-marg-s:first-child { border-top: 0; padding-top: 0; }
+.dac-marg-l { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mute); margin-bottom: 11px; }
+.dac-vs { display: grid; grid-template-columns: auto 1fr; gap: 5px 10px; align-items: baseline; }
+.dac-vs-k { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mute); padding-top: 3px; }
+.dac-vs-v { font-family: var(--font-display); font-size: 16px; letter-spacing: -0.01em; }
+.dac-vs-v b { color: var(--accent); font-weight: 500; }
+.dac-vs-v.person b { color: var(--clay); }
+.dac-nolist { display: flex; flex-wrap: wrap; gap: 4px; }
+.dac-nolist span { font-family: var(--font-mono); font-size: 10.5px; color: var(--clay); border: 1px solid var(--clay-tint); background: var(--clay-tint); padding: 2px 5px 1px; border-radius: 2px; }
+.dac-klist { display: flex; flex-direction: column; gap: 7px; }
+.dac-krow { display: grid; grid-template-columns: 16px 1fr; gap: 8px; align-items: baseline; }
+.dac-kmark { font-family: var(--font-mono); font-size: 12px; line-height: 1.4; }
+.dac-kmark.must { color: var(--accent); }
+.dac-kmark.may { color: var(--ochre); }
+.dac-kmark.never { color: var(--clay); }
+.dac-kv { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft); line-height: 1.5; }
+
+/* Drill-time context line (used inside da-compounds runners) */
+.dac-context { border-left: 1px solid var(--hairline); padding: 2px 0 2px 16px; margin-bottom: 22px; }
+.dac-context-l { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mute); margin-bottom: 6px; }
+.dac-context-s { font-family: var(--font-body); font-size: 19px; line-height: 1.5; color: var(--ink-soft); font-style: italic; }
+.dac-context-s b { font-style: normal; color: var(--ink); border-bottom: 1px solid var(--accent-tint); }
+
+/* Korrelat ●◐○ key (cheatsheet) */
+.k-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; border: 1px solid var(--hairline); }
+.k-col { padding: 15px 17px; }
+.k-col + .k-col { border-left: 1px solid var(--hairline); }
+.k-h { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.k-h.must { color: var(--accent); }
+.k-h.may { color: var(--ochre); }
+.k-h.never { color: var(--clay); }
+.k-e { margin-bottom: 13px; }
+.k-e:last-child { margin-bottom: 0; }
+.k-x { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); line-height: 1.45; }
+.k-ex { font-size: 13px; font-style: italic; color: var(--mute); line-height: 1.45; margin-top: 2px; text-wrap: pretty; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §7 — Reference-sheet primitives (both cheatsheets): numbered plate with a
+   title/German header over a body, and the mono-header mini-table with its
+   cell modifiers.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.plate { border: 1px solid var(--rule); background: var(--paper-card); margin-bottom: 34px; overflow: hidden; scroll-margin-top: 96px; }
+.plate-h { display: flex; align-items: baseline; gap: 12px; padding: 13px 20px 11px; border-bottom: 1px solid var(--rule); background: var(--paper-deep); flex-wrap: wrap; }
+.plate-n { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; color: var(--accent); }
+.plate-t { font-family: var(--font-display); font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+.plate-de { font-family: var(--font-display); font-style: italic; font-size: 14px; color: var(--mute); margin-left: auto; }
+.plate-b { padding: 20px; }
+.plate-b > p:last-child { margin-bottom: 0; }
+
+.mini-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.mini-table th { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); text-align: left; font-weight: 400; padding: 0 14px 9px 0; border-bottom: 1px solid var(--hairline); }
+.mini-table td { padding: 10px 14px 10px 0; border-bottom: 1px dotted var(--hairline); vertical-align: baseline; line-height: 1.5; }
+.mini-table tr:last-child td { border-bottom: 0; }
+.mini-table .t-de { font-family: var(--font-display); font-size: 17px; font-weight: 500; letter-spacing: -0.01em; white-space: nowrap; }
+.mini-table .t-mono { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-soft); }
+.mini-table .t-it { font-style: italic; color: var(--mute); }
+.mini-table .t-ex { font-size: 14px; color: var(--ink-soft); }
+.mini-table .t-ex b { color: var(--ink); font-weight: 600; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §8 — Responsive. All of the design's @media blocks for §§2/5/6/7 above, in
+   the design's own relative order, EXCLUDING the design's
+   `@media (max-width: 980px) { .nav-links{display:none} .nav-burger{display:
+   inline-flex} }` rule — NavShell.vue owns the app's nav breakpoint at 720px,
+   and porting this would silently move the burger breakpoint app-wide.
+   (§3 and §4's own responsive rules are already inline within those sections —
+   §3's come from the migration reference's block quoted verbatim, and §4's
+   are sourced from the Vue runner files, not this design sheet, so neither is
+   "the design's @media blocks" this section is scoped to.)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1060px) {
+  .dw-layout { grid-template-columns: 1fr; gap: 36px; }
+  .dw-rail { position: static; flex-direction: column; }
+  .dw-study { max-width: 420px; }
+  .dw-fams { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0 24px; }
+}
+@media (max-width: 640px) {
+  .dw-row { grid-template-columns: 38px minmax(0, 1fr); gap: 12px; padding-right: 0; }
+  .dw-meta { grid-column: 2; align-items: flex-start; flex-direction: row; gap: 12px; padding-top: 9px; }
+  .dw-arrow-cell { display: none; }
+  .dw-panel-de { display: none; }
+  .dw-axis-head, .dw-axis-row { grid-template-columns: 1fr 62px 1fr; }
+  .dw-axis-head > div:nth-child(4), .dw-ar { display: none; }
+  .dw-af { font-size: 17px; }
+}
+
+@media (max-width: 1060px) {
+  .dac-masthead { grid-template-columns: 1fr; }
+  .dac-mh-main { border-right: 0; border-bottom: 1px solid var(--hairline); }
+  .dac-body { grid-template-columns: 1fr; gap: 40px; }
+  .dac-marg { position: static; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 32px; }
+}
+@media (max-width: 640px) {
+  .dac-mh-main, .dac-mh-side { padding: 22px 18px; }
+  .dac-phase { grid-template-columns: 34px minmax(0, 1fr); }
+  .dac-phase-gut { padding: 14px 8px 14px 0; }
+  .dac-phase-num { font-size: 17px; }
+  .dac-lrow { grid-template-columns: 34px minmax(0, 1fr); gap: 10px; row-gap: 8px; }
+  .dac-lvl, .dac-lrow > .mdot { grid-column: 2; }
+  .dac-lvl { justify-content: flex-start; }
+  .dac-lrow > .drill-arrow { display: none; }
+}
+
+@media (max-width: 720px) {
+  .drill-scene { grid-template-columns: 1fr; gap: 18px; }
+  .drill-scene-fig { max-width: 260px; }
+}
+
+/* Combined breakpoint — the design bundles the DW pairs key, the DAC Korrelat
+   key, and the plate header's German column into one query; kept as one block
+   to match. */
+@media (max-width: 640px) {
+  .persp-pairs { grid-template-columns: 1fr; }
+  .pp-col + .pp-col { border-left: 0; border-top: 1px solid var(--hairline); }
+  .k-col + .k-col { border-left: 0; border-top: 1px solid var(--hairline); }
+  .plate-de { margin-left: 0; width: 100%; }
+}

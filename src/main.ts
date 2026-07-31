@@ -12,6 +12,7 @@ import '@fontsource/source-serif-4/400-italic.css'
 import '@fontsource/jetbrains-mono/400.css'
 import '@fontsource/jetbrains-mono/500.css'
 import './styles/tokens.css'
+import './styles/modules.css'
 
 // Apply theme synchronously to avoid a flash of incorrect mode (FOUC).
 // Reads the same storage key as src/composables/useTheme.ts.
