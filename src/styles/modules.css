@@ -93,6 +93,9 @@
   line-height: 1.28;
   text-wrap: pretty;
 }
+/* Gap-fill and article drills put a whole sentence on the stage rather than a short
+   phrase, so they need the smaller of the two ramps the pre-import runners used. */
+.drill-sentence.is-compact { font-size: clamp(20px, 6vw, 28px); }
 /* .drill-gap and .type-row are NOT declared here — the design's own versions
    (.drill-gap.no, min-width 2.6em, italic; a .type-row .input variant keyed to
    the generic .input class) are superseded by §3's canonical bodies, which
@@ -103,6 +106,12 @@
 
 .choice-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 28px 0 0; }
 .choice-row.quad { display: grid; grid-template-columns: 1fr 1fr; }
+/* A 2x2 grid of German compounds does not fit a phone; the pre-import runners all
+   collapsed it and the design source never covered this width. */
+@media (max-width: 560px) { .choice-row.quad { grid-template-columns: 1fr; } }
+/* Answered choices stop inviting a click. The design gates hover on
+   [aria-disabled], but the runners also mark the answered row with .disabled. */
+.choice.disabled { cursor: default; }
 .choice {
   flex: 1 1 140px;
   min-width: 120px;
@@ -160,6 +169,31 @@
 .reveal-b strong { color: var(--ink); }
 .reveal-b code { font-family: var(--font-mono); font-size: 13px; background: var(--paper-deep); padding: 1px 4px; border-radius: 2px; }
 
+/* Reveal variants the runners genuinely need. The design source only ships .reveal
+   and .is-wrong, but the app's da-compounds drills tint the reveal per preposition
+   (the "Preposition color" memory anchor), and several drills carry a trailing rule
+   note or a corrected-form line. Declared here rather than scoped per file, which is
+   how they existed before this import. */
+.reveal.is-prep { border-left-color: var(--prep-accent); background: var(--prep-wash); }
+.reveal-note { font-style: italic; color: var(--mute); margin: 0 0 8px; }
+.reveal-note.is-accent { font-family: var(--font-body); font-size: 13px; color: var(--accent); }
+.reveal-b.is-divided { padding-bottom: 8px; border-bottom: 1px dotted var(--hairline); }
+.reveal-fix {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  padding-top: 8px;
+  border-top: 1px dotted var(--hairline);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+/* The struck-through wrong form and the corrected one, side by side. */
+.reveal-fix s { color: var(--danger); }
+.reveal-fix strong { color: var(--success); }
+
 /* ══════════════════════════════════════════════════════════════════════════
    §3 — Hoisted canonical bodies (quoted verbatim from the migration reference's
    "Canonical CSS bodies to hoist" block — extracted byte-identical from the
@@ -205,6 +239,9 @@
 .drill-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
 .drill-prompt { text-align: center; padding: 20px 0 8px; border-bottom: 1px solid var(--hairline); margin-bottom: 20px; }
 .drill-instruction { margin: 0 0 10px; }
+/* The drills whose stage has no centred .drill-prompt above it (both assembly
+   runners, dialogue, paraphrase) centre their own task line instead. */
+.drill-instruction.is-centered { margin: 0 0 16px; text-align: center; }
 .drill-feedback { margin-top: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .drill-advance { margin-top: 16px; }
 .drill-hint { margin-top: 20px; text-align: center; color: var(--mute); min-height: 16px; }
@@ -273,6 +310,8 @@
 .prep-input-wrap { display: flex; gap: 12px; align-items: flex-end; margin-top: 36px; }
 .prep-input { flex: 1; text-align: left; font-size: 19px; font-family: inherit; resize: vertical; border: 0; border-bottom: 2px solid var(--rule); padding: 8px 0; background: transparent; }
 .prep-input:focus { border-bottom-color: var(--accent); outline: none; }
+.prep-input.ok  { color: var(--success); border-bottom-color: var(--success); }
+.prep-input.err { color: var(--danger);  border-bottom-color: var(--danger); }
 .prep-feedback { margin-top: 18px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
 .prep-feedback-mark { font-family: var(--font-display); font-style: italic; font-size: 17px; }
 .prep-feedback-ok { color: var(--success); }
