@@ -210,7 +210,7 @@ function restart() {
       <div
         v-for="(q, i) in questions"
         :key="i"
-        class="result-row pp-result-row"
+        class="result-row drill-result-row is-prep"
         :style="prepColorStyle(q.colloc.preposition)"
       >
         <div class="result-word">
@@ -227,7 +227,7 @@ function restart() {
             <span v-if="!q.korrelatOk" class="result-correct">→ <strong>{{ q.answer.korrelat }}</strong></span>
           </span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -249,7 +249,7 @@ function restart() {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="pp-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Card {{ questionIndex + 1 }} · of {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'dacompounds-paraphrase' })">End drill</button>
@@ -259,8 +259,8 @@ function restart() {
         <div v-for="(cls, n) in pips" :key="n" class="pip" :class="cls" />
       </div>
 
-      <div class="pp-prompt">
-        <p class="micro-mark sub-instruction">Fill both gaps — same idea, two ways.</p>
+      <div class="drill-prompt">
+        <p class="micro-mark drill-instruction is-centered">Fill both gaps — same idea, two ways.</p>
 
         <p class="pp-line pp-noun">
           <span class="pp-pre">{{ nounSplit.pre }}</span>
@@ -315,32 +315,31 @@ function restart() {
       </div>
 
       <!-- Feedback after answering -->
-      <div v-if="submitted" class="sub-feedback">
-        <span v-if="current.isCorrect" class="sub-feedback-mark sub-feedback-ok">
+      <div v-if="submitted" class="drill-feedback">
+        <span v-if="current.isCorrect" class="feedback-line correct">
           ✓ Richtig
         </span>
         <template v-else>
-          <span class="sub-feedback-mark sub-feedback-bad">✗ Nicht ganz richtig</span>
-          <div class="sub-reveal" :style="prepColorStyle(current.colloc.preposition)">
-            <div class="sub-reveal-line">
+          <span class="feedback-line wrong">✗ Nicht ganz richtig</span>
+          <div class="reveal is-prep" :style="prepColorStyle(current.colloc.preposition)">
+            <div class="reveal-l">
               <strong class="prep-accent-text">{{ current.colloc.word }}</strong>
               · <span class="prep-accent-text">{{ current.colloc.preposition }}</span>
             </div>
-            <div class="sub-reveal-explanation">{{ current.colloc.coreIdeaExplanation }}</div>
+            <div class="reveal-b">{{ current.colloc.coreIdeaExplanation }}</div>
           </div>
         </template>
         <button
           ref="nextBtnRef"
           type="button"
-          class="btn btn-accent"
-          style="margin-top: 16px;"
+          class="btn btn-accent drill-advance"
           @click="next"
         >
           {{ questionIndex + 1 >= total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div class="sub-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!submitted && !isMobile">Fill both gaps and press Enter</template>
         <template v-else-if="!submitted">Fill both gaps</template>
         <template v-else-if="submitted">
@@ -352,24 +351,6 @@ function restart() {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-.pp-stage {
-  max-width: 640px;
-  margin: 0 auto;
-  outline: none;
-}
-.pp-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
-
-.pp-prompt {
-  padding: 20px 0 8px;
-  border-bottom: 1px solid var(--hairline);
-  margin-bottom: 20px;
-}
-.sub-instruction { margin: 0 0 16px; text-align: center; }
-
 .pp-line {
   font-family: var(--font-display);
   font-style: italic;
@@ -420,63 +401,7 @@ function restart() {
   margin-top: 8px;
 }
 
-/* Feedback + reveal (shared visual language with other T-series runners) */
-.sub-feedback {
-  margin-top: 24px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.sub-feedback-mark {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
-}
-.sub-feedback-ok  { color: var(--success); }
-.sub-feedback-bad { color: var(--danger); }
-
-.sub-reveal {
-  margin-top: 8px;
-  width: 100%;
-  border-left: 3px solid var(--prep-accent);
-  background: var(--prep-wash);
-  border-radius: 0 3px 3px 0;
-  padding: 12px 16px;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.sub-reveal-line {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.prep-accent-text { color: var(--prep-accent); font-weight: 600; }
-.sub-reveal-explanation {
-  font-family: var(--font-body);
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: var(--ink);
-}
-
-.sub-hint { margin-top: 20px; text-align: center; color: var(--mute); min-height: 16px; }
-
-/* Result list */
-.pp-result-row { grid-template-columns: 180px 1fr auto; background: var(--prep-wash); align-items: center; padding: 14px 16px; }
-.result-word-meta {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--mute);
-  margin-top: 2px;
-  font-weight: 400;
-}
+/* Result list — bespoke two-slot layout inside the shared .drill-result-row. */
 .pp-result-answer {
   display: flex;
   flex-direction: column;
@@ -490,36 +415,11 @@ function restart() {
   gap: 8px;
   flex-wrap: wrap;
 }
-.result-correct { color: var(--success); }
-.result-explanation {
-  grid-column: 1 / -1;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: var(--ink);
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dotted var(--hairline);
-}
-.ok  { color: var(--success); }
-.err { color: var(--danger); }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
 
-/* Phone-first */
+/* Phone-first: this drill's own tweak beyond the shared .drill-result-row breakpoint
+   (the result row's answer cell already carries .result-answer, so the canonical
+   grid-area: answer rule in modules.css applies to it without any override here). */
 @media (max-width: 720px) {
-  .pp-result-row {
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "word verdict" "answer answer" "expl expl";
-    gap: 8px 12px;
-    align-items: start;
-  }
-  .pp-result-row .result-word { grid-area: word; }
-  .pp-result-row .pp-result-answer { grid-area: answer; }
-  .pp-result-row > div:nth-child(3) { grid-area: verdict; align-self: start; }
-  .pp-result-row .result-explanation { grid-area: expl; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
   .pp-gap-input { min-width: 70px; }
 }
 </style>

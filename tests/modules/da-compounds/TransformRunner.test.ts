@@ -38,24 +38,24 @@ async function mountRunner(query: Record<string, string> = {}) {
 describe('TransformRunner — pick mode smoke tests', () => {
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1', mode: 'pick' })
-    expect(wrapper.find('.sub-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('bolds the exact object substring within the sentence', async () => {
     const { wrapper } = await mountRunner({ count: '1', mode: 'pick' })
-    const bolded = wrapper.find('.sub-object')
+    const bolded = wrapper.find('.drill-object')
     expect(bolded.exists()).toBe(true)
     expect(bolded.text().length).toBeGreaterThan(0)
     // the bolded phrase must be an exact substring of the full sentence stem
-    const stem = wrapper.find('.sub-stem').text()
+    const stem = wrapper.find('.drill-sentence').text()
     expect(stem).toContain(bolded.text())
     wrapper.unmount()
   })
 
   it('renders 2 or 3 option buttons, one of which is the answer', async () => {
     const { wrapper } = await mountRunner({ count: '1', mode: 'pick' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons.length).toBeGreaterThanOrEqual(2)
     expect(buttons.length).toBeLessThanOrEqual(3)
     wrapper.unmount()
@@ -63,18 +63,18 @@ describe('TransformRunner — pick mode smoke tests', () => {
 
   it('reveals feedback after clicking an option', async () => {
     const { wrapper } = await mountRunner({ count: '1', mode: 'pick' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     await buttons[0].trigger('click')
-    expect(wrapper.find('.sub-feedback').exists()).toBe(true)
+    expect(wrapper.find('.drill-feedback').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('names the kind + explanation in the reveal on a wrong answer', async () => {
     const { wrapper } = await mountRunner({ count: '1', mode: 'type' })
-    await wrapper.find('.sub-type-input').setValue('completely-wrong-xyz')
+    await wrapper.find('.type-input').setValue('completely-wrong-xyz')
     const submit = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
     await submit!.trigger('click')
-    const reveal = wrapper.find('.sub-reveal')
+    const reveal = wrapper.find('.reveal')
     expect(reveal.exists()).toBe(true)
     expect(reveal.text()).toMatch(/Sache|Person/)
     wrapper.unmount()
@@ -84,8 +84,8 @@ describe('TransformRunner — pick mode smoke tests', () => {
 describe('TransformRunner — type mode smoke tests', () => {
   it('renders a text input and submit button instead of option buttons', async () => {
     const { wrapper } = await mountRunner({ count: '1', mode: 'type' })
-    expect(wrapper.find('.sub-type-input').exists()).toBe(true)
-    expect(wrapper.find('.sub-choice').exists()).toBe(false)
+    expect(wrapper.find('.type-input').exists()).toBe(true)
+    expect(wrapper.find('.choice').exists()).toBe(false)
     wrapper.unmount()
   })
 })
@@ -94,7 +94,7 @@ describe('TransformRunner — history recording (ADR-0010)', () => {
   beforeEach(() => { vi.mocked(saveQuizRun).mockClear() })
 
   async function completeOneCardWrong(wrapper: Awaited<ReturnType<typeof mountRunner>>['wrapper']) {
-    await wrapper.find('.sub-type-input').setValue('completely-wrong-xyz')
+    await wrapper.find('.type-input').setValue('completely-wrong-xyz')
     const submit = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
     await submit!.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))

@@ -58,7 +58,7 @@ describe('CompoundRunner — pick mode', () => {
   it('renders a scene diagram and exactly 4 option buttons', async () => {
     const { wrapper } = await mountRunner(PICK_QUERY)
     expect(wrapper.find('.scene-diagram').exists()).toBe(true)
-    expect(wrapper.findAll('.cp-choice').length).toBe(4)
+    expect(wrapper.findAll('.choice').length).toBe(4)
     wrapper.unmount()
   })
 })
@@ -78,8 +78,8 @@ describe('CompoundRunner — pick mode history recording (ADR-0010)', () => {
   afterEach(() => { randomSpy.mockRestore() })
 
   async function completeOneCardWrong(wrapper: VueWrapper) {
-    const buttons = wrapper.findAll('.cp-choice')
-    const wrongBtn = buttons.find(b => b.find('.cp-choice-label').text() !== SAMPLED_ANSWER)
+    const buttons = wrapper.findAll('.choice')
+    const wrongBtn = buttons.find(b => b.find('.c-label').text() !== SAMPLED_ANSWER)
     await wrongBtn!.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
     await finish!.trigger('click')
@@ -121,11 +121,11 @@ describe('CompoundRunner — reveal content (always shown, win or lose)', () => 
 
   it('shows the filled sentence, translation, and r-form note after a wrong pick', async () => {
     const { wrapper } = await mountRunner(PICK_QUERY)
-    const buttons = wrapper.findAll('.cp-choice')
-    const wrongBtn = buttons.find(b => b.find('.cp-choice-label').text() !== SAMPLED_ANSWER)
+    const buttons = wrapper.findAll('.choice')
+    const wrongBtn = buttons.find(b => b.find('.c-label').text() !== SAMPLED_ANSWER)
     await wrongBtn!.trigger('click')
 
-    const feedback = wrapper.find('.cp-feedback')
+    const feedback = wrapper.find('.drill-feedback')
     expect(feedback.exists()).toBe(true)
     expect(feedback.text()).toContain(SAMPLED_FILLED)
     expect(feedback.text()).toContain(SAMPLED.translation)
@@ -135,11 +135,11 @@ describe('CompoundRunner — reveal content (always shown, win or lose)', () => 
 
   it('shows the filled sentence, translation, and r-form note after a correct pick', async () => {
     const { wrapper } = await mountRunner(PICK_QUERY)
-    const buttons = wrapper.findAll('.cp-choice')
-    const correctBtn = buttons.find(b => b.find('.cp-choice-label').text() === SAMPLED_ANSWER)
+    const buttons = wrapper.findAll('.choice')
+    const correctBtn = buttons.find(b => b.find('.c-label').text() === SAMPLED_ANSWER)
     await correctBtn!.trigger('click')
 
-    const feedback = wrapper.find('.cp-feedback')
+    const feedback = wrapper.find('.drill-feedback')
     expect(feedback.exists()).toBe(true)
     expect(feedback.text()).toContain(SAMPLED_FILLED)
     expect(feedback.text()).toContain(SAMPLED.translation)
@@ -158,7 +158,7 @@ describe('CompoundRunner — type mode', () => {
 
   it('renders a text input instead of option buttons', () => {
     expect(wrapper.find('input').exists()).toBe(true)
-    expect(wrapper.findAll('.cp-choice').length).toBe(0)
+    expect(wrapper.findAll('.choice').length).toBe(0)
   })
 
   it('shows "Korrekt:" feedback after submitting a wrong value, and records meta.mode "type"', async () => {

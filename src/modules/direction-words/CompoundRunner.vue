@@ -254,7 +254,7 @@ function resultGiven(q: DirectionQuestion): string {
       <div
         v-for="(q, i) in questions"
         :key="i"
-        class="result-row cp-result-row"
+        class="result-row drill-result-row"
       >
         <div class="result-verb">
           <div class="german">{{ resultBefore(q) }}<strong>{{ q.answers[0] }}</strong>{{ resultAfter(q) }}</div>
@@ -267,7 +267,7 @@ function resultGiven(q: DirectionQuestion): string {
             → <strong>{{ q.answers[0] }}</strong>
           </span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -288,7 +288,7 @@ function resultGiven(q: DirectionQuestion): string {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="cp-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Satz {{ questionIndex + 1 }} · von {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'directionwords-compounds' })">End drill</button>
@@ -301,19 +301,19 @@ function resultGiven(q: DirectionQuestion): string {
       <SceneDiagram :scene="current.scene!" class="cp-scene" />
 
       <!-- Prompt card -->
-      <div class="cp-prompt">
-        <p class="cp-sentence">
-          <template v-for="(part, i) in promptParts" :key="i">{{ part }}<span v-if="i < promptParts.length - 1" class="gap">___</span></template>
+      <div class="drill-prompt">
+        <p class="drill-sentence">
+          <template v-for="(part, i) in promptParts" :key="i">{{ part }}<span v-if="i < promptParts.length - 1" class="drill-gap">___</span></template>
         </p>
       </div>
 
       <!-- Pick mode: 4 option buttons -->
-      <div v-if="modeUsed === 'pick'" class="cp-picker-grid">
+      <div v-if="modeUsed === 'pick'" class="choice-row quad">
         <button
           v-for="(opt, oi) in current.options"
           :key="opt"
           type="button"
-          class="cp-choice"
+          class="choice mono-face"
           :class="{
             selected: current.picked === opt,
             correct: submitted && current.answers.includes(opt),
@@ -323,17 +323,17 @@ function resultGiven(q: DirectionQuestion): string {
           :disabled="submitted"
           @click="pick(opt)"
         >
-          <span class="cp-choice-key">{{ oi + 1 }}</span>
-          <span class="cp-choice-label">{{ opt }}</span>
+          <span class="c-key">{{ oi + 1 }}</span>
+          <span class="c-label">{{ opt }}</span>
         </button>
       </div>
 
       <!-- Type mode: text input + submit -->
-      <div v-else class="cp-type-row">
+      <div v-else class="type-row">
         <input
           ref="textInputRef"
           v-model="typedInput"
-          class="input cp-type-input"
+          class="input type-input"
           type="text"
           placeholder="hin- oder her-Kompositum"
           :readonly="submitted"
@@ -351,11 +351,11 @@ function resultGiven(q: DirectionQuestion): string {
       <!-- Feedback after answering — always reveals the filled sentence, translation,
            and the r-form note (revealNote): r-forms are never accepted as answers, so
            the reveal is where that distinction gets taught, win or lose. -->
-      <div v-if="submitted" class="cp-feedback">
-        <span v-if="currentIsCorrect" class="cp-feedback-mark cp-feedback-ok">
+      <div v-if="submitted" class="drill-feedback">
+        <span v-if="currentIsCorrect" class="feedback-line correct">
           ✓ Richtig — <strong>{{ current.answers[0] }}</strong>
         </span>
-        <span v-else class="cp-feedback-mark cp-feedback-bad">
+        <span v-else class="feedback-line wrong">
           ✗ Korrekt: <strong>{{ current.answers[0] }}</strong>
         </span>
         <p class="cp-filled">{{ filledSentence }}</p>
@@ -364,15 +364,14 @@ function resultGiven(q: DirectionQuestion): string {
         <button
           ref="nextBtnRef"
           type="button"
-          class="btn btn-accent"
-          style="margin-top: 16px;"
+          class="btn btn-accent drill-advance"
           @click="next"
         >
           {{ questionIndex + 1 >= total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div class="cp-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!submitted && modeUsed === 'pick' && !isMobile">
           Press <span class="kbd">1</span>–<span class="kbd">{{ current.options.length }}</span> to choose
         </template>
@@ -386,125 +385,15 @@ function resultGiven(q: DirectionQuestion): string {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-.cp-stage {
-  max-width: 640px;
-  margin: 0 auto;
-  outline: none;
-}
-.cp-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
-
 .cp-scene {
   max-width: 340px;
   margin: 20px auto 0;
 }
 
-.cp-prompt {
-  text-align: center;
-  padding: 20px 0 8px;
-}
-.cp-sentence {
-  font-family: var(--font-display);
-  font-size: clamp(20px, 5vw, 28px);
-  line-height: 1.5;
-  color: var(--ink);
-}
-.gap {
-  display: inline-block;
-  min-width: 2.5em;
-  border-bottom: 2px solid var(--accent);
-  color: var(--accent);
-  font-weight: 500;
-}
+/* Type mode needs its own top gap — the shared .choice-row supplies one via
+   margin, but plain .type-row does not. */
+.type-row { margin-top: 16px; }
 
-.cp-picker-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 16px;
-}
-@media (max-width: 560px) {
-  .cp-picker-grid { grid-template-columns: 1fr; }
-}
-
-.cp-choice {
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: 18px 14px;
-  min-height: 56px;
-  cursor: pointer;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 15px;
-  letter-spacing: 0.06em;
-  color: var(--ink-soft);
-  text-align: left;
-}
-.cp-choice:not(:disabled):hover {
-  border-color: var(--accent);
-  color: var(--ink);
-  background: var(--accent-wash);
-}
-.cp-choice.selected { border-color: var(--accent); color: var(--accent); }
-.cp-choice.correct  { border-color: var(--success); color: var(--success); background: var(--success-tint); }
-.cp-choice.wrong    { border-color: var(--danger);  color: var(--danger);  background: var(--danger-tint); }
-.cp-choice.disabled { cursor: default; }
-
-.cp-choice-key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 4px;
-  font-size: 11px;
-  letter-spacing: 0;
-  color: var(--mute);
-  border: 1px solid var(--hairline);
-  border-radius: 2px;
-  background: var(--paper);
-  flex-shrink: 0;
-}
-.cp-choice.correct .cp-choice-key { border-color: var(--success); color: var(--success); }
-.cp-choice.wrong   .cp-choice-key { border-color: var(--danger);  color: var(--danger); }
-
-/* Type mode */
-.cp-type-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 16px;
-}
-.cp-type-input {
-  flex: 1;
-  font-family: var(--font-display);
-  font-size: 18px;
-}
-.cp-type-input.ok { color: var(--success); border-bottom-color: var(--success); }
-.cp-type-input.err { color: var(--danger); border-bottom-color: var(--danger); }
-
-.cp-feedback {
-  margin-top: 24px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.cp-feedback-mark {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
-}
-.cp-feedback-ok  { color: var(--success); }
-.cp-feedback-bad { color: var(--danger); }
 .cp-filled {
   font-family: var(--font-body);
   font-size: 15px;
@@ -526,30 +415,12 @@ function resultGiven(q: DirectionQuestion): string {
   margin: 4px 0 0;
 }
 
-.cp-hint { margin-top: 20px; text-align: center; color: var(--mute); min-height: 16px; }
+/* Result list — this drill's first column flexes with the German sentence
+   instead of the shared vocabulary's fixed 180px, and the mobile layout keeps
+   a simple single-column stack rather than the canonical named grid areas. */
+.drill-result-row { grid-template-columns: 1fr 160px auto; }
 
-/* Result list */
-.cp-result-row { grid-template-columns: 1fr 160px auto; }
-.result-answer {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.result-correct { color: var(--success); }
-.ok  { color: var(--success); }
-.err { color: var(--danger); }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
-
-/* Phone-first */
 @media (max-width: 720px) {
-  .cp-result-row { grid-template-columns: 1fr; gap: 4px; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
-  .cp-type-row { flex-direction: column; align-items: stretch; }
-  .cp-type-row .btn { justify-content: center; }
+  .drill-result-row { grid-template-columns: 1fr; gap: 4px; }
 }
 </style>

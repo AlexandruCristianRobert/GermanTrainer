@@ -38,13 +38,13 @@ async function mountRunner(query: Record<string, string> = {}) {
 describe('FormationRunner — smoke tests', () => {
   it('renders the quiz stage with a preposition', async () => {
     const { wrapper } = await mountRunner({ count: '1', traps: '0' })
-    expect(wrapper.find('.fr-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('shows three choice buttons', async () => {
     const { wrapper } = await mountRunner({ count: '1', traps: '0' })
-    const buttons = wrapper.findAll('.fr-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons).toHaveLength(3)
     wrapper.unmount()
   })
@@ -52,9 +52,9 @@ describe('FormationRunner — smoke tests', () => {
   it('reveals feedback after clicking a wrong choice', async () => {
     const { wrapper } = await mountRunner({ count: '1', traps: '0' })
     // 'none' is guaranteed wrong for any of the 19 compoundable prepositions.
-    const noneBtn = wrapper.findAll('.fr-choice').find(b => b.find('.fr-choice-label').text() === 'keine Bildung')
+    const noneBtn = wrapper.findAll('.choice').find(b => b.find('.c-label').text() === 'keine Bildung')
     await noneBtn!.trigger('click')
-    expect(wrapper.find('.fr-feedback').exists()).toBe(true)
+    expect(wrapper.find('.drill-feedback').exists()).toBe(true)
     wrapper.unmount()
   })
 })
@@ -63,7 +63,7 @@ describe('FormationRunner — history recording (ADR-0010)', () => {
   beforeEach(() => { vi.mocked(saveQuizRun).mockClear() })
 
   async function completeOneCardWrong(wrapper: Awaited<ReturnType<typeof mountRunner>>['wrapper']) {
-    const noneBtn = wrapper.findAll('.fr-choice').find(b => b.find('.fr-choice-label').text() === 'keine Bildung')
+    const noneBtn = wrapper.findAll('.choice').find(b => b.find('.c-label').text() === 'keine Bildung')
     await noneBtn!.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
     await finish!.trigger('click')

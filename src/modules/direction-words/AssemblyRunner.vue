@@ -196,7 +196,7 @@ function restart() {
       <div
         v-for="(q, i) in questions"
         :key="i"
-        class="result-row asm-result-row"
+        class="result-row drill-result-row"
       >
         <div class="result-word">
           <div class="german">{{ dwAssemblySentence(q.item) }}</div>
@@ -205,7 +205,7 @@ function restart() {
         <div class="result-answer">
           <span class="asm-result-translation">{{ q.item.translation }}</span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -226,7 +226,7 @@ function restart() {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="asm-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Card {{ questionIndex + 1 }} · of {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'directionwords-assembly' })">End drill</button>
@@ -236,8 +236,8 @@ function restart() {
         <div v-for="(cls, n) in pips" :key="n" class="pip" :class="cls" />
       </div>
 
-      <div class="asm-prompt">
-        <p class="micro-mark sub-instruction">Tap the tiles into the right order.</p>
+      <div class="drill-prompt">
+        <p class="micro-mark drill-instruction is-centered">Tap the tiles into the right order.</p>
 
         <div class="asm-pool">
           <button
@@ -272,13 +272,13 @@ function restart() {
       </div>
 
       <!-- Feedback after answering -->
-      <div v-else class="sub-feedback">
-        <span v-if="current.isCorrect" class="sub-feedback-mark sub-feedback-ok">
+      <div v-else class="drill-feedback">
+        <span v-if="current.isCorrect" class="feedback-line correct">
           ✓ Richtig
         </span>
-        <span v-else class="sub-feedback-mark sub-feedback-bad">✗ Nicht ganz richtig</span>
-        <div class="sub-reveal">
-          <div class="sub-reveal-line asm-canonical">{{ canonicalSentence }}</div>
+        <span v-else class="feedback-line wrong">✗ Nicht ganz richtig</span>
+        <div class="reveal">
+          <div class="reveal-t asm-canonical">{{ canonicalSentence }}</div>
           <div v-if="current.usedVariant" class="asm-also-correct">
             <span class="tag tag-accent">variant accepted</span> {{ usedVariantSentence }}
           </div>
@@ -287,15 +287,14 @@ function restart() {
         <button
           ref="nextBtnRef"
           type="button"
-          class="btn btn-accent"
-          style="margin-top: 16px;"
+          class="btn btn-accent drill-advance"
           @click="next"
         >
           {{ questionIndex + 1 >= total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div class="sub-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!submittedNow">Tap every tile to assemble the sentence</template>
         <template v-else>
           Press <span class="kbd">Enter</span> to {{ questionIndex + 1 >= total ? 'finish' : 'continue' }}
@@ -306,25 +305,7 @@ function restart() {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-.asm-stage {
-  max-width: 640px;
-  margin: 0 auto;
-  outline: none;
-}
-.asm-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
-
-.asm-prompt {
-  padding: 20px 0 8px;
-  border-bottom: 1px solid var(--hairline);
-  margin-bottom: 20px;
-}
-.sub-instruction { margin: 0 0 16px; text-align: center; }
-
-/* Tiles wrap into as many rows as needed — at a 390px viewport, .asm-stage's
+/* Tiles wrap into as many rows as needed — at a 390px viewport, .drill-stage's
    640px max-width is already clamped by the page container, so long pools
    wrap onto multiple rows rather than overflowing horizontally. */
 .asm-pool, .asm-assembled {
@@ -379,41 +360,10 @@ function restart() {
   margin-top: 8px;
 }
 
-/* Feedback + reveal */
-.sub-feedback {
-  margin-top: 24px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.sub-feedback-mark {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
-}
-.sub-feedback-ok  { color: var(--success); }
-.sub-feedback-bad { color: var(--danger); }
-
-.sub-reveal {
-  margin-top: 8px;
-  width: 100%;
-  border-left: 3px solid var(--accent);
-  background: var(--paper-card);
-  border-radius: 0 3px 3px 0;
-  padding: 12px 16px;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.sub-reveal-line {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 16px;
-  color: var(--ink);
-}
+/* Reveal note line + translation — .reveal-t/.asm-canonical carry the
+   canonical sentence; these two are bespoke to the "also correct" / English
+   gloss lines and use .reveal-t's own margin-bottom convention for stacking
+   now that .reveal is a plain block (no flex/gap). */
 .asm-also-correct {
   display: flex;
   align-items: center;
@@ -422,6 +372,7 @@ function restart() {
   font-family: var(--font-mono);
   font-size: 12.5px;
   color: var(--ink-soft);
+  margin: 0 0 8px;
 }
 .asm-translation {
   margin: 0;
@@ -431,39 +382,26 @@ function restart() {
   color: var(--ink-soft);
 }
 
-.sub-hint { margin-top: 20px; text-align: center; color: var(--mute); min-height: 16px; }
-
 /* Result list */
-.asm-result-row { grid-template-columns: minmax(0, 1fr) 1fr auto; background: var(--paper-card); align-items: center; padding: 14px 16px; }
-.result-word-meta {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--mute);
-  margin-top: 2px;
-  font-weight: 400;
-}
 .asm-result-translation {
   font-family: var(--font-body);
   font-size: 13.5px;
   color: var(--ink-soft);
 }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
 
-/* Phone-first: tiles stay ≥44px and wrap comfortably at narrow widths. */
+/* Genuine variant: this drill's first result-row cell holds a full assembled
+   German sentence, not a single word, so it needs a flexible first column
+   instead of the shared fixed 180px. Gated to the same breakpoint as
+   modules.css's own .drill-result-row mobile rule — a scoped selector's
+   added specificity (the data-v attribute) would otherwise beat that rule's
+   grid-template-columns even under 720px, since specificity comparison
+   ignores which side is wrapped in a media query. */
+@media (min-width: 721px) {
+  .drill-result-row { grid-template-columns: minmax(0, 1fr) 1fr auto; }
+}
+
+/* Phone-first: this drill's own tweak beyond the shared .drill-result-row breakpoint. */
 @media (max-width: 720px) {
-  .asm-result-row {
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "word verdict" "answer answer";
-    gap: 8px 12px;
-    align-items: start;
-  }
-  .asm-result-row .result-word { grid-area: word; }
-  .asm-result-row .result-answer { grid-area: answer; }
-  .asm-result-row > div:nth-child(3) { grid-area: verdict; align-self: start; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
   .asm-tile { padding: 8px 12px; font-size: 14px; }
 }
 </style>

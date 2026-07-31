@@ -49,7 +49,7 @@ async function mountRunner(query: Record<string, string> = {}) {
 }
 
 async function submit(wrapper: VueWrapper, text: string) {
-  await wrapper.find('.sub-type-input').setValue(text)
+  await wrapper.find('.type-input').setValue(text)
   const submitBtn = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
   await submitBtn!.trigger('click')
 }
@@ -59,22 +59,22 @@ describe('ArticleFillRunner — smoke tests', () => {
 
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.sub-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('renders a single text input (no pick options) whose placeholder shows the gap stub', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    const input = wrapper.find('.sub-type-input')
+    const input = wrapper.find('.type-input')
     expect(input.exists()).toBe(true)
-    expect(wrapper.find('.sub-choice').exists()).toBe(false)
+    expect(wrapper.find('.choice').exists()).toBe(false)
     expect(['d___', 'ein___']).toContain(input.attributes('placeholder'))
     wrapper.unmount()
   })
 
   it('renders the gapped sentence with the whole d___/ein___ token replaced by a single blank', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    const stem = wrapper.find('.sub-stem').text()
+    const stem = wrapper.find('.drill-sentence').text()
     expect(stem).not.toContain('d___')
     expect(stem).not.toContain('ein___')
     wrapper.unmount()
@@ -83,7 +83,7 @@ describe('ArticleFillRunner — smoke tests', () => {
   it('reveals feedback after submitting', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, 'xyz-completely-wrong')
-    expect(wrapper.find('.sub-feedback').exists()).toBe(true)
+    expect(wrapper.find('.drill-feedback').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -91,7 +91,7 @@ describe('ArticleFillRunner — smoke tests', () => {
     const first = filterArticleItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, articleFillAnswer(first.item))
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -109,7 +109,7 @@ describe('ArticleFillRunner — reveal teaches the case + rule (wrong answers)',
     expect(first.item.id).toBe('af-denken-an')
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, 'totally-wrong')
-    const reveal = wrapper.find('.sub-reveal')
+    const reveal = wrapper.find('.reveal')
     expect(reveal.exists()).toBe(true)
     expect(reveal.text()).toContain('Akkusativ')
     expect(reveal.text()).toContain('Präpositionalobjekt')

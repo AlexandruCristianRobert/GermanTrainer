@@ -56,7 +56,7 @@ describe('ContrastRunner — smoke tests', () => {
 
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.sub-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -64,7 +64,7 @@ describe('ContrastRunner — smoke tests', () => {
     const first = filterContrastItems({})[0]
     const set = setByKey.get(first.contrastKey)!
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons).toHaveLength(set.options.length)
     for (const opt of set.options) {
       expect(buttons.some(b => b.text().includes(opt.preposition))).toBe(true)
@@ -75,10 +75,10 @@ describe('ContrastRunner — smoke tests', () => {
   it('shows success feedback when the correct preposition is picked', async () => {
     const first = filterContrastItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const correctBtn = buttons.find(b => b.text().includes(first.correct))!
     await correctBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -87,10 +87,10 @@ describe('ContrastRunner — smoke tests', () => {
     const set = setByKey.get(first.contrastKey)!
     const wrongOpt = set.options.find(o => o.preposition !== first.correct)!
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(wrongOpt.preposition))!
     await wrongBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -98,11 +98,11 @@ describe('ContrastRunner — smoke tests', () => {
     const first = filterContrastItems({})[0]
     const set = setByKey.get(first.contrastKey)!
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongOpt = set.options.find(o => o.preposition !== first.correct)!
     const wrongBtn = buttons.find(b => b.text().includes(wrongOpt.preposition))!
     await wrongBtn.trigger('click')
-    const revealText = wrapper.find('.sub-reveal').text()
+    const revealText = wrapper.find('.reveal').text()
     for (const opt of set.options) {
       expect(revealText).toContain(opt.sense)
     }
@@ -113,10 +113,10 @@ describe('ContrastRunner — smoke tests', () => {
     const first = filterContrastItems({})[0]
     const set = setByKey.get(first.contrastKey)!
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const correctBtn = buttons.find(b => b.text().includes(first.correct))!
     await correctBtn.trigger('click')
-    const revealText = wrapper.find('.sub-reveal').text()
+    const revealText = wrapper.find('.reveal').text()
     for (const opt of set.options) {
       expect(revealText).toContain(opt.sense)
     }
@@ -128,10 +128,10 @@ describe('ContrastRunner — smoke tests', () => {
     const set = setByKey.get(first.contrastKey)!
     const wrongOpt = set.options.find(o => o.preposition !== first.correct)!
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(wrongOpt.preposition))!
     await wrongBtn.trigger('click')
-    const correctBtn = wrapper.findAll('.sub-choice').find(b => b.text().includes(first.correct))!
+    const correctBtn = wrapper.findAll('.choice').find(b => b.text().includes(first.correct))!
     expect(correctBtn.classes()).toContain('correct')
     expect(wrongBtn.classes()).toContain('wrong')
     wrapper.unmount()
@@ -150,7 +150,7 @@ describe('ContrastRunner — history recording (ADR-0010)', () => {
   async function completeOneCard(wrapper: VueWrapper, correct: boolean) {
     const first = filterContrastItems({ levels: ['B1'] })[0]
     const set = setByKey.get(first.contrastKey)!
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const btn = correct
       ? buttons.find(b => b.text().includes(first.correct))!
       : buttons.find(b => b.text().includes(set.options.find(o => o.preposition !== first.correct)!.preposition))!

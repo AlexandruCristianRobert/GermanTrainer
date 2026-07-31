@@ -66,7 +66,7 @@ describe('DialogueRunner — smoke tests', () => {
 
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.dlg-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -103,7 +103,7 @@ describe('DialogueRunner — smoke tests', () => {
   it('reveals feedback after submitting', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, 'xyz-wrong', 'xyz-wrong-too')
-    expect(wrapper.find('.sub-feedback').exists()).toBe(true)
+    expect(wrapper.find('.drill-feedback').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -112,8 +112,8 @@ describe('DialogueRunner — smoke tests', () => {
     const { wo, da } = dialogueAnswers(first.item)
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, wo, da)
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
-    expect(wrapper.find('.sub-reveal').exists()).toBe(false)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
+    expect(wrapper.find('.reveal').exists()).toBe(false)
     wrapper.unmount()
   })
 
@@ -122,10 +122,10 @@ describe('DialogueRunner — smoke tests', () => {
     const { da } = dialogueAnswers(first.item)
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, 'totally-wrong', da)
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     expect(wrapper.find('.ok-mark').exists()).toBe(true) // the correct (da) slot
     expect(wrapper.find('.dlg-expected').exists()).toBe(true) // the wrong (wo) slot
-    const reveal = wrapper.find('.sub-reveal')
+    const reveal = wrapper.find('.reveal')
     expect(reveal.exists()).toBe(true)
     expect(reveal.text()).toContain(first.colloc.coreIdeaExplanation)
     wrapper.unmount()

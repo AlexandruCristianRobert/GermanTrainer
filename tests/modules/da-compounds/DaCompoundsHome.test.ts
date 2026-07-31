@@ -2,6 +2,8 @@ import { describe, it, expect, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import DaCompoundsHome from '../../../src/modules/da-compounds/DaCompoundsHome.vue'
+import { DAC_PHASES } from '../../../src/data/drillCatalogue'
+import { NO_COMPOUND_PREPOSITIONS } from '../../../src/data/daCompounds'
 
 async function mountHome() {
   const router = createRouter({
@@ -36,6 +38,10 @@ async function mountHome() {
   return { wrapper, router }
 }
 
+// Every card in the catalogue, flattened with its expected route — the
+// authoritative facts this suite pins instead of positional group/card counts.
+const ALL_CARDS = DAC_PHASES.flatMap(p => p.cards.map(c => ({ ...c, phaseId: p.id })))
+
 describe('DaCompoundsHome', () => {
   afterEach(() => {
     localStorage.clear()
@@ -46,7 +52,7 @@ describe('DaCompoundsHome', () => {
     expect(wrapper.find('.weak-card').exists()).toBe(false)
   })
 
-  it('shows the weak-points panel above the drill groups when dac-sentence runs have misses', async () => {
+  it('shows the weak-points panel in the marginalia when dac-sentence runs have misses', async () => {
     localStorage.setItem('gt:quizHistory', JSON.stringify([{
       id: 1, type: 'dac-sentence', startedAt: '', finishedAt: '', durationMs: 0, count: 2, correct: 0,
       meta: {
@@ -57,243 +63,173 @@ describe('DaCompoundsHome', () => {
       }
     }]))
     const { wrapper } = await mountHome()
-    const panel = wrapper.find('.weak-card')
+    const panel = wrapper.find('.dac-marg .weak-card')
     expect(panel.exists()).toBe(true)
     expect(panel.text()).toContain('warten')
     expect(panel.text()).toContain('auf')
   })
 
-  it('renders the module header, the Formation basics, Compound recall, Case tests, People vs things, Korrelat & meaning, Sentence translation, Production, Advanced traps, and Reference groups', async () => {
+  it('renders the module header', async () => {
     const { wrapper } = await mountHome()
     expect(wrapper.find('.section-title').text()).toContain('Da-Compounds')
-    const headings = wrapper.findAll('.group-heading').map(h => h.text())
-    expect(headings[0]).toContain('Formation basics')
-    expect(headings[1]).toContain('Compound recall')
-    expect(headings[2]).toContain('Case tests')
-    expect(headings[3]).toContain('People vs things')
-    expect(headings[4]).toContain('Korrelat & meaning')
-    expect(headings[5]).toContain('Sentence translation')
-    expect(headings[6]).toContain('Production')
-    expect(headings[7]).toContain('Advanced traps')
-    expect(headings[8]).toContain('Reference')
   })
 
-  it('shows the T18 homograph card in the new Advanced traps group and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[7]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[0].text()).toContain('Homographs')
-    await groupCards[0].trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-homograph')
+  it('renders one phase group per DAC_PHASES entry, in order, when sorted Lehrgang', async () => {
+    const { wrapper } = await mountHome()
+    const phaseHeadings = wrapper.findAll('.dac-phase-t').map(h => h.text())
+    expect(phaseHeadings).toEqual(DAC_PHASES.map(p => p.heading))
   })
 
-  it('shows the T19 register card in the Advanced traps group right after T18 and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[7]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[1].text()).toContain('Register')
-    await groupCards[1].trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-register')
+  it('renders exactly 21 drill rows across the 9 phases', async () => {
+    const { wrapper } = await mountHome()
+    const rows = wrapper.findAll('.dac-lrow')
+    expect(rows).toHaveLength(21)
+    expect(ALL_CARDS).toHaveLength(21)
   })
 
-  it('shows the T20 relative-clause card in the Advanced traps group right after T19 and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[7]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[2].text()).toContain('Relative clauses')
-    await groupCards[2].trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-relative')
+  it('every row is a real <button> element', async () => {
+    const { wrapper } = await mountHome()
+    const rows = wrapper.findAll('.dac-lrow')
+    for (const row of rows) {
+      expect(row.element.tagName).toBe('BUTTON')
+    }
   })
 
-  it('shows the T16 and T17 cards in the Production group and navigates to T16 on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[6]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(2)
-    expect(groupCards[0].text()).toContain('Sentence assembly')
-    expect(groupCards[1].text()).toContain('Answer the question')
-    await groupCards[0].trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-assembly')
-  })
+  it.each(ALL_CARDS.filter(c => !c.query).map(c => [c.code, c.title, c.route] as const))(
+    'card %s (%s) pushes route %s on click',
+    async (code, _title, route) => {
+      const { wrapper, router } = await mountHome()
+      const row = wrapper.findAll('.dac-lrow').find(r => r.find('.dac-num').text() === code)
+      expect(row, `row for ${code} not found`).toBeTruthy()
+      await row!.trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe(route)
+    },
+  )
 
-  it('shows the T17 answer-the-question card right after T16 and navigates to it on click', async () => {
+  it('T14 and T15 push the same route with different ?direction= queries', async () => {
     const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[6]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards[1].text()).toContain('Answer the question')
-    await groupCards[1].trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-answer')
-  })
+    const rows = wrapper.findAll('.dac-lrow')
+    const t14 = rows.find(r => r.find('.dac-num').text() === 'T14')
+    const t15 = rows.find(r => r.find('.dac-num').text() === 'T15')
+    expect(t14).toBeTruthy()
+    expect(t15).toBeTruthy()
 
-  it('shows the T14 and T15 sentence-translation cards in the new Sentence translation group and navigates with a direction query', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[5]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(2)
-    expect(groupCards[0].text()).toContain('Translate EN→DE')
-    expect(groupCards[1].text()).toContain('Translate DE→EN')
-
-    await groupCards[0].trigger('click')
+    await t14!.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('dacompounds-sentence')
     expect(router.currentRoute.value.query.direction).toBe('en-de')
-  })
 
-  it('navigates the T15 card with direction=de-en', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[5]
-    const groupCards = group.findAll('.module-card')
-    await groupCards[1].trigger('click')
+    await t15!.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('dacompounds-sentence')
     expect(router.currentRoute.value.query.direction).toBe('de-en')
   })
 
-  it('shows the T11 Korrelat card in the Korrelat & meaning group and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[4]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[0].text()).toContain('Korrelat')
-    await groupCards[0].trigger('click')
+  it('the search box filters rows by title/German/description/code and updates the count', async () => {
+    const { wrapper } = await mountHome()
+    expect(wrapper.find('.dac-count').text()).toContain('21 von 21')
+
+    const input = wrapper.find('.dac-search input')
+    await input.setValue('Homograph')
     await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-korrelat')
+
+    expect(wrapper.find('.dac-count').text()).toContain('1 von 21')
+    expect(wrapper.findAll('.dac-lrow')).toHaveLength(1)
+    expect(wrapper.find('.dac-lrow').text()).toContain('Homographs')
   })
 
-  it('shows the T12 paraphrase card in the Korrelat & meaning group right after T11 and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[4]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[1].text()).toContain('Paraphrase')
-    await groupCards[1].trigger('click')
+  it('matches on drill code too, and clearing the search restores all 21 rows', async () => {
+    const { wrapper } = await mountHome()
+    const input = wrapper.find('.dac-search input')
+
+    await input.setValue('T14')
     await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-paraphrase')
+    expect(wrapper.findAll('.dac-lrow')).toHaveLength(1)
+
+    await input.setValue('')
+    await flushPromises()
+    expect(wrapper.findAll('.dac-lrow')).toHaveLength(21)
+    expect(wrapper.find('.dac-count').text()).toContain('21 von 21')
   })
 
-  it('shows the T13 meaning-contrast card in the Korrelat & meaning group right after T12 and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[4]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[2].text()).toContain('Meaning contrast')
-    await groupCards[2].trigger('click')
+  it('shows the empty state with a working clear-search action when nothing matches', async () => {
+    const { wrapper } = await mountHome()
+    const input = wrapper.find('.dac-search input')
+    await input.setValue('nonexistent-drill-xyz')
     await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-contrast')
+
+    expect(wrapper.find('.dac-empty').exists()).toBe(true)
+    expect(wrapper.findAll('.dac-lrow')).toHaveLength(0)
+
+    await wrapper.find('.dac-empty button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.dac-empty').exists()).toBe(false)
+    expect(wrapper.findAll('.dac-lrow')).toHaveLength(21)
   })
 
-  it('shows the T8 transform card in the People vs things group and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[3]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[0].text()).toContain('Thing or person?')
-    await groupCards[0].trigger('click')
+  it('the sort toggle groups all rows under one synthetic "weakest first" phase', async () => {
+    const { wrapper } = await mountHome()
+    const weakButton = wrapper.findAll('.dac-sort button').find(b => b.text() === 'Schwächste')
+    expect(weakButton).toBeTruthy()
+
+    await weakButton!.trigger('click')
     await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-transform')
+
+    const phases = wrapper.findAll('.dac-phase')
+    expect(phases).toHaveLength(1)
+    expect(wrapper.find('.dac-phase-t').text()).toBe('Weakest first')
+    expect(wrapper.findAll('.dac-lrow')).toHaveLength(21)
+    expect(weakButton!.classes()).toContain('active')
   })
 
-  it('shows the T9 wo-question card in the People vs things group right after T8 and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[3]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[1].text()).toContain('Wo-questions')
-    await groupCards[1].trigger('click')
+  it('the masthead "sort weakest first" button also switches the sort mode', async () => {
+    const { wrapper } = await mountHome()
+    const bars = wrapper.findAll('.dac-bars .dac-bar')
+    expect(bars.length).toBeGreaterThan(0)
+    expect(bars.length).toBeLessThanOrEqual(3)
+
+    const sortButton = wrapper.findAll('.dac-mh-side button').find(b => b.text().includes('Sort weakest first'))
+    expect(sortButton).toBeTruthy()
+    await sortButton!.trigger('click')
     await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-wo-question')
+
+    expect(wrapper.find('.dac-phase-t').text()).toBe('Weakest first')
   })
 
-  it('shows the T10 dialogue card in the People vs things group right after T9 and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const group = wrapper.findAll('.module-grid')[3]
-    const groupCards = group.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[2].text()).toContain('Dialogue')
-    await groupCards[2].trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-dialogue')
+  it('mounts the live formation formula widget in the masthead', async () => {
+    const { wrapper } = await mountHome()
+    expect(wrapper.find('.dac-formula').exists()).toBe(true)
+    expect(wrapper.find('.dac-sum-num').exists()).toBe(true)
   })
 
-  it('shows the T5 case-pick card in the Case tests group and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const cards = wrapper.findAll('.module-card')
-    const caseCard = cards.find(c => c.text().includes('Case pick'))
-    expect(caseCard).toBeTruthy()
-    await caseCard!.trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-case')
+  it('renders the untouched mastery state when history is empty: dots for drills, ref for the cheatsheet', async () => {
+    const { wrapper } = await mountHome()
+    const t1Row = wrapper.findAll('.dac-lrow').find(r => r.find('.dac-num').text() === 'T1')
+    expect(t1Row!.find('.mdot').exists()).toBe(true)
+    expect(t1Row!.find('.mdot i.on').exists()).toBe(false)
+
+    const cheatsheetRow = wrapper.findAll('.dac-lrow').find(r => r.find('.dac-num').text() === 'A')
+    expect(cheatsheetRow!.text()).toContain('ref')
   })
 
-  it('shows the T6 pronoun-case card in the Case tests group right after T5 and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const caseGroup = wrapper.findAll('.module-grid')[2]
-    const groupCards = caseGroup.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[0].text()).toContain('Case pick')
-    expect(groupCards[1].text()).toContain('Pronoun case')
-    await groupCards[1].trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-pronoun-case')
+  it('renders the marginalia keys from the real daCompounds.ts data', async () => {
+    const { wrapper } = await mountHome()
+    const nolistChips = wrapper.findAll('.dac-nolist span')
+    expect(nolistChips).toHaveLength(NO_COMPOUND_PREPOSITIONS.length)
+    expect(nolistChips.map(c => c.text())).toEqual([...NO_COMPOUND_PREPOSITIONS])
+
+    expect(wrapper.findAll('.dac-krow')).toHaveLength(3)
+    expect(wrapper.find('.dac-vs').text()).toContain('Sache')
+    expect(wrapper.find('.dac-vs').text()).toContain('Person')
   })
 
-  it('shows the T7 article-fill card in the Case tests group right after T6 and navigates on click', async () => {
+  it('still shows the cheatsheet row in the Reference phase and navigates to it on click', async () => {
     const { wrapper, router } = await mountHome()
-    const caseGroup = wrapper.findAll('.module-grid')[2]
-    const groupCards = caseGroup.findAll('.module-card')
-    expect(groupCards).toHaveLength(3)
-    expect(groupCards[2].text()).toContain('Article fill')
-    await groupCards[2].trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-article')
-  })
-
-  it('shows the T3 and T4 cards in the Compound recall group and navigates on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const cards = wrapper.findAll('.module-card')
-    const gapFillCard = cards.find(c => c.text().includes('Gap-fill'))
-    const neighborsCard = cards.find(c => c.text().includes('Near neighbors'))
-    expect(gapFillCard).toBeTruthy()
-    expect(neighborsCard).toBeTruthy()
-    await gapFillCard!.trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-substitution')
-  })
-
-  it('shows the T1 formation card first and navigates to it on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const card = wrapper.find('.module-card')
-    expect(card.text()).toContain('da- or dar-?')
-    await card.trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-formation')
-  })
-
-  it('shows the T2 matching card right after T1 in Formation basics and navigates to it on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const groupCards = wrapper.findAll('.module-grid')[0].findAll('.module-card')
-    expect(groupCards).toHaveLength(2)
-    expect(groupCards[0].text()).toContain('da- or dar-?')
-    expect(groupCards[1].text()).toContain('Matching')
-    await groupCards[1].trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('dacompounds-match')
-  })
-
-  it('still shows the cheatsheet card in the Reference group and navigates to it on click', async () => {
-    const { wrapper, router } = await mountHome()
-    const cards = wrapper.findAll('.module-card')
-    const cheatsheetCard = cards.find(c => c.text().includes('Cheatsheet'))
-    expect(cheatsheetCard).toBeTruthy()
-    await cheatsheetCard!.trigger('click')
+    const cheatsheetRow = wrapper.findAll('.dac-lrow').find(r => r.text().includes('Cheatsheet'))
+    expect(cheatsheetRow).toBeTruthy()
+    await cheatsheetRow!.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('dacompounds-cheatsheet')
   })

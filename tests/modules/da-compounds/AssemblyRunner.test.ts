@@ -76,7 +76,7 @@ describe('AssemblyRunner — smoke tests', () => {
 
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.asm-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -128,10 +128,10 @@ describe('AssemblyRunner — smoke tests', () => {
     const canonicalOrder = FIRST.item.tiles.map((_, i) => i)
     await placeInOrder(wrapper, canonicalOrder)
     await submit(wrapper)
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     expect(wrapper.find('.asm-canonical').text()).toBe(assemblySentence(FIRST.item))
     expect(wrapper.find('.asm-also-correct').exists()).toBe(false)
-    expect(wrapper.find('.sub-reveal-explanation').exists()).toBe(false)
+    expect(wrapper.find('.reveal-b').exists()).toBe(false)
     wrapper.unmount()
   })
 
@@ -141,7 +141,7 @@ describe('AssemblyRunner — smoke tests', () => {
     const { wrapper } = await mountRunner({ count: '1' })
     await placeInOrder(wrapper, variant)
     await submit(wrapper)
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     expect(wrapper.find('.asm-canonical').text()).toBe(assemblySentence(FIRST.item))
     const note = wrapper.find('.asm-also-correct')
     expect(note.exists()).toBe(true)
@@ -155,9 +155,9 @@ describe('AssemblyRunner — smoke tests', () => {
     const reversed = FIRST.item.tiles.map((_, i) => i).reverse()
     await placeInOrder(wrapper, reversed)
     await submit(wrapper)
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     expect(wrapper.find('.asm-canonical').text()).toBe(assemblySentence(FIRST.item))
-    expect(wrapper.find('.sub-reveal-explanation').text()).toBe(FIRST.colloc.coreIdeaExplanation)
+    expect(wrapper.find('.reveal-b').text()).toBe(FIRST.colloc.coreIdeaExplanation)
     wrapper.unmount()
   })
 

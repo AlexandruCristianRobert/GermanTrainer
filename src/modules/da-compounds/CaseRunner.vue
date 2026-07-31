@@ -211,7 +211,7 @@ function caseName(c: CollocationCase): string {
       <div
         v-for="(q, i) in questions"
         :key="i"
-        class="result-row case-result-row"
+        class="result-row drill-result-row is-prep"
         :style="prepColorStyle(q.colloc.preposition)"
       >
         <div class="result-word">
@@ -222,7 +222,7 @@ function caseName(c: CollocationCase): string {
           <span class="result-picked" :class="q.isCorrect ? 'ok' : 'err'">{{ q.picked ? caseName(q.picked) : '—' }}</span>
           <span v-if="!q.isCorrect" class="result-correct">→ <strong>{{ caseName(q.colloc.case) }}</strong></span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -244,7 +244,7 @@ function caseName(c: CollocationCase): string {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="case-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Card {{ questionIndex + 1 }} · of {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'dacompounds-case' })">End drill</button>
@@ -255,8 +255,8 @@ function caseName(c: CollocationCase): string {
       </div>
 
       <!-- Prompt: the sentence already filled with the da-compound (bolded) -->
-      <div class="case-prompt">
-        <p class="case-sentence">
+      <div class="drill-prompt">
+        <p class="drill-sentence">
           {{ current.sentence.pre }}<strong
             class="case-compound"
             :class="{ 'prep-accent-text': submitted }"
@@ -266,15 +266,15 @@ function caseName(c: CollocationCase): string {
       </div>
 
       <!-- Case buttons -->
-      <div class="case-buttons">
+      <div class="choice-row">
         <button
           v-for="c in (['accusative', 'dative'] as CollocationCase[])"
           :key="c"
-          class="btn case-btn"
+          class="choice mono-face"
           :class="{
-            'case-selected': current.picked === c,
-            'case-correct': submitted && current.acceptedCases.includes(c),
-            'case-wrong': submitted && current.picked === c && !current.acceptedCases.includes(c),
+            selected: current.picked === c,
+            correct: submitted && current.acceptedCases.includes(c),
+            wrong: submitted && current.picked === c && !current.acceptedCases.includes(c),
           }"
           :disabled="submitted"
           type="button"
@@ -283,33 +283,32 @@ function caseName(c: CollocationCase): string {
       </div>
 
       <!-- Feedback after answering -->
-      <div v-if="submitted" class="case-feedback">
-        <span v-if="current.isCorrect" class="case-feedback-mark case-feedback-ok">
+      <div v-if="submitted" class="drill-feedback">
+        <span v-if="current.isCorrect" class="feedback-line correct">
           ✓ Richtig — <strong>{{ caseName(current.picked!) }}</strong>
         </span>
         <template v-else>
-          <span class="case-feedback-mark case-feedback-bad">✗ Korrekt: <strong>{{ caseName(current.colloc.case) }}</strong></span>
-          <div class="case-reveal" :style="prepColorStyle(current.colloc.preposition)">
-            <div class="case-reveal-line">
+          <span class="feedback-line wrong">✗ Korrekt: <strong>{{ caseName(current.colloc.case) }}</strong></span>
+          <div class="reveal is-prep" :style="prepColorStyle(current.colloc.preposition)">
+            <div class="reveal-l">
               <strong class="prep-accent-text">{{ current.colloc.word }}</strong>
               · <span class="prep-accent-text">{{ current.colloc.preposition }}</span>
               · {{ caseName(current.colloc.case) }}
             </div>
-            <div class="case-reveal-explanation">{{ current.colloc.coreIdeaExplanation }}</div>
+            <div class="reveal-b">{{ current.colloc.coreIdeaExplanation }}</div>
           </div>
         </template>
         <button
           ref="nextBtnRef"
           type="button"
-          class="btn btn-accent"
-          style="margin-top: 16px;"
+          class="btn btn-accent drill-advance"
           @click="next"
         >
           {{ questionIndex + 1 >= total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div class="case-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!submitted && !isMobile">
           Press <span class="kbd">1</span> / <span class="kbd">2</span> to choose
         </template>
@@ -323,165 +322,5 @@ function caseName(c: CollocationCase): string {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-.case-stage {
-  max-width: 640px;
-  margin: 0 auto;
-  outline: none;
-}
-.case-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
-
-.case-prompt {
-  text-align: center;
-  padding: 24px 0;
-  border-bottom: 1px solid var(--hairline);
-  margin-bottom: 24px;
-}
-.case-sentence {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(20px, 6vw, 28px);
-  color: var(--ink);
-  margin: 0;
-}
 .case-compound { font-style: normal; color: var(--ink); }
-.case-compound.prep-accent-text { color: var(--prep-accent); }
-
-/* Case buttons — mirrors CollocationsRunner.vue's case-button markup */
-.case-buttons {
-  display: flex;
-  gap: 10px;
-}
-.case-btn {
-  flex: 1;
-  min-width: 100px;
-  text-align: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 16px;
-  border: 1px solid var(--rule);
-  background: transparent;
-  color: var(--ink);
-  padding: 16px;
-  cursor: pointer;
-  transition: background 0.1s, color 0.1s;
-}
-.case-btn:hover:not(:disabled) {
-  background: var(--paper-card);
-  border-color: var(--ink);
-}
-.case-selected {
-  background: var(--ink) !important;
-  color: var(--paper) !important;
-  border-color: var(--ink) !important;
-}
-.case-correct {
-  background: var(--success-tint, #d4edda) !important;
-  color: var(--success) !important;
-  border-color: var(--success) !important;
-}
-.case-wrong {
-  background: var(--danger-tint, #f8d7da) !important;
-  color: var(--danger) !important;
-  border-color: var(--danger) !important;
-}
-
-/* Feedback + reveal */
-.case-feedback {
-  margin-top: 24px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.case-feedback-mark {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
-}
-.case-feedback-ok  { color: var(--success); }
-.case-feedback-bad { color: var(--danger); }
-
-.case-reveal {
-  margin-top: 8px;
-  width: 100%;
-  border-left: 3px solid var(--prep-accent);
-  background: var(--prep-wash);
-  border-radius: 0 3px 3px 0;
-  padding: 12px 16px;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.case-reveal-line {
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.prep-accent-text { color: var(--prep-accent); font-weight: 600; }
-.case-reveal-explanation {
-  font-family: var(--font-body);
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: var(--ink);
-}
-
-.case-hint { margin-top: 20px; text-align: center; color: var(--mute); min-height: 16px; }
-
-/* Result list */
-.case-result-row { grid-template-columns: 180px 1fr auto; background: var(--prep-wash); align-items: center; padding: 14px 16px; }
-.result-word-meta {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--mute);
-  margin-top: 2px;
-  font-weight: 400;
-}
-.result-answer {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.result-correct { color: var(--success); }
-.result-explanation {
-  grid-column: 1 / -1;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: var(--ink);
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dotted var(--hairline);
-}
-.ok  { color: var(--success); }
-.err { color: var(--danger); }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
-
-/* Phone-first */
-@media (max-width: 720px) {
-  .case-result-row {
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "word verdict" "answer answer" "expl expl";
-    gap: 8px 12px;
-    align-items: start;
-  }
-  .case-result-row .result-word { grid-area: word; }
-  .case-result-row .result-answer { grid-area: answer; }
-  .case-result-row > div:nth-child(3) { grid-area: verdict; align-self: start; }
-  .case-result-row .result-explanation { grid-area: expl; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
-
-  .case-buttons { flex-direction: column; }
-  .case-btn { padding: 16px 8px; font-size: 17px; }
-}
 </style>

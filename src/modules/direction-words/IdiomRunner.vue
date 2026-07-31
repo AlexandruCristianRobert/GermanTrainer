@@ -243,14 +243,14 @@ function restart() {
       <div
         v-for="({ q, parts }, i) in resultRows"
         :key="i"
-        class="result-row im-result-row"
+        class="result-row drill-result-row"
       >
         <div class="result-sentence">{{ parts.before }}<strong>{{ parts.filled }}</strong>{{ parts.after }}</div>
         <div class="result-answer">
           <span class="result-picked" :class="q.isCorrect ? 'ok' : 'err'">{{ q.picked || '—' }}</span>
           <span v-if="!q.isCorrect" class="result-correct">→ <strong>{{ q.item.answer }}</strong></span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -272,7 +272,7 @@ function restart() {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="im-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Card {{ questionIndex + 1 }} · of {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'directionwords-idioms' })">End drill</button>
@@ -283,21 +283,21 @@ function restart() {
       </div>
 
       <!-- Prompt: the sentence with its single ___ gap -->
-      <div class="im-prompt">
-        <p class="micro-mark im-instruction">Welche Wendung passt in die Lücke?</p>
+      <div class="drill-prompt">
+        <p class="micro-mark drill-instruction">Welche Wendung passt in die Lücke?</p>
         <p class="im-sentence"><template
           v-for="(part, pi) in promptParts"
           :key="pi"
-        >{{ part }}<span v-if="pi < promptParts.length - 1" class="gap">___</span></template></p>
+        >{{ part }}<span v-if="pi < promptParts.length - 1" class="drill-gap">___</span></template></p>
       </div>
 
       <!-- Pick mode: the item's 3–4 idiom surfaces -->
-      <div class="im-picker-grid">
+      <div class="choice-row quad">
         <button
           v-for="(opt, oi) in current.options"
           :key="opt"
           type="button"
-          class="im-choice"
+          class="choice mono-face"
           :class="{
             selected: current.picked === opt,
             correct: submitted && opt === current.item.answer,
@@ -307,36 +307,35 @@ function restart() {
           :disabled="submitted"
           @click="pick(opt)"
         >
-          <span class="im-choice-key">{{ oi + 1 }}</span>
-          <span class="im-choice-label">{{ opt }}</span>
+          <span class="c-key">{{ oi + 1 }}</span>
+          <span class="c-label">{{ opt }}</span>
         </button>
       </div>
 
       <!-- Feedback after answering — the filled sentence and the explanation
            always show, right or wrong. -->
-      <div v-if="submitted" class="im-feedback">
-        <span v-if="current.isCorrect" class="im-feedback-mark im-feedback-ok">
+      <div v-if="submitted" class="drill-feedback">
+        <span v-if="current.isCorrect" class="feedback-line correct">
           ✓ Richtig — <strong>{{ current.item.answer }}</strong>
         </span>
-        <span v-else class="im-feedback-mark im-feedback-bad">
+        <span v-else class="feedback-line wrong">
           ✗ Falsch — richtig: <strong>{{ current.item.answer }}</strong>
         </span>
-        <div class="im-reveal">
+        <div class="reveal">
           <p class="im-filled">{{ filledParts.before }}<strong>{{ filledParts.filled }}</strong>{{ filledParts.after }}</p>
           <p class="im-explanation">{{ current.item.explanation }}</p>
         </div>
         <button
           ref="nextBtnRef"
           type="button"
-          class="btn btn-accent"
-          style="margin-top: 16px;"
+          class="btn btn-accent drill-advance"
           @click="next"
         >
           {{ questionIndex + 1 >= total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div class="im-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!submitted && !isMobile">
           Press <span class="kbd">1</span>–<span class="kbd">{{ current.options.length }}</span> to choose
         </template>
@@ -350,24 +349,10 @@ function restart() {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-.im-stage {
-  max-width: 640px;
-  margin: 0 auto;
-  outline: none;
-}
-.im-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
-
-.im-prompt {
-  text-align: center;
-  padding: 20px 0 8px;
-  border-bottom: 1px solid var(--hairline);
-  margin-bottom: 20px;
-}
-.im-instruction { margin: 0 0 10px; }
+/* .im-sentence is kept bespoke rather than renamed to .drill-sentence — the
+   shared class is much larger/bolder (clamp(26px,3.2vw,40px), weight 500) and
+   this card pairs the sentence with an instruction line above it, so it stays
+   at its original, more compact size. */
 .im-sentence {
   font-family: var(--font-display);
   font-size: clamp(19px, 5.6vw, 26px);
@@ -375,98 +360,18 @@ function restart() {
   color: var(--ink);
   margin: 0 0 14px;
 }
-/* The module's gap treatment (CompoundRunner.vue) */
-.gap {
-  display: inline-block;
-  min-width: 2.5em;
-  border-bottom: 2px solid var(--accent);
-  color: var(--accent);
-  font-weight: 500;
-}
 
-/* Pick mode — two columns on desktop, one thumb-friendly column on phones */
-.im-picker-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-@media (max-width: 560px) {
-  .im-picker-grid { grid-template-columns: 1fr; }
-}
-
-.im-choice {
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: 16px 14px;
-  min-height: 52px;
-  cursor: pointer;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 14.5px;
-  letter-spacing: 0.04em;
-  color: var(--ink-soft);
-  text-align: left;
-}
-.im-choice:not(:disabled):hover {
-  border-color: var(--accent);
-  color: var(--ink);
-  background: var(--accent-wash);
-}
-.im-choice.selected { border-color: var(--accent); color: var(--accent); }
-.im-choice.correct  { border-color: var(--success); color: var(--success); background: var(--success-tint); }
-.im-choice.wrong    { border-color: var(--danger);  color: var(--danger);  background: var(--danger-tint); }
-.im-choice.disabled { cursor: default; }
-
-.im-choice-key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 4px;
-  font-size: 11px;
-  letter-spacing: 0;
-  color: var(--mute);
-  border: 1px solid var(--hairline);
-  border-radius: 2px;
-  background: var(--paper);
-  flex-shrink: 0;
-}
-.im-choice.correct .im-choice-key { border-color: var(--success); color: var(--success); }
-.im-choice.wrong   .im-choice-key { border-color: var(--danger);  color: var(--danger); }
-
-/* Feedback + reveal */
-.im-feedback {
-  margin-top: 24px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.im-feedback-mark {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
-}
-.im-feedback-ok  { color: var(--success); }
-.im-feedback-bad { color: var(--danger); }
-
-.im-reveal {
-  margin-top: 8px;
+/* This drill's reveal stacks the filled sentence and its explanation with a
+   fixed gap — the shared .reveal box doesn't declare a layout for multiple
+   children (and the surrounding .drill-feedback centres text/shrinks width,
+   so left-align + width:100% must be reasserted here), so that structure
+   stays local. */
+.reveal {
   width: 100%;
-  border-left: 3px solid var(--accent);
-  background: var(--paper-card);
-  border-radius: 0 3px 3px 0;
-  padding: 12px 16px;
-  text-align: left;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  text-align: left;
 }
 .im-filled {
   margin: 0;
@@ -487,10 +392,10 @@ function restart() {
   color: var(--ink);
 }
 
-.im-hint { margin-top: 20px; text-align: center; color: var(--mute); min-height: 16px; }
-
-/* Result list */
-.im-result-row { grid-template-columns: minmax(0, 1fr) 200px auto; background: var(--paper-card); align-items: baseline; padding: 14px 16px; }
+/* Result list — the sentence occupies the first column instead of the shared
+   vocabulary's "word" cell, so both the desktop width and the mobile named
+   grid areas stay a local override. */
+.drill-result-row { grid-template-columns: minmax(0, 1fr) 200px auto; align-items: baseline; }
 .result-sentence {
   font-family: var(--font-display);
   font-style: italic;
@@ -499,43 +404,14 @@ function restart() {
   color: var(--ink-soft);
 }
 .result-sentence strong { font-style: normal; color: var(--ink); }
-.result-answer {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.result-correct { color: var(--success); }
-.result-explanation {
-  grid-column: 1 / -1;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: var(--ink);
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dotted var(--hairline);
-}
-.ok  { color: var(--success); }
-.err { color: var(--danger); }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
 
-/* Phone-first */
 @media (max-width: 720px) {
-  .im-result-row {
+  .drill-result-row {
     grid-template-columns: 1fr auto;
     grid-template-areas: "sentence verdict" "answer answer" "expl expl";
     gap: 8px 12px;
     align-items: start;
   }
-  .im-result-row .result-sentence { grid-area: sentence; }
-  .im-result-row .result-answer { grid-area: answer; }
-  .im-result-row > div:nth-child(3) { grid-area: verdict; align-self: start; }
-  .im-result-row .result-explanation { grid-area: expl; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
+  .drill-result-row .result-sentence { grid-area: sentence; }
 }
 </style>

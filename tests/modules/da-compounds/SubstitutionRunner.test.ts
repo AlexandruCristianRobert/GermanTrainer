@@ -38,25 +38,25 @@ async function mountRunner(query: Record<string, string> = {}) {
 describe('SubstitutionRunner — pick mode smoke tests', () => {
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1', mode: 'pick' })
-    expect(wrapper.find('.sub-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('renders 4 option buttons', async () => {
     const { wrapper } = await mountRunner({ count: '1', mode: 'pick' })
-    expect(wrapper.findAll('.sub-choice')).toHaveLength(4)
+    expect(wrapper.findAll('.choice')).toHaveLength(4)
     wrapper.unmount()
   })
 
   it('reveals feedback after clicking a wrong option (deterministic via seeded shuffle)', async () => {
     const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0)
     const { wrapper } = await mountRunner({ count: '1', mode: 'pick' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     // With Math.random pinned to 0, the identity-preserving shuffle leaves the answer
     // in options[0]; options[1] is therefore a guaranteed-wrong distractor.
     await buttons[1].trigger('click')
-    expect(wrapper.find('.sub-feedback').exists()).toBe(true)
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.drill-feedback').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     randomSpy.mockRestore()
     wrapper.unmount()
   })
@@ -65,8 +65,8 @@ describe('SubstitutionRunner — pick mode smoke tests', () => {
 describe('SubstitutionRunner — type mode smoke tests', () => {
   it('renders a text input and submit button instead of option buttons', async () => {
     const { wrapper } = await mountRunner({ count: '1', mode: 'type' })
-    expect(wrapper.find('.sub-type-input').exists()).toBe(true)
-    expect(wrapper.find('.sub-choice').exists()).toBe(false)
+    expect(wrapper.find('.type-input').exists()).toBe(true)
+    expect(wrapper.find('.choice').exists()).toBe(false)
     wrapper.unmount()
   })
 })
@@ -75,7 +75,7 @@ describe('SubstitutionRunner — history recording (ADR-0010)', () => {
   beforeEach(() => { vi.mocked(saveQuizRun).mockClear() })
 
   async function completeOneCardWrong(wrapper: Awaited<ReturnType<typeof mountRunner>>['wrapper']) {
-    await wrapper.find('.sub-type-input').setValue('completely-wrong-xyz')
+    await wrapper.find('.type-input').setValue('completely-wrong-xyz')
     const submit = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
     await submit!.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))

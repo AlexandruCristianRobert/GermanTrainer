@@ -214,7 +214,7 @@ function restart() {
       <div
         v-for="(q, i) in questions"
         :key="i"
-        class="result-row sub-result-row"
+        class="result-row drill-result-row"
       >
         <div class="result-word">
           <div class="german">{{ q.item.word }}</div>
@@ -224,7 +224,7 @@ function restart() {
           <span class="result-picked" :class="q.isCorrect ? 'ok' : 'err'">{{ labelFor(q, q.picked) || '—' }}</span>
           <span v-if="!q.isCorrect" class="result-correct">→ <strong>{{ labelFor(q, q.item.reading) }}</strong></span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -246,7 +246,7 @@ function restart() {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="sub-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Card {{ questionIndex + 1 }} · of {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'dacompounds-homograph' })">End drill</button>
@@ -257,20 +257,20 @@ function restart() {
       </div>
 
       <!-- Prompt: the sentence, with the ambiguous word bolded -->
-      <div class="sub-prompt">
-        <p class="micro-mark sub-instruction">Welche Lesart hat <strong>{{ current.item.word }}</strong> hier?</p>
-        <p class="sub-stem">
+      <div class="drill-prompt">
+        <p class="micro-mark drill-instruction">Welche Lesart hat <strong>{{ current.item.word }}</strong> hier?</p>
+        <p class="drill-sentence">
           {{ sentenceParts!.pre }}<strong>{{ sentenceParts!.match }}</strong>{{ sentenceParts!.post }}
         </p>
       </div>
 
       <!-- Pick mode: two option buttons — compound reading vs. connector/adverb reading -->
-      <div class="sub-picker-grid">
+      <div class="choice-row">
         <button
           v-for="(opt, oi) in current.options"
           :key="opt.reading"
           type="button"
-          class="sub-choice"
+          class="choice"
           :class="{
             selected: current.picked === opt.reading,
             correct: submitted && opt.reading === current.item.reading,
@@ -280,21 +280,21 @@ function restart() {
           :disabled="submitted"
           @click="pick(opt.reading)"
         >
-          <span class="sub-choice-key">{{ oi + 1 }}</span>
-          <span class="sub-choice-label">{{ opt.label }}</span>
+          <span class="c-key">{{ oi + 1 }}</span>
+          <span class="c-label">{{ opt.label }}</span>
         </button>
       </div>
 
       <!-- Feedback after answering — explanation + BOTH labels always show, right or wrong -->
-      <div v-if="submitted" class="sub-feedback">
-        <span v-if="current.isCorrect" class="sub-feedback-mark sub-feedback-ok">
+      <div v-if="submitted" class="drill-feedback">
+        <span v-if="current.isCorrect" class="feedback-line correct">
           ✓ Richtig
         </span>
-        <span v-else class="sub-feedback-mark sub-feedback-bad">
+        <span v-else class="feedback-line wrong">
           ✗ Falsch — richtig: <strong>{{ labelFor(current, current.item.reading) }}</strong>
         </span>
-        <div class="sub-reveal">
-          <p class="sub-reveal-explanation">{{ current.item.explanation }}</p>
+        <div class="reveal">
+          <p class="reveal-b">{{ current.item.explanation }}</p>
           <div
             v-for="opt in current.options"
             :key="opt.reading"
@@ -308,15 +308,14 @@ function restart() {
         <button
           ref="nextBtnRef"
           type="button"
-          class="btn btn-accent"
-          style="margin-top: 16px;"
+          class="btn btn-accent drill-advance"
           @click="next"
         >
           {{ questionIndex + 1 >= total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div class="sub-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!submitted && !isMobile">
           Press <span class="kbd">1</span>–<span class="kbd">{{ current.options.length }}</span> to choose
         </template>
@@ -330,125 +329,16 @@ function restart() {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+/* Result row: the word column here is a single word, narrower than the shared
+   180px default declared on .drill-result-row in modules.css. */
+.drill-result-row { grid-template-columns: 100px 1fr auto; }
 
-.sub-stage {
-  max-width: 640px;
-  margin: 0 auto;
-  outline: none;
-}
-.sub-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
+/* The ambiguous word bolded inside the sentence — modules.css' .drill-sentence
+   isn't italic to begin with, so only the accent color is a live change now;
+   kept because .drill-sentence strong isn't declared anywhere shared. */
+.drill-sentence strong { font-style: normal; color: var(--accent); }
 
-.sub-prompt {
-  text-align: center;
-  padding: 20px 0 8px;
-  border-bottom: 1px solid var(--hairline);
-  margin-bottom: 20px;
-}
-.sub-instruction { margin: 0 0 10px; }
-.sub-stem {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(19px, 5.6vw, 26px);
-  color: var(--ink);
-  margin: 0 0 18px;
-}
-.sub-stem strong { font-style: normal; color: var(--accent); }
-
-/* Pick mode — one column, thumb-friendly on phones */
-.sub-picker-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-@media (max-width: 560px) {
-  .sub-picker-grid { grid-template-columns: 1fr; }
-}
-
-.sub-choice {
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: 16px 14px;
-  min-height: 52px;
-  cursor: pointer;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-body);
-  font-size: 14.5px;
-  color: var(--ink-soft);
-  text-align: left;
-}
-.sub-choice:not(:disabled):hover {
-  border-color: var(--accent);
-  color: var(--ink);
-  background: var(--accent-wash);
-}
-.sub-choice.selected { border-color: var(--accent); color: var(--accent); }
-.sub-choice.correct  { border-color: var(--success); color: var(--success); background: var(--success-tint); }
-.sub-choice.wrong    { border-color: var(--danger);  color: var(--danger);  background: var(--danger-tint); }
-.sub-choice.disabled { cursor: default; }
-
-.sub-choice-key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 4px;
-  font-size: 11px;
-  letter-spacing: 0;
-  color: var(--mute);
-  border: 1px solid var(--hairline);
-  border-radius: 2px;
-  background: var(--paper);
-  flex-shrink: 0;
-}
-.sub-choice.correct .sub-choice-key { border-color: var(--success); color: var(--success); }
-.sub-choice.wrong   .sub-choice-key { border-color: var(--danger);  color: var(--danger); }
-
-/* Feedback + reveal */
-.sub-feedback {
-  margin-top: 24px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.sub-feedback-mark {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
-}
-.sub-feedback-ok  { color: var(--success); }
-.sub-feedback-bad { color: var(--danger); }
-
-.sub-reveal {
-  margin-top: 8px;
-  width: 100%;
-  border-left: 3px solid var(--accent);
-  background: var(--paper-card);
-  border-radius: 0 3px 3px 0;
-  padding: 12px 16px;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.sub-reveal-explanation {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--ink);
-  padding-bottom: 8px;
-  border-bottom: 1px dotted var(--hairline);
-}
+/* Per-drill: the reveal's always-visible per-reading sense list. */
 .contrast-sense-line {
   font-family: var(--font-body);
   font-size: 14px;
@@ -469,56 +359,4 @@ function restart() {
 .contrast-sense-line.correct .contrast-sense-prep { color: var(--success); }
 .contrast-sense-text { color: var(--ink); }
 .contrast-sense-line.correct .contrast-sense-text { color: var(--success); }
-
-.sub-hint { margin-top: 20px; text-align: center; color: var(--mute); min-height: 16px; }
-
-/* Result list */
-.sub-result-row { grid-template-columns: 100px 1fr auto; background: var(--paper-card); align-items: center; padding: 14px 16px; }
-.result-word-meta {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--mute);
-  margin-top: 2px;
-  font-weight: 400;
-}
-.result-answer {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-family: var(--font-body);
-  font-size: 13px;
-}
-.result-correct { color: var(--success); }
-.result-explanation {
-  grid-column: 1 / -1;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: var(--ink);
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dotted var(--hairline);
-}
-.ok  { color: var(--success); }
-.err { color: var(--danger); }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
-
-/* Phone-first */
-@media (max-width: 720px) {
-  .sub-result-row {
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "word verdict" "answer answer" "expl expl";
-    gap: 8px 12px;
-    align-items: start;
-  }
-  .sub-result-row .result-word { grid-area: word; }
-  .sub-result-row .result-answer { grid-area: answer; }
-  .sub-result-row > div:nth-child(3) { grid-area: verdict; align-self: start; }
-  .sub-result-row .result-explanation { grid-area: expl; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
-}
 </style>

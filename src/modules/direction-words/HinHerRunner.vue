@@ -221,7 +221,7 @@ function resultAfter(q: DirectionQuestion): string {
       <div
         v-for="(q, i) in questions"
         :key="i"
-        class="result-row hh-result-row"
+        class="result-row drill-result-row"
       >
         <div class="result-verb">
           <div class="german">{{ resultBefore(q) }}<strong>{{ q.answers[0] }}</strong>{{ resultAfter(q) }}</div>
@@ -234,7 +234,7 @@ function resultAfter(q: DirectionQuestion): string {
             → <strong>{{ q.answers[0] }}</strong>
           </span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -255,7 +255,7 @@ function resultAfter(q: DirectionQuestion): string {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="hh-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Satz {{ questionIndex + 1 }} · von {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'directionwords-hinher' })">End drill</button>
@@ -268,19 +268,19 @@ function resultAfter(q: DirectionQuestion): string {
       <SceneDiagram :scene="current.scene!" class="hh-scene" />
 
       <!-- Prompt card -->
-      <div class="hh-prompt">
-        <p class="hh-sentence">
-          <template v-for="(part, i) in promptParts" :key="i">{{ part }}<span v-if="i < promptParts.length - 1" class="gap">___</span></template>
+      <div class="drill-prompt">
+        <p class="drill-sentence">
+          <template v-for="(part, i) in promptParts" :key="i">{{ part }}<span v-if="i < promptParts.length - 1" class="drill-gap">___</span></template>
         </p>
       </div>
 
       <!-- Dynamic choice buttons: 2 (hin/her) or 3 (+ hier trap) -->
-      <div class="hh-picker-grid">
+      <div class="choice-row">
         <button
           v-for="(opt, oi) in current.options"
           :key="opt"
           type="button"
-          class="hh-choice"
+          class="choice mono-face"
           :class="{
             selected: current.picked === opt,
             correct: submitted && current.answers.includes(opt),
@@ -290,18 +290,18 @@ function resultAfter(q: DirectionQuestion): string {
           :disabled="submitted"
           @click="pick(opt)"
         >
-          <span class="hh-choice-key">{{ oi + 1 }}</span>
-          <span class="hh-choice-label">{{ opt }}</span>
+          <span class="c-key">{{ oi + 1 }}</span>
+          <span class="c-label">{{ opt }}</span>
         </button>
       </div>
 
       <!-- Feedback after pick -->
-      <div v-if="submitted" class="hh-feedback">
-        <span v-if="currentIsCorrect" class="hh-feedback-mark hh-feedback-ok">
+      <div v-if="submitted" class="drill-feedback">
+        <span v-if="currentIsCorrect" class="feedback-line correct">
           ✓ Richtig — <strong>{{ current.answers[0] }}</strong>
         </span>
         <template v-else>
-          <span class="hh-feedback-mark hh-feedback-bad">
+          <span class="feedback-line wrong">
             ✗ Korrekt: <strong>{{ current.answers[0] }}</strong>
           </span>
           <p class="hh-filled">{{ filledSentence }}</p>
@@ -311,15 +311,14 @@ function resultAfter(q: DirectionQuestion): string {
         <button
           ref="nextBtnRef"
           type="button"
-          class="btn btn-accent"
-          style="margin-top: 16px;"
+          class="btn btn-accent drill-advance"
           @click="next"
         >
           {{ questionIndex + 1 >= total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div class="hh-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!submitted && !isMobile">
           Press <span class="kbd">1</span>–<span class="kbd">{{ current.options.length }}</span> to choose
         </template>
@@ -333,107 +332,11 @@ function resultAfter(q: DirectionQuestion): string {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-.hh-stage {
-  max-width: 640px;
-  margin: 0 auto;
-  outline: none;
-}
-.hh-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
-
 .hh-scene {
   max-width: 340px;
   margin: 20px auto 0;
 }
 
-.hh-prompt {
-  text-align: center;
-  padding: 20px 0 8px;
-}
-.hh-sentence {
-  font-family: var(--font-display);
-  font-size: clamp(20px, 5vw, 28px);
-  line-height: 1.5;
-  color: var(--ink);
-}
-.gap {
-  display: inline-block;
-  min-width: 2.5em;
-  border-bottom: 2px solid var(--accent);
-  color: var(--accent);
-  font-weight: 500;
-}
-
-.hh-picker-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.hh-choice {
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: 18px 14px;
-  min-height: 56px;
-  cursor: pointer;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 15px;
-  letter-spacing: 0.06em;
-  color: var(--ink-soft);
-  text-align: left;
-}
-.hh-choice:not(:disabled):hover {
-  border-color: var(--accent);
-  color: var(--ink);
-  background: var(--accent-wash);
-}
-.hh-choice.selected { border-color: var(--accent); color: var(--accent); }
-.hh-choice.correct  { border-color: var(--success); color: var(--success); background: var(--success-tint); }
-.hh-choice.wrong    { border-color: var(--danger);  color: var(--danger);  background: var(--danger-tint); }
-.hh-choice.disabled { cursor: default; }
-
-.hh-choice-key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 4px;
-  font-size: 11px;
-  letter-spacing: 0;
-  color: var(--mute);
-  border: 1px solid var(--hairline);
-  border-radius: 2px;
-  background: var(--paper);
-  flex-shrink: 0;
-}
-.hh-choice.correct .hh-choice-key { border-color: var(--success); color: var(--success); }
-.hh-choice.wrong   .hh-choice-key { border-color: var(--danger);  color: var(--danger); }
-
-.hh-feedback {
-  margin-top: 24px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.hh-feedback-mark {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
-}
-.hh-feedback-ok  { color: var(--success); }
-.hh-feedback-bad { color: var(--danger); }
 .hh-filled {
   font-family: var(--font-body);
   font-size: 15px;
@@ -455,28 +358,12 @@ function resultAfter(q: DirectionQuestion): string {
   margin: 4px 0 0;
 }
 
-.hh-hint { margin-top: 20px; text-align: center; color: var(--mute); }
+/* Result list — this drill's first column flexes with the German sentence
+   instead of the shared vocabulary's fixed 180px, and the mobile layout keeps
+   a simple single-column stack rather than the canonical named grid areas. */
+.drill-result-row { grid-template-columns: 1fr 160px auto; }
 
-/* Result list */
-.hh-result-row { grid-template-columns: 1fr 160px auto; }
-.result-answer {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.result-correct { color: var(--success); }
-.ok  { color: var(--success); }
-.err { color: var(--danger); }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
-
-/* Phone-first */
 @media (max-width: 720px) {
-  .hh-result-row { grid-template-columns: 1fr; gap: 4px; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
+  .drill-result-row { grid-template-columns: 1fr; gap: 4px; }
 }
 </style>

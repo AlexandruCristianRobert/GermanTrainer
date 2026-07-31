@@ -54,7 +54,7 @@ describe('QuestionWordRunner — pick mode', () => {
   it('renders no scene diagram and at least 3 option buttons', async () => {
     const { wrapper } = await mountRunner(PICK_QUERY)
     expect(wrapper.find('.scene-diagram').exists()).toBe(false)
-    expect(wrapper.findAll('.qw-choice').length).toBeGreaterThanOrEqual(3)
+    expect(wrapper.findAll('.choice').length).toBeGreaterThanOrEqual(3)
     wrapper.unmount()
   })
 })
@@ -74,8 +74,8 @@ describe('QuestionWordRunner — pick mode history recording (ADR-0010)', () => 
   afterEach(() => { randomSpy.mockRestore() })
 
   async function completeOneCardWrong(wrapper: VueWrapper) {
-    const buttons = wrapper.findAll('.qw-choice')
-    const wrongBtn = buttons.find(b => b.find('.qw-choice-label').text() !== SAMPLED_ANSWER)
+    const buttons = wrapper.findAll('.choice')
+    const wrongBtn = buttons.find(b => b.find('.c-label').text() !== SAMPLED_ANSWER)
     await wrongBtn!.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
     await finish!.trigger('click')
@@ -117,11 +117,11 @@ describe('QuestionWordRunner — reveal content (always shown, win or lose)', ()
 
   it('shows the filled sentence and translation after a wrong pick', async () => {
     const { wrapper } = await mountRunner(PICK_QUERY)
-    const buttons = wrapper.findAll('.qw-choice')
-    const wrongBtn = buttons.find(b => b.find('.qw-choice-label').text() !== SAMPLED_ANSWER)
+    const buttons = wrapper.findAll('.choice')
+    const wrongBtn = buttons.find(b => b.find('.c-label').text() !== SAMPLED_ANSWER)
     await wrongBtn!.trigger('click')
 
-    const feedback = wrapper.find('.qw-feedback')
+    const feedback = wrapper.find('.drill-feedback')
     expect(feedback.exists()).toBe(true)
     expect(feedback.text()).toContain(SAMPLED_FILLED)
     expect(feedback.text()).toContain(SAMPLED.translation)
@@ -130,11 +130,11 @@ describe('QuestionWordRunner — reveal content (always shown, win or lose)', ()
 
   it('shows the filled sentence and translation after a correct pick', async () => {
     const { wrapper } = await mountRunner(PICK_QUERY)
-    const buttons = wrapper.findAll('.qw-choice')
-    const correctBtn = buttons.find(b => b.find('.qw-choice-label').text() === SAMPLED_ANSWER)
+    const buttons = wrapper.findAll('.choice')
+    const correctBtn = buttons.find(b => b.find('.c-label').text() === SAMPLED_ANSWER)
     await correctBtn!.trigger('click')
 
-    const feedback = wrapper.find('.qw-feedback')
+    const feedback = wrapper.find('.drill-feedback')
     expect(feedback.exists()).toBe(true)
     expect(feedback.text()).toContain(SAMPLED_FILLED)
     expect(feedback.text()).toContain(SAMPLED.translation)
@@ -152,7 +152,7 @@ describe('QuestionWordRunner — type mode', () => {
 
   it('renders a text input instead of option buttons and no scene diagram', () => {
     expect(wrapper.find('input').exists()).toBe(true)
-    expect(wrapper.findAll('.qw-choice').length).toBe(0)
+    expect(wrapper.findAll('.choice').length).toBe(0)
     expect(wrapper.find('.scene-diagram').exists()).toBe(false)
   })
 

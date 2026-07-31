@@ -50,7 +50,7 @@ async function mountRunner(query: Record<string, string> = {}) {
 }
 
 async function submit(wrapper: VueWrapper, text: string) {
-  await wrapper.find('.sub-type-input').setValue(text)
+  await wrapper.find('.type-input').setValue(text)
   const submitBtn = wrapper.findAll('button').find(b => b.text().startsWith('Submit'))
   await submitBtn!.trigger('click')
 }
@@ -60,28 +60,28 @@ describe('WoQuestionRunner — smoke tests', () => {
 
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.sub-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('renders a single text input (no pick options)', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.sub-type-input').exists()).toBe(true)
-    expect(wrapper.find('.sub-choice').exists()).toBe(false)
+    expect(wrapper.find('.type-input').exists()).toBe(true)
+    expect(wrapper.find('.choice').exists()).toBe(false)
     wrapper.unmount()
   })
 
   it('shows the statement WITHOUT any highlighted object — the learner judges animacy themselves', async () => {
     const first = filterWoQuestionItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.sub-statement').text()).toBe(first.item.statement)
-    expect(wrapper.find('.sub-object').exists()).toBe(false)
+    expect(wrapper.find('.drill-context').text()).toBe(first.item.statement)
+    expect(wrapper.find('.drill-object').exists()).toBe(false)
     wrapper.unmount()
   })
 
   it('renders the scaffold with a blank gap before answering', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    const gap = wrapper.find('.sub-gap')
+    const gap = wrapper.find('.drill-gap')
     expect(gap.exists()).toBe(true)
     expect(gap.text()).toBe('＿＿＿')
     wrapper.unmount()
@@ -90,7 +90,7 @@ describe('WoQuestionRunner — smoke tests', () => {
   it('reveals feedback after submitting', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, 'xyz-completely-wrong')
-    expect(wrapper.find('.sub-feedback').exists()).toBe(true)
+    expect(wrapper.find('.drill-feedback').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -98,8 +98,8 @@ describe('WoQuestionRunner — smoke tests', () => {
     const first = filterWoQuestionItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, woQuestionAnswer(first.item))
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
-    expect(wrapper.find('.sub-gap').text()).toBe(woQuestionAnswer(first.item))
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
+    expect(wrapper.find('.drill-gap').text()).toBe(woQuestionAnswer(first.item))
     wrapper.unmount()
   })
 
@@ -116,7 +116,7 @@ describe('WoQuestionRunner — reveal teaches the rule + explanation (wrong answ
     const first = filterWoQuestionItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, 'totally-wrong')
-    const reveal = wrapper.find('.sub-reveal')
+    const reveal = wrapper.find('.reveal')
     expect(reveal.exists()).toBe(true)
     expect(reveal.text()).toContain('Sache → wo(r)-, Person → Präposition + wen/wem')
     expect(reveal.text()).toContain(first.colloc.coreIdeaExplanation)
@@ -127,7 +127,7 @@ describe('WoQuestionRunner — reveal teaches the rule + explanation (wrong answ
     const first = filterWoQuestionItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
     await submit(wrapper, woQuestionAnswer(first.item))
-    expect(wrapper.find('.sub-reveal').exists()).toBe(false)
+    expect(wrapper.find('.reveal').exists()).toBe(false)
     wrapper.unmount()
   })
 })
