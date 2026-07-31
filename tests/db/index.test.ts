@@ -9,7 +9,17 @@ describe('db', () => {
   })
 
   it('opens with the expected tables', () => {
-    expect(db.tables.map(t => t.name).sort()).toEqual(['adjectives', 'nouns', 'settings', 'simulatorSessions', 'sprechenDiscussions', 'writingDrafts'])
+    expect(db.tables.map(t => t.name).sort()).toEqual([
+      'adjectives',
+      'nouns',
+      'settings',
+      'simulatorSessions',
+      'sprechenArgumentBanks',
+      'sprechenCorrectionEvents',
+      'sprechenCorrections',
+      'sprechenDiscussions',
+      'writingDrafts'
+    ])
   })
 
   it('inserts and reads a noun', async () => {

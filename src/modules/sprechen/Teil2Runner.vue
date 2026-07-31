@@ -175,6 +175,7 @@ async function runGrading() {
         topicTitle: d.topic.titleDe,
         turnTarget: d.turnTarget,
         learnerTurns: learnerTurnCount(d),
+        sprechenModality: d.modality,
         sprechenScore: result.totalScore,
         sprechenPraedikat: result.praedikat,
         sprechenCriteria: result.criteria.map(c => ({ key: c.key, score: c.score, maxPoints: c.maxPoints })),

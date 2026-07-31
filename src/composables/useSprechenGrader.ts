@@ -4,9 +4,9 @@
 // to Dexie — it flows to sessionStorage['gt:lastSprechenResult'] for the
 // one-time result page, and only summary fields reach Run meta.
 
-import { SPRECHEN_B2_TEIL2, praedikat, type Praedikat } from '../data/rubrics'
+import { SPRECHEN_B2_TEIL2, praedikat, sprechenDescriptor, type Praedikat } from '../data/rubrics'
 import type { DiscussionTurn, SprechenDiscussion } from '../data/sprechen'
-import { learnerTurnCount } from '../data/sprechen'
+import { learnerTurnCount, summarizeFluency } from '../data/sprechen'
 import type { SprechenErrorTag } from './useQuizHistory'
 
 // ── Result types ─────────────────────────────────────────────────
@@ -227,6 +227,44 @@ export function validateSprechenGrade(
   }
 }
 
+// ── Fluency evidence (spoken modality only) ───────────────────────
+//
+// SPRECHDATEN block for the user message. Delivery evidence ONLY — it must
+// sway `kohaerenz` alone, never the other three criteria (see the warning
+// text below). Degrades gracefully (no throw, no NaN) when a learner turn,
+// or the whole discussion, carries no `speech` data: summarizeFluency()
+// already returns null for that case, and per-turn WPM guards divide-by-zero.
+function formatSprechdaten(d: SprechenDiscussion): string {
+  let li = 0
+  const perTurnLines: string[] = []
+  for (const t of d.turns) {
+    if (t.role !== 'learner') continue
+    const idx = li++
+    if (!t.speech) {
+      perTurnLines.push(`L${idx}: keine Sprechdaten erfasst.`)
+      continue
+    }
+    const { spokenMs, reactionMs, restarts, words } = t.speech
+    const minutes = spokenMs / 60_000
+    const wpm = minutes > 0 ? Math.round(words / minutes) : 0
+    const reactionS = (reactionMs / 1000).toFixed(1)
+    perTurnLines.push(`L${idx}: ${wpm} Wörter/Min · Reaktionszeit ${reactionS} s · ${restarts} lange(n) Pause(n)`)
+  }
+
+  const summary = summarizeFluency(d.turns)
+  const summaryLine = summary
+    ? `Aggregiert über ${summary.turns} Redebeitrag/-träge: ${summary.wordsPerMinute} Wörter/Min · ` +
+      `durchschnittliche Reaktionszeit ${(summary.avgReactionMs / 1000).toFixed(1)} s · ` +
+      `${summary.pauses} lange(n) Pause(n) insgesamt.`
+    : 'Aggregiert: keine Sprechdaten für diese Sitzung verfügbar.'
+
+  return (
+    'SPRECHDATEN (nur für die Bewertung von "kohaerenz" — siehe Warnung oben):\n' +
+    perTurnLines.join('\n') + '\n' +
+    summaryLine
+  )
+}
+
 // ── Prompt builder ───────────────────────────────────────────────
 
 export function buildSprechenGraderPrompt(
@@ -239,7 +277,7 @@ export function buildSprechenGraderPrompt(
   rubricLines.push('Kriterien (in dieser Reihenfolge, jedes mit max. Punktzahl):')
   for (const c of SPRECHEN_B2_TEIL2.criteria) {
     rubricLines.push(`- key="${c.key}" — ${c.labelDe} (max ${c.maxPoints} Punkte):`)
-    rubricLines.push(`    ${c.descriptorDe}`)
+    rubricLines.push(`    ${sprechenDescriptor(c, d.modality)}`)
   }
   rubricLines.push('')
   rubricLines.push(`Hinweis: ${SPRECHEN_B2_TEIL2.notes}`)
@@ -286,10 +324,22 @@ export function buildSprechenGraderPrompt(
       'Bewerte trotzdem nach der Rubrik, aber sei bei "erfuellung" entsprechend streng.'
     : ''
 
+  // Spoken-only evidence block. Typed runs never touch this branch, so their
+  // `user` string stays byte-identical to before this feature existed.
+  const sprechdaten = d.modality === 'spoken'
+    ? '\n\n' +
+      'SPRECHDATEN-HINWEIS: Diese Diskussion wurde GESPROCHEN geführt (Spracherkennung, ' +
+      'keine Audioaufnahme). Die folgenden Werte — Sprechtempo, Reaktionszeit, Anzahl ' +
+      'langer Pausen — beschreiben AUSSCHLIESSLICH die Vortragsweise (Delivery) des ' +
+      'Lernenden. Nutze sie NUR für die Bewertung von "kohaerenz". Sie dürfen die ' +
+      'Bewertung von "erfuellung", "wortschatz" und "strukturen" NICHT beeinflussen.\n\n' +
+      formatSprechdaten(d)
+    : ''
+
   const user =
     `THEMA: „${d.topic.titleDe}" — ${d.topic.statementDe}\n` +
     `Position des PARTNERS: ${d.stance === 'pro' ? 'dafür' : 'dagegen'}.\n\n` +
-    `GESPRÄCH:\n${transcript}${fewTurns}`
+    `GESPRÄCH:\n${transcript}${fewTurns}${sprechdaten}`
 
   return { system, user }
 }

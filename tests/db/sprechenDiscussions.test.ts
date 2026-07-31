@@ -12,7 +12,8 @@ describe('sprechenDiscussions table (db version 9)', () => {
       status: 'in_progress',
       turns: [],
       kiTippCount: 0,
-      startedAt: Date.now()
+      startedAt: Date.now(),
+      modality: 'typed'
     }
     await db.sprechenDiscussions.put(row)
     const got = await db.sprechenDiscussions.get('disc-test-1')

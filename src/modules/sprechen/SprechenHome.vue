@@ -62,6 +62,19 @@ function onCardKey(e: KeyboardEvent, name: string) {
         </p>
         <div class="module-cta">Start <span aria-hidden="true">→</span></div>
       </article>
+
+      <article class="card module-card interactive" role="button" tabindex="0"
+        @click="go('sprechen-voice')" @keydown="onCardKey($event, 'sprechen-voice')">
+        <div class="module-numeral">III</div>
+        <h2>Gesprochen</h2>
+        <div class="module-de">Teil 2 · laut, mit Mikrofon</div>
+        <p class="module-desc">
+          Dieselbe Diskussion, nur gesprochen. Der Partner liest vor, du
+          antwortest laut — mit Vorbereitungsminute, Notizen und echten
+          Sprechdaten: Tempo, Reaktionszeit, Pausen.
+        </p>
+        <div class="module-cta">Sprechen <span aria-hidden="true">→</span></div>
+      </article>
     </div>
 
     <section v-if="recent.length > 0" class="recent-runs">

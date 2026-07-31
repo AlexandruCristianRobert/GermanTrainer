@@ -241,6 +241,14 @@ export interface QuizHistoryMeta {
   sprechenWeaknesses?: Array<{ de: string; en: string }>
   sprechenOverallDe?: string
   sprechenOverallEn?: string
+  // Spoken Discussions only (CONTEXT.md → "Modality"). One Run type covers both
+  // modalities so typed and spoken scores stay comparable on the same scale;
+  // these fields are simply absent for a typed run.
+  sprechenModality?: 'typed' | 'spoken'
+  sprechenWpm?: number
+  sprechenAvgReactionMs?: number
+  sprechenSpokenMs?: number
+  sprechenPauses?: number
 }
 
 export interface QuizHistoryEntry {

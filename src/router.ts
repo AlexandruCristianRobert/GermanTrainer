@@ -145,7 +145,13 @@ const routes: RouteRecordRaw[] = [
   { path: '/sprechen/cheatsheet', name: 'sprechen-cheatsheet', component: () => import('./modules/sprechen/SprechenCheatsheet.vue') },
   { path: '/sprechen/teil2', name: 'sprechen-teil2', component: () => import('./modules/sprechen/Teil2Setup.vue') },
   { path: '/sprechen/teil2/run', name: 'sprechen-teil2-run', component: () => import('./modules/sprechen/Teil2Runner.vue') },
-  { path: '/sprechen/teil2/result', name: 'sprechen-teil2-result', component: () => import('./modules/sprechen/Teil2Result.vue') }
+  { path: '/sprechen/teil2/result', name: 'sprechen-teil2-result', component: () => import('./modules/sprechen/Teil2Result.vue') },
+  // Spoken Teil 2 — a separate test over the same Discussion concept
+  // (CONTEXT.md → "Modality"). Its own setup/prep/runner; the result page is
+  // shared with the typed test, which reads the modality off the stash.
+  { path: '/sprechen/voice', name: 'sprechen-voice', component: () => import('./modules/sprechen/VoiceSetup.vue') },
+  { path: '/sprechen/voice/prep', name: 'sprechen-voice-prep', component: () => import('./modules/sprechen/VoicePrep.vue') },
+  { path: '/sprechen/voice/run', name: 'sprechen-voice-run', component: () => import('./modules/sprechen/VoiceRunner.vue') }
 ]
 
 export const router = createRouter({

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import {
   SPRECHEN_RESULT_KEY, type SprechenMistake, type SprechenResultStash
 } from '../../composables/useSprechenGrader'
+import { summarizeFluency, type DiscussionTurn } from '../../data/sprechen'
 
 const router = useRouter()
 const data = ref<SprechenResultStash | null>(null)
@@ -77,6 +78,25 @@ const learnerTurnsTotal = computed(() =>
   data.value ? data.value.turns.filter(t => t.role === 'learner').length : 0
 )
 
+// Present only for a spoken Discussion — the typed test carries no speech data,
+// so this whole block simply doesn't render.
+const fluency = computed(() =>
+  data.value ? summarizeFluency(data.value.turns) : null
+)
+
+/** Below this the recognizer was guessing; worth showing, never worth grading. */
+const SHAKY_CONFIDENCE = 0.7
+
+function shakySpans(turn: DiscussionTurn): string[] {
+  return (turn.spans ?? [])
+    .filter(s => s.confidence > 0 && s.confidence < SHAKY_CONFIDENCE)
+    .map(s => s.text)
+}
+
+function seconds(ms: number): string {
+  return `${(ms / 1000).toFixed(1)} s`
+}
+
 const KIND_LABEL: Record<string, string> = {
   grammar: 'Grammatik', 'word-order': 'Wortstellung', vocabulary: 'Wortschatz',
   spelling: 'Rechtschreibung', register: 'Register'
@@ -136,6 +156,33 @@ function home() { router.push({ name: 'sprechen' }) }
       </tbody>
     </table>
 
+    <template v-if="fluency">
+      <h3 class="block-heading">Sprechdaten <span class="bh-note">gemessen, nicht geschätzt</span></h3>
+      <div class="fluency-grid">
+        <div class="fl-item">
+          <div class="fl-num">{{ fluency.wordsPerMinute }}</div>
+          <div class="fl-label">Wörter pro Minute<br />über {{ fluency.turns }} Beiträge</div>
+        </div>
+        <div class="fl-item">
+          <div class="fl-num">{{ seconds(fluency.avgReactionMs) }}</div>
+          <div class="fl-label">Reaktionszeit<br />bis du zu sprechen anfängst</div>
+        </div>
+        <div class="fl-item">
+          <div class="fl-num">{{ seconds(fluency.totalSpokenMs) }}</div>
+          <div class="fl-label">Sprechzeit<br />insgesamt</div>
+        </div>
+        <div class="fl-item">
+          <div class="fl-num">{{ fluency.pauses }}</div>
+          <div class="fl-label">lange Pausen<br />mitten im Beitrag</div>
+        </div>
+      </div>
+      <p class="fl-note">
+        Aussprache wird weiterhin nicht bewertet — dafür bräuchte es deine Stimme,
+        und die verlässt dieses Gerät nie. Tempo, Reaktion und Pausen fließen in
+        <em>Kohärenz &amp; Flüssigkeit</em> ein.
+      </p>
+    </template>
+
     <h3 class="block-heading">Gespräch · deine Fehler markiert</h3>
     <div class="marked-transcript">
       <div v-for="(t, abs) in data.turns" :key="abs"
@@ -152,6 +199,10 @@ function home() { router.push({ name: 'sprechen' }) }
             </template>
           </template>
         </div>
+        <p v-if="t.role === 'learner' && shakySpans(t).length > 0" class="shaky">
+          Erkennung unsicher:
+          <span v-for="(s, si) in shakySpans(t)" :key="si">„{{ s }}"<span v-if="si < shakySpans(t).length - 1"> · </span></span>
+        </p>
       </div>
     </div>
 
@@ -237,6 +288,23 @@ function home() { router.push({ name: 'sprechen' }) }
 .mk-right { color: var(--success); font-family: var(--font-display); }
 .mk-reason { margin: 2px 0 0; font-size: 14px; line-height: 1.55; }
 .mistake-counts { margin: 18px 0; }
+.bh-note { letter-spacing: 0.14em; opacity: 0.7; margin-left: 10px; }
+.fluency-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
+.fl-item { padding: 14px 16px; background: var(--paper-deep); border-radius: 4px; }
+.fl-num {
+  font-family: var(--font-display); font-size: 30px; line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.fl-label {
+  margin-top: 6px; font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); line-height: 1.6;
+}
+.fl-note { margin: 16px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); max-width: 620px; }
+.shaky {
+  margin: 4px 0 0; font-size: 12px; font-style: italic; color: var(--mute);
+  text-align: right;
+}
+.mt-partner .shaky { text-align: left; }
 .sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .sw-list { margin: 0; padding-left: 18px; font-size: 14.5px; line-height: 1.7; }
 .overall { font-size: 15.5px; line-height: 1.65; max-width: 640px; }

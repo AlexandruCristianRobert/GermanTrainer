@@ -65,6 +65,45 @@ export function learnerTurnCount(d: Pick<SprechenDiscussion, 'turns'>): number {
   return d.turns.filter(t => t.role === 'learner').length
 }
 
+/**
+ * Setup → prep → runner handoff for the spoken test. sessionStorage, like the
+ * typed test's stash: it must survive a route change but not a new tab.
+ */
+export const VOICE_RUN_STASH_KEY = 'gt:lastSprechenVoice'
+
+export interface VoiceRunStash {
+  topic: DiscussionTopicRef
+  turnTarget: TurnTarget
+  stance: PartnerStance
+  prepSeconds: number
+  notes: string
+  model: string
+}
+
+/**
+ * The learner's own sentence containing a marked mistake — the context an
+ * [Archived correction] keeps so the Korrekturdrill can replay their wording
+ * rather than an invented one. Falls back to the whole turn when there is no
+ * sentence boundary to cut on.
+ */
+export function sentenceAround(text: string, at: number): string {
+  if (text.length === 0) return ''
+  // Clamp to the LAST CHARACTER, not to text.length: an offset past the end
+  // would sit beyond the final terminator, making the "sentence" start and end
+  // at the same point and collapsing to the whole turn.
+  const idx = Math.min(Math.max(0, at), text.length - 1)
+  const before = text.slice(0, idx)
+  // Start just past the nearest preceding terminator, whichever it was.
+  const start = Math.max(
+    before.lastIndexOf('.') + 1,
+    before.lastIndexOf('?') + 1,
+    before.lastIndexOf('!') + 1
+  )
+  const endRel = text.slice(idx).search(/[.?!]/)
+  const end = endRel < 0 ? text.length : idx + endRel + 1
+  return text.slice(start, end).trim() || text.trim()
+}
+
 /** Aggregate fluency across a spoken Discussion. Returns null when nothing was spoken. */
 export interface FluencySummary {
   wordsPerMinute: number
