@@ -5,22 +5,26 @@
 
 import { db } from '../db'
 import type {
-  DiscussionTopicRef, DiscussionTurn, PartnerStance, SprechenDiscussion, TurnTarget
+  DiscussionTopicRef, DiscussionTurn, Modality, PartnerStance, SprechenDiscussion, TurnTarget
 } from '../data/sprechen'
 
 export async function createDiscussion(
   topic: DiscussionTopicRef,
   turnTarget: TurnTarget,
-  stance: PartnerStance
+  stance: PartnerStance,
+  modality: Modality = 'typed',
+  notes = ''
 ): Promise<SprechenDiscussion> {
   const row: SprechenDiscussion = {
     id: crypto.randomUUID(),
     topic,
     turnTarget,
     stance,
+    modality,
     status: 'in_progress',
     turns: [],
     kiTippCount: 0,
+    notes,
     startedAt: Date.now()
   }
   await db.sprechenDiscussions.put(row)

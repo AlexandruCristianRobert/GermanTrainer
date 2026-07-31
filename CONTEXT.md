@@ -145,8 +145,12 @@ _Avoid_: illustration, image, picture hint
 ### Sprechen
 
 **Discussion** (de Diskussion):
-A Teil 2 speaking-practice conversation between the learner and the AI partner, arguing a [Topic] in typed turns. Resumable while in progress; once graded it is recorded as a [Run] — the conversation itself is never kept.
+A Teil 2 speaking-practice conversation between the learner and the AI partner, arguing a [Topic] turn by turn. Its [Modality] decides whether the learner's turns are typed or spoken; everything else — the [Topic] pool, [Move]s, [Sprechen error tag]s, the rubric, the [Prädikat] — is the same either way. Resumable while in progress; once graded it is recorded as a [Run] — the conversation itself is never kept.
 _Avoid_: session, chat, dialogue, Diskussionsrunde
+
+**Modality**:
+Whether a [Discussion]'s learner turns are `typed` or `spoken`. A [Discussion] has exactly one Modality, fixed when it starts. Offering each Modality as its own practice entry point and its own [Run] type is a presentation choice, not a second concept — both exercise the same [Discussion].
+_Avoid_: mode (collides with [Grading mode]), input method, voice mode
 
 **Topic** (de Thema):
 A controversial statement or question a [Discussion] argues — drawn from the app's seeded pool or AI-generated into the learner's custom pool.
@@ -160,6 +164,10 @@ _Avoid_: mistake type, error category
 A named discussion tactic — agree, disagree, partially agree, ask back, give an example, summarize — under which the Sprechen cheatsheet and the in-Discussion hint panel group their stock phrases (Redemittel). A seventh, stating an opinion, appears in the cheatsheet only.
 _Avoid_: hint category, strategy, tactic chip
 
+**Redemittel yield** (de Redemittel-Ausbeute):
+How many distinct Redemittel the learner's turns actually contained, grouped by [Move] — counted locally by text matching, never by AI, and never affecting the score. It measures *use*, not command: a phrase counts whether the learner recalled it, inserted it from the hint panel, or read it aloud from the panel mid-turn. The basis for suggesting a [Move] the learner has not reached for.
+_Avoid_: Redemittel score, phrase coverage, mastery
+
 **KI-Tipp**:
 An on-demand AI-generated suggestion during the learner's turn in a [Discussion]: a strategic direction for what to argue next, never ready-made text. Uses are counted and shown with the result, but never affect the score.
 _Avoid_: AI hint, tip (unqualified)
@@ -167,6 +175,18 @@ _Avoid_: AI hint, tip (unqualified)
 **Prädikat**:
 The Goethe grade band a graded [Discussion]'s score maps to: *sehr gut* (90+), *gut* (80+), *befriedigend* (70+), *ausreichend* (60+), *nicht bestanden* (below 60).
 _Avoid_: grade, mark, rating
+
+**Archived correction** (de Korrektur):
+One marked mistake from a graded [Discussion], kept after the conversation itself is discarded: the learner's wrong wording, the suggested fix, its [Sprechen error tag], and enough of the surrounding sentence to make the fix intelligible. The only part of a [Discussion] that outlives it. Corrections from a `spoken` [Modality] are archived on the same terms as typed ones and are not distinguished — a mistake the recognizer invented is archived as readily as one the learner made, which is a known and accepted cost.
+_Avoid_: mistake (that is the in-Discussion marking), error record, flashcard
+
+**Error archive** (de Fehlerarchiv):
+The learner's whole standing collection of [Archived correction]s, grouped by [Sprechen error tag] so that repetition becomes visible. Cold storage: never read while a [Discussion] runs, only when the learner opens it or a [Correction drill].
+_Avoid_: mistake history, error log, weak points (that term belongs to the drill modules)
+
+**Correction drill** (de Korrekturdrill):
+A practice run over the [Error archive] that replays the learner's own [Archived correction]s and asks them to rewrite just the marked wording. Unlike a [Remedial drill], its items are the learner's own recorded sentences rather than generated ones.
+_Avoid_: remedial drill (that is the preposition/verb one), review, retry
 
 ### Identity & history
 
