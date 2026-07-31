@@ -145,11 +145,11 @@ _Avoid_: illustration, image, picture hint
 ### Sprechen
 
 **Discussion** (de Diskussion):
-A Teil 2 speaking-practice conversation between the learner and the AI partner, arguing a [Topic] turn by turn. Its [Modality] decides whether the learner's turns are typed or spoken; everything else — the [Topic] pool, [Move]s, [Sprechen error tag]s, the rubric, the [Prädikat] — is the same either way. Resumable while in progress; once graded it is recorded as a [Run] — the conversation itself is never kept.
+A Teil 2 speaking-practice conversation between the learner and the AI partner, arguing a [Topic] turn by turn. Its [Modality] decides whether the learner's turns are typed or spoken; everything else — the [Topic] pool, [Move]s, [Sprechen error tag]s, the rubric, the [Prädikat] — is the same either way. Resumable while in progress; once graded it is recorded as a [Run] and the conversation is discarded — what outlives it is the [Run]'s summary and, for each marked mistake, an [Archived correction] carrying the learner's own sentence. The partner's turns are kept nowhere.
 _Avoid_: session, chat, dialogue, Diskussionsrunde
 
 **Modality**:
-Whether a [Discussion]'s learner turns are `typed` or `spoken`. A [Discussion] has exactly one Modality, fixed when it starts. Offering each Modality as its own practice entry point and its own [Run] type is a presentation choice, not a second concept — both exercise the same [Discussion].
+Whether a [Discussion]'s learner turns are `typed` or `spoken`. A [Discussion] has exactly one Modality, fixed when it starts. Offering each Modality as its own practice entry point is a presentation choice, not a second concept — both exercise the same [Discussion], are scored on the same rubric, and are recorded as the *same* kind of [Run], so their scores are directly comparable.
 _Avoid_: mode (collides with [Grading mode]), input method, voice mode
 
 **Topic** (de Thema):
@@ -157,7 +157,7 @@ A controversial statement or question a [Discussion] argues — drawn from the a
 _Avoid_: theme (a noun vocabulary category), subject, statement
 
 **Sprechen error tag**:
-A classification the post-Discussion analysis assigns to each marked mistake in a learner's turns, naming *what* went wrong. One of: `grammar` (case, conjugation, endings, agreement), `word-order` (verb-second, verb-final, separable-prefix placement), `vocabulary` (wrong word, false friend, broken collocation), `spelling`, `register` (du/Sie slips, tone). Unlike [Error tag] and [Verb error tag], exactly one kind per marked mistake — each annotation is a single span with a single explanation.
+A classification the post-Discussion analysis assigns to each marked mistake in a learner's turns, naming *what* went wrong. One of: `grammar` (case, conjugation, endings, agreement), `word-order` (verb-second, verb-final, separable-prefix placement), `vocabulary` (wrong word, false friend, broken collocation), `spelling`, `register` (du/Sie slips, tone). Unlike [Error tag] and [Verb error tag], exactly one kind per marked mistake — each annotation is a single span with a single explanation. `spelling` is never assigned in a `spoken` [Modality]: the spelling there is the speech recognizer's, not the learner's.
 _Avoid_: mistake type, error category
 
 **Move**:

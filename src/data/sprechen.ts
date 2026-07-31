@@ -3,7 +3,8 @@
 // A Discussion row is EPHEMERAL working state: it exists so an in-progress
 // conversation survives reloads and a failed analysis stays retryable.
 // It is DELETED once the summary Run is recorded (or on abandon) — the
-// conversation is never kept (user decision in the spec).
+// conversation is discarded (user decision in the spec) — what outlives it is
+// the Run summary plus one Archived correction per marked mistake.
 
 export type DiscussionStatus = 'in_progress' | 'submitted'
 

@@ -59,6 +59,14 @@ const grading = ref(false)
 const gradeFailed = ref(false)
 const error = ref<string | null>(null)
 const model = ref('')
+/** True from the start of endTurn() until the flushed turn is appended — gates
+ *  a re-entrant Space/click from restarting the recognizer under an in-flight
+ *  end() and wiping the buffer it is about to resolve from. */
+const ending = ref(false)
+/** True once saveQuizRun() has recorded the Run. A retry after runGrading()
+ *  throws later (sessionStorage/deleteDiscussion) must re-grade but must NOT
+ *  write a second Run or a second archive batch. */
+const runRecorded = ref(false)
 
 /** When the partner stopped speaking — the clock that reaction time runs from. */
 let partnerDoneAt = 0
@@ -103,8 +111,8 @@ onMounted(async () => {
       return
     }
   } else {
-    const active = await findActiveDiscussion()
-    if (!active || active.modality !== 'spoken') {
+    const active = await findActiveDiscussion('spoken')
+    if (!active) {
       error.value = 'No spoken discussion found. Go back to setup and start one.'
       return
     }
@@ -138,9 +146,12 @@ async function loadBank() {
   ).bank
 }
 
-/** Space toggles the floor — but never while typing in a field. */
+/** Space toggles the floor — but never while typing in a field, and never on
+ *  a key-repeat (holding Space down fires repeated keydowns; only the first
+ *  should act, or a held key re-enters toggleMic() while end() is in flight). */
 function onKey(e: KeyboardEvent) {
   if (e.code !== 'Space') return
+  if (e.repeat) return
   const el = e.target as HTMLElement | null
   if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return
   if (!myTurn.value && !recognizer.listening.value) return
@@ -149,6 +160,7 @@ function onKey(e: KeyboardEvent) {
 }
 
 async function toggleMic() {
+  if (ending.value) return
   if (recognizer.listening.value) {
     await endTurn()
   } else if (myTurn.value) {
@@ -188,29 +200,34 @@ async function ensurePartnerTurn() {
 async function endTurn() {
   const d = discussion.value
   if (!d) return
-  const result = await recognizer.end()
-  const text = result.text.trim()
-  if (text.length === 0) {
-    toast.error('Nichts verstanden', { description: 'Nochmal — Leertaste startet die Aufnahme.' })
-    return
+  ending.value = true
+  try {
+    const result = await recognizer.end()
+    const text = result.text.trim()
+    if (text.length === 0) {
+      toast.error('Nichts verstanden', { description: 'Nochmal — Leertaste startet die Aufnahme.' })
+      return
+    }
+    const turn = {
+      role: 'learner' as const,
+      textDe: text,
+      at: result.endedAt,
+      speech: {
+        spokenMs: Math.max(0, result.endedAt - result.startedAt),
+        reactionMs: partnerDoneAt > 0 ? Math.max(0, result.startedAt - partnerDoneAt) : 0,
+        restarts: result.restarts,
+        words: countWords(text)
+      },
+      spans: result.spans
+    }
+    await appendTurn(d.id, turn)
+    d.turns = [...d.turns, turn]
+    kiTipp.value = null
+    scrollToEnd()
+    await ensurePartnerTurn()
+  } finally {
+    ending.value = false
   }
-  const turn = {
-    role: 'learner' as const,
-    textDe: text,
-    at: result.endedAt,
-    speech: {
-      spokenMs: Math.max(0, result.endedAt - result.startedAt),
-      reactionMs: partnerDoneAt > 0 ? Math.max(0, result.startedAt - partnerDoneAt) : 0,
-      restarts: result.restarts,
-      words: countWords(text)
-    },
-    spans: result.spans
-  }
-  await appendTurn(d.id, turn)
-  d.turns = [...d.turns, turn]
-  kiTipp.value = null
-  scrollToEnd()
-  await ensurePartnerTurn()
 }
 
 async function endEarly() {
@@ -246,62 +263,69 @@ async function runGrading() {
     const finishedAt = d.endedAt ?? Date.now()
     const fluency = summarizeFluency(d.turns)
 
-    const counts: Partial<Record<SprechenErrorTag, number>> = {}
-    for (const m of result.mistakes) counts[m.kind] = (counts[m.kind] ?? 0) + 1
+    // A retry (gradeFailed → "Analyse erneut versuchen") re-grades from scratch
+    // — that just costs another AI call — but must NOT record a second Run or
+    // archive batch: saveQuizRun cannot throw (safeWrite swallows), so once it
+    // has run, runRecorded latches and both writes below are skipped on retry.
+    if (!runRecorded.value) {
+      const counts: Partial<Record<SprechenErrorTag, number>> = {}
+      for (const m of result.mistakes) counts[m.kind] = (counts[m.kind] ?? 0) + 1
 
-    saveQuizRun({
-      type: 'sprechen-teil2',
-      startedAt: new Date(d.startedAt).toISOString(),
-      finishedAt: new Date(finishedAt).toISOString(),
-      durationMs: finishedAt - d.startedAt,
-      count: 100,
-      correct: result.totalScore,
-      meta: {
-        topicTitle: d.topic.titleDe,
-        turnTarget: d.turnTarget,
-        learnerTurns: learnerTurnCount(d),
-        sprechenModality: d.modality,
-        sprechenScore: result.totalScore,
-        sprechenPraedikat: result.praedikat,
-        sprechenCriteria: result.criteria.map(c => ({ key: c.key, score: c.score, maxPoints: c.maxPoints })),
-        sprechenMistakeCounts: counts,
-        kiTippCount: d.kiTippCount,
-        sprechenStrengths: result.strengths,
-        sprechenWeaknesses: result.weaknesses,
-        sprechenOverallDe: result.overallDe,
-        sprechenOverallEn: result.overallEn,
-        sprechenWpm: fluency?.wordsPerMinute,
-        sprechenAvgReactionMs: fluency?.avgReactionMs,
-        sprechenSpokenMs: fluency?.totalSpokenMs,
-        sprechenPauses: fluency?.pauses,
-        passes: result.passes
-      }
-    })
-
-    // Corrections outlive the conversation (ADR-0012). Archived unfiltered:
-    // a mistake the recognizer invented is archived like any other.
-    //
-    // Deliberately non-fatal: the Run above is already recorded, so throwing
-    // here would drop us into the retry path and record it a SECOND time. A
-    // lost archive write costs the learner some drill material; a double Run
-    // corrupts their history.
-    try {
-      const learnerTurns = d.turns.filter(t => t.role === 'learner')
-      await appendCorrections(result.mistakes.map(m => ({
-        discussionId: d.id,
-        topicTitle: d.topic.titleDe,
-        modality: d.modality,
-        kind: m.kind,
-        quote: m.quote,
-        suggested: m.suggested,
-        reasonDe: m.reasonDe,
-        reasonEn: m.reasonEn,
-        context: sentenceAround(learnerTurns[m.turnIndex]?.textDe ?? '', m.spanStart)
-      })))
-    } catch (err) {
-      toast.error('Fehlerarchiv nicht aktualisiert', {
-        description: err instanceof Error ? err.message : String(err)
+      saveQuizRun({
+        type: 'sprechen-teil2',
+        startedAt: new Date(d.startedAt).toISOString(),
+        finishedAt: new Date(finishedAt).toISOString(),
+        durationMs: finishedAt - d.startedAt,
+        count: 100,
+        correct: result.totalScore,
+        meta: {
+          topicTitle: d.topic.titleDe,
+          turnTarget: d.turnTarget,
+          learnerTurns: learnerTurnCount(d),
+          sprechenModality: d.modality,
+          sprechenScore: result.totalScore,
+          sprechenPraedikat: result.praedikat,
+          sprechenCriteria: result.criteria.map(c => ({ key: c.key, score: c.score, maxPoints: c.maxPoints })),
+          sprechenMistakeCounts: counts,
+          kiTippCount: d.kiTippCount,
+          sprechenStrengths: result.strengths,
+          sprechenWeaknesses: result.weaknesses,
+          sprechenOverallDe: result.overallDe,
+          sprechenOverallEn: result.overallEn,
+          sprechenWpm: fluency?.wordsPerMinute,
+          sprechenAvgReactionMs: fluency?.avgReactionMs,
+          sprechenSpokenMs: fluency?.totalSpokenMs,
+          sprechenPauses: fluency?.pauses,
+          passes: result.passes
+        }
       })
+      runRecorded.value = true
+
+      // Corrections outlive the conversation (ADR-0012). Archived unfiltered:
+      // a mistake the recognizer invented is archived like any other.
+      //
+      // Deliberately non-fatal: the Run above is already recorded, so throwing
+      // here would drop us into the retry path and record it a SECOND time. A
+      // lost archive write costs the learner some drill material; a double Run
+      // corrupts their history.
+      try {
+        const learnerTurns = d.turns.filter(t => t.role === 'learner')
+        await appendCorrections(result.mistakes.map(m => ({
+          discussionId: d.id,
+          topicTitle: d.topic.titleDe,
+          modality: d.modality,
+          kind: m.kind,
+          quote: m.quote,
+          suggested: m.suggested,
+          reasonDe: m.reasonDe,
+          reasonEn: m.reasonEn,
+          context: sentenceAround(learnerTurns[m.turnIndex]?.textDe ?? '', m.spanStart)
+        })))
+      } catch (err) {
+        toast.error('Fehlerarchiv nicht aktualisiert', {
+          description: err instanceof Error ? err.message : String(err)
+        })
+      }
     }
 
     const stash: SprechenResultStash = {
@@ -447,20 +471,21 @@ function backToSetup() { router.push({ name: 'sprechen-voice' }) }
           <div class="mic-row">
             <button
               class="btn mic-btn"
-              :class="recognizer.listening.value ? 'btn-danger' : 'btn-accent'"
+              :class="(recognizer.listening.value || ending) ? 'btn-danger' : 'btn-accent'"
               type="button"
-              :disabled="!myTurn && !recognizer.listening.value"
+              :disabled="(!myTurn && !recognizer.listening.value) || ending"
               @click="toggleMic"
             >
-              {{ recognizer.listening.value ? '■ Beitrag beenden' : '● Sprechen' }}
+              {{ (recognizer.listening.value || ending) ? '■ Beitrag beenden' : '● Sprechen' }}
             </button>
             <span class="mic-hint">
-              <template v-if="recognizer.listening.value">Leertaste beendet — und schickt ab.</template>
+              <template v-if="ending">Wird verarbeitet…</template>
+              <template v-else-if="recognizer.listening.value">Leertaste beendet — und schickt ab.</template>
               <template v-else-if="voice.speaking.value">Der Partner spricht…</template>
               <template v-else-if="myTurn">Leertaste oder Knopf startet die Aufnahme.</template>
               <template v-else>Der Partner ist am Zug…</template>
             </span>
-            <button class="btn btn-quiet" type="button" :disabled="voice.speaking.value" @click="repeatPartner">
+            <button class="btn btn-quiet" type="button" :disabled="voice.speaking.value || recognizer.listening.value" @click="repeatPartner">
               ↻ Partner wiederholen
             </button>
           </div>

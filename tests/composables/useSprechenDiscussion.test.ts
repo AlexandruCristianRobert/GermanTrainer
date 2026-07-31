@@ -69,3 +69,42 @@ describe('Discussion lifecycle', () => {
     expect(active?.id).toBe(b.id)
   })
 })
+
+describe('findActiveDiscussion(modality) filter', () => {
+  it('a spoken row is not returned when asking for typed', async () => {
+    await createDiscussion(TOPIC, 6, 'pro', 'spoken')
+    const active = await findActiveDiscussion('typed')
+    expect(active).toBeNull()
+  })
+
+  it('a typed row is not returned when asking for spoken', async () => {
+    await createDiscussion(TOPIC, 6, 'pro', 'typed')
+    const active = await findActiveDiscussion('spoken')
+    expect(active).toBeNull()
+  })
+
+  it('with no argument, returns the most recent regardless of modality', async () => {
+    const typed = await createDiscussion(TOPIC, 6, 'pro', 'typed')
+    await db.sprechenDiscussions.update(typed.id, { startedAt: 1000 })
+    const spoken = await createDiscussion(TOPIC, 6, 'pro', 'spoken')
+    await db.sprechenDiscussions.update(spoken.id, { startedAt: 2000 })
+    const active = await findActiveDiscussion()
+    expect(active?.id).toBe(spoken.id)
+  })
+
+  it('most-recent-wins holds within a modality, ignoring a newer row of the other modality', async () => {
+    const spokenOlder = await createDiscussion(TOPIC, 6, 'pro', 'spoken')
+    await db.sprechenDiscussions.update(spokenOlder.id, { startedAt: 1000 })
+    const spokenNewer = await createDiscussion(TOPIC, 6, 'pro', 'spoken')
+    await db.sprechenDiscussions.update(spokenNewer.id, { startedAt: 2000 })
+    const typedNewest = await createDiscussion(TOPIC, 6, 'pro', 'typed')
+    await db.sprechenDiscussions.update(typedNewest.id, { startedAt: 3000 })
+    const active = await findActiveDiscussion('spoken')
+    expect(active?.id).toBe(spokenNewer.id)
+  })
+
+  it('returns null when the table is empty', async () => {
+    const active = await findActiveDiscussion('typed')
+    expect(active).toBeNull()
+  })
+})

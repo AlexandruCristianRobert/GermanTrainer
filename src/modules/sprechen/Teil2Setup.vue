@@ -42,7 +42,7 @@ const topics = computed(() => [...SPRECHEN_TOPICS, ...customTopics.value])
 onMounted(async () => {
   await loadSettings()
   customTopics.value = loadCustomTopics()
-  active.value = await findActiveDiscussion()
+  active.value = await findActiveDiscussion('typed')
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return
@@ -223,7 +223,8 @@ function back() { router.push({ name: 'sprechen' }) }
         The partner opens with its position, you alternate typed turns, and
         after your last turn the discussion is analyzed: every mistake marked
         and explained, four criteria scored to 100 points (Aussprache excluded).
-        The conversation itself is never stored — only the summary.
+        The conversation is discarded afterwards; what is kept is the summary
+        and each marked mistake, with your own sentence, in the Fehlerarchiv.
       </div>
 
       <div class="setup-actions">

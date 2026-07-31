@@ -137,7 +137,8 @@ function home() { router.push({ name: 'sprechen' }) }
     <div class="alert alert-info">
       <span class="alert-label">Bewertungsumfang</span>
       Getippte Übung: <strong>Aussprache wird nicht bewertet</strong> — vier Kriterien à 25 Punkte,
-      Bestehensgrenze 60. Diese Auswertung ist nur hier sichtbar; im Verlauf bleibt die Zusammenfassung.
+      Bestehensgrenze 60. Diese Auswertung ist nur hier sichtbar; im Verlauf bleibt die
+      Zusammenfassung, im Fehlerarchiv deine markierten Sätze.
     </div>
     <div v-if="learnerTurnsTotal < 3" class="alert alert-warning">
       <span class="alert-label">Wenig Material</span>

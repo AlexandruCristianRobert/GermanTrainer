@@ -196,6 +196,23 @@ describe('buildSprechenGraderPrompt', () => {
     expect(user).toContain('NICHT beeinflussen')
   })
 
+  // FINDING 4 — the grader must not be told a spoken run is typed, and must
+  // never be invited to tag a speech-recognizer's spelling as the learner's
+  // mistake (the recognizer chose the spelling, not the learner).
+  it('spoken system prompt says the discussion was spoken/transcribed, instructs never assigning "spelling", and never claims a typed exercise', () => {
+    const { system } = buildSprechenGraderPrompt(spokenDisc())
+    expect(system).not.toContain('getippter Form')
+    expect(system).toContain('gesprochen')
+    expect(system).toContain('transkribiert')
+    expect(system).toContain('NIEMALS die Kategorie "spelling"')
+  })
+
+  it('typed system prompt keeps the original persona sentence and carries no spoken-only spelling caveat', () => {
+    const { system } = buildSprechenGraderPrompt(disc())
+    expect(system).toContain('getippter Form')
+    expect(system).not.toContain('NIEMALS die Kategorie "spelling"')
+  })
+
   it('computes per-turn WPM correctly for a hand-built spoken discussion', () => {
     const { user } = buildSprechenGraderPrompt(spokenDisc())
     // L0: 40 words / 30000ms (0.5 min) = 80 WPM exactly; reaction 1200ms = 1.2s; 0 pauses

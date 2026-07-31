@@ -332,6 +332,11 @@ export interface SprechenRubric {
   passingScore: number
   criteria: SprechenCriterion[]
   notes: string
+  // Spoken-modality variant of `notes` (same resolver pattern as
+  // `descriptorSpokenDe`/`sprechenDescriptor` above). Only the "getippte" vs.
+  // "gesprochene" wording differs — Aussprache stays excluded and the point
+  // structure stays identical either way (see `sprechenNotes`).
+  notesSpokenDe?: string
 }
 
 export const SPRECHEN_B2_TEIL2: SprechenRubric = {
@@ -398,6 +403,11 @@ export const SPRECHEN_B2_TEIL2: SprechenRubric = {
     'Adaptierte Bewertung für getippte Diskussionsübungen: Aussprache wird ' +
     'nicht bewertet; vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. ' +
     'Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, ' +
+    '60+ ausreichend, darunter nicht bestanden.',
+  notesSpokenDe:
+    'Adaptierte Bewertung für gesprochene Diskussionsübungen: Aussprache wird ' +
+    'nicht bewertet; vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. ' +
+    'Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, ' +
     '60+ ausreichend, darunter nicht bestanden.'
 }
 
@@ -411,6 +421,18 @@ export const SPRECHEN_B2_TEIL2: SprechenRubric = {
  */
 export function sprechenDescriptor(c: SprechenCriterion, modality: Modality): string {
   return modality === 'spoken' && c.descriptorSpokenDe ? c.descriptorSpokenDe : c.descriptorDe
+}
+
+/**
+ * Resolves the modality-appropriate footer note for a Sprechen rubric — same
+ * resolver pattern as `sprechenDescriptor` above, applied to `notes` instead
+ * of a single criterion's descriptor. Typed runs get `notes` unchanged;
+ * spoken runs get `notesSpokenDe` where one is defined. Only the wording
+ * changes (getippt → gesprochen); the point structure the grader is told
+ * about never does.
+ */
+export function sprechenNotes(r: SprechenRubric, modality: Modality): string {
+  return modality === 'spoken' && r.notesSpokenDe ? r.notesSpokenDe : r.notes
 }
 
 export type Praedikat = 'sehr gut' | 'gut' | 'befriedigend' | 'ausreichend' | 'nicht bestanden'

@@ -68,10 +68,10 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
     pro: [
       { claim: 'Flexible Arbeitsmodelle steigern nachweislich die Zufriedenheit.', why: 'Wer die eigene Zeit besser einteilen kann, fühlt sich seinem Betrieb stärker verbunden.' },
       { claim: 'Weniger Druck am Arbeitsplatz verbessert die Produktivität.', why: 'Ausgeruhte Beschäftigte machen erwiesenermaßen weniger Fehler als überlastete.' },
-      { claim: 'Mitarbeitende mit echtem Mitspracherecht bleiben ihrem Betrieb treu.', why: 'Wer Entscheidungen mitgestalten darf, kündigt seltener wegen Frust innerlich.' }
+      { claim: 'Mitarbeitende mit echtem Mitspracherecht bleiben ihrem Betrieb treu.', why: 'Wer Entscheidungen mitgestalten darf, kündigt aus Frust seltener innerlich.' }
     ],
     contra: [
-      { claim: 'Nicht jede Branche kann sich flexible Regelungen leisten.', why: 'In Produktion oder Pflege hängt die Arbeit direkt an festen Schichten und Anwesenheit.' },
+      { claim: 'Nicht jede Branche kann sich flexible Regelungen leisten.', why: 'In Produktion oder Pflege hängt die Arbeit direkt von festen Schichten und Anwesenheit ab.' },
       { claim: 'Klare Strukturen und feste Zeiten schaffen Verlässlichkeit.', why: 'Kunden und Kollegen wissen so genau, wann sie jemanden erreichen können.' },
       { claim: 'Reformen dürfen kleine Betriebe wirtschaftlich nicht überfordern.', why: 'Ohne große Personalreserve lässt sich fehlende Arbeitszeit kaum einfach ausgleichen.' }
     ],
@@ -167,7 +167,7 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
   Gesellschaft: {
     pro: [
       { claim: 'Solidarität hält eine Gesellschaft auch in Krisen zusammen.', why: 'Wer sich gegenseitig hilft, übersteht schwierige Zeiten spürbar leichter.' },
-      { claim: 'Mehr Mitbestimmung stärkt das Vertrauen in Institutionen.', why: 'Wer Entscheidungen mitgestalten darf, akzeptiert das Ergebnis eher als Betroffener.' },
+      { claim: 'Mehr Mitbestimmung stärkt das Vertrauen in Institutionen.', why: 'Wer Entscheidungen mitgestalten darf, akzeptiert das Ergebnis als Betroffener eher.' },
       { claim: 'Vielfalt bereichert das gesellschaftliche Zusammenleben.', why: 'Unterschiedliche Perspektiven führen häufig zu kreativeren, besseren Lösungen.' }
     ],
     contra: [
@@ -208,7 +208,7 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
     pro: [
       { claim: 'Bewusster Konsum schont die Umwelt und den eigenen Geldbeutel.', why: 'Wer weniger, aber gezielter kauft, spart langfristig Geld und Ressourcen.' },
       { claim: 'Qualität statt Menge spart über die Zeit deutlich Geld.', why: 'Ein langlebiges Produkt muss seltener ersetzt werden als billige Wegwerfware.' },
-      { claim: 'Transparente Herkunft stärkt das Vertrauen der Kundschaft.', why: 'Wer weiß, woher ein Produkt stammt, kauft es mit deutlich gutem Gewissen.' }
+      { claim: 'Transparente Herkunft stärkt das Vertrauen der Kundschaft.', why: 'Wer weiß, woher ein Produkt stammt, kauft es mit deutlich besserem Gewissen.' }
     ],
     contra: [
       { claim: 'Jeder sollte selbst entscheiden dürfen, was er kauft.', why: 'Konsum bleibt eine private Entscheidung, die niemand von außen vorschreiben sollte.' },

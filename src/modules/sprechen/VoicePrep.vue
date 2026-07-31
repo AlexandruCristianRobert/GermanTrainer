@@ -16,10 +16,15 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { VOICE_RUN_STASH_KEY, type VoiceRunStash } from '../../data/sprechen'
 import { resolveArgumentBank, type ArgumentBank } from '../../data/sprechenArguments'
-import { loadCachedBank } from '../../composables/useSprechenArguments'
+import { generateArgumentBank, loadCachedBank, saveCachedBank } from '../../composables/useSprechenArguments'
 import { SPRECHEN_TOPICS } from '../../data/sprechenTopics'
+import { resolveAiClient } from '../../composables/localClaude'
+import { useSettings } from '../../composables/useSettings'
+import { useToast } from '../../composables/useToast'
 
 const router = useRouter()
+const toast = useToast()
+const { settings, canUseAi, load: loadSettings } = useSettings()
 
 const stash = ref<VoiceRunStash | null>(null)
 const bank = ref<ArgumentBank | null>(null)
@@ -27,6 +32,7 @@ const scope = ref<string>('')
 const notes = ref('')
 const left = ref(60)
 const running = ref(true)
+const regenerating = ref(false)
 let tick: number | undefined
 
 /** The learner argues the side the partner did NOT take. */
@@ -52,6 +58,7 @@ const clock = computed(() => {
 function sideDe(side: 'pro' | 'contra') { return side === 'pro' ? 'dafür' : 'dagegen' }
 
 onMounted(async () => {
+  await loadSettings()
   const raw = sessionStorage.getItem(VOICE_RUN_STASH_KEY)
   if (!raw) return
   try {
@@ -85,6 +92,28 @@ function go() {
   const next: VoiceRunStash = { ...stash.value, notes: notes.value }
   sessionStorage.setItem(VOICE_RUN_STASH_KEY, JSON.stringify(next))
   router.push({ name: 'sprechen-voice-run' })
+}
+
+async function regenerateBank() {
+  const s = stash.value
+  if (!s || !canUseAi.value || regenerating.value) return
+  regenerating.value = true
+  try {
+    const client = resolveAiClient(settings.value)
+    const fresh = await generateArgumentBank(client, settings.value.model, s.topic)
+    await saveCachedBank(s.topic.id, fresh)
+    bank.value = fresh
+    scope.value = 'cached'
+    toast.success('Neuer Argumentenspeicher generiert')
+  } catch (err) {
+    // Keep whatever bank was showing (authored or tag fallback) — a failed
+    // regeneration must never blank the prep screen.
+    toast.error('Generierung fehlgeschlagen', {
+      description: err instanceof Error ? err.message : String(err)
+    })
+  } finally {
+    regenerating.value = false
+  }
 }
 
 function backToSetup() { router.push({ name: 'sprechen-voice' }) }
@@ -138,7 +167,14 @@ function backToSetup() { router.push({ name: 'sprechen-voice' }) }
       <h3 class="block-heading">
         Argumentenspeicher
         <span class="scope-note">{{ scope === 'topic' || scope === 'cached' ? 'themenspezifisch' : `Feld ${scope}` }}</span>
+        <button
+          class="btn btn-quiet regen-btn"
+          type="button"
+          :disabled="!canUseAi || regenerating"
+          @click="regenerateBank"
+        >{{ regenerating ? 'Generiere…' : 'Argumente neu generieren' }}</button>
       </h3>
+      <p class="ai-cost-note">Ersetzt die angezeigten Argumente mit frisch generierten (1 Call).</p>
 
       <div class="angles">
         <section class="angle-col mine">
@@ -210,6 +246,15 @@ function backToSetup() { router.push({ name: 'sprechen-voice' }) }
   display: flex; gap: 12px; align-items: baseline;
 }
 .scope-note { letter-spacing: 0.14em; opacity: 0.75; }
+.regen-btn { margin-left: auto; text-transform: none; letter-spacing: normal; font-family: var(--font-body); font-size: 13px; }
+.ai-cost-note {
+  margin: 0 0 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--mute);
+  text-transform: uppercase;
+}
 .angles { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
 .angle-col.theirs { opacity: 0.82; }
 .angle-head {

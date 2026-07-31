@@ -8,13 +8,14 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   TURN_TARGETS, VOICE_RUN_STASH_KEY,
-  type PartnerStance, type TurnTarget, type VoiceRunStash
+  type PartnerStance, type SprechenDiscussion, type TurnTarget, type VoiceRunStash
 } from '../../data/sprechen'
 import { TOPIC_TAGS, type SprechenTopic, type TopicTag } from '../../data/sprechenTopics'
 import {
   allTopics, doneTopicTitles, generateTopics, addCustomTopics, deleteCustomTopic,
   loadCustomTopics, pickRandomTopic
 } from '../../composables/useSprechenTopics'
+import { abandonDiscussion, findActiveDiscussion } from '../../composables/useSprechenDiscussion'
 import { isSpeechRecognitionSupported } from '../../composables/useSpeechRecognizer'
 import { useSpeechVoice } from '../../composables/useSpeechVoice'
 import { resolveAiClient } from '../../composables/localClaude'
@@ -43,6 +44,7 @@ const prepSeconds = ref(60)
 const customTopics = ref<SprechenTopic[]>([])
 const generating = ref(false)
 const done = ref<Set<string>>(new Set())
+const active = ref<SprechenDiscussion | null>(null)
 
 const pool = computed(() => allTopics())
 
@@ -63,6 +65,7 @@ onMounted(async () => {
   await loadSettings()
   customTopics.value = loadCustomTopics()
   done.value = doneTopicTitles()
+  active.value = await findActiveDiscussion('spoken')
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return
@@ -124,6 +127,14 @@ async function testVoice() {
   await voice.speak('Guten Tag. Ich bin heute Ihre Gesprächspartnerin.')
 }
 
+function resumeActive() { router.push({ name: 'sprechen-voice-run' }) }
+
+async function discardActive() {
+  if (!active.value) return
+  await abandonDiscussion(active.value.id)
+  active.value = null
+}
+
 function start() {
   const t = topic.value
   if (!t) return
@@ -180,6 +191,17 @@ function back() { router.push({ name: 'sprechen' }) }
       <router-link :to="{ name: 'settings' }">Settings</router-link>.
     </div>
 
+    <div v-if="active" class="alert alert-info">
+      <span class="alert-label">Diskussion fortsetzen?</span>
+      Eine unfertige gesprochene Diskussion zu „{{ active.topic.titleDe }}" existiert
+      ({{ active.turns.filter(t => t.role === 'learner').length }} / {{ active.turnTarget }} Beiträge).
+      <div class="resume-actions">
+        <button class="btn btn-accent" type="button" @click="resumeActive">Fortsetzen →</button>
+        <button class="btn btn-danger" type="button" @click="discardActive">Verwerfen</button>
+      </div>
+    </div>
+
+    <template v-if="!active">
     <div class="field">
       <div class="field-label">Suche · Titel und These</div>
       <input v-model="query" class="input" placeholder="z. B. Arbeit, Schule, verbieten …" />
@@ -289,11 +311,13 @@ function back() { router.push({ name: 'sprechen' }) }
         <span class="bm-sub">{{ turnTarget }} Beiträge · Partner {{ stance === 'random' ? 'zufällig' : stance === 'pro' ? 'dafür' : 'dagegen' }}</span>
       </button>
     </div>
+    </template>
   </div>
 </template>
 
 <style scoped>
 .voice-setup { max-width: 820px; }
+.resume-actions { display: flex; gap: 10px; margin-top: 10px; }
 .filter-actions { display: flex; gap: 8px; margin-top: 10px; }
 .tag-row { margin: 18px 0 0; }
 .list-count { margin: 16px 0 8px; }

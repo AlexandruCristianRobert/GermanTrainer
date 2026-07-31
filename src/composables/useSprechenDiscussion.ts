@@ -31,10 +31,16 @@ export async function createDiscussion(
   return row
 }
 
-/** Active = in_progress OR submitted-but-not-graded. Most recent wins. */
-export async function findActiveDiscussion(): Promise<SprechenDiscussion | null> {
+/**
+ * Active = in_progress OR submitted-but-not-graded. Most recent wins.
+ * `modality`, when given, restricts the search to that modality — an
+ * abandoned spoken row must never be offered as a resumable typed one (or
+ * vice versa): the runners are not interchangeable mid-discussion.
+ */
+export async function findActiveDiscussion(modality?: Modality): Promise<SprechenDiscussion | null> {
   const all = await db.sprechenDiscussions.toArray()
-  const active = all.sort((a, b) => b.startedAt - a.startedAt)
+  const candidates = modality ? all.filter(d => d.modality === modality) : all
+  const active = candidates.sort((a, b) => b.startedAt - a.startedAt)
   return active[0] ?? null
 }
 

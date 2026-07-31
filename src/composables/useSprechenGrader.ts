@@ -4,8 +4,8 @@
 // to Dexie — it flows to sessionStorage['gt:lastSprechenResult'] for the
 // one-time result page, and only summary fields reach Run meta.
 
-import { SPRECHEN_B2_TEIL2, praedikat, sprechenDescriptor, type Praedikat } from '../data/rubrics'
-import type { DiscussionTurn, SprechenDiscussion } from '../data/sprechen'
+import { SPRECHEN_B2_TEIL2, praedikat, sprechenDescriptor, sprechenNotes, type Praedikat } from '../data/rubrics'
+import type { DiscussionTurn, Modality, SprechenDiscussion } from '../data/sprechen'
 import { learnerTurnCount, summarizeFluency } from '../data/sprechen'
 import type { SprechenErrorTag } from './useQuizHistory'
 
@@ -265,6 +265,38 @@ function formatSprechdaten(d: SprechenDiscussion): string {
   )
 }
 
+// ── Modality-aware prompt fragments ───────────────────────────────
+//
+// Same resolver pattern as `sprechenDescriptor`/`sprechenNotes` in
+// rubrics.ts: a typed default plus a spoken override, chosen by modality.
+// The typed branch is byte-identical to the pre-spoken-feature strings —
+// see BASELINE_TYPED_SYSTEM in the test file — so it must never be touched;
+// only the spoken branch may change.
+
+/** Opening sentence of the grader's system persona. */
+function graderPersonaDe(modality: Modality): string {
+  return modality === 'spoken'
+    ? 'Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-' +
+      'Prüfung, die hier gesprochen und automatisch per Spracherkennung ' +
+      'transkribiert wird.'
+    : 'Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-' +
+      'Prüfung, die hier in getippter Form geübt wird.'
+}
+
+// For spoken runs the transcript's spelling is the speech recognizer's
+// choice, not the learner's — assigning "spelling" against it would archive
+// a phantom mistake as the learner's own. The tag itself stays valid (old
+// typed runs and history still use it); only the spoken PROMPT is told to
+// never assign it.
+function spellingCaveatDe(modality: Modality): string {
+  return modality === 'spoken'
+    ? '- WICHTIG: Diese Diskussion wurde GESPROCHEN und automatisch per ' +
+      'Spracherkennung transkribiert. Die Schreibweise stammt von der ' +
+      'Erkennungssoftware, NICHT vom Lernenden — vergib daher NIEMALS die ' +
+      'Kategorie "spelling".\n'
+    : ''
+}
+
 // ── Prompt builder ───────────────────────────────────────────────
 
 export function buildSprechenGraderPrompt(
@@ -280,11 +312,10 @@ export function buildSprechenGraderPrompt(
     rubricLines.push(`    ${sprechenDescriptor(c, d.modality)}`)
   }
   rubricLines.push('')
-  rubricLines.push(`Hinweis: ${SPRECHEN_B2_TEIL2.notes}`)
+  rubricLines.push(`Hinweis: ${sprechenNotes(SPRECHEN_B2_TEIL2, d.modality)}`)
 
   const system =
-    'Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-' +
-    'Prüfung, die hier in getippter Form geübt wird. Du bewertest AUSSCHLIESSLICH ' +
+    graderPersonaDe(d.modality) + ' Du bewertest AUSSCHLIESSLICH ' +
     'die Beiträge des Lernenden (mit L0, L1, … markiert) nach der Rubrik unten — ' +
     'die PARTNER-Beiträge stammen von einer KI und werden nicht bewertet.\n\n' +
     'Zusätzlich markierst du JEDEN sprachlichen Fehler in den Lernerbeiträgen:\n' +
@@ -295,6 +326,7 @@ export function buildSprechenGraderPrompt(
     '- "kind": GENAU EINE Kategorie aus: grammar (Kasus, Konjugation, Endungen), ' +
     'word-order (Verbstellung, Satzklammer), vocabulary (falsches Wort, ' +
     'Kollokation), spelling (Rechtschreibung), register (Du/Sie, Stilebene).\n' +
+    spellingCaveatDe(d.modality) +
     '- "reasonDe" UND "reasonEn": kurze Erklärung, WARUM es falsch ist ' +
     '(Deutsch einfach halten — B2-Lernende lesen sie).\n\n' +
     'Für jedes Kriterium: ganzzahlige Punktzahl im erlaubten Bereich plus kurze ' +

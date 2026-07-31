@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SPRECHEN_B2_TEIL2, praedikat, sprechenDescriptor } from '../../src/data/rubrics'
+import { SPRECHEN_B2_TEIL2, praedikat, sprechenDescriptor, sprechenNotes } from '../../src/data/rubrics'
 
 describe('SPRECHEN_B2_TEIL2 rubric', () => {
   it('has four criteria of 25 points each, total 100, pass at 60', () => {
@@ -58,6 +58,21 @@ describe('SPRECHEN_B2_TEIL2 rubric — modality-aware descriptor (spoken fluency
       expect(c.descriptorSpokenDe).toBeUndefined()
       expect(sprechenDescriptor(c, 'spoken')).toBe(c.descriptorDe)
     }
+  })
+})
+
+describe('sprechenNotes — modality-aware rubric footer (Finding 4)', () => {
+  it('typed notes are unchanged and mention "getippte"', () => {
+    expect(sprechenNotes(SPRECHEN_B2_TEIL2, 'typed')).toBe(SPRECHEN_B2_TEIL2.notes)
+    expect(sprechenNotes(SPRECHEN_B2_TEIL2, 'typed')).toContain('getippte')
+  })
+
+  it('spoken notes swap in "gesprochene" and drop "getippte", keeping the point structure', () => {
+    const spokenText = sprechenNotes(SPRECHEN_B2_TEIL2, 'spoken')
+    expect(spokenText).not.toBe(SPRECHEN_B2_TEIL2.notes)
+    expect(spokenText).toContain('gesprochene')
+    expect(spokenText).not.toContain('getippte')
+    expect(spokenText).toContain('vier Kriterien zu je 25 Punkten, Bestehensgrenze 60')
   })
 })
 

@@ -58,7 +58,8 @@ function onCardKey(e: KeyboardEvent, name: string) {
         <p class="module-desc">
           Pick or generate a Topic, choose your turn count, and argue your
           side. Afterwards: marked transcript, Prädikat, and per-criterion
-          scores — the conversation itself is never stored.
+          scores. The conversation is discarded; your marked sentences are
+          kept in the Fehlerarchiv.
         </p>
         <div class="module-cta">Start <span aria-hidden="true">→</span></div>
       </article>
