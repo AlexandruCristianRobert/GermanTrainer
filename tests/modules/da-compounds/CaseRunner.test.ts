@@ -63,7 +63,7 @@ function wrongLabelFor(c: CollocationCase): string {
 describe('CaseRunner — smoke tests', () => {
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.case-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -80,7 +80,7 @@ describe('CaseRunner — smoke tests', () => {
     const firstItem = filterSubstitutionItems({ levels: ['B1'], roles: ['verb'] })[0]
     const btn = wrapper.findAll('button').find(b => b.text() === wrongLabelFor(firstItem.colloc.case))
     await btn!.trigger('click')
-    expect(wrapper.find('.case-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -89,7 +89,7 @@ describe('CaseRunner — smoke tests', () => {
     const firstItem = filterSubstitutionItems({ levels: ['B1'], roles: ['verb'] })[0]
     const btn = wrapper.findAll('button').find(b => b.text() === caseName(firstItem.colloc.case))
     await btn!.trigger('click')
-    expect(wrapper.find('.case-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 })

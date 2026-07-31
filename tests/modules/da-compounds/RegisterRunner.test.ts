@@ -53,14 +53,14 @@ describe('RegisterRunner — smoke tests', () => {
 
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.sub-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('shows the phrase in quotes', async () => {
     const first = filterRegisterItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
-    const stem = wrapper.find('.sub-stem').text()
+    const stem = wrapper.find('.drill-sentence').text()
     expect(stem).toContain(first.phrase)
     expect(/[„“"«»]/.test(stem)).toBe(true)
     wrapper.unmount()
@@ -68,7 +68,7 @@ describe('RegisterRunner — smoke tests', () => {
 
   it('renders exactly three option buttons with the fixed labels, in order', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons).toHaveLength(3)
     expect(buttons.map(b => b.text())).toEqual(
       REGISTER_OPTIONS.map(o => expect.stringContaining(o.label))
@@ -80,10 +80,10 @@ describe('RegisterRunner — smoke tests', () => {
     const first = filterRegisterItems({})[0]
     const label = REGISTER_OPTIONS.find(o => o.verdict === first.verdict)!.label
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const correctBtn = buttons.find(b => b.text().includes(label))!
     await correctBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -91,10 +91,10 @@ describe('RegisterRunner — smoke tests', () => {
     const first = filterRegisterItems({})[0]
     const wrongLabel = REGISTER_OPTIONS.find(o => o.verdict !== first.verdict)!.label
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(wrongLabel))!
     await wrongBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -102,10 +102,10 @@ describe('RegisterRunner — smoke tests', () => {
     const first = filterRegisterItems({})[0]
     const label = REGISTER_OPTIONS.find(o => o.verdict === first.verdict)!.label
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const btn = buttons.find(b => b.text().includes(label))!
     await btn.trigger('click')
-    const reveal = wrapper.find('.sub-reveal')
+    const reveal = wrapper.find('.reveal')
     expect(reveal.exists()).toBe(true)
     expect(reveal.text()).toContain(first.explanation.split(' / ')[0].slice(0, 20))
     wrapper.unmount()
@@ -115,10 +115,10 @@ describe('RegisterRunner — smoke tests', () => {
     const wrongItem = filterRegisterItems({}).find(i => i.verdict === 'wrong' && correctedForm(i))!
     vi.mocked(sampleRegisterItems).mockReturnValueOnce([wrongItem])
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     await buttons[0].trigger('click')
     const fix = correctedForm(wrongItem)!
-    expect(wrapper.find('.sub-reveal').text()).toContain(fix)
+    expect(wrapper.find('.reveal').text()).toContain(fix)
     expect(wrapper.find('s').exists()).toBe(true)
     wrapper.unmount()
   })
@@ -135,7 +135,7 @@ describe('RegisterRunner — history recording (ADR-0010)', () => {
   beforeEach(() => { vi.mocked(saveQuizRun).mockClear() })
 
   async function completeOneCard(wrapper: VueWrapper) {
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     await buttons[0].trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
     await finish!.trigger('click')
@@ -160,7 +160,7 @@ describe('RegisterRunner — history recording (ADR-0010)', () => {
     // force a wrong answer so a retry is offered
     const first = filterRegisterItems({ levels: ['B1'] })[0]
     const wrongLabel = REGISTER_OPTIONS.find(o => o.verdict !== first.verdict)!.label
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(wrongLabel))!
     await wrongBtn.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))

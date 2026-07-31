@@ -56,14 +56,14 @@ describe('HomographRunner — smoke tests', () => {
 
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.sub-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('bolds the ambiguous word inside the sentence', async () => {
     const first = filterHomographItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
-    const strong = wrapper.find('.sub-stem strong')
+    const strong = wrapper.find('.drill-sentence strong')
     expect(strong.exists()).toBe(true)
     expect(strong.text().toLowerCase()).toBe(first.word)
     wrapper.unmount()
@@ -73,7 +73,7 @@ describe('HomographRunner — smoke tests', () => {
     const first = filterHomographItems({})[0]
     const w = wordByKey.get(first.word)!
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons).toHaveLength(2)
     expect(buttons.some(b => b.text().includes(w.compoundLabel))).toBe(true)
     expect(buttons.some(b => b.text().includes(w.connectorLabel))).toBe(true)
@@ -85,10 +85,10 @@ describe('HomographRunner — smoke tests', () => {
     const w = wordByKey.get(first.word)!
     const label = first.reading === 'compound' ? w.compoundLabel : w.connectorLabel
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const correctBtn = buttons.find(b => b.text().includes(label))!
     await correctBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -97,10 +97,10 @@ describe('HomographRunner — smoke tests', () => {
     const w = wordByKey.get(first.word)!
     const wrongLabel = first.reading === 'compound' ? w.connectorLabel : w.compoundLabel
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(wrongLabel))!
     await wrongBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -109,10 +109,10 @@ describe('HomographRunner — smoke tests', () => {
     const w = wordByKey.get(first.word)!
     const wrongLabel = first.reading === 'compound' ? w.connectorLabel : w.compoundLabel
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(wrongLabel))!
     await wrongBtn.trigger('click')
-    const revealText = wrapper.find('.sub-reveal').text()
+    const revealText = wrapper.find('.reveal').text()
     expect(revealText).toContain(w.compoundLabel)
     expect(revealText).toContain(w.connectorLabel)
     expect(revealText).toContain(first.explanation.split(' / ')[0].slice(0, 20))
@@ -125,10 +125,10 @@ describe('HomographRunner — smoke tests', () => {
     const correctLabel = first.reading === 'compound' ? w.compoundLabel : w.connectorLabel
     const wrongLabel = first.reading === 'compound' ? w.connectorLabel : w.compoundLabel
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(wrongLabel))!
     await wrongBtn.trigger('click')
-    const correctBtn = wrapper.findAll('.sub-choice').find(b => b.text().includes(correctLabel))!
+    const correctBtn = wrapper.findAll('.choice').find(b => b.text().includes(correctLabel))!
     expect(correctBtn.classes()).toContain('correct')
     expect(wrongBtn.classes()).toContain('wrong')
     wrapper.unmount()
@@ -153,7 +153,7 @@ describe('HomographRunner — history recording (ADR-0010)', () => {
     const w = wordByKey.get(first.word)!
     const correctLabel = first.reading === 'compound' ? w.compoundLabel : w.connectorLabel
     const wrongLabel = first.reading === 'compound' ? w.connectorLabel : w.compoundLabel
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const btn = correct
       ? buttons.find(b => b.text().includes(correctLabel))!
       : buttons.find(b => b.text().includes(wrongLabel))!

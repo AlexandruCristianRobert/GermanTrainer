@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.14.04'
+export const APP_VERSION = '1.15.00'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,17 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.15.00', date: '2026-07-31', kind: 'major',
+    title: 'Direction Words & Da-Compounds · the editorial revamp',
+    notes: [
+      '<strong>Both module homes are rebuilt as proper indexes.</strong> Direction Words gets a sticky rail with a live perspective study: pick one of the six elements, flip where you are standing, and watch the compound and its meaning recompute. The rule the whole module rests on — <em>her</em> toward the speaker, <em>hin</em> away from it — is now something you turn over in your hands rather than something you read. Beside it, the six pairs on one axis: her-form, element, hin-form, and the spoken short form.',
+      '<strong>Da-Compounds gets a masthead and a ledger.</strong> The formation rule plays out as a formula — <em>da</em> + <em>r</em> + preposition — across every preposition that forms a compound and the eight that never do, so the linking <em>r</em> is the thing your eye lands on. All twenty drills sit in a searchable, sortable index; ask it for your weakest and it reorders.',
+      '<strong>Mastery meters, from your own history.</strong> Every drill now shows how far along it you are and how many questions you have answered, accumulated for good rather than read from a rolling window — so practising one module no longer makes another look untouched. Weak points stay right beside it: one tells you how far you have got, the other what to fix next.',
+      '<strong>Both cheatsheets are re-set as reference plates.</strong> Numbered plates, tabular type, and three additions: the her/hin key side by side, the Korrelat verbs split into obligatorisch, fakultativ and ausgeschlossen, and the no-compound prepositions as a single glance.',
+      '<strong>Under the hood.</strong> All twenty-eight drills across both modules now share one visual vocabulary instead of ten near-identical copies of it — about 4,000 lines of duplicated styling gone. Along the way: the answer field in the AI-graded drills respects your palette again, the preposition colours are wired to survive it, and the drill catalogue lives in one place instead of being spelled out twice.'
+    ]
+  },
   {
     version: '1.14.04', date: '2026-07-29', kind: 'polish',
     title: 'Direction Words · the traps — module complete',

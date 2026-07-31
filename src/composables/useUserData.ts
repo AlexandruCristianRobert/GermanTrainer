@@ -50,7 +50,9 @@ export const USER_DATA_KEYS = [
   'nounQuizGroups',
   'adjectiveQuizGroups',
   // quiz history
-  'gt:quizHistory'
+  'gt:quizHistory',
+  // lifetime per-drill mastery rollup (Direction Words / Da-Compounds)
+  'gt:drillTotals'
 ] as const
 
 export type UserDataKey = (typeof USER_DATA_KEYS)[number]
@@ -79,7 +81,8 @@ const KEY_LABELS: Record<UserDataKey, { label: string; group: string }> = {
   'gt:sprechenCustomTopics': { label: 'Sprechen custom topics', group: 'Quiz setup' },
   nounQuizGroups: { label: 'Noun groups (legacy)', group: 'Quiz setup' },
   adjectiveQuizGroups: { label: 'Adjective groups (legacy)', group: 'Quiz setup' },
-  'gt:quizHistory': { label: 'Quiz history', group: 'History' }
+  'gt:quizHistory': { label: 'Quiz history', group: 'History' },
+  'gt:drillTotals': { label: 'Drill mastery totals', group: 'History' }
 }
 
 export interface ExportSummaryRow {
@@ -115,6 +118,16 @@ function describe(key: UserDataKey, raw: string | null): string {
     try {
       const arr = JSON.parse(raw)
       if (Array.isArray(arr)) return `${arr.length} run${arr.length === 1 ? '' : 's'}`
+    } catch { /* fall through */ }
+    return 'stored'
+  }
+  if (key === 'gt:drillTotals') {
+    try {
+      const obj = JSON.parse(raw)
+      if (obj && typeof obj === 'object') {
+        const n = Object.keys(obj).length
+        return `${n} drill${n === 1 ? '' : 's'} tracked`
+      }
     } catch { /* fall through */ }
     return 'stored'
   }

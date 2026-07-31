@@ -58,20 +58,20 @@ describe('KorrelatRunner — smoke tests', () => {
 
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.sub-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('renders exactly 4 option buttons', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons).toHaveLength(4)
     wrapper.unmount()
   })
 
   it('one option is always KEIN_KORRELAT', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons.some(b => b.text().includes(KEIN_KORRELAT))).toBe(true)
     wrapper.unmount()
   })
@@ -79,10 +79,10 @@ describe('KorrelatRunner — smoke tests', () => {
   it('reveals feedback after clicking an option, always showing the explanation', async () => {
     const { wrapper } = await mountRunner({ count: '1', kinds: 'obligatory' })
     const first = firstMatching('obligatory')
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     await buttons[0].trigger('click')
-    expect(wrapper.find('.sub-feedback').exists()).toBe(true)
-    const reveal = wrapper.find('.sub-reveal')
+    expect(wrapper.find('.drill-feedback').exists()).toBe(true)
+    const reveal = wrapper.find('.reveal')
     expect(reveal.exists()).toBe(true)
     expect(reveal.text()).toContain(first.explanation)
     wrapper.unmount()
@@ -92,11 +92,11 @@ describe('KorrelatRunner — smoke tests', () => {
     const { wrapper } = await mountRunner({ count: '1', kinds: 'obligatory' })
     const first = firstMatching('obligatory')
     const answer = korrelatAnswer(first)!
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const answerBtn = buttons.find(b => b.text().includes(answer))!
     await answerBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
-    const reveal = wrapper.find('.sub-reveal')
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
+    const reveal = wrapper.find('.reveal')
     expect(reveal.exists()).toBe(true)
     expect(reveal.text()).toContain(first.explanation)
     wrapper.unmount()
@@ -106,28 +106,28 @@ describe('KorrelatRunner — smoke tests', () => {
     const { wrapper } = await mountRunner({ count: '1', kinds: 'obligatory' })
     const first = firstMatching('obligatory')
     const answer = korrelatAnswer(first)!
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const answerBtn = buttons.find(b => b.text().includes(answer))!
     await answerBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('shows wrong feedback when KEIN_KORRELAT is picked for an obligatory item', async () => {
     const { wrapper } = await mountRunner({ count: '1', kinds: 'obligatory' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const keinBtn = buttons.find(b => b.text().includes(KEIN_KORRELAT))!
     await keinBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('accepts KEIN_KORRELAT as correct for an optional item', async () => {
     const { wrapper } = await mountRunner({ count: '1', kinds: 'optional' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const keinBtn = buttons.find(b => b.text().includes(KEIN_KORRELAT))!
     await keinBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     // teaching note for the dual-accept rule
     expect(wrapper.text()).toContain('fakultatives Korrelat')
     wrapper.unmount()
@@ -137,28 +137,28 @@ describe('KorrelatRunner — smoke tests', () => {
     const { wrapper } = await mountRunner({ count: '1', kinds: 'optional' })
     const first = firstMatching('optional')
     const answer = korrelatAnswer(first)!
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const answerBtn = buttons.find(b => b.text().includes(answer))!
     await answerBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('accepts only KEIN_KORRELAT for an excluded item', async () => {
     const { wrapper } = await mountRunner({ count: '1', kinds: 'excluded' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const keinBtn = buttons.find(b => b.text().includes(KEIN_KORRELAT))!
     await keinBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('rejects any compound pick for an excluded item', async () => {
     const { wrapper } = await mountRunner({ count: '1', kinds: 'excluded' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const compoundBtn = buttons.find(b => !b.text().includes(KEIN_KORRELAT))!
     await compoundBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -173,7 +173,7 @@ describe('KorrelatRunner — history recording (ADR-0010)', () => {
   beforeEach(() => { vi.mocked(saveQuizRun).mockClear() })
 
   async function completeOneCard(wrapper: VueWrapper, useKeinKorrelat: boolean) {
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const btn = useKeinKorrelat
       ? buttons.find(b => b.text().includes(KEIN_KORRELAT))!
       : buttons.find(b => !b.text().includes(KEIN_KORRELAT))!

@@ -53,14 +53,14 @@ describe('RelativeRunner — smoke tests', () => {
 
   it('renders the quiz stage', async () => {
     const { wrapper } = await mountRunner({ count: '1' })
-    expect(wrapper.find('.sub-stage').exists()).toBe(true)
+    expect(wrapper.find('.drill-stage').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('renders exactly two option buttons: prepForm and woForm', async () => {
     const first = filterRelativeItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons).toHaveLength(2)
     expect(buttons.some(b => b.text().includes(first.prepForm))).toBe(true)
     expect(buttons.some(b => b.text().includes(first.woForm))).toBe(true)
@@ -70,7 +70,7 @@ describe('RelativeRunner — smoke tests', () => {
   it('shows the sentence with the gap', async () => {
     const first = filterRelativeItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
-    const stem = wrapper.find('.sub-stem').text()
+    const stem = wrapper.find('.drill-sentence').text()
     const [pre, post] = first.sentence.split('___')
     expect(stem).toContain(pre.trim())
     expect(stem).toContain(post.trim())
@@ -81,10 +81,10 @@ describe('RelativeRunner — smoke tests', () => {
     const indefinite = filterRelativeItems({}).find(i => i.antecedentKind === 'indefinite')!
     vi.mocked(sampleRelativeItems).mockReturnValueOnce([indefinite])
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const woBtn = buttons.find(b => b.text().includes(indefinite.woForm))!
     await woBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -92,10 +92,10 @@ describe('RelativeRunner — smoke tests', () => {
     const indefinite = filterRelativeItems({}).find(i => i.antecedentKind === 'indefinite')!
     vi.mocked(sampleRelativeItems).mockReturnValueOnce([indefinite])
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const prepBtn = buttons.find(b => b.text().includes(indefinite.prepForm))!
     await prepBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -103,10 +103,10 @@ describe('RelativeRunner — smoke tests', () => {
     const person = filterRelativeItems({}).find(i => i.antecedentKind === 'person')!
     vi.mocked(sampleRelativeItems).mockReturnValueOnce([person])
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const prepBtn = buttons.find(b => b.text().includes(person.prepForm))!
     await prepBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -114,10 +114,10 @@ describe('RelativeRunner — smoke tests', () => {
     const person = filterRelativeItems({}).find(i => i.antecedentKind === 'person')!
     vi.mocked(sampleRelativeItems).mockReturnValueOnce([person])
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const woBtn = buttons.find(b => b.text().includes(person.woForm))!
     await woBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -125,20 +125,20 @@ describe('RelativeRunner — smoke tests', () => {
     const thing = filterRelativeItems({}).find(i => i.antecedentKind === 'thing')!
     vi.mocked(sampleRelativeItems).mockReturnValueOnce([thing])
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const woBtn = buttons.find(b => b.text().includes(thing.woForm))!
     await woBtn.trigger('click')
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
-    expect(wrapper.find('.sub-reveal').text()).toContain(thing.prepForm)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
+    expect(wrapper.find('.reveal').text()).toContain(thing.prepForm)
     wrapper.unmount()
   })
 
   it('reveals the explanation after answering, right or wrong', async () => {
     const first = filterRelativeItems({})[0]
     const { wrapper } = await mountRunner({ count: '1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     await buttons[0].trigger('click')
-    const reveal = wrapper.find('.sub-reveal')
+    const reveal = wrapper.find('.reveal')
     expect(reveal.exists()).toBe(true)
     expect(reveal.text()).toContain(first.explanation.split(' / ')[0].slice(0, 20))
     wrapper.unmount()
@@ -156,7 +156,7 @@ describe('RelativeRunner — history recording (ADR-0010)', () => {
   beforeEach(() => { vi.mocked(saveQuizRun).mockClear() })
 
   async function completeOneCard(wrapper: VueWrapper) {
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     await buttons[0].trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
     await finish!.trigger('click')
@@ -180,7 +180,7 @@ describe('RelativeRunner — history recording (ADR-0010)', () => {
     const person = filterRelativeItems({ levels: ['B1'] }).find(i => i.antecedentKind === 'person')!
     vi.mocked(sampleRelativeItems).mockReturnValueOnce([person])
     const { wrapper } = await mountRunner({ count: '1', levels: 'B1' })
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const woBtn = buttons.find(b => b.text().includes(person.woForm))! // wrong for a person item
     await woBtn.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))

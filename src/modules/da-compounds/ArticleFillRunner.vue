@@ -203,7 +203,7 @@ function caseName(c: CollocationCase): string {
       <div
         v-for="(q, i) in questions"
         :key="i"
-        class="result-row sub-result-row"
+        class="result-row drill-result-row is-prep"
         :style="prepColorStyle(q.colloc.preposition)"
       >
         <div class="result-word">
@@ -214,7 +214,7 @@ function caseName(c: CollocationCase): string {
           <span class="result-picked" :class="q.isCorrect ? 'ok' : 'err'">{{ q.typed || '—' }}</span>
           <span v-if="!q.isCorrect" class="result-correct">→ <strong>{{ q.answer }}</strong></span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -236,7 +236,7 @@ function caseName(c: CollocationCase): string {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="sub-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Card {{ questionIndex + 1 }} · of {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'dacompounds-article' })">End drill</button>
@@ -247,18 +247,18 @@ function caseName(c: CollocationCase): string {
       </div>
 
       <!-- Prompt: the sentence with the whole d___/ein___ token replaced by a single gap -->
-      <div class="sub-prompt">
-        <p class="sub-stem">
-          {{ gapParts!.pre }}<span class="sub-gap" :class="{ filled: submitted, ok: submitted && current.isCorrect, err: submitted && !current.isCorrect }">{{ submitted ? current.answer : '＿＿＿' }}</span>{{ gapParts!.post }}
+      <div class="drill-prompt">
+        <p class="drill-sentence is-compact">
+          {{ gapParts!.pre }}<span class="drill-gap" :class="{ ok: submitted && current.isCorrect, err: submitted && !current.isCorrect }">{{ submitted ? current.answer : '＿＿＿' }}</span>{{ gapParts!.post }}
         </p>
       </div>
 
       <!-- Type-only: single text input for the whole article word -->
-      <div class="sub-type-row">
+      <div class="type-row">
         <input
           ref="textInputRef"
           v-model="typedInput"
-          class="input sub-type-input"
+          class="input type-input"
           type="text"
           :placeholder="stub"
           :readonly="submitted"
@@ -274,20 +274,20 @@ function caseName(c: CollocationCase): string {
       </div>
 
       <!-- Feedback after answering -->
-      <div v-if="submitted" class="sub-feedback">
-        <span v-if="current.isCorrect" class="sub-feedback-mark sub-feedback-ok">
+      <div v-if="submitted" class="drill-feedback">
+        <span v-if="current.isCorrect" class="feedback-line correct">
           ✓ Richtig — <strong>{{ current.answer }}</strong>
         </span>
         <template v-else>
-          <span class="sub-feedback-mark sub-feedback-bad">✗ Korrekt: <strong>{{ current.answer }}</strong></span>
-          <div class="sub-reveal" :style="prepColorStyle(current.colloc.preposition)">
-            <div class="sub-reveal-line">
+          <span class="feedback-line wrong">✗ Korrekt: <strong>{{ current.answer }}</strong></span>
+          <div class="reveal is-prep" :style="prepColorStyle(current.colloc.preposition)">
+            <div class="reveal-l">
               <strong class="prep-accent-text">{{ current.colloc.word }}</strong>
               · <span class="prep-accent-text">{{ current.colloc.preposition }}</span>
               · {{ caseName(current.hintCase) }}
               <span v-if="current.isAnDativeException" class="tag tag-danger article-exception-flag">an + Dativ</span>
             </div>
-            <div class="sub-reveal-rule micro-mark">
+            <div class="reveal-note micro-mark">
               <template v-if="current.colloc.preposition === 'an'">
                 Präpositionalobjekt → meistens Akkusativ; an + Dativ-Verben sind die Ausnahme.
               </template>
@@ -296,21 +296,20 @@ function caseName(c: CollocationCase): string {
                 (bestehen auf, leiden unter, sich fürchten vor …) sind die Ausnahme.
               </template>
             </div>
-            <div class="sub-reveal-explanation">{{ current.colloc.coreIdeaExplanation }}</div>
+            <div class="reveal-b">{{ current.colloc.coreIdeaExplanation }}</div>
           </div>
         </template>
         <button
           ref="nextBtnRef"
           type="button"
-          class="btn btn-accent"
-          style="margin-top: 16px;"
+          class="btn btn-accent drill-advance"
           @click="next"
         >
           {{ questionIndex + 1 >= total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div class="sub-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!submitted && !isMobile">Type the full article word and press Enter</template>
         <template v-else-if="!submitted">Type the full article word</template>
         <template v-else-if="submitted">
@@ -322,156 +321,21 @@ function caseName(c: CollocationCase): string {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+/* Bespoke to this drill — no shared-vocabulary equivalent. */
+.article-exception-flag { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em; }
 
-.sub-stage {
-  max-width: 640px;
-  margin: 0 auto;
-  outline: none;
-}
-.sub-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
-
-.sub-prompt {
-  text-align: center;
-  padding: 20px 0 8px;
-  border-bottom: 1px solid var(--hairline);
-  margin-bottom: 20px;
-}
-.sub-stem {
-  font-family: var(--font-display);
+/* .drill-sentence (modules.css) is the design's clamp(26px,3.2vw,40px) display
+   headline size for a full sentence; this drill's gapped article+noun phrase
+   is shorter and keeps the pre-migration italic/serif "flashcard" treatment,
+   so it opts into the smaller size via .is-compact (sanctioned by the
+   migration reference for drills that "genuinely need smaller"). */
+.drill-sentence.is-compact {
   font-style: italic;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.4;
   font-size: clamp(20px, 6vw, 28px);
   color: var(--ink);
   margin: 0 0 18px;
-}
-.sub-gap {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-style: normal;
-  color: var(--accent);
-  border-bottom: 2px solid var(--accent);
-  padding: 0 2px;
-}
-.sub-gap.filled.ok { color: var(--success); border-color: var(--success); }
-.sub-gap.filled.err { color: var(--danger); border-color: var(--danger); }
-
-/* Type mode */
-.sub-type-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-.sub-type-input {
-  flex: 1;
-  font-family: var(--font-display);
-  font-size: 18px;
-}
-.sub-type-input.ok { color: var(--success); border-bottom-color: var(--success); }
-.sub-type-input.err { color: var(--danger); border-bottom-color: var(--danger); }
-
-/* Feedback + reveal */
-.sub-feedback {
-  margin-top: 24px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.sub-feedback-mark {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
-}
-.sub-feedback-ok  { color: var(--success); }
-.sub-feedback-bad { color: var(--danger); }
-
-.sub-reveal {
-  margin-top: 8px;
-  width: 100%;
-  border-left: 3px solid var(--prep-accent);
-  background: var(--prep-wash);
-  border-radius: 0 3px 3px 0;
-  padding: 12px 16px;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.sub-reveal-line {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.prep-accent-text { color: var(--prep-accent); font-weight: 600; }
-.article-exception-flag { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em; }
-.sub-reveal-rule {
-  font-style: italic;
-  color: var(--mute);
-}
-.sub-reveal-explanation {
-  font-family: var(--font-body);
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: var(--ink);
-}
-
-.sub-hint { margin-top: 20px; text-align: center; color: var(--mute); min-height: 16px; }
-
-/* Result list */
-.sub-result-row { grid-template-columns: 180px 1fr auto; background: var(--prep-wash); align-items: center; padding: 14px 16px; }
-.result-word-meta {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--mute);
-  margin-top: 2px;
-  font-weight: 400;
-}
-.result-answer {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.result-correct { color: var(--success); }
-.result-explanation {
-  grid-column: 1 / -1;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: var(--ink);
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dotted var(--hairline);
-}
-.ok  { color: var(--success); }
-.err { color: var(--danger); }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
-
-/* Phone-first */
-@media (max-width: 720px) {
-  .sub-result-row {
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "word verdict" "answer answer" "expl expl";
-    gap: 8px 12px;
-    align-items: start;
-  }
-  .sub-result-row .result-word { grid-area: word; }
-  .sub-result-row .result-answer { grid-area: answer; }
-  .sub-result-row > div:nth-child(3) { grid-area: verdict; align-self: start; }
-  .sub-result-row .result-explanation { grid-area: expl; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
-  .sub-type-row { flex-direction: column; align-items: stretch; }
-  .sub-type-row .btn { justify-content: center; }
 }
 </style>

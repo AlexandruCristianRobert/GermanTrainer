@@ -219,13 +219,5 @@ function back() { router.push({ name: 'directionwords' }) }
 </template>
 
 <style scoped>
-.setup-page { max-width: 720px; }
-.field-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; gap: 12px; flex-wrap: wrap; }
-.field-actions { display: flex; gap: 4px; }
-.count-row { align-items: center; gap: 12px; }
-.custom-count { width: 80px; font-size: 17px; padding: 4px 0; }
-.grading-hint { margin: 8px 0 0; }
 .chip-count { margin-left: 6px; font-family: var(--font-mono); font-size: 11px; opacity: 0.6; }
-.setup-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; gap: 16px; }
-@media (max-width: 720px) { .setup-actions { flex-direction: column-reverse; align-items: stretch; } .setup-actions .btn { justify-content: center; } }
 </style>

@@ -1,6 +1,8 @@
 // Quiz history storage — localStorage, capped at 100 entries (FIFO trim).
 // Schema matches the design handoff (history.jsx).
 
+import { bumpDrillTotals } from './useDrillMastery'
+
 export type QuizHistoryType =
   | 'noun-gender'
   | 'noun-translation'
@@ -284,7 +286,13 @@ export function saveQuizRun(entry: Omit<QuizHistoryEntry, 'id'>): void {
   const all = safeRead()
   const startedAtMs = Date.parse(entry.startedAt)
   const id = Number.isFinite(startedAtMs) ? startedAtMs : Date.now()
-  all.unshift({ id, ...entry })
+  const full: QuizHistoryEntry = { id, ...entry }
+  // Bump the lifetime per-drill rollup with `all` as it stood *before* this
+  // run — the one-time seed (if this is the very first bump) folds exactly
+  // the prior runs, and this call adds `full` on top. gt:drillTotals is not
+  // capped by HISTORY_LIMIT, so drill mastery survives this array's FIFO trim.
+  bumpDrillTotals(full, all)
+  all.unshift(full)
   const trimmed = all.slice(0, HISTORY_LIMIT)
   safeWrite(trimmed)
 }

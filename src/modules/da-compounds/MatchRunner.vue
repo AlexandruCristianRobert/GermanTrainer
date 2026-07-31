@@ -257,7 +257,7 @@ function restart() {
       <div
         v-for="row in allRows"
         :key="row.collocId"
-        class="result-row match-result-row"
+        class="result-row drill-result-row is-prep"
         :style="prepColorStyle(row.preposition)"
       >
         <div class="result-word">
@@ -268,7 +268,7 @@ function restart() {
           <span class="result-picked" :class="row.correct ? 'ok' : 'err'">{{ row.assigned || '—' }}</span>
           <span v-if="!row.correct" class="result-correct">→ <strong>{{ daCompound(row.preposition) }}</strong></span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="row.correct ? 'tag-success' : 'tag-danger'">
             {{ row.correct ? '✓' : '✗' }}
           </span>
@@ -289,7 +289,7 @@ function restart() {
 
   <!-- Active screen -->
   <div v-else-if="currentScreen && ready" class="page">
-    <div class="match-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage match-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Screen {{ screenNumber }} · of {{ screenCount }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'dacompounds-match' })">End drill</button>
@@ -366,7 +366,7 @@ function restart() {
         >{{ isLastScreen ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span></button>
       </div>
 
-      <div class="match-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!graded">Tap a word, then its match</template>
         <template v-else>Press <span class="kbd">Enter</span> to {{ isLastScreen ? 'finish' : 'continue' }}</template>
       </div>
@@ -375,16 +375,11 @@ function restart() {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-.match-stage {
-  max-width: 720px;
-  margin: 0 auto;
-  outline: none;
-}
-.match-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
+/* Genuine variant on top of .drill-stage: this is the only two-column layout
+   among the migrated drills, so it needs 720px instead of the shared 640px.
+   Margin/outline/focus-visible now come from the canonical .drill-stage,
+   which the element also carries. */
+.match-stage { max-width: 720px; }
 
 .match-columns {
   display: grid;
@@ -479,34 +474,8 @@ function restart() {
   font-size: 12.5px;
   text-align: left;
 }
-.prep-accent-text { color: var(--prep-accent); font-weight: 600; }
 
 .match-actions { display: flex; justify-content: center; margin-top: 8px; }
-.match-hint { margin-top: 16px; text-align: center; color: var(--mute); min-height: 16px; }
-
-/* Result list */
-.match-result-row { grid-template-columns: 180px 1fr auto; background: var(--prep-wash); align-items: center; padding: 14px 16px; }
-.result-word-meta {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--mute);
-  margin-top: 2px;
-  font-weight: 400;
-}
-.result-answer {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.result-correct { color: var(--success); }
-.ok  { color: var(--success); }
-.err { color: var(--danger); }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
 
 /* Phone-first: stack the columns, chips pool moves above the list */
 @media (max-width: 560px) {
@@ -519,19 +488,5 @@ function restart() {
   }
   .match-chip.pool { flex: 1 1 auto; }
   .match-row { min-height: 44px; }
-}
-
-@media (max-width: 720px) {
-  .match-result-row {
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "word verdict" "answer answer";
-    gap: 8px 12px;
-    align-items: start;
-  }
-  .match-result-row .result-word { grid-area: word; }
-  .match-result-row .result-answer { grid-area: answer; }
-  .match-result-row > div:nth-child(3) { grid-area: verdict; align-self: start; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
 }
 </style>

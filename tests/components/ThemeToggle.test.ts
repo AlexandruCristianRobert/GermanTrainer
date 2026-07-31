@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
+// ThemeToggle is the only component in the suite that pulls in naive-ui's NButton, and
+// each test re-imports it after vi.resetModules(). Transforming naive-ui cold costs
+// several seconds, so under the parallel contention of a full run this file can exceed
+// the 5s default while passing in ~1.7s on its own. The cost is import time, not the
+// assertions — so raise the ceiling for this file rather than leave the suite flaky.
+vi.setConfig({ testTimeout: 30000 })
+
 beforeEach(() => {
   vi.resetModules()
   localStorage.clear()

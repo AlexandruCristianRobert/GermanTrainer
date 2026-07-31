@@ -64,8 +64,8 @@ function itemById(id: string): DwIdiomItem {
 
 /** The option button whose label is EXACTLY this surface ('her mit' vs 'her damit'). */
 function buttonFor(wrapper: VueWrapper, surface: string) {
-  return wrapper.findAll('.im-choice')
-    .find(b => b.find('.im-choice-label').text() === surface)!
+  return wrapper.findAll('.choice')
+    .find(b => b.find('.c-label').text() === surface)!
 }
 
 // Every level that carries items (the bank has no A2 content), so the whole
@@ -85,7 +85,7 @@ describe('IdiomRunner — the card', () => {
 
   it('renders one button per authored option — three for a 3-option item', async () => {
     const { wrapper } = await mountRunner(QUERY)
-    const labels = wrapper.findAll('.im-choice').map(b => b.find('.im-choice-label').text())
+    const labels = wrapper.findAll('.choice').map(b => b.find('.c-label').text())
     expect(SAMPLED.options).toHaveLength(3)
     expect([...labels].sort()).toEqual([...SAMPLED.options].sort())
     wrapper.unmount()
@@ -93,10 +93,10 @@ describe('IdiomRunner — the card', () => {
 
   it('renders four buttons for a 4-option item, keyed 1–4', async () => {
     const { wrapper } = await mountItem(FOUR_OPTION_ITEM)
-    const buttons = wrapper.findAll('.im-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons).toHaveLength(4)
-    expect(buttons.map(b => b.find('.im-choice-key').text())).toEqual(['1', '2', '3', '4'])
-    expect(buttons.map(b => b.find('.im-choice-label').text()).sort())
+    expect(buttons.map(b => b.find('.c-key').text())).toEqual(['1', '2', '3', '4'])
+    expect(buttons.map(b => b.find('.c-label').text()).sort())
       .toEqual([...FOUR_OPTION_ITEM.options].sort())
     wrapper.unmount()
   })
@@ -105,7 +105,7 @@ describe('IdiomRunner — the card', () => {
     const { wrapper } = await mountRunner(QUERY)
     const sentence = wrapper.find('.im-sentence')
     expect(sentence.text()).toBe(SAMPLED.sentence)
-    expect(sentence.find('.gap').text()).toBe('___')
+    expect(sentence.find('.drill-gap').text()).toBe('___')
     wrapper.unmount()
   })
 
@@ -113,9 +113,9 @@ describe('IdiomRunner — the card', () => {
     const { wrapper } = await mountRunner(QUERY)
     window.dispatchEvent(new KeyboardEvent('keydown', { key: '2' }))
     await flushPromises()
-    const buttons = wrapper.findAll('.im-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons[1].classes()).toContain('selected')
-    expect(wrapper.find('.im-feedback').exists()).toBe(true)
+    expect(wrapper.find('.drill-feedback').exists()).toBe(true)
     wrapper.unmount()
   })
 
@@ -135,7 +135,7 @@ describe('IdiomRunner — the reveal', () => {
     const { wrapper } = await mountRunner(QUERY)
     await buttonFor(wrapper, WRONG).trigger('click')
 
-    expect(wrapper.find('.im-feedback-bad').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
     expect(wrapper.find('.im-explanation').text()).toBe(SAMPLED.explanation)
     expect(wrapper.find('.im-filled').text())
       .toBe(SAMPLED.sentence.replace('___', SAMPLED.answer))
@@ -149,7 +149,7 @@ describe('IdiomRunner — the reveal', () => {
     const { wrapper } = await mountRunner(QUERY)
     await buttonFor(wrapper, SAMPLED.answer).trigger('click')
 
-    expect(wrapper.find('.im-feedback-ok').exists()).toBe(true)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
     expect(wrapper.find('.im-explanation').text()).toBe(SAMPLED.explanation)
     expect(wrapper.find('.im-filled').text())
       .toBe(SAMPLED.sentence.replace('___', SAMPLED.answer))
@@ -217,7 +217,7 @@ describe('IdiomRunner — the summary', () => {
     await flushPromises()
 
     expect(wrapper.find('.result-score').text()).toContain('1 / 1')
-    const rows = wrapper.findAll('.im-result-row')
+    const rows = wrapper.findAll('.drill-result-row')
     expect(rows).toHaveLength(1)
     expect(rows[0].find('.result-sentence').text())
       .toBe('Hin und wieder gehe ich noch in dieses kleine Kino am Hafen.')

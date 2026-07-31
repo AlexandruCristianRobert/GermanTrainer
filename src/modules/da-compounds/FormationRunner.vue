@@ -214,7 +214,7 @@ function choiceLabel(c: FormationChoice): string {
       <div
         v-for="(q, i) in questions"
         :key="i"
-        class="result-row fr-result-row"
+        class="result-row drill-result-row"
       >
         <div class="result-verb">
           <div class="german">{{ q.preposition }}</div>
@@ -228,7 +228,7 @@ function choiceLabel(c: FormationChoice): string {
           </span>
           <span v-if="q.da" class="result-notes">{{ q.da }} · {{ q.wo }}</span>
         </div>
-        <div>
+        <div class="result-verdict">
           <span class="tag" :class="q.isCorrect ? 'tag-success' : 'tag-danger'">
             {{ q.isCorrect ? '✓' : '✗' }}
           </span>
@@ -249,7 +249,7 @@ function choiceLabel(c: FormationChoice): string {
 
   <!-- Active quiz card -->
   <div v-else-if="current && ready" class="page">
-    <div class="fr-stage" ref="cardRef" tabindex="-1">
+    <div class="drill-stage" ref="cardRef" tabindex="-1">
       <div class="quiz-meta">
         <span class="quiz-counter">Präposition {{ questionIndex + 1 }} · von {{ total }}</span>
         <button class="btn btn-quiet" type="button" @click="router.push({ name: 'dacompounds-formation' })">End drill</button>
@@ -260,18 +260,18 @@ function choiceLabel(c: FormationChoice): string {
       </div>
 
       <!-- Prompt card -->
-      <div class="fr-prompt">
+      <div class="drill-prompt">
         <div class="fr-preposition">{{ current.preposition }}</div>
         <div class="fr-ask">da-, dar- oder keine Bildung<em>?</em></div>
       </div>
 
       <!-- Three fixed choice buttons -->
-      <div class="fr-picker-grid">
+      <div class="choice-row">
         <button
           v-for="(btn, bi) in CHOICE_BUTTONS"
           :key="btn.value"
           type="button"
-          class="fr-choice"
+          class="choice mono-face"
           :class="{
             selected: current.picked === btn.value,
             correct: submitted && current.expected === btn.value,
@@ -281,26 +281,26 @@ function choiceLabel(c: FormationChoice): string {
           :disabled="submitted"
           @click="pick(btn.value)"
         >
-          <span class="fr-choice-key">{{ bi + 1 }}</span>
-          <span class="fr-choice-label">{{ btn.label }}</span>
+          <span class="c-key">{{ bi + 1 }}</span>
+          <span class="c-label">{{ btn.label }}</span>
         </button>
       </div>
 
       <!-- Feedback after pick -->
-      <div v-if="submitted" class="fr-feedback">
+      <div v-if="submitted" class="drill-feedback">
         <template v-if="current.da">
-          <span v-if="currentIsCorrect" class="fr-feedback-mark fr-feedback-ok">
+          <span v-if="currentIsCorrect" class="feedback-line correct">
             ✓ Richtig — <strong>{{ current.da }} · {{ current.wo }}</strong>
           </span>
-          <span v-else class="fr-feedback-mark fr-feedback-bad">
+          <span v-else class="feedback-line wrong">
             ✗ Korrekt: <strong>{{ current.da }} · {{ current.wo }}</strong>
           </span>
         </template>
         <template v-else>
-          <span v-if="currentIsCorrect" class="fr-feedback-mark fr-feedback-ok">
+          <span v-if="currentIsCorrect" class="feedback-line correct">
             ✓ Richtig — bildet keine Zusammensetzung
           </span>
-          <span v-else class="fr-feedback-mark fr-feedback-bad">
+          <span v-else class="feedback-line wrong">
             ✗ Korrekt: bildet keine Zusammensetzung
           </span>
           <p class="fr-notes">Stattdessen: {{ TRAP_WORKAROUND[current.preposition] ?? 'Präposition + Pronomen' }}</p>
@@ -308,15 +308,14 @@ function choiceLabel(c: FormationChoice): string {
         <button
           ref="nextBtnRef"
           type="button"
-          class="btn btn-accent"
-          style="margin-top: 16px;"
+          class="btn btn-accent drill-advance"
           @click="next"
         >
           {{ questionIndex + 1 >= total ? 'Finish drill' : 'Next' }} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div class="fr-hint micro-mark">
+      <div class="drill-hint micro-mark">
         <template v-if="!submitted && !isMobile">
           Press <span class="kbd">1</span>–<span class="kbd">3</span> to choose
         </template>
@@ -330,21 +329,6 @@ function choiceLabel(c: FormationChoice): string {
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.result-page { max-width: 880px; }
-.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-.fr-stage {
-  max-width: 640px;
-  margin: 0 auto;
-  outline: none;
-}
-.fr-stage:focus-visible { outline: 1px dotted var(--rule); outline-offset: 8px; }
-
-.fr-prompt {
-  text-align: center;
-  padding: 20px 0 8px;
-}
 .fr-preposition {
   font-family: var(--font-display);
   font-weight: 500;
@@ -362,73 +346,6 @@ function choiceLabel(c: FormationChoice): string {
 }
 .fr-ask em { font-style: normal; color: var(--accent); }
 
-/* Three-button grid — one column, thumb-friendly on phones */
-.fr-picker-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-
-.fr-choice {
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: 18px 14px;
-  min-height: 56px;
-  cursor: pointer;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 15px;
-  letter-spacing: 0.06em;
-  color: var(--ink-soft);
-  text-align: left;
-}
-.fr-choice:not(:disabled):hover {
-  border-color: var(--accent);
-  color: var(--ink);
-  background: var(--accent-wash);
-}
-.fr-choice.selected { border-color: var(--accent); color: var(--accent); }
-.fr-choice.correct  { border-color: var(--success); color: var(--success); background: var(--success-tint); }
-.fr-choice.wrong    { border-color: var(--danger);  color: var(--danger);  background: var(--danger-tint); }
-.fr-choice.disabled { cursor: default; }
-
-.fr-choice-key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 4px;
-  font-size: 11px;
-  letter-spacing: 0;
-  color: var(--mute);
-  border: 1px solid var(--hairline);
-  border-radius: 2px;
-  background: var(--paper);
-  flex-shrink: 0;
-}
-.fr-choice.correct .fr-choice-key { border-color: var(--success); color: var(--success); }
-.fr-choice.wrong   .fr-choice-key { border-color: var(--danger);  color: var(--danger); }
-
-.fr-feedback {
-  margin-top: 24px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.fr-feedback-mark {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
-}
-.fr-feedback-ok  { color: var(--success); }
-.fr-feedback-bad { color: var(--danger); }
 .fr-notes {
   font-family: var(--font-body);
   font-size: 14px;
@@ -437,34 +354,23 @@ function choiceLabel(c: FormationChoice): string {
   margin: 0;
 }
 
-.fr-hint { margin-top: 20px; text-align: center; color: var(--mute); }
-
-/* Result list */
-.fr-result-row { grid-template-columns: 120px 1fr auto; }
-.result-answer {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.result-correct { color: var(--success); }
 .result-notes {
   font-family: var(--font-body);
   font-style: italic;
   font-size: 12px;
   color: var(--ink-soft);
 }
-.ok  { color: var(--success); }
-.err { color: var(--danger); }
-.tag-success { background: var(--success-tint); color: var(--success); }
-.tag-danger  { background: var(--danger-tint);  color: var(--danger); }
 
-/* Phone-first */
+/* Genuine variant: this drill's result row shows only a bare preposition in its
+   first cell (no meta line), narrower than the shared 180px column. */
+.drill-result-row { grid-template-columns: 120px 1fr auto; }
+
+/* Genuine variant: modules.css's own phone breakpoint for .drill-result-row uses
+   named grid-template-areas keyed to .result-word/.result-answer/.result-verdict/
+   .result-explanation. This drill's first cell is .result-verb (not .result-word)
+   and it has no explanation cell, so those area names would leave it unplaced —
+   reproduce this drill's own simpler stacking instead. */
 @media (max-width: 720px) {
-  .fr-result-row { grid-template-columns: 1fr; gap: 4px; }
-  .result-actions { flex-direction: column; align-items: stretch; }
-  .result-actions .btn { justify-content: center; }
+  .drill-result-row { grid-template-columns: 1fr; gap: 4px; }
 }
 </style>

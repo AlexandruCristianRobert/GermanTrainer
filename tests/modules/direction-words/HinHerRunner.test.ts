@@ -47,7 +47,7 @@ describe('HinHerRunner — smoke tests', () => {
 
   it('renders at least two choice buttons', async () => {
     const { wrapper } = await mountRunner(QUERY)
-    expect(wrapper.findAll('.hh-choice').length).toBeGreaterThanOrEqual(2)
+    expect(wrapper.findAll('.choice').length).toBeGreaterThanOrEqual(2)
     wrapper.unmount()
   })
 
@@ -57,10 +57,10 @@ describe('HinHerRunner — smoke tests', () => {
     // With Math.random pinned to 0, the identity-preserving shuffle samples the
     // first matching item: hh-komm-her (hierTrap, answer 'her'). 'hin' is a
     // guaranteed-wrong pick.
-    const buttons = wrapper.findAll('.hh-choice')
-    const hinBtn = buttons.find(b => b.find('.hh-choice-label').text() === 'hin')
+    const buttons = wrapper.findAll('.choice')
+    const hinBtn = buttons.find(b => b.find('.c-label').text() === 'hin')
     await hinBtn!.trigger('click')
-    expect(wrapper.find('.hh-feedback').exists()).toBe(true)
+    expect(wrapper.find('.drill-feedback').exists()).toBe(true)
     expect(wrapper.text()).toContain('her')
     randomSpy.mockRestore()
     wrapper.unmount()
@@ -81,8 +81,8 @@ describe('HinHerRunner — history recording (ADR-0010)', () => {
   afterEach(() => { randomSpy.mockRestore() })
 
   async function completeOneCardWrong(wrapper: VueWrapper) {
-    const buttons = wrapper.findAll('.hh-choice')
-    const hinBtn = buttons.find(b => b.find('.hh-choice-label').text() === 'hin')
+    const buttons = wrapper.findAll('.choice')
+    const hinBtn = buttons.find(b => b.find('.c-label').text() === 'hin')
     await hinBtn!.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
     await finish!.trigger('click')

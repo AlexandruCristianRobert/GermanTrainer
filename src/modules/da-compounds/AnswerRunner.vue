@@ -237,7 +237,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
     </header>
 
     <div class="result-rows">
-      <div v-for="(q, i) in deck" :key="i" class="result-row" :class="{ good: verdicts.get(i)?.correct, bad: !verdicts.get(i)?.correct }">
+      <div v-for="(q, i) in deck" :key="i" class="ai-result-row" :class="{ good: verdicts.get(i)?.correct, bad: !verdicts.get(i)?.correct }">
         <div class="rr-head">
           <span class="rr-mark">{{ verdicts.get(i)?.correct ? '✓' : '✗' }}</span>
           <span class="rr-en">{{ q.question }}</span>
@@ -282,7 +282,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
         <form class="prep-input-wrap" @submit.prevent="submit">
           <textarea ref="inputRef" class="input prep-input" rows="2" placeholder="Deutsch…" v-model="userInput"
             :readonly="phase !== 'input'" autocomplete="off" spellcheck="false" @keydown.enter="onEnter"
-            :style="phase === 'graded' ? { color: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)', borderBottomColor: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)' } : undefined"></textarea>
+            :class="{ ok: phase === 'graded' && currentVerdict?.correct, err: phase === 'graded' && currentVerdict && !currentVerdict.correct }"></textarea>
           <button v-if="phase === 'input'" type="submit" class="btn btn-accent" :disabled="userInput.trim().length === 0">Submit</button>
           <button v-else-if="phase === 'checking'" type="button" class="btn btn-accent" disabled>Checking…</button>
           <button v-else ref="nextBtnRef" type="button" class="btn btn-accent" @click="next">{{ (isLastGenerated && generationDone) ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
@@ -302,41 +302,13 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 </template>
 
 <style scoped>
-.loading-state { text-align: center; padding-top: 120px; }
-.quiz-card { max-width: 720px; margin: 0 auto; }
 .quiz-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
 .quiz-counter { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mute); }
-.sentence-progress { margin-bottom: 36px; }
 .prompt-card { text-align: center; }
-.en-sentence { font-family: var(--font-display); font-weight: 500; font-size: 30px; line-height: 1.3; letter-spacing: -0.005em; color: var(--ink); }
-.en-hint { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); margin-top: 14px; }
-.prep-input-wrap { display: flex; gap: 12px; align-items: flex-end; margin-top: 36px; }
-.prep-input { flex: 1; text-align: left; font-size: 19px; font-family: inherit; resize: vertical; border: 0; border-bottom: 2px solid var(--rule); padding: 8px 0; background: transparent; }
-.prep-input:focus { border-bottom-color: var(--accent); outline: none; }
-.prep-feedback { margin-top: 18px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
-.prep-feedback-mark { font-family: var(--font-display); font-style: italic; font-size: 17px; }
-.prep-feedback-ok { color: var(--success); }
-.prep-feedback-bad { color: var(--danger); }
-.prep-feedback-full { font-family: var(--font-display); font-size: 18px; color: var(--ink); }
-.prep-feedback-tip { font-size: 14px; color: var(--ink-soft); }
-.prep-feedback-tags { margin-top: 4px; display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-.tag.tag-error { background: var(--danger-tint); color: var(--danger); }
-.result-page { max-width: 880px; }
-.result-rows { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
-.result-row { border: 1px solid var(--rule); border-left: 3px solid var(--rule); border-radius: 3px; padding: 14px 16px; }
-.result-row.good { border-left-color: var(--sage, #6b8e6b); }
-.result-row.bad { border-left-color: var(--clay, #b5654a); }
-.rr-head { display: flex; align-items: baseline; gap: 10px; }
-.rr-mark { font-family: var(--font-mono); font-weight: 600; }
-.result-row.good .rr-mark { color: var(--sage, #6b8e6b); }
-.result-row.bad .rr-mark { color: var(--clay, #b5654a); }
-.rr-en { flex: 1; font-family: var(--font-body); color: var(--ink); }
-.rr-tags { margin-left: auto; display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
-.rr-you, .rr-ref, .rr-tip { font-family: var(--font-mono); font-size: 14px; margin-top: 6px; color: var(--ink-soft); }
-.rr-you-empty { opacity: 0.6; }
-.rr-ref { color: var(--ink); }
-.rr-label { display: inline-block; min-width: 56px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
+/* setup-actions' margin-top is a genuine local variant (32px vs modules.css's
+   40px) — its @media companion is kept alongside it because the scoped base
+   rule's higher specificity (from the data-v attribute) would otherwise beat
+   modules.css's own 720px override for align-items, breaking the mobile stack. */
 .setup-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; gap: 16px; }
-.result-cta { display: flex; gap: 12px; }
-@media (max-width: 720px) { .en-sentence { font-size: clamp(20px, 6vw, 26px); } .setup-actions { flex-direction: column-reverse; align-items: stretch; } .result-cta { flex-direction: column; } .setup-actions .btn { justify-content: center; } }
+@media (max-width: 720px) { .setup-actions { flex-direction: column-reverse; align-items: stretch; } .setup-actions .btn { justify-content: center; } }
 </style>

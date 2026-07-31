@@ -57,7 +57,7 @@ describe('RegisterRunner — verdict buttons', () => {
 
   it('renders exactly three verdict buttons with the fixed labels, in order', async () => {
     const { wrapper } = await mountRunner(QUERY)
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons).toHaveLength(3)
     expect(buttons.map(b => b.text())).toEqual(
       DW_REGISTER_OPTIONS.map(o => expect.stringContaining(o.label))
@@ -73,10 +73,10 @@ describe('RegisterRunner — reveal (always shown, win or lose)', () => {
 
   it('reveals the explanation after a wrong pick', async () => {
     const { wrapper } = await mountRunner(QUERY)
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(WRONG_LABEL))!
     await wrongBtn.trigger('click')
-    const reveal = wrapper.find('.sub-reveal')
+    const reveal = wrapper.find('.reveal')
     expect(reveal.exists()).toBe(true)
     expect(reveal.text()).toContain(SAMPLED.explanation.split(' / ')[0].slice(0, 20))
     wrapper.unmount()
@@ -98,7 +98,7 @@ describe('RegisterRunner — history recording (ADR-0010)', () => {
   afterEach(() => randomSpy.mockRestore())
 
   async function completeOneCardWrong(wrapper: VueWrapper) {
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(WRONG_LABEL))!
     await wrongBtn.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
@@ -153,13 +153,13 @@ describe('RegisterRunner — pairs "none" sentinel (no pair chips selected)', ()
 
   it('samples a pair-independent item, not the full pair-inclusive pool', async () => {
     const { wrapper } = await mountRunner(NULL_QUERY)
-    expect(wrapper.find('.sub-stem').text()).toContain(SAMPLED_NULL.phrase)
+    expect(wrapper.find('.drill-sentence').text()).toContain(SAMPLED_NULL.phrase)
     wrapper.unmount()
   })
 
   it('records meta.pairs as [] (not widened back to all six pairs)', async () => {
     const { wrapper } = await mountRunner(NULL_QUERY)
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     const wrongBtn = buttons.find(b => b.text().includes(WRONG_LABEL_NULL))!
     await wrongBtn.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))

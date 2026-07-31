@@ -74,7 +74,7 @@ describe('LexicalRunner — the card', () => {
 
   it('renders exactly two option buttons carrying the verb entry\'s two labels', async () => {
     const { wrapper } = await mountRunner(QUERY)
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons).toHaveLength(2)
     expect(buttons.some(b => b.text().includes(ENTRY.directionalLabel))).toBe(true)
     expect(buttons.some(b => b.text().includes(ENTRY.lexicalizedLabel))).toBe(true)
@@ -83,7 +83,7 @@ describe('LexicalRunner — the card', () => {
 
   it('renders the sentence with its verb surfaces inside bold elements', async () => {
     const { wrapper } = await mountRunner(QUERY)
-    const stem = wrapper.find('.sub-stem')
+    const stem = wrapper.find('.drill-sentence')
     expect(stem.text()).toBe(SAMPLED.sentence)
     expect(stem.findAll('strong').map(s => s.text())).toEqual(SAMPLED.surfaces)
     wrapper.unmount()
@@ -91,7 +91,7 @@ describe('LexicalRunner — the card', () => {
 
   it('shows the verb infinitive as a caption', async () => {
     const { wrapper } = await mountRunner(QUERY)
-    expect(wrapper.find('.sub-verb-caption').text()).toContain(SAMPLED.verb)
+    expect(wrapper.find('.drill-caption').text()).toContain(SAMPLED.verb)
     wrapper.unmount()
   })
 
@@ -111,24 +111,24 @@ describe('LexicalRunner — reveal after a wrong pick', () => {
 
   it('reveals the explanation and BOTH labels, marking the correct one', async () => {
     const { wrapper } = await mountRunner(QUERY)
-    const wrongBtn = wrapper.findAll('.sub-choice').find(b => b.text().includes(WRONG_LABEL))!
+    const wrongBtn = wrapper.findAll('.choice').find(b => b.text().includes(WRONG_LABEL))!
     await wrongBtn.trigger('click')
 
-    expect(wrapper.find('.sub-feedback-bad').exists()).toBe(true)
-    expect(wrapper.find('.sub-reveal-explanation').text()).toBe(SAMPLED.explanation)
+    expect(wrapper.find('.feedback-line.wrong').exists()).toBe(true)
+    expect(wrapper.find('.reveal-b').text()).toBe(SAMPLED.explanation)
 
-    const revealText = wrapper.find('.sub-reveal').text()
+    const revealText = wrapper.find('.reveal').text()
     expect(revealText).toContain(ENTRY.directionalLabel)
     expect(revealText).toContain(ENTRY.lexicalizedLabel)
 
-    const lines = wrapper.findAll('.sub-reveal .contrast-sense-line')
+    const lines = wrapper.findAll('.reveal .contrast-sense-line')
     expect(lines).toHaveLength(2)
     const marked = lines.filter(l => l.classes().includes('correct'))
     expect(marked).toHaveLength(1)
     expect(marked[0].text()).toContain(CORRECT_LABEL)
 
     // …and the correct option button is marked too, the wrong one flagged
-    const buttons = wrapper.findAll('.sub-choice')
+    const buttons = wrapper.findAll('.choice')
     expect(buttons.find(b => b.text().includes(CORRECT_LABEL))!.classes()).toContain('correct')
     expect(buttons.find(b => b.text().includes(WRONG_LABEL))!.classes()).toContain('wrong')
     wrapper.unmount()
@@ -139,17 +139,17 @@ describe('LexicalRunner — reveal after a wrong pick', () => {
   // missed would satisfy the test above.
   it('reveals the explanation and BOTH labels after a CORRECT pick as well', async () => {
     const { wrapper } = await mountRunner(QUERY)
-    const rightBtn = wrapper.findAll('.sub-choice').find(b => b.text().includes(CORRECT_LABEL))!
+    const rightBtn = wrapper.findAll('.choice').find(b => b.text().includes(CORRECT_LABEL))!
     await rightBtn.trigger('click')
 
-    expect(wrapper.find('.sub-feedback-ok').exists()).toBe(true)
-    expect(wrapper.find('.sub-reveal-explanation').text()).toBe(SAMPLED.explanation)
+    expect(wrapper.find('.feedback-line.correct').exists()).toBe(true)
+    expect(wrapper.find('.reveal-b').text()).toBe(SAMPLED.explanation)
 
-    const revealText = wrapper.find('.sub-reveal').text()
+    const revealText = wrapper.find('.reveal').text()
     expect(revealText).toContain(ENTRY.directionalLabel)
     expect(revealText).toContain(ENTRY.lexicalizedLabel)
 
-    const lines = wrapper.findAll('.sub-reveal .contrast-sense-line')
+    const lines = wrapper.findAll('.reveal .contrast-sense-line')
     expect(lines).toHaveLength(2)
     const marked = lines.filter(l => l.classes().includes('correct'))
     expect(marked).toHaveLength(1)
@@ -165,7 +165,7 @@ describe('LexicalRunner — history recording (ADR-0010)', () => {
   })
 
   async function completeOneCardWrong(wrapper: VueWrapper) {
-    const wrongBtn = wrapper.findAll('.sub-choice').find(b => b.text().includes(WRONG_LABEL))!
+    const wrongBtn = wrapper.findAll('.choice').find(b => b.text().includes(WRONG_LABEL))!
     await wrongBtn.trigger('click')
     const finish = wrapper.findAll('button').find(b => b.text().startsWith('Finish'))
     await finish!.trigger('click')
