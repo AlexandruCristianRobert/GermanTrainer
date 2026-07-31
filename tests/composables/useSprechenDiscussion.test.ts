@@ -92,6 +92,19 @@ describe('findActiveDiscussion(modality) filter', () => {
     expect(active?.id).toBe(spoken.id)
   })
 
+  it('Teil2Runner resume scenario: a newer spoken row does not shadow an older typed one', async () => {
+    // Regression for the bug where Teil2Runner.vue called findActiveDiscussion()
+    // with no modality: Teil2Setup correctly offers the (older) typed row as
+    // resumable, but the runner then re-fetched "the" active discussion and
+    // got the (newer) spoken one instead, typing into a spoken discussion.
+    const typedOlder = await createDiscussion(TOPIC, 6, 'pro', 'typed')
+    await db.sprechenDiscussions.update(typedOlder.id, { startedAt: 1000 })
+    const spokenNewer = await createDiscussion(TOPIC, 6, 'pro', 'spoken')
+    await db.sprechenDiscussions.update(spokenNewer.id, { startedAt: 2000 })
+    const active = await findActiveDiscussion('typed')
+    expect(active?.id).toBe(typedOlder.id)
+  })
+
   it('most-recent-wins holds within a modality, ignoring a newer row of the other modality', async () => {
     const spokenOlder = await createDiscussion(TOPIC, 6, 'pro', 'spoken')
     await db.sprechenDiscussions.update(spokenOlder.id, { startedAt: 1000 })

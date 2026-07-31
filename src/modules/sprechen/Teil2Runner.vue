@@ -71,7 +71,7 @@ onMounted(async () => {
       return
     }
   } else {
-    discussion.value = await findActiveDiscussion()
+    discussion.value = await findActiveDiscussion('typed')
     if (!discussion.value) {
       error.value = 'No discussion found. Go back to setup and start one.'
       return
