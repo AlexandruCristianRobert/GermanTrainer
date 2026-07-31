@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import { loadHistory } from '../../composables/useQuizHistory'
 import DwWeakPoints from '../../components/charts/DwWeakPoints.vue'
+import { DW_FAMILIES } from '../../data/drillCatalogue'
 
 const router = useRouter()
 
@@ -9,115 +10,8 @@ const router = useRouter()
 // this page isn't long-lived, so no reactivity is needed (dac home pattern).
 const historyEntries = loadHistory()
 
-interface Card {
-  numeral: string
-  route: string
-  title: string
-  de: string
-  desc: string
-}
-
-interface Group {
-  heading: string
-  de: string
-  cards: Card[]
-}
-
-// Drill cards arrive family by family (spec §7 phases).
-const groups: Group[] = [
-  {
-    heading: 'The perspective rule',
-    de: 'Hin oder her?',
-    cards: [
-      {
-        numeral: 'T1', route: 'directionwords-hinher',
-        title: 'Hin or her?', de: 'Die Grundregel',
-        desc: 'A scene diagram shows where you stand; pick hin or her — and don\'t fall for the hier button.',
-      },
-    ],
-  },
-  {
-    heading: 'Compound pairs',
-    de: 'Die Paare',
-    cards: [
-      {
-        numeral: 'T2', route: 'directionwords-compounds',
-        title: 'Compound gap-fill', de: 'Zusammensetzungen',
-        desc: 'hinauf or herauf? The scene decides. Four options crossing both axes — or type it yourself at B2.',
-      },
-    ],
-  },
-  {
-    heading: 'Questions & pointers',
-    de: 'Wo, wohin, woher',
-    cards: [
-      {
-        numeral: 'T3', route: 'directionwords-questions',
-        title: 'Wo, wohin or woher?', de: 'Fragewörter',
-        desc: 'Three ways to ask "where" — plus the pointers (dahin, dorthin) and the spoken splits (Wo gehst du hin?).',
-      },
-    ],
-  },
-  {
-    heading: 'Register',
-    de: 'Kurzformen',
-    cards: [
-      {
-        numeral: 'T4', route: 'directionwords-register',
-        title: 'R-forms & register', de: 'rein, raus, rüber',
-        desc: 'Standard, spoken-only, or plain wrong? Judge rüber and friends — and learn why *hinrein never was a word.',
-      },
-    ],
-  },
-  {
-    heading: 'Production',
-    de: 'Satzbau',
-    cards: [
-      {
-        numeral: 'T5', route: 'directionwords-assembly',
-        title: 'Sentence assembly', de: 'Satzbau',
-        desc: 'Tap the tiles into order — the direction word lands at the clause end, and idiomatic frontings count too.',
-      },
-      {
-        numeral: 'T6', route: 'directionwords-sentence',
-        title: 'Sentence translation (AI)', de: 'Satz (KI)',
-        desc: 'The AI writes the scene in English — where the speaker stands is in the words. You write the German; wrong-side compounds get called out as perspective errors.',
-      },
-      {
-        numeral: 'T7', route: 'directionwords-answer',
-        title: 'Answer the question (AI)', de: 'Antworten (KI)',
-        desc: 'The AI sets the scene in German and asks; you answer with the right direction word — fronted or mid-field, both count.',
-      },
-    ],
-  },
-  {
-    heading: 'Traps',
-    de: 'Fallen',
-    cards: [
-      {
-        numeral: 'T8', route: 'directionwords-lexical',
-        title: 'Directional or lexicalized?', de: 'Verblasste Richtung',
-        desc: 'Die Firma stellt Möbel her — nobody is fetching anything. Decide whether the prefix still means direction or the verb is just vocabulary.',
-      },
-      {
-        numeral: 'T9', route: 'directionwords-idioms',
-        title: 'Idiom gap-fill', de: 'Redewendungen',
-        desc: 'hin und her or hin und wieder? Back-and-forth versus now-and-then — plus the two time idioms that point in opposite directions.',
-      },
-    ],
-  },
-  {
-    heading: 'Reference',
-    de: 'Nachschlagen',
-    cards: [
-      {
-        numeral: 'A', route: 'directionwords-cheatsheet',
-        title: 'Cheatsheet', de: 'Spickzettel',
-        desc: 'The perspective rule in two pictures, the six hin/her pairs with their rein/raus shortcuts, wo/wohin/woher, the verbs where direction has faded, and the idioms.',
-      },
-    ],
-  },
-]
+// Drill cards arrive family by family — see src/data/drillCatalogue.ts.
+const groups = DW_FAMILIES
 
 function go(target: string) {
   router.push({ name: target })
@@ -144,7 +38,7 @@ function go(target: string) {
       <div class="module-grid">
         <article
           v-for="c in g.cards"
-          :key="c.route"
+          :key="c.code"
           class="card module-card interactive"
           role="button"
           tabindex="0"
@@ -152,7 +46,7 @@ function go(target: string) {
           @keydown.enter.prevent="go(c.route)"
           @keydown.space.prevent="go(c.route)"
         >
-          <div class="module-numeral">{{ c.numeral }}</div>
+          <div class="module-numeral">{{ c.code }}</div>
           <h2>{{ c.title }}</h2>
           <div class="module-de">{{ c.de }}</div>
           <p class="module-desc">{{ c.desc }}</p>
