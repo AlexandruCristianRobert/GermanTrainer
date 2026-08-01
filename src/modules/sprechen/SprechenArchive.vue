@@ -7,8 +7,9 @@
 // useSprechenArchive.ts, the archive's only door (ADR-0012) — nothing here
 // ever imports `db` directly, and nothing here writes to the archive.
 //
-// Does NOT build the Korrekturdrill (the practice run over these items) —
-// that is separate work. This screen only shows what has accumulated.
+// Links to the Korrekturdrill (the practice run over these items) but does
+// not build it — that is SprechenDrill.vue. This screen only shows what has
+// accumulated and, per kind, how much of it has been re-practised.
 
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -24,6 +25,11 @@ const error = ref<string | null>(null)
 const counts = ref<Record<SprechenErrorTag, number> | null>(null)
 const drilled = ref<Set<string>>(new Set())
 const items = ref<ArchivedCorrection[]>([])
+// The unfiltered set of every correction, captured once on the initial load
+// (below, `selectedKind` is still null then so `items` IS every correction).
+// Reusing it here — rather than a second listCorrections() call — is what
+// lets `openByKind` exist without a second archive read.
+const allCorrections = ref<ArchivedCorrection[]>([])
 const selectedKind = ref<SprechenErrorTag | null>(null)
 
 // Same five tags and the same German labels Teil2Result.vue's KIND_LABEL
@@ -40,6 +46,30 @@ const KIND_LABEL: Record<SprechenErrorTag, string> = {
 const totalCount = computed(() =>
   counts.value ? Object.values(counts.value).reduce((a, b) => a + b, 0) : 0
 )
+
+/** Open (not-yet-drilled) corrections per kind, derived from `allCorrections`
+ *  joined against `drilled` — never a second read of either archive table. */
+const openByKind = computed<Record<SprechenErrorTag, number>>(() => {
+  const out: Record<SprechenErrorTag, number> = {
+    grammar: 0, 'word-order': 0, vocabulary: 0, spelling: 0, register: 0
+  }
+  for (const c of allCorrections.value) {
+    if (!drilled.value.has(c.id)) out[c.kind] += 1
+  }
+  return out
+})
+
+const openTotal = computed(() =>
+  Object.values(openByKind.value).reduce((a, b) => a + b, 0)
+)
+
+/** Five segments, so the strip reads at a glance rather than exactly. */
+function drilledSegments(kind: SprechenErrorTag): number {
+  const total = counts.value?.[kind] ?? 0
+  if (total === 0) return 0
+  const done = total - openByKind.value[kind]
+  return Math.round((done / total) * 5)
+}
 
 interface ArchiveRow {
   c: ArchivedCorrection
@@ -86,7 +116,10 @@ async function loadAll() {
     const [c, d] = await Promise.all([countsByKind(), drilledIds()])
     counts.value = c
     drilled.value = d
+    // selectedKind is still null here, so this fetches every correction —
+    // keep that copy around for openByKind instead of reading again per kind.
     await loadList()
+    allCorrections.value = items.value
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Fehlerarchiv konnte nicht geladen werden.'
   } finally {
@@ -148,51 +181,63 @@ onMounted(loadAll)
     </template>
 
     <template v-else>
-      <div class="kind-tiles">
+      <div class="spr-kinds">
         <button
-          v-for="k in KIND_ORDER" :key="k" type="button" class="kind-tile"
-          :class="{ active: selectedKind === k }"
+          v-for="k in KIND_ORDER" :key="k" type="button" class="spr-kind"
+          :class="{ on: selectedKind === k }"
           :disabled="(counts?.[k] ?? 0) === 0"
           @click="toggleKind(k)"
         >
-          <span class="kt-count">{{ counts?.[k] ?? 0 }}</span>
-          <span class="kt-label">{{ KIND_LABEL[k] }}</span>
+          <div class="spr-kind-n spr-num">{{ counts?.[k] ?? 0 }}</div>
+          <div class="spr-kind-t">{{ KIND_LABEL[k] }}</div>
+          <div class="spr-kind-b">
+            <span v-for="s in 5" :key="s" :class="{ on: s <= drilledSegments(k) }" />
+          </div>
         </button>
       </div>
 
-      <h3 class="block-heading">
-        Markierte Sätze
-        <span v-if="selectedKind" class="bh-note">{{ KIND_LABEL[selectedKind] }} · {{ rows.length }}</span>
-      </h3>
+      <section class="spr-block">
+        <div class="spr-block-h">
+          <h2 class="spr-block-t">Markierte Sätze</h2>
+          <span v-if="selectedKind" class="spr-block-n">{{ KIND_LABEL[selectedKind] }} · {{ rows.length }}</span>
+        </div>
 
-      <p v-if="rows.length === 0" class="ar-empty-note">Keine Einträge für diesen Filter.</p>
+        <p v-if="rows.length === 0" class="ar-empty-note">Keine Einträge für diesen Filter.</p>
 
-      <ul v-else class="archive-list">
-        <li v-for="r in rows" :key="r.c.id" class="archive-row">
-          <div class="ar-head">
-            <span class="ar-date">{{ new Date(r.c.createdAt).toLocaleDateString() }}</span>
-            <span class="ar-topic">{{ r.c.topicTitle }}</span>
-            <span class="tag tag-accent">{{ KIND_LABEL[r.c.kind] }}</span>
-            <span
-              v-if="r.c.modality === 'spoken'" class="tag"
-              title="Aus einer gesprochenen Diskussion — kann eine Fehlhörung der Erkennung sein."
-            >gesprochen</span>
-            <span class="tag" :class="r.isDrilled ? 'tag-success' : 'tag-ochre'">
-              {{ r.isDrilled ? 'nachgeübt' : 'offen' }}
-            </span>
-          </div>
-          <p class="ar-context">
-            <template v-if="r.hasMatch">{{ r.before }}<mark class="ar-mistake">{{ r.match }}</mark>{{ r.after }}</template>
-            <template v-else>{{ r.c.context }}</template>
-          </p>
-          <div class="ar-fix">
-            <span class="ar-fix-label">Besser</span>
-            <span class="ar-fix-text">{{ r.c.suggested }}</span>
-          </div>
-          <p class="ar-reason">{{ r.c.reasonDe }}</p>
-        </li>
-      </ul>
+        <ul v-else class="spr-rows">
+          <li v-for="r in rows" :key="r.c.id" class="spr-arow">
+            <span class="spr-adate spr-num">{{ new Date(r.c.createdAt).toLocaleDateString() }}</span>
+            <div class="ar-body">
+              <div class="ar-tags">
+                <span class="tag tag-accent">{{ KIND_LABEL[r.c.kind] }}</span>
+                <span
+                  v-if="r.c.modality === 'spoken'" class="tag"
+                  title="Aus einer gesprochenen Diskussion — kann eine Fehlhörung der Erkennung sein."
+                >gesprochen</span>
+                <span class="tag" :class="r.isDrilled ? 'tag-success' : 'tag-ochre'">
+                  {{ r.isDrilled ? 'nachgeübt' : 'offen' }}
+                </span>
+              </div>
+              <p class="spr-actx">
+                <template v-if="r.hasMatch">{{ r.before }}<span class="hit">{{ r.match }}</span>{{ r.after }}</template>
+                <template v-else>{{ r.c.context }}</template>
+              </p>
+              <p class="spr-acorr">Besser: <b>{{ r.c.suggested }}</b> — {{ r.c.reasonDe }}</p>
+            </div>
+            <span class="spr-atopic">{{ r.c.topicTitle }}</span>
+          </li>
+        </ul>
+      </section>
     </template>
+
+    <div class="setup-actions">
+      <button
+        class="btn btn-accent" type="button"
+        :disabled="openTotal === 0" @click="router.push({ name: 'sprechen-drill' })"
+      >
+        Korrekturdrill starten <span aria-hidden="true">→</span>
+      </button>
+    </div>
 
     <div class="setup-actions">
       <button class="btn btn-ghost" type="button" @click="router.push({ name: 'sprechen' })">← Sprechen</button>
@@ -204,48 +249,12 @@ onMounted(loadAll)
 .archive-page { max-width: 880px; }
 .spoken-note { margin: 0 0 20px; }
 
-.block-heading {
-  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--mute); margin: 34px 0 12px;
-  display: flex; gap: 12px; align-items: baseline;
-}
-.bh-note { letter-spacing: 0.14em; opacity: 0.75; }
-
-.kind-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 24px; }
-.kind-tile {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-  padding: 14px 16px; background: var(--paper-card); border: 1px solid var(--hairline);
-  border-radius: 4px; cursor: pointer; text-align: left; font: inherit;
-  transition: border-color .15s, background .15s, transform .15s;
-}
-.kind-tile:hover:not(:disabled) { border-color: var(--ink-soft); transform: translateY(-1px); }
-.kind-tile.active { border-color: var(--accent); background: var(--accent-tint); }
-.kind-tile:disabled { opacity: 0.4; cursor: not-allowed; }
-.kt-count { font-family: var(--font-display); font-size: 28px; font-weight: 500; line-height: 1; }
-.kt-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
-.kind-tile.active .kt-label { color: var(--accent); }
-
 .ar-empty-note { color: var(--ink-soft); font-style: italic; margin: 12px 0; }
 
-.archive-list { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-.archive-row {
-  background: var(--paper-deep); border-left: 3px solid var(--danger); border-radius: 4px;
-  padding: 14px 18px; display: flex; flex-direction: column; gap: 8px;
-}
-.ar-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.ar-date { font-family: var(--font-mono); font-size: 11px; color: var(--mute); font-variant-numeric: tabular-nums; }
-.ar-topic { font-family: var(--font-display); font-style: italic; font-size: 15px; color: var(--ink-soft); flex: 1 1 auto; min-width: 0; }
-.ar-context { font-size: 15px; line-height: 1.6; margin: 0; }
-.ar-mistake {
+.ar-body { min-width: 0; }
+.ar-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.spr-actx .hit {
   background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger);
   border-bottom: 2px solid var(--danger); border-radius: 2px; padding: 0 1px;
-}
-.ar-fix { font-size: 14.5px; display: flex; gap: 8px; align-items: baseline; }
-.ar-fix-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); }
-.ar-fix-text { color: var(--success); font-family: var(--font-display); }
-.ar-reason { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); }
-
-@media (max-width: 640px) {
-  .kind-tiles { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
