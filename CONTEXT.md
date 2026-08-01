@@ -165,8 +165,12 @@ A named discussion tactic — agree, disagree, partially agree, ask back, give a
 _Avoid_: hint category, strategy, tactic chip
 
 **Redemittel yield** (de Redemittel-Ausbeute):
-How many distinct Redemittel the learner's turns actually contained, grouped by [Move] — counted locally by text matching, never by AI, and never affecting the score. It measures *use*, not command: a phrase counts whether the learner recalled it, inserted it from the hint panel, or read it aloud from the panel mid-turn. The basis for suggesting a [Move] the learner has not reached for.
+How many distinct Redemittel the learner's turns actually contained, grouped by [Move] — counted locally by text matching, never by AI, and never affecting the score. It measures *use*, not command: a phrase counts whether the learner recalled it, inserted it from the hint panel, or read it aloud from the panel mid-turn. Read at two scopes: the yield *of one [Discussion]*, visible while it runs and on its result; and the learner's *lifetime* yield, which accumulates across [Run]s and is the basis for suggesting a [Move] they have not reached for. The lifetime figure is banked as each [Discussion] is graded, because the conversation it was counted from is discarded immediately afterwards and can never be re-counted.
 _Avoid_: Redemittel score, phrase coverage, mastery
+
+**Move nudge**:
+A single [Move] the app names to the learner mid-[Discussion] — *„Diesmal: nachfragen"* — chosen from the Moves they have not used in this Discussion, preferring the one their lifetime [Redemittel yield] shows they reach for least. Purely a suggestion: it is never validated against, never scored, and carries no obligation — the learner may ignore it and the [Discussion] proceeds identically. Dismissible for the run, and absent when hints are off. Distinct from a [KI-Tipp], which costs an AI call and suggests *what* to argue; the nudge is free, local, and suggests *how*.
+_Avoid_: prompt, task, challenge, goal, required move
 
 **KI-Tipp**:
 An on-demand AI-generated suggestion during the learner's turn in a [Discussion]: a strategic direction for what to argue next, never ready-made text. Uses are counted and shown with the result, but never affect the score.
