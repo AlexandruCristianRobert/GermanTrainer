@@ -3311,7 +3311,12 @@ function finish() {
 </template>
 ```
 
-`SprechenErrorTag` may live elsewhere — import it from wherever `useSprechenArchive.ts` imports it.
+`SprechenErrorTag` is exported from `src/composables/useQuizHistory.ts`, **not** from `sprechenRedemittel.ts` — verify before importing.
+
+Two further corrections found during implementation:
+
+- The test's `vi.mock` factories must not reference bare outer consts (`recordDrillResult`, `saveQuizRun`) — Vitest hoists the factory above them and you get a TDZ `ReferenceError`. Wrap the shared spies in `vi.hoisted()`, a pattern already used elsewhere in this suite.
+- Place `metaFor()`'s `sprechen-drill` branch **after** the `total === 0` guard, not before it, so an empty archive reads `Noch nichts archiviert` on both rows rather than a redundant `0 offen · 0 nachgeübt`. Numerically identical either way.
 
 - [ ] **Step 4: Add the route and the hub row**
 
@@ -3525,7 +3530,21 @@ Render a filled/hollow mark in each phrase row: `<span class="spr-usedot" :class
 
 - [ ] **Step 3: Add one `.plate` for the Bauplan**
 
-Keep the existing "how Teil 2 works" copy, rendered as a `.plate` with the four-step Bauplan These → Begründung → Beispiel → Rückfrage as a `.mini-table`. This is the copy the Argumentation matrix's columns correspond to — keep the four names identical so the two screens agree.
+Keep the existing "how Teil 2 works" copy, rendered as a `.plate` with the four-step Bauplan These → Begründung → Beispiel → Rückfrage as a `.mini-table`.
+
+**Correction to an earlier draft of this step.** It claimed the Argumentation matrix uses these same four names. It does not, and it should not: the matrix's fourth column is **Reaktion**, because the grader field behind it is `reacts` — "did this turn engage the partner's previous point?" A **Rückfrage** is a different thing, counted separately as `interaction.askedBack`. Both screens are individually correct.
+
+But the learner reads advice about Rückfragen and then sees feedback scored on Reaktion, so make the relationship explicit. Add one line beneath the Bauplan table:
+
+```html
+<p class="mini-note">
+  In der Auswertung erscheint der vierte Punkt als <em>Reaktion</em> — also
+  ob du auf den letzten Punkt des Partners eingehst. Eine Rückfrage ist der
+  direkteste Weg dahin und wird zusätzlich einzeln gezählt.
+</p>
+```
+
+Use whatever the reference cheatsheets call their small-note class rather than inventing `.mini-note`; if none exists, add one scoped rule and say so in the report. A test should assert both `Reaktion` and `Rückfrage` appear on the page, so the connection cannot be silently dropped.
 
 - [ ] **Step 4: Add a mount test**
 
