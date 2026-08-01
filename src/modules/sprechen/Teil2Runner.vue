@@ -26,7 +26,10 @@ import {
   TEIL2_STASH_KEY, learnerTurnCount, sentenceAround, summarizeFluency,
   type SprechenDiscussion, type Teil2RunStash
 } from '../../data/sprechen'
-import { HINT_MOVES, MOVE_LABEL, phrasesForMove, type Move } from '../../data/sprechenRedemittel'
+import {
+  HINT_MOVES, MOVE_LABEL, phrasesForMove, SPRECHEN_REDEMITTEL, type Move
+} from '../../data/sprechenRedemittel'
+import { matchRedemittel, movePerTurn } from '../../composables/useRedemittelMatch'
 import { resolveArgumentBank, type ArgumentBank } from '../../data/sprechenArguments'
 import { loadCachedBank } from '../../composables/useSprechenArguments'
 import { SPRECHEN_TOPICS } from '../../data/sprechenTopics'
@@ -107,7 +110,54 @@ const mine = computed(() => {
   return mySide.value === 'pro' ? bank.value.pro : bank.value.contra
 })
 
-const inputWords = computed(() => countWords(input.value))
+/** Every learner turn's own text — the rail's raw material for the Redemittel
+ *  yield and the per-turn Move labels. Spoken or typed, a turn is just text
+ *  once it lands on the Discussion (see DiscussionTurn). */
+const learnerTexts = computed(
+  () => (discussion.value?.turns ?? []).filter(t => t.role === 'learner').map(t => t.textDe)
+)
+
+/** Live yield for the rail's 42-dot grid. */
+const usedIds = computed(() => new Set(matchRedemittel(learnerTexts.value).map(r => r.id)))
+
+/** L1–Ln stepper: one entry per planned turn, labelled with the Move it used. */
+const steps = computed(() => {
+  const moves = movePerTurn(learnerTexts.value)
+  return Array.from({ length: target.value }, (_, i) => {
+    const done = i < learnerCount.value
+    return {
+      n: `L${i + 1}`,
+      done,
+      now: i === learnerCount.value,
+      // A completed turn that matched no Redemittel shows an em dash, never a blank.
+      label: done ? (moves[i] ? MOVE_LABEL[moves[i]!].de : '—') : ''
+    }
+  })
+})
+
+/** Spoken Modality only — the one measure typed runs cannot produce. */
+const liveWpm = computed(() => {
+  const spokenTurns = (discussion.value?.turns ?? []).filter(t => t.role === 'learner' && t.speech)
+  if (spokenTurns.length === 0) return null
+  const words = spokenTurns.reduce((s, t) => s + (t.speech?.words ?? 0), 0)
+  const ms = spokenTurns.reduce((s, t) => s + (t.speech?.spokenMs ?? 0), 0)
+  if (ms <= 0) return null
+  return Math.round(words / (ms / 60000))
+})
+
+/** The composer's B2-length warning applies to both Modalities. Spoken has no
+ *  textarea to count, so this reuses the SAME countWords() the recognizer's
+ *  own TurnSpeech.words already relies on (see endTurn()) — no second counter. */
+const wordCount = computed(() => spoken.value ? countWords(recognizer.liveText.value) : countWords(input.value))
+
+/** Mirrors send()'s own guard — only for disabling the button. send() still
+ *  re-checks every one of these conditions synchronously before it does anything. */
+const canSend = computed(() => myTurn.value && !sending.value && input.value.trim().length > 0)
+
+const composerPlaceholder = computed(() => myTurn.value
+  ? 'Dein Beitrag auf Deutsch… (Enter senden, Shift+Enter neue Zeile)'
+  : 'Der Partner ist am Zug…'
+)
 
 function sideDe(side: 'pro' | 'contra') { return side === 'pro' ? 'dafür' : 'dagegen' }
 
@@ -281,12 +331,6 @@ async function send() {
   await ensurePartnerTurn()
 }
 
-function onEnter(e: KeyboardEvent) {
-  if (e.shiftKey) return          // Shift+Enter = newline
-  e.preventDefault()
-  void send()
-}
-
 async function endEarly() {
   const d = discussion.value
   if (!d || grading.value) return
@@ -434,7 +478,7 @@ function repeatPartner() {
 
 function scrollToEnd() {
   void nextTick(() => {
-    const el = document.querySelector('.proto-scroll')
+    const el = document.querySelector('.spr-proto')
     if (el) el.scrollTop = el.scrollHeight
   })
 }
@@ -471,33 +515,57 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
       </div>
     </div>
 
-    <div class="run-grid">
-      <aside class="run-rail">
-        <div class="rail-sec">
-          <div class="micro-mark">Deine Notizen</div>
-          <p class="rail-notes" :class="{ none: !notes }">{{ notes || 'Keine Notizen aus der Vorbereitung.' }}</p>
+    <div class="spr-run">
+      <aside class="spr-rail">
+        <div class="spr-rail-sec">
+          <div class="spr-lbl">These</div>
+          <p class="spr-rail-stmt">{{ discussion.topic.statementDe }}</p>
         </div>
-        <div class="rail-sec">
-          <div class="micro-mark">Deine Argumente</div>
-          <ul class="rail-angles">
-            <li v-for="(a, i) in mine" :key="i">{{ a.claim }}</li>
-          </ul>
+
+        <div class="spr-rail-sec">
+          <div class="spr-lbl">Deine Beiträge</div>
+          <div class="spr-steps">
+            <div v-for="s in steps" :key="s.n" class="spr-step" :class="{ done: s.done, now: s.now }">
+              <span class="spr-step-n">{{ s.n }}</span>
+              <span class="spr-step-m">{{ s.label }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="liveWpm !== null" class="spr-rail-sec">
+          <div class="spr-lbl">Tempo</div>
+          <div class="spr-rail-wpm spr-num">{{ liveWpm }} <span class="spr-lbl">WpM</span></div>
+        </div>
+
+        <div class="spr-rail-sec">
+          <div class="spr-lbl">Redemittel · {{ usedIds.size }} / 42</div>
+          <div class="spr-used">
+            <span
+              v-for="r in SPRECHEN_REDEMITTEL" :key="r.id" class="spr-used-dot"
+              :class="{ on: usedIds.has(r.id) }" :title="r.phraseDe"
+            />
+          </div>
+        </div>
+
+        <div class="spr-rail-sec">
+          <div class="spr-lbl">Notizen</div>
+          <p class="spr-railnotes" :class="{ none: !notes }">{{ notes || 'Keine Notizen aus der Vorbereitung.' }}</p>
         </div>
       </aside>
 
       <div class="run-main">
-        <div class="proto-scroll">
-          <div v-for="(t, i) in discussion.turns" :key="i" class="proto-turn" :class="t.role">
-            <div class="proto-role">{{ t.role === 'learner' ? 'Du' : 'Partner' }}</div>
-            <div class="proto-body">{{ t.textDe }}</div>
+        <div class="spr-proto">
+          <div v-for="(t, i) in discussion.turns" :key="i" class="spr-turn" :class="t.role">
+            <div class="spr-turn-m">{{ t.role === 'learner' ? 'Du' : 'Partner' }}</div>
+            <div class="spr-turn-b">{{ t.textDe }}</div>
           </div>
-          <div v-if="partnerBusy" class="proto-turn partner">
-            <div class="proto-role">Partner</div>
-            <div class="proto-body typing">···</div>
+          <div v-if="partnerBusy" class="spr-turn partner">
+            <div class="spr-turn-m">Partner</div>
+            <div class="spr-turn-b spr-typing">···</div>
           </div>
-          <div v-if="spoken && recognizer.listening.value" class="proto-turn learner live">
-            <div class="proto-role">Du · jetzt</div>
-            <div class="proto-body">{{ recognizer.liveText.value || '…' }}</div>
+          <div v-if="spoken && recognizer.listening.value" class="spr-turn learner live">
+            <div class="spr-turn-m">Du · jetzt</div>
+            <div class="spr-turn-b">{{ recognizer.liveText.value || '…' }}</div>
           </div>
         </div>
 
@@ -525,43 +593,46 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
         </div>
 
         <template v-else-if="discussion.status === 'in_progress'">
-          <!-- Composer: the ONLY part of the shared chrome that forks on modality. -->
-          <div v-if="spoken" class="mic-row">
-            <button
-              class="btn mic-btn"
-              :class="(recognizer.listening.value || ending) ? 'btn-danger' : 'btn-accent'"
-              type="button"
-              :disabled="(!myTurn && !recognizer.listening.value) || ending"
-              @click="toggleMic"
-            >
-              {{ (recognizer.listening.value || ending) ? '■ Beitrag beenden' : '● Sprechen' }}
-            </button>
-            <span class="mic-hint">
-              <template v-if="ending">Wird verarbeitet…</template>
-              <template v-else-if="recognizer.listening.value">Leertaste beendet — und schickt ab.</template>
-              <template v-else-if="voice.speaking.value">Der Partner spricht…</template>
-              <template v-else-if="myTurn">Leertaste oder Knopf startet die Aufnahme.</template>
-              <template v-else>Der Partner ist am Zug…</template>
-            </span>
-            <button class="btn btn-quiet" type="button" :disabled="voice.speaking.value || recognizer.listening.value" @click="repeatPartner">
-              ↻ Partner wiederholen
-            </button>
-          </div>
+          <!-- Move nudge + hint drawer land here in Task 9 -->
 
-          <div v-else class="chat-input-row">
-            <div class="chat-input-col">
-              <textarea
-                v-model="input"
-                class="input chat-input"
-                rows="3"
-                :disabled="!myTurn || sending"
-                :placeholder="myTurn ? 'Dein Beitrag auf Deutsch… (Enter senden, Shift+Enter neue Zeile)' : 'Der Partner ist am Zug…'"
-                @keydown.enter="onEnter"
-              />
-              <span class="word-count">{{ inputWords }} Wörter</span>
+          <div class="spr-composer">
+            <textarea
+              v-if="!spoken"
+              v-model="input"
+              :placeholder="composerPlaceholder"
+              @keydown.enter.exact.prevent="send"
+            />
+            <div class="spr-composer-f">
+              <span class="spr-count" :class="{ short: wordCount > 0 && wordCount < 25 }">
+                {{ wordCount }} Wörter<template v-if="wordCount > 0 && wordCount < 25"> · für einen B2-Beitrag noch knapp</template>
+              </span>
+              <span class="spr-count">Beitrag {{ Math.min(learnerCount + 1, target) }} / {{ target }}</span>
+
+              <div v-if="spoken" class="mic-row">
+                <button
+                  class="btn mic-btn"
+                  :class="(recognizer.listening.value || ending) ? 'btn-danger' : 'btn-accent'"
+                  type="button"
+                  :disabled="(!myTurn && !recognizer.listening.value) || ending"
+                  @click="toggleMic"
+                >
+                  {{ (recognizer.listening.value || ending) ? '■ Beitrag beenden' : '● Sprechen' }}
+                </button>
+                <span class="mic-hint">
+                  <template v-if="ending">Wird verarbeitet…</template>
+                  <template v-else-if="recognizer.listening.value">Leertaste beendet — und schickt ab.</template>
+                  <template v-else-if="voice.speaking.value">Der Partner spricht…</template>
+                  <template v-else-if="myTurn">Leertaste oder Knopf startet die Aufnahme.</template>
+                  <template v-else>Der Partner ist am Zug…</template>
+                </span>
+                <button class="btn btn-quiet" type="button" :disabled="voice.speaking.value || recognizer.listening.value" @click="repeatPartner">
+                  ↻ Partner wiederholen
+                </button>
+              </div>
+              <button v-else class="btn btn-accent" type="button" :disabled="!canSend" @click="send">
+                Senden <span aria-hidden="true">→</span>
+              </button>
             </div>
-            <button class="btn btn-accent" type="button"
-              :disabled="!myTurn || sending || input.trim().length === 0" @click="send">Senden</button>
           </div>
 
           <div v-if="hintsOn" class="drawer">
@@ -617,43 +688,24 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
 .run-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 12px; }
 .run-thesis { font-family: var(--font-display); font-size: 24px; font-style: italic; line-height: 1.35; margin: 4px 0; }
 .run-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex: 0 0 auto; }
-.run-grid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 28px; margin-top: 20px; }
-.run-rail { border-right: 1px solid var(--hairline); padding-right: 20px; }
-.rail-sec { margin-bottom: 26px; }
-.rail-notes { font-size: 13.5px; line-height: 1.65; white-space: pre-wrap; margin: 8px 0 0; }
-.rail-notes.none { color: var(--mute); font-style: italic; }
-.rail-angles { list-style: none; padding: 0; margin: 8px 0 0; }
-.rail-angles li {
-  font-family: var(--font-display); font-size: 13.5px; line-height: 1.45;
-  padding: 6px 0; border-bottom: 1px dotted var(--hairline);
-}
-.proto-scroll { max-height: 42vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-right: 6px; }
-.proto-turn { max-width: 88%; }
-.proto-turn.partner { align-self: flex-start; }
-.proto-turn.learner { align-self: flex-end; }
-.proto-role {
-  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--mute); margin-bottom: 3px;
-}
-.proto-turn.learner .proto-role { text-align: right; }
-.proto-body {
-  display: inline-block; padding: 10px 14px; border-radius: 6px;
-  font-size: 15.5px; line-height: 1.55;
-  background: var(--paper-deep); border: 1px solid var(--hairline);
-}
-.proto-turn.learner .proto-body { background: var(--accent-tint); border-color: transparent; }
-.proto-turn.live .proto-body { border-style: dashed; border-color: var(--accent); color: var(--ink-soft); }
-.typing { color: var(--mute); letter-spacing: 0.2em; }
+
+/* Rail-only stat — Task 1's shared sheet owns the rail sections but has no
+   dedicated class for this one numeric readout. */
+.spr-rail-wpm { font-family: var(--font-display); font-size: 26px; font-weight: 500; letter-spacing: -0.02em; margin-top: 6px; display: flex; align-items: baseline; gap: 8px; }
+
+/* The live-listening row is a turn IN PROGRESS, not yet a committed protocol
+   entry — set off from committed turns without a bubble/border, matching the
+   ruled-protocol look. */
+.spr-turn.live .spr-turn-b { font-style: italic; color: var(--ink-soft); }
+
+/* Composer: the ONLY part of the shared chrome that forks on modality. */
 .mic-row { display: flex; gap: 14px; align-items: center; margin: 20px 0 14px; flex-wrap: wrap; }
 .mic-btn { min-width: 190px; justify-content: center; }
 .mic-hint { color: var(--mute); font-size: 13px; font-style: italic; flex: 1 1 auto; }
-.chat-input-row { display: flex; gap: 10px; align-items: flex-end; margin: 20px 0 14px; }
-.chat-input-col { flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px; }
-.chat-input { resize: vertical; }
-.word-count {
-  align-self: flex-end; font-family: var(--font-mono); font-size: 10.5px;
-  letter-spacing: 0.1em; color: var(--mute);
-}
+/* Mirrors .spr-composer-f .btn's right alignment for the Senden button — the
+   mic-row wrapper itself carries no .btn class, so it needs its own rule. */
+.spr-composer-f .mic-row { margin-left: auto; }
+
 .exam-note { margin-top: 8px; }
 .drawer { border-top: 1px solid var(--hairline); }
 .drawer-head { display: flex; gap: 4px; }
@@ -684,9 +736,6 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
   background: var(--paper-deep); border-left: 3px solid var(--accent); border-radius: 4px;
 }
 @media (max-width: 860px) {
-  .run-grid { grid-template-columns: 1fr; }
-  .run-rail { border-right: 0; border-bottom: 1px solid var(--hairline); padding: 0 0 16px; }
   .run-head { flex-direction: column; }
-  .proto-turn { max-width: 100%; }
 }
 </style>
