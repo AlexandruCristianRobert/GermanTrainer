@@ -1930,9 +1930,14 @@ const discussion = {
   topic: { id: 't1', titleDe: 'Tempolimit', statementDe: 'Brauchen wir ein Tempolimit?', source: 'seed' },
   turnTarget: 6, stance: 'pro', modality: 'typed', status: 'in_progress',
   kiTippCount: 0, notes: 'meine Notizen', startedAt: 1,
+  // Turn order matters: the LAST turn must be the partner's, so it is the
+  // learner's turn and the composer is live. With the learner's turn last,
+  // `myTurn` is false, the textarea is legitimately disabled, `setValue()`
+  // cannot write to it, and `ensurePartnerTurn()` fires a partner call on
+  // mount. Do not "fix" that by removing the component's disabled binding.
   turns: [
-    { role: 'partner', textDe: 'Ich halte das für falsch.', at: 1 },
-    { role: 'learner', textDe: 'Das sehe ich genauso, aber es reicht nicht.', at: 2 }
+    { role: 'learner', textDe: 'Das sehe ich genauso, aber es reicht nicht.', at: 1 },
+    { role: 'partner', textDe: 'Ich halte das für falsch.', at: 2 }
   ]
 }
 
@@ -1982,6 +1987,21 @@ describe('Teil2Runner rail', () => {
 })
 
 describe('Teil2Runner composer', () => {
+  it('disables the composer when it is not the learner turn', async () => {
+    // Regression guard. The disabled binding does more than the send() guard:
+    // send() blocks SUBMISSION, this blocks TYPING. Without it, text entered
+    // during an in-flight send is silently wiped by `input.value = ''` when the
+    // call resolves. Do not remove it to make another test easier to write.
+    const notMyTurn = { ...discussion, turns: [
+      { role: 'partner' as const, textDe: 'Ich halte das für falsch.', at: 1 },
+      { role: 'learner' as const, textDe: 'Das sehe ich genauso.', at: 2 }
+    ] }
+    const mod = await import('../../src/composables/useSprechenDiscussion')
+    vi.mocked(mod.findActiveDiscussion).mockResolvedValue(notMyTurn)
+    const w = mount(Teil2Runner); await flushPromises()
+    expect(w.find('.spr-composer textarea').attributes('disabled')).toBeDefined()
+  })
+
   it('warns under 25 words', async () => {
     const w = mount(Teil2Runner); await flushPromises()
     await w.find('.spr-composer textarea').setValue('kurz')
@@ -2003,6 +2023,8 @@ Run: `npx vitest run tests/modules/Teil2Runner.test.ts`
 Expected: FAIL — no `.spr-step`.
 
 - [ ] **Step 5: Write the rail, protocol and composer markup**
+
+**Keep every existing binding on the textarea**, including `:disabled="!myTurn || sending"`. It is not redundant with `send()`'s guard — that one blocks submission, this one blocks typing, and without it text entered during an in-flight send is silently discarded when `input.value = ''` runs on success.
 
 ```html
 <div class="spr-run">
@@ -3575,9 +3597,17 @@ git add package.json
 git commit -m "chore: bump version to 1.16.00"
 ```
 
-- [ ] **Step 7: Hand back**
+- [ ] **Step 7: Publish**
 
-Do **not** merge, push or deploy. Report the suite result and the manual-pass findings, and let the user run the release ritual.
+The user authorised the full release. After both version commits are in:
+
+```bash
+git checkout main && git merge --no-ff feat/sprechen-voiced-teil2
+git push origin main
+npm run deploy
+```
+
+Then confirm the deployed site actually serves 1.16.00 — a committed version is not a published one, and this project's live site has lagged its commits before. Report the deployed version badge you observed, not the one you expected.
 
 ---
 
