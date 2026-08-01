@@ -1,17 +1,24 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
+import { findActiveDiscussion } from '../../src/composables/useSprechenDiscussion'
+import type { SprechenDiscussion } from '../../src/data/sprechen'
 
 const push = vi.fn()
 vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }))
 
-const discussion = {
+const discussion: SprechenDiscussion = {
   id: 'd1',
   topic: { id: 't1', titleDe: 'Tempolimit', statementDe: 'Brauchen wir ein Tempolimit?', source: 'seed' },
   turnTarget: 6, stance: 'pro', modality: 'typed', status: 'in_progress',
   kiTippCount: 0, notes: 'meine Notizen', startedAt: 1,
+  // Turn order matters: the LAST turn must be the partner's, so it is the
+  // learner's turn and the composer is live. With the learner's turn last,
+  // `myTurn` is false, the textarea is legitimately disabled, `setValue()`
+  // cannot write to it, and `ensurePartnerTurn()` fires a partner call on
+  // mount. Do not "fix" that by removing the component's disabled binding.
   turns: [
-    { role: 'partner', textDe: 'Ich halte das für falsch.', at: 1 },
-    { role: 'learner', textDe: 'Das sehe ich genauso, aber es reicht nicht.', at: 2 }
+    { role: 'learner', textDe: 'Das sehe ich genauso, aber es reicht nicht.', at: 1 },
+    { role: 'partner', textDe: 'Ich halte das für falsch.', at: 2 }
   ]
 }
 
@@ -22,23 +29,6 @@ vi.mock('../../src/composables/useSprechenDiscussion', () => ({
   saveDiscussion: vi.fn(async () => undefined),
   deleteDiscussion: vi.fn(async () => undefined)
 }))
-
-// onMounted also reaches for the partner AI call (ensurePartnerTurn — the
-// mock's last turn is the learner's, so it's the partner's turn to reply).
-// resolveAiClient is stubbed and generatePartnerTurn rejects immediately, so
-// no real network call is attempted; ensurePartnerTurn's own catch settles
-// partnerBusy deterministically instead of depending on fetch/DNS timing.
-vi.mock('../../src/composables/localClaude', async importOriginal => {
-  const actual = await importOriginal<typeof import('../../src/composables/localClaude')>()
-  return { ...actual, resolveAiClient: () => ({}) }
-})
-vi.mock('../../src/composables/useSprechenPartner', async importOriginal => {
-  const actual = await importOriginal<typeof import('../../src/composables/useSprechenPartner')>()
-  return {
-    ...actual,
-    generatePartnerTurn: vi.fn(async () => { throw new Error('no partner in tests') })
-  }
-})
 
 import Teil2Runner from '../../src/modules/sprechen/Teil2Runner.vue'
 
@@ -56,6 +46,15 @@ async function mountReady(): Promise<VueWrapper> {
   }
   return w
 }
+
+// `findActiveDiscussion` is a single shared vi.fn() across every test in this
+// file (vitest does not auto-reset mocks — see vite.config.ts). The composer
+// regression test below overrides its resolved value to a not-my-turn
+// fixture; without restoring it here, that override would leak into every
+// test that runs after it in file order.
+afterEach(() => {
+  vi.mocked(findActiveDiscussion).mockResolvedValue(discussion)
+})
 
 describe('Teil2Runner rail', () => {
   it('renders one stepper row per planned turn', async () => {
@@ -93,6 +92,21 @@ describe('Teil2Runner rail', () => {
 })
 
 describe('Teil2Runner composer', () => {
+  it('disables the composer when it is not the learner turn', async () => {
+    // Regression guard. The disabled binding does more than the send() guard:
+    // send() blocks SUBMISSION, this blocks TYPING. Without it, text entered
+    // during an in-flight send is silently wiped by `input.value = ''` when the
+    // call resolves. Do not remove it to make another test easier to write.
+    const notMyTurn = { ...discussion, turns: [
+      { role: 'partner' as const, textDe: 'Ich halte das für falsch.', at: 1 },
+      { role: 'learner' as const, textDe: 'Das sehe ich genauso.', at: 2 }
+    ] }
+    const mod = await import('../../src/composables/useSprechenDiscussion')
+    vi.mocked(mod.findActiveDiscussion).mockResolvedValue(notMyTurn)
+    const w = await mountReady()
+    expect(w.find('.spr-composer textarea').attributes('disabled')).toBeDefined()
+  })
+
   it('warns under 25 words', async () => {
     const w = await mountReady()
     await w.find('.spr-composer textarea').setValue('kurz')

@@ -553,7 +553,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
         </div>
       </aside>
 
-      <div class="run-main">
+      <div class="spr-run-main">
         <div class="spr-proto">
           <div v-for="(t, i) in discussion.turns" :key="i" class="spr-turn" :class="t.role">
             <div class="spr-turn-m">{{ t.role === 'learner' ? 'Du' : 'Partner' }}</div>
@@ -599,6 +599,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
             <textarea
               v-if="!spoken"
               v-model="input"
+              :disabled="!myTurn || sending"
               :placeholder="composerPlaceholder"
               @keydown.enter.exact.prevent="send"
             />
