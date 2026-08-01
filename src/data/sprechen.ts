@@ -67,16 +67,20 @@ export function learnerTurnCount(d: Pick<SprechenDiscussion, 'turns'>): number {
 }
 
 /**
- * Setup → prep → runner handoff for the spoken test. sessionStorage, like the
- * typed test's stash: it must survive a route change but not a new tab.
+ * Setup → prep → runner handoff. One stash for both Modalities: the flow is
+ * identical and only the input surface differs, so `modality` rides along and
+ * the runner picks its surface from it. sessionStorage — it must survive a
+ * route change but not a new tab.
  */
-export const VOICE_RUN_STASH_KEY = 'gt:lastSprechenVoice'
+export const TEIL2_STASH_KEY = 'gt:lastSprechenTeil2'
 
-export interface VoiceRunStash {
+export interface Teil2RunStash {
   topic: DiscussionTopicRef
+  modality: Modality
   turnTarget: TurnTarget
   stance: PartnerStance
   prepSeconds: number
+  hintsOn: boolean
   notes: string
   model: string
 }

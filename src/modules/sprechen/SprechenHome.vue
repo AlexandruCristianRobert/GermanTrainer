@@ -56,25 +56,12 @@ function onCardKey(e: KeyboardEvent, name: string) {
         <h2>Diskussion</h2>
         <div class="module-de">Teil 2 · mit KI-Partner</div>
         <p class="module-desc">
-          Pick or generate a Topic, choose your turn count, and argue your
-          side. Afterwards: marked transcript, Prädikat, and per-criterion
-          scores. The conversation is discarded; your marked sentences are
-          kept in the Fehlerarchiv.
+          Choose <em>getippt</em> or <em>gesprochen</em>, pick a Topic, take the
+          preparation minute, then argue your side. Afterwards: marked
+          transcript, Prädikat, and per-criterion scores. Speaking also measures
+          tempo, reaction time and pauses.
         </p>
         <div class="module-cta">Start <span aria-hidden="true">→</span></div>
-      </article>
-
-      <article class="card module-card interactive" role="button" tabindex="0"
-        @click="go('sprechen-voice')" @keydown="onCardKey($event, 'sprechen-voice')">
-        <div class="module-numeral">III</div>
-        <h2>Gesprochen</h2>
-        <div class="module-de">Teil 2 · laut, mit Mikrofon</div>
-        <p class="module-desc">
-          Dieselbe Diskussion, nur gesprochen. Der Partner liest vor, du
-          antwortest laut — mit Vorbereitungsminute, Notizen und echten
-          Sprechdaten: Tempo, Reaktionszeit, Pausen.
-        </p>
-        <div class="module-cta">Sprechen <span aria-hidden="true">→</span></div>
       </article>
     </div>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 //
-// Spoken Teil 2 — Vorbereitung (the exam's thinking minute).
+// Sprechen Teil 2 — Vorbereitung (the exam's thinking minute).
 //
 // Learners fail this exam part on CONTENT, not phrasing, so this screen exists
 // to answer "what could I even say". Angles come from the argument bank: a
@@ -8,13 +8,17 @@
 // bank — every Topic therefore has content instantly, offline, with no AI call
 // (ADR-0007's offline-first posture).
 //
-// The notes written here are the ONE hint surface that survives speech: you can
-// glance at your own bullet points while talking, which is exactly what the real
-// exam expects. They ride along to the runner on the stash.
+// Shared across both Modalities (CONTEXT.md → "Modality"): the same angles,
+// the same Wortschatz, the same notes field. Only the framing text below
+// differs, because what the notes are FOR differs — a spoken learner reads
+// from them mid-sentence, a typed learner types the sentence themselves.
+//
+// The notes written here ride along to the runner on the stash, where they
+// stay visible for the whole Discussion regardless of Modality.
 
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { VOICE_RUN_STASH_KEY, type VoiceRunStash } from '../../data/sprechen'
+import { TEIL2_STASH_KEY, type Teil2RunStash } from '../../data/sprechen'
 import { resolveArgumentBank, type ArgumentBank } from '../../data/sprechenArguments'
 import { generateArgumentBank, loadCachedBank, saveCachedBank } from '../../composables/useSprechenArguments'
 import { SPRECHEN_TOPICS } from '../../data/sprechenTopics'
@@ -26,7 +30,7 @@ const router = useRouter()
 const toast = useToast()
 const { settings, canUseAi, load: loadSettings } = useSettings()
 
-const stash = ref<VoiceRunStash | null>(null)
+const stash = ref<Teil2RunStash | null>(null)
 const bank = ref<ArgumentBank | null>(null)
 const scope = ref<string>('')
 const notes = ref('')
@@ -55,14 +59,26 @@ const clock = computed(() => {
   return `${m}:${String(s).padStart(2, '0')}`
 })
 
+/** One word confirming the Modality picked a screen ago, without a trip back. */
+const modalityWord = computed(() => stash.value?.modality === 'typed' ? 'getippt' : 'gesprochen')
+
+// The notes are the same hint surface in both Modalities, but what they're
+// FOR differs: a spoken learner reads them aloud mid-sentence, so everything
+// not jotted down must still be sayable from memory. A typed learner is
+// typing the sentence anyway, so the notes are a plan, not a lifeline.
+const prepSubtitle = computed(() => stash.value?.modality === 'typed'
+  ? 'Lies die Winkel, nimm zwei mit, notiere drei Wörter. Deine Notizen bleiben sichtbar, aber sie sind ein Plan, keine Krücke — den Rest tippst du selbst.'
+  : 'Lies die Winkel, nimm zwei mit, notiere drei Wörter. Deine Notizen bleiben während der Diskussion sichtbar — alles andere musst du sagen können.'
+)
+
 function sideDe(side: 'pro' | 'contra') { return side === 'pro' ? 'dafür' : 'dagegen' }
 
 onMounted(async () => {
   await loadSettings()
-  const raw = sessionStorage.getItem(VOICE_RUN_STASH_KEY)
+  const raw = sessionStorage.getItem(TEIL2_STASH_KEY)
   if (!raw) return
   try {
-    const s = JSON.parse(raw) as VoiceRunStash
+    const s = JSON.parse(raw) as Teil2RunStash
     stash.value = s
     notes.value = s.notes ?? ''
     left.value = s.prepSeconds > 0 ? s.prepSeconds : 60
@@ -89,9 +105,9 @@ onUnmounted(() => { if (tick !== undefined) window.clearInterval(tick) })
 
 function go() {
   if (!stash.value) return
-  const next: VoiceRunStash = { ...stash.value, notes: notes.value }
-  sessionStorage.setItem(VOICE_RUN_STASH_KEY, JSON.stringify(next))
-  router.push({ name: 'sprechen-voice-run' })
+  const next: Teil2RunStash = { ...stash.value, notes: notes.value }
+  sessionStorage.setItem(TEIL2_STASH_KEY, JSON.stringify(next))
+  router.push({ name: 'sprechen-teil2-run' })
 }
 
 async function regenerateBank() {
@@ -116,7 +132,7 @@ async function regenerateBank() {
   }
 }
 
-function backToSetup() { router.push({ name: 'sprechen-voice' }) }
+function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
 </script>
 
 <template>
@@ -131,12 +147,9 @@ function backToSetup() { router.push({ name: 'sprechen-voice' }) }
   <div v-else class="page prep-page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Sprechen Teil 2 · gesprochen · Etappe 02</div>
+        <div class="breadcrumb">Sprechen Teil 2 · {{ modalityWord }} · Etappe 02</div>
         <h1 class="section-title">Vorbereitung<em>.</em></h1>
-        <p class="section-subtitle">
-          Lies die Winkel, nimm zwei mit, notiere drei Wörter. Deine Notizen
-          bleiben während der Diskussion sichtbar — alles andere musst du sagen können.
-        </p>
+        <p class="section-subtitle">{{ prepSubtitle }}</p>
       </div>
       <div class="prep-timer">
         <div class="micro-mark">Denkzeit</div>
@@ -160,6 +173,8 @@ function backToSetup() { router.push({ name: 'sprechen-voice' }) }
         <span>Partner</span><b>{{ sideDe(stash.stance) }}</b>
         <span class="sep">·</span>
         <span>{{ stash.turnTarget }} Beiträge</span>
+        <span class="sep">·</span>
+        <span>Modus</span><b>{{ modalityWord }}</b>
       </div>
     </div>
 

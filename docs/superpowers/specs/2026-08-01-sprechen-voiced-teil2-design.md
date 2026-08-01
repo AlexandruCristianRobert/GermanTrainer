@@ -11,18 +11,27 @@ out loud, and the whole thing is graded on the existing rubric plus real fluency
 only — browser `SpeechRecognition` and `speechSynthesis`, no audio recorded, uploaded, or
 stored. Aussprache remains ungraded; **Flüssigkeit stops being a fudge.**
 
-Offered as a separate test in the Sprechen module — its own hub entry, route, setup, prep
-and runner — over the same [Discussion] concept the typed test uses.
+Offered as a **Modality toggle inside the single Teil 2 flow** — one setup, one preparation
+screen, one runner, one result — because the two differ only in the input surface.
+
+> **Revision, 2026-08-01 (supersedes decisions 1b and 5 below).** This shipped first as a
+> *separate* spoken test with its own hub entry and its own setup/prep/runner. The user then
+> asked for the whole module to work the way the spoken part does, with the choice made
+> in-flow. The domain model needed no change — CONTEXT.md already recorded that offering each
+> Modality as its own entry point was "a presentation choice, not a second concept" — so only
+> the surface moved. The typed screens were replaced by the richer spoken ones with the input
+> surface switched on `modality`. **Bonus:** merging the runners gives the typed path the
+> `runRecorded` double-record guard it never had.
 
 ## Decisions (settled during the grilling session)
 
 | # | Question | Decision |
 |---|---|---|
-| 1 | Is a spoken Discussion its own concept? | **No.** `Discussion` widened to be modality-neutral; new **Modality** term (`typed` \| `spoken`). Separate *test*, same concept. |
+| 1 | Is a spoken Discussion its own concept? | **No.** `Discussion` widened to be modality-neutral; new **Modality** term (`typed` \| `spoken`). ~~Separate *test*, same concept.~~ → *Revised:* one flow, Modality chosen at setup. |
 | 2 | Phantom errors from misrecognition in the archive | **Archived unfiltered.** No Modality filter, no confidence gate, no delete. Per-tag counts read as "mistakes **or** mishearings". |
 | 3 | How much context does an [Archived correction] keep? | **The learner's full sentence** — and the app's "conversation is never stored" copy is corrected to say what is actually true. |
 | 4 | Where does the archive live? | **Dexie now, shaped like the future Supabase table** — append-only, drilled-ness as events. See ADR-0012. |
-| 5 | Scope | **A new spoken runner in the design's visual language.** The typed runner is untouched; the 7-screen redesign is not a prerequisite. |
+| 5 | Scope | ~~A new spoken runner; the typed runner untouched.~~ → *Revised:* **the spoken screens replace the typed ones**, with the input surface switching on Modality. The 7-screen redesign is still not a prerequisite. |
 | 6 | Hints while the mic is live | **Everything stays visible.** Consequence: [Redemittel yield] measures use, not command. |
 | 7 | Prep content | **Full argument bank incl. per-tag fallback** — every Topic has content instantly, offline, no call (fits ADR-0007). |
 | 8 | Rubric and Run type | **Same 4 criteria × 25, modality-specific `kohaerenz` descriptor, one `QuizHistoryType`** with Modality in meta — so typed and spoken scores stay directly comparable. |
@@ -60,6 +69,21 @@ Returns per turn: `{ text, startedAt, endedAt, restarts, spans }`.
 
 ## 2. Interaction
 
+The flow is one set of screens for both Modalities:
+
+`Teil2Setup` (Modality toggle first, then Topic, turns, stance, prep time, hints — with the
+voice picker and mic gate appearing only for `spoken`) → `Teil2Prep` (the thinking minute,
+identical for both) → `Teil2Runner` (input surface switches) → `Teil2Result` (shared; the
+Sprechdaten panel renders only when `summarizeFluency` returns data).
+
+Two things the merge must not get wrong, both of which make the module unusable if fumbled:
+
+- **Space is bound only in `spoken`.** In a typed turn Space is a space, not a mic toggle.
+- **The microphone gate blocks only `spoken`.** A browser without `SpeechRecognition`
+  (Firefox) must still run the typed Discussion; only the *Gesprochen* option is unavailable.
+
+### Spoken turn
+
 Partner turn arrives → `speak()` → **then** the mic unlocks (gated on `myTurn && !speaking`).
 
 - **Space** toggles the mic (`preventDefault`, or the page scrolls). Not bound while focus is
@@ -72,6 +96,13 @@ Partner turn arrives → `speak()` → **then** the mic unlocks (gated on `myTur
   and a rate slider makes it slower; both are free listening practice.
 - Firefox has no `SpeechRecognition` → the spoken test is disabled at setup with a plain note.
   A mid-run `not-allowed` drops to the textarea.
+
+### Typed turn
+
+Textarea, Enter sends, Shift+Enter newlines, word count — the old typed runner's composer,
+unchanged. No TTS is ever spoken, no `speech` or `spans` are recorded on the turn, and
+`myTurn` does not consult `voice.speaking`. Everything around the composer — rail, notes,
+protocol transcript, Was/Wie drawer, KI-Tipp, grading, archive write — is the shared code.
 
 ## 3. Fluency data (free, no AI)
 

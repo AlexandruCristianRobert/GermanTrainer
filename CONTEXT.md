@@ -149,8 +149,8 @@ A Teil 2 speaking-practice conversation between the learner and the AI partner, 
 _Avoid_: session, chat, dialogue, Diskussionsrunde
 
 **Modality**:
-Whether a [Discussion]'s learner turns are `typed` or `spoken`. A [Discussion] has exactly one Modality, fixed when it starts. Offering each Modality as its own practice entry point is a presentation choice, not a second concept — both exercise the same [Discussion], are scored on the same rubric, and are recorded as the *same* kind of [Run], so their scores are directly comparable.
-_Avoid_: mode (collides with [Grading mode]), input method, voice mode
+Whether a [Discussion]'s learner turns are `typed` or `spoken`. A [Discussion] has exactly one Modality, chosen at setup and fixed once it starts. It changes only the input surface — a text field or a microphone — and what can be measured from it: a spoken [Discussion] yields real speaking tempo, reaction time and pause counts, so its rubric judges Flüssigkeit on evidence instead of adapting around its absence. Everything else is shared: the same [Topic] pool, the same preparation, the same [Move]s and hints, the same rubric, and the *same* kind of [Run] — so a typed and a spoken score are directly comparable, and "how much worse am I when I have to speak?" is an answerable question.
+_Avoid_: mode (collides with [Grading mode]), input method, voice mode, separate test
 
 **Topic** (de Thema):
 A controversial statement or question a [Discussion] argues — drawn from the app's seeded pool or AI-generated into the learner's custom pool.
