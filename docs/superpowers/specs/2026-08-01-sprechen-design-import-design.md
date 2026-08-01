@@ -197,6 +197,19 @@ three unrelated module families out of one ~1,100-line file and is the first ste
 Per §9 the sheet uses existing tokens only — no new colours. Breakpoints: rails and sticky cards
 unstick at 1080px; two-column grids collapse at 720px, where the matrix drops its quote column.
 
+**Deliberate divergences from the design source** (the DW/DaC import documented its own; this is the
+equivalent list):
+
+- **Omit every Teil 1 selector family** — `.spr-ab`, `.spr-sheet*`, `.spr-plan*`, `.spr-secmast*`,
+  `.spr-timebar*`, `.spr-cov*`, `.spr-step-btn`, `.spr-step-t`, `.spr-move.fit` — and rewrite the
+  first of the two `@media (max-width:1080px)` blocks, which interleaved Teil 1 rules with the
+  `.spr-parts` rules that are needed.
+- **Add `.spr-part.dead` / `.spr-part-soon`.** The design has no state for a non-interactive part
+  panel; Teil 1's deferred panel must not look clickable.
+- **Add `flex-wrap:wrap` to `.spr-sides`.** The design's row carries three items; the app's carries
+  four because Modality joins them, and the rule it replaces (`.sides` in the old `Teil2Prep.vue`)
+  wrapped. Without it the row overflows at narrow widths.
+
 ### 12 · The masthead compares Modalities
 
 The doc shows the last run's four criterion bars. Instead, each criterion gets a **paired** bar — the

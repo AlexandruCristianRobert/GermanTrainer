@@ -1780,6 +1780,25 @@ DesignSync: { method: "get_file", projectId: "ff880a7a-b49d-4411-8435-65c0519723
 
 Angle claims gain the numeral the design uses: `<div class="spr-angle-c"><b>{{ String(i+1).padStart(2,'0') }}</b><span>{{ a.claim }}</span></div>`.
 
+- [ ] **Step 3a: Tell the truth about where the bank came from**
+
+`resolveArgumentBank` returns `scope: 'cached' | 'topic' | TopicTag`, and only **`'cached'`** is AI-generated and Dexie-cached. `'topic'` and the tag values are hand-authored bundled data in `src/data/sprechenArguments.ts` — never generated, never cached. So the label must branch three ways, not two. Copy that claims a bundled bank was "einmal generiert, dann gecacht" is false, and it sits directly beside the AI-cost note whose whole job is honest disclosure:
+
+```ts
+const scopeLabel = computed(() => {
+  const scope = resolved.value?.scope
+  if (scope === 'cached') return 'themenspezifisch · von der KI erzeugt, dann gecacht'
+  if (scope === 'topic') return 'themenspezifisch · mitgeliefert, ohne KI'
+  return `Feld ${scope} · mitgeliefert, ohne KI`
+})
+```
+
+Rename `resolved` to whatever the file calls the `{ bank, scope }` result.
+
+- [ ] **Step 3b: Restore the wrap on the sides row**
+
+`src/styles/sprechen.css`'s `.spr-sides` was ported verbatim from the design and has no `flex-wrap`. The rule it replaces (`.sides`) did, and this screen's row carries **four** items where the prototype's carried three — the app adds Modality. Without wrapping it overflows at narrow widths. Add `flex-wrap:wrap` to `.spr-sides` in `src/styles/sprechen.css`. This is a **deliberate divergence from the design source**, recorded in the spec; it is not "new global CSS".
+
 - [ ] **Step 3: Add the notes placeholder generated from the bank**
 
 The design generates the placeholder from the topic's own bank. Add:
@@ -1794,19 +1813,44 @@ const notesPlaceholder = computed(() => {
 
 Rename `mine` / `theirs` to whatever the file already calls them.
 
-- [ ] **Step 4: Verify**
+- [ ] **Step 4: Add a mount test**
 
-Run: `npm run typecheck && npm test`
-Expected: typecheck clean, suite green (no test mounts this file).
+This component has no test today, and a template rewrite with no coverage is exactly where a silent
+regression hides. Create `tests/modules/Teil2Prep.test.ts`.
 
-- [ ] **Step 5: Manually verify at three widths**
+The mock wiring must match the module surface this component actually imports — **read the component
+first and adapt the mocks**, but assert these exact facts:
+
+- Two argument columns render (`.spr-acol`), one `.mine` and one `.theirs`, and the learner's own side
+  is the `.mine` column.
+- Each column renders one `.spr-angle` per angle in the resolved bank, each with a `.spr-angle-c`
+  claim and a `.spr-angle-w` supporting line, and the claim carries a zero-padded numeral.
+- The Wortschatz strip renders one `.spr-word` per bank word, with `.spr-word-de` and `.spr-word-en`.
+- The countdown renders in `.spr-timer-num`, and clicking the Pause control stops it decrementing
+  while clicking Stopp drives it to `0:00`.
+- **Expiry does not force the start**: with the timer at zero, the start CTA is still enabled and the
+  screen has not navigated.
+- The scope label in `.spr-block-n` branches three ways and **never claims a bundled bank was AI-generated**: a `'cached'` scope says so, a `'topic'` scope and a tag scope both say `ohne KI`. Assert the tag-fallback label does not contain `erzeugt`.
+- The notes placeholder is generated from the resolved bank — it contains the first angle's claim and
+  the first counter-angle's claim.
+
+Use fake timers for the countdown assertions (`vi.useFakeTimers()`), and restore real timers
+afterwards so the rest of the suite is unaffected. Any test that mounts a second component instance
+must `unmount()` the first — otherwise its countdown interval keeps running for the rest of the file.
+
+- [ ] **Step 5: Verify**
+
+Run: `npx vitest run tests/modules/Teil2Prep.test.ts && npm run typecheck && npm test`
+Expected: PASS, suite green.
+
+- [ ] **Step 6: Manually verify at three widths**
 
 At 1440 / 1080 / 720 px: the two argument columns collapse to one at 720 and the timer left-aligns; the countdown still pauses; expiry goes red and does not force the start.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add src/modules/sprechen/Teil2Prep.vue
+git add src/modules/sprechen/Teil2Prep.vue src/styles/sprechen.css tests/modules/Teil2Prep.test.ts
 git commit -m "refactor(sprechen): Vorbereitung on the .spr-* vocabulary"
 ```
 
