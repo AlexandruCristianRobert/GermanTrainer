@@ -62,9 +62,13 @@ const notes = ref('')
 const hintsOn = ref(true)
 const input = ref('')            // typed composer only
 const tab = ref<'was' | 'wie'>('was')
-// The first entry of HINT_MOVES so opening the drawer always highlights a
-// real, non-arbitrary category rather than one picked out of the six.
-const move = ref<Move>(HINT_MOVES[0])
+// The drawer opens on 'partial' (Teilweise zustimmen) — NOT HINT_MOVES[0].
+// HINT_MOVES is documented as display order, not an importance ranking, so its
+// first element is no less arbitrary. Conceding a point before countering is
+// the tactic the Sprechen cheatsheet explicitly teaches, and plain agreement
+// ends a discussion rather than developing it. Do not change this to make a
+// test pass.
+const move = ref<Move>('partial')
 const composerEl = ref<HTMLTextAreaElement | null>(null)
 const kiTipp = ref<string | null>(null)
 const kiBusy = ref(false)
@@ -212,7 +216,11 @@ function sideDe(side: 'pro' | 'contra') { return side === 'pro' ? 'dafür' : 'da
  * the Modality is spoken, and this function is never called there.
  */
 function insertPhrase(phraseDe: string) {
-  const stub = phraseDe.replace(/\s*…\s*$/, '').trim()
+  // Everything BEFORE the ellipsis — that is the sentence opener; the learner
+  // supplies the rest. Anchoring the strip to end-of-string would leave a
+  // literal … in the composer for the two phrases that carry it mid-sentence
+  // ("Sind Sie nicht auch der Meinung, dass …?" and "… mit … aus?").
+  const stub = phraseDe.split('…')[0].trim()
   const el = composerEl.value
   if (!el) { input.value = `${input.value}${input.value ? ' ' : ''}${stub}`; return }
   const at = el.selectionStart ?? input.value.length

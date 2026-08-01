@@ -169,6 +169,13 @@ describe('Teil2Runner drawer', () => {
   it('reads schon benutzt instead of the gloss for a used phrase', async () => {
     const w = await mountReady()
     await w.find('.spr-dtab:nth-child(2)').trigger('click')
+    // The fixture's one matched phrase is an `agree` one, and the drawer opens
+    // on 'partial' — a deliberate default, since conceding-then-countering is
+    // the move the cheatsheet teaches. Select the chip rather than changing the
+    // component's default to suit this test.
+    const chips = w.findAll('.spr-move')
+    const agree = chips.find(c => c.text().includes('Zustimmen'))!
+    await agree.trigger('click')
     expect(w.text()).toContain('schon benutzt')
   })
 
@@ -176,6 +183,22 @@ describe('Teil2Runner drawer', () => {
     const w = await mountReady()
     await w.find('.spr-dtab:nth-child(2)').trigger('click')
     await w.findAll('.spr-phrase-t')[0].trigger('click')
+    const val = (w.find('.spr-composer textarea').element as HTMLTextAreaElement).value
+    expect(val).not.toContain('…')
+    expect(val.length).toBeGreaterThan(0)
+  })
+
+  it('strips an ellipsis that sits mid-phrase, not just at the end', async () => {
+    const w = await mountReady()
+    await w.find('.spr-dtab:nth-child(2)').trigger('click')
+    // Nachfragen (rm-ask-3, rm-ask-5) carries the … mid-sentence — "Sind Sie
+    // nicht auch der Meinung, dass …?" — unlike the trailing-ellipsis phrases
+    // elsewhere. The end-anchored strip used to miss these.
+    const chips = w.findAll('.spr-move')
+    const ask = chips.find(c => c.text().includes('Nachfragen'))!
+    await ask.trigger('click')
+    const target = w.findAll('.spr-phrase-t').find(p => p.text().includes('…'))!
+    await target.trigger('click')
     const val = (w.find('.spr-composer textarea').element as HTMLTextAreaElement).value
     expect(val).not.toContain('…')
     expect(val.length).toBeGreaterThan(0)
