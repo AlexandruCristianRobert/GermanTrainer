@@ -20,6 +20,7 @@
 - **`noUnusedLocals` / `noUnusedParameters` are on.** Deleting markup without deleting the `ref`/`computed` behind it fails `npm run typecheck`.
 - **`CONTEXT.md` terms are binding vocabulary:** Discussion, Modality, Topic, Move, Move nudge, Redemittel yield, KI-Tipp, Prädikat, Archived correction, Error archive, Correction drill, Run. Never rename these in code or UI.
 - **Every AI prompt must spell out its JSON shape in prose.** The local-claude bridge drops `responseSchema`, so prose is the only schema.
+- **Never change production code to make a test pass.** When a test cannot reach a state, first ask whether the state is reachable in the app. If it is not, the *fixture* is wrong — fix the test data. This rule has already been violated twice in this plan: Task 8 removed the composer's `:disabled` binding because it blocked `setValue()` (causing silent loss of text typed during an in-flight send), and Task 9 changed the hint drawer's default Move because an unmodified test only passed with the new default. Both were caught in review and reverted. If a test seems to demand a behaviour change, say so in your report and leave the behaviour alone.
 - **Commit after every task.** Conventional commits, scope `sprechen`.
 - **Baseline:** run `npm test` and record the pass count before Task 1. Any red test afterwards is a regression.
 
@@ -2152,6 +2153,12 @@ const moveNudge = computed(() => {
 
 ```ts
 /** Moves the learner has not reached for this run get a ·neu mark. */
+// The drawer opens on 'partial' (Teilweise zustimmen) — NOT HINT_MOVES[0].
+// HINT_MOVES is documented as display order, not an importance ranking, so its
+// first element is no less arbitrary. Conceding a point before countering is
+// the tactic the Sprechen cheatsheet explicitly teaches, and plain agreement
+// ends a discussion rather than developing it. Do not change this to make a
+// test pass.
 const freshMoves = computed(() => {
   const used = new Set(matchRedemittel(learnerTexts.value).map(r => r.move))
   return new Set(HINT_MOVES.filter(m => !used.has(m)))
@@ -2178,7 +2185,11 @@ const partnerPlayed = computed(() => {
  * the Modality is spoken, and this function is never called there.
  */
 function insertPhrase(phraseDe: string) {
-  const stub = phraseDe.replace(/\s*…\s*$/, '').trim()
+  // Everything BEFORE the ellipsis — that is the sentence opener; the learner
+  // supplies the rest. Anchoring the strip to end-of-string would leave a
+  // literal … in the composer for the two phrases that carry it mid-sentence
+  // ("Sind Sie nicht auch der Meinung, dass …?" and "… mit … aus?").
+  const stub = phraseDe.split('…')[0].trim()
   const el = composerEl.value
   if (!el) { draft.value = `${draft.value}${draft.value ? ' ' : ''}${stub}`; return }
   const at = el.selectionStart ?? draft.value.length
@@ -2307,6 +2318,13 @@ describe('Teil2Runner drawer', () => {
   it('reads schon benutzt instead of the gloss for a used phrase', async () => {
     const w = mount(Teil2Runner); await flushPromises()
     await w.find('.spr-dtab:nth-child(2)').trigger('click')
+    // The fixture's one matched phrase is an `agree` one, and the drawer opens
+    // on 'partial' — a deliberate default, since conceding-then-countering is
+    // the move the cheatsheet teaches. Select the chip rather than changing the
+    // component's default to suit this test.
+    const chips = w.findAll('.spr-move')
+    const agree = chips.find(c => c.text().includes('Zustimmen'))!
+    await agree.trigger('click')
     expect(w.text()).toContain('schon benutzt')
   })
 
