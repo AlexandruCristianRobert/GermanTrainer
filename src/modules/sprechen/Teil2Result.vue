@@ -4,9 +4,9 @@ import { useRouter } from 'vue-router'
 import {
   reAnchor, SPRECHEN_RESULT_KEY, type SprechenMistake, type SprechenResultStash
 } from '../../composables/useSprechenGrader'
-import { summarizeFluency, type DiscussionTurn } from '../../data/sprechen'
+import { summarizeFluency, type DiscussionTurn, type Modality } from '../../data/sprechen'
 import { matchRedemittel } from '../../composables/useRedemittelMatch'
-import { SPRECHEN_B2_TEIL2 } from '../../data/rubrics'
+import { SPRECHEN_B2_TEIL2, sprechenDescriptor, sprechenNotes } from '../../data/rubrics'
 import SprYield from '../../components/sprechen/SprYield.vue'
 
 const router = useRouter()
@@ -44,18 +44,28 @@ function setLang(l: 'de' | 'en') {
 
 const rubricCriteria = SPRECHEN_B2_TEIL2.criteria
 
+// The Discussion's Modality. Defaults to 'typed' for an older stash written
+// before `modality` existed on SprechenResultStash (added this task).
+const modality = computed<Modality>(() => data.value?.modality ?? 'typed')
+
 /**
- * §5.2: read the descriptor verbatim, never paraphrase it in the component.
- * The rubric carries a spoken variant on `kohaerenz` because a spoken
- * Discussion measures real tempo — pick it when the Modality is spoken.
+ * §5.2: read the descriptor verbatim, never paraphrase it in the component —
+ * delegates to the shared resolver in rubrics.ts (the same one the grader
+ * prompt uses) so descriptor selection has one source of truth.
  */
 function descriptorFor(key: string): string {
   const def = rubricCriteria.find(c => c.key === key)
-  if (!def) return ''
-  return data.value?.modality === 'spoken' && def.descriptorSpokenDe
-    ? def.descriptorSpokenDe
-    : def.descriptorDe
+  return def ? sprechenDescriptor(def, modality.value) : ''
 }
+
+/**
+ * The Bewertungsumfang banner's Modality-dependent lead sentence(s) — read
+ * verbatim from the rubric via the same resolver pattern as descriptorFor
+ * above, never hand-paraphrased here. Covers the getippt/gesprochen wording
+ * AND the point structure, so the template appends only the one sentence
+ * about where the result is stored (not part of the rubric).
+ */
+const scopeNotes = computed(() => sprechenNotes(SPRECHEN_B2_TEIL2, modality.value))
 
 const structure = computed(() => data.value?.result.structure ?? null)
 const interaction = computed(() => data.value?.result.interaction ?? null)
@@ -186,8 +196,7 @@ function home() { router.push({ name: 'sprechen' }) }
 
     <div class="alert alert-info">
       <span class="alert-label">Bewertungsumfang</span>
-      Getippte Übung: <strong>Aussprache wird nicht bewertet</strong> — vier Kriterien à 25 Punkte,
-      Bestehensgrenze 60. Diese Auswertung ist nur hier sichtbar; im Verlauf bleibt die
+      {{ scopeNotes }} Diese Auswertung ist nur hier sichtbar; im Verlauf bleibt die
       Zusammenfassung, im Fehlerarchiv deine markierten Sätze.
     </div>
     <div v-if="learnerTurnsTotal < 3" class="alert alert-warning">

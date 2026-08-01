@@ -28,7 +28,7 @@ describe('SprechenCheatsheet', () => {
     expect(w.findAll('.spr-usedot.on')).toHaveLength(1)
   })
 
-  it('renders the four Bauplan steps with the matrix column names', () => {
+  it('renders the four Bauplan step names', () => {
     const w = mount(SprechenCheatsheet)
     for (const step of ['These', 'Begründung', 'Beispiel', 'Rückfrage']) {
       expect(w.text()).toContain(step)

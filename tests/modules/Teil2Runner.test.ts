@@ -6,6 +6,34 @@ import type { SprechenDiscussion } from '../../src/data/sprechen'
 const push = vi.fn()
 vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }))
 
+// The "not my turn" composer-disabled fixture below ends on the LEARNER's
+// turn, so ensurePartnerTurn() does NOT early-return during onMounted — it
+// runs the real generatePartnerTurn(), which calls resolveAiClient(). Stub
+// resolveAiClient at exactly that boundary — not generatePartnerTurn itself,
+// so its own prompt-building, retry and reply-validation logic still runs
+// for real — so this test never reaches the actual Gemini network client.
+// It used to pass only because an empty API key happened to fail fast; that
+// timing assumption doesn't hold in every environment.
+//
+// generateContent REJECTS (not resolves): the assertion needs the turn to
+// stay unanswered so the composer stays disabled. A resolved reply would
+// let ensurePartnerTurn() append a partner turn and flip the fixture's
+// last-turn role to 'partner' — i.e. it WOULD become the learner's turn —
+// which defeats the very "not my turn" state this test is guarding.
+vi.mock('../../src/composables/localClaude', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../src/composables/localClaude')>()
+  return {
+    ...actual,
+    resolveAiClient: vi.fn(() => ({
+      models: {
+        generateContent: vi.fn(async () => {
+          throw new Error('network disabled in tests')
+        })
+      }
+    }))
+  }
+})
+
 const discussion: SprechenDiscussion = {
   id: 'd1',
   topic: { id: 't1', titleDe: 'Tempolimit', statementDe: 'Brauchen wir ein Tempolimit?', source: 'seed' },

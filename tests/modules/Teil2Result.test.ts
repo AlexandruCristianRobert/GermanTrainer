@@ -76,6 +76,36 @@ describe('Teil2Result', () => {
     expect(w.text()).toContain('SPRECHDATEN')
   })
 
+  it('shows the Modality-correct Bewertungsumfang notes, not a hardcoded "getippt"', async () => {
+    // Driven off the rubric's own notes/notesSpokenDe strings — not hardcoded
+    // "getippt"/"gesprochen" literals — so this fails if the banner and the
+    // rubric ever drift apart again.
+    stash()
+    const typed = await mountLoaded()
+    expect(typed.text()).toContain(SPRECHEN_B2_TEIL2.notes)
+    expect(SPRECHEN_B2_TEIL2.notes).toContain('getippte')
+
+    const s = JSON.parse(sessionStorage.getItem(SPRECHEN_RESULT_KEY)!)
+    s.modality = 'spoken'
+    sessionStorage.setItem(SPRECHEN_RESULT_KEY, JSON.stringify(s))
+    const spoken = await mountLoaded()
+    expect(SPRECHEN_B2_TEIL2.notesSpokenDe).toBeDefined()
+    expect(spoken.text()).toContain(SPRECHEN_B2_TEIL2.notesSpokenDe!)
+    expect(SPRECHEN_B2_TEIL2.notesSpokenDe).toContain('gesprochene')
+
+    // The two must actually differ, or this test would pass vacuously.
+    expect(SPRECHEN_B2_TEIL2.notes).not.toBe(SPRECHEN_B2_TEIL2.notesSpokenDe)
+  })
+
+  it('defaults an older stash without a modality field to the typed banner', async () => {
+    stash()
+    const s = JSON.parse(sessionStorage.getItem(SPRECHEN_RESULT_KEY)!)
+    delete s.modality
+    sessionStorage.setItem(SPRECHEN_RESULT_KEY, JSON.stringify(s))
+    const w = await mountLoaded()
+    expect(w.text()).toContain(SPRECHEN_B2_TEIL2.notes)
+  })
+
   it('omits the matrix entirely when structure is absent', async () => {
     stash(); const w = await mountLoaded()
     expect(w.find('.spr-matrix').exists()).toBe(false)

@@ -133,6 +133,7 @@
 
 /* ── Runner: rail + protocol + composer ── */
 .spr-run{display:grid;grid-template-columns:262px minmax(0,1fr);gap:52px;align-items:start;margin-top:26px}
+.spr-run-main{min-width:0}
 .spr-rail{position:sticky;top:92px;display:flex;flex-direction:column;gap:24px}
 .spr-rail-sec{border-top:1px solid var(--hairline);padding-top:12px}
 .spr-rail-stmt{font-family:var(--font-display);font-style:italic;font-size:16px;line-height:1.4;margin:8px 0 0;text-wrap:pretty}
@@ -262,6 +263,8 @@
 .spr-kind{padding:18px 18px 20px 0;border-right:1px dotted var(--hairline);background:transparent;border-top:0;border-bottom:0;border-left:0;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:background .16s}
 .spr-kind:last-child{border-right:0}
 .spr-kind:hover{background:var(--accent-wash)}
+.spr-kind:disabled{opacity:.4;cursor:not-allowed}
+.spr-kind:disabled:hover{background:transparent}
 .spr-kind.on{background:var(--accent-tint)}
 .spr-kind-n{font-family:var(--font-display);font-size:38px;font-weight:500;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
 .spr-kind-t{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-top:8px}
