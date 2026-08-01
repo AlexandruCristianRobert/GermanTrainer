@@ -8,6 +8,7 @@ import { loadHistory } from '../../composables/useQuizHistory'
 import { countsByKind, openCorrections } from '../../composables/useSprechenArchive'
 import { lifetimeCounts } from '../../composables/useRedemittelYield'
 import { SPRECHEN_TOPICS } from '../../data/sprechenTopics'
+import { doneTopicTitles } from '../../composables/useSprechenTopics'
 import { SPRECHEN_REDEMITTEL } from '../../data/sprechenRedemittel'
 import SprYield from '../../components/sprechen/SprYield.vue'
 import SprCriterionBars, { type CriterionScore } from '../../components/sprechen/SprCriterionBars.vue'
@@ -29,17 +30,21 @@ const spokenCriteria = computed(() => latestCriteria('spoken'))
 const lifetimeUsedIds = computed(() => Object.keys(lifetimeCounts()))
 const usedCount = computed(() => lifetimeUsedIds.value.length)
 
-const discussedTitles = computed(
-  () => new Set(runs.value.map(r => r.meta.topicTitle).filter(Boolean) as string[])
-)
-const openTopics = computed(
-  () => SPRECHEN_TOPICS.filter(t => !discussedTitles.value.has(t.titleDe)).length
-)
+// doneTopicTitles() already performs exactly this computation and is the
+// same function pickRandomTopic() uses to prefer undiscussed Topics — reuse it
+// so the hub's count and the picker can never disagree.
+const openTopics = computed(() => {
+  const done = doneTopicTitles()
+  return SPRECHEN_TOPICS.filter(t => !done.has(t.titleDe)).length
+})
 const lastScore = computed(() => runs.value[0]?.meta.sprechenScore ?? null)
 
-// Live archive counts — a nice-to-have, never a blocker. A failed read leaves
-// the rows on their static copy.
+// Live archive counts — a nice-to-have, never a blocker. THREE states, kept
+// distinguishable on purpose: `null` alone would make a failed read look
+// identical to a still-loading one, so the row would read "wird geladen"
+// forever.
 const archive = ref<{ total: number; open: number } | null>(null)
+const archiveState = ref<'loading' | 'ready' | 'failed'>('loading')
 onMounted(async () => {
   try {
     const [counts, open] = await Promise.all([countsByKind(), openCorrections()])
@@ -47,8 +52,10 @@ onMounted(async () => {
       total: Object.values(counts).reduce((a, b) => a + b, 0),
       open: open.length
     }
+    archiveState.value = 'ready'
   } catch {
     archive.value = null
+    archiveState.value = 'failed'
   }
 })
 
@@ -85,11 +92,10 @@ function metaFor(route: string): string[] {
   if (route === 'sprechen-cheatsheet') {
     return [`${SPRECHEN_REDEMITTEL.length} Wendungen`, `${usedCount.value} davon benutzt`]
   }
-  if (!archive.value) return ['Archiv wird geladen']
+  if (archiveState.value === 'loading') return ['Archiv wird geladen']
+  if (archiveState.value === 'failed' || !archive.value) return ['Archiv nicht lesbar']
   if (archive.value.total === 0) return ['Noch nichts archiviert']
-  return route === 'sprechen-archive'
-    ? [`${archive.value.total} Korrekturen`, `${archive.value.open} offen`]
-    : [`${archive.value.open} offen`, `${archive.value.total - archive.value.open} nachgeübt`]
+  return [`${archive.value.total} Korrekturen`, `${archive.value.open} offen`]
 }
 </script>
 
@@ -152,7 +158,7 @@ function metaFor(route: string): string[] {
 
     <!-- 02 · The two exam parts -->
     <div class="spr-parts">
-      <button class="spr-part dead" type="button" disabled aria-describedby="spr-t1-soon">
+      <button class="spr-part dead" type="button" disabled>
         <div class="spr-part-h">
           <span class="spr-part-n">Teil 1</span>
           <span class="spr-lbl">allein, ca. 4 Minuten</span>
@@ -165,7 +171,10 @@ function metaFor(route: string): string[] {
           Du wählst zwischen zwei Themen, planst die Gliederung und hältst den Vortrag
           Abschnitt für Abschnitt. Bewertet wird, ob alle fünf Punkte tragen.
         </p>
-        <span id="spr-t1-soon" class="spr-part-soon">In Vorbereitung</span>
+        <!-- Inside the button, so a screen reader announces it as part of the
+             button's content. aria-describedby would be redundant here and is
+             inconsistently honoured on disabled controls. -->
+        <span class="spr-part-soon">In Vorbereitung</span>
       </button>
 
       <button class="spr-part" type="button" @click="go('sprechen-teil2')">
@@ -271,5 +280,4 @@ function metaFor(route: string): string[] {
 .spr-sub-tight { margin-top: -6px; }
 .spr-ok { color: var(--success); font-size: 15px; letter-spacing: 0; }
 .spr-bad { color: var(--danger); font-size: 15px; letter-spacing: 0; }
-.setup-actions { margin-top: 48px; }
 </style>

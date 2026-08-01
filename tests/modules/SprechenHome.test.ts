@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 
 vi.mock('../../src/composables/useSprechenArchive', () => ({
   countsByKind: vi.fn(async () => ({
@@ -69,6 +69,25 @@ describe('SprechenHome', () => {
   it('renders the lifetime yield block', () => {
     const w = mount(SprechenHome, { global })
     expect(w.find('.spr-yield').exists()).toBe(true)
+  })
+
+  it('distinguishes a failed archive read from a still-loading one', async () => {
+    // Regression: `archive === null` was both states, so a failed read told the
+    // learner "wird geladen" forever.
+    const mod = await import('../../src/composables/useSprechenArchive')
+    vi.mocked(mod.countsByKind).mockRejectedValueOnce(new Error('dexie down'))
+    const w = mount(SprechenHome, { global })
+    expect(w.text()).toContain('Archiv wird geladen')
+    await flushPromises()
+    expect(w.text()).toContain('Archiv nicht lesbar')
+    expect(w.text()).not.toContain('Archiv wird geladen')
+  })
+
+  it('shows the archive counts once the read resolves', async () => {
+    const w = mount(SprechenHome, { global })
+    await flushPromises()
+    expect(w.text()).toContain('3 Korrekturen')
+    expect(w.text()).toContain('2 offen')
   })
 
   it('does not render a Teil 1 / Teil 2 yield toggle', () => {
