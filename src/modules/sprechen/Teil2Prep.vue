@@ -61,6 +61,16 @@ const notesPlaceholder = computed(() => {
   return `Stichpunkte, keine Sätze — z. B.\n· ${first}\n· Gegenargument entkräften: ${counter}\n· Frage stellen: „Wie sehen Sie das?"`
 })
 
+// Only 'cached' is AI-generated (a fresh Gemini call, saved to Dexie) — 'topic'
+// and every TopicTag scope are hand-authored data bundled into the app itself,
+// never generated and never cached. The label sits right beside the AI-cost
+// note, so it must not claim a bundled bank was AI output.
+const scopeLabel = computed(() => {
+  if (scope.value === 'cached') return 'themenspezifisch · von der KI erzeugt, dann gecacht'
+  if (scope.value === 'topic') return 'themenspezifisch · mitgeliefert, ohne KI'
+  return `Feld ${scope.value} · mitgeliefert, ohne KI`
+})
+
 const clock = computed(() => {
   const m = Math.floor(left.value / 60)
   const s = left.value % 60
@@ -191,7 +201,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
     <template v-if="bank">
       <div class="spr-block-h" style="margin-top: 42px; margin-bottom: 0; border-bottom: 0">
         <h2 class="spr-block-t">Argumentenspeicher</h2>
-        <span class="spr-block-n">{{ scope === 'topic' || scope === 'cached' ? 'themenspezifisch · gecacht' : `Feld ${scope} · einmal generiert, dann gecacht` }}</span>
+        <span class="spr-block-n">{{ scopeLabel }}</span>
         <button
           class="btn btn-quiet regen-btn"
           type="button"

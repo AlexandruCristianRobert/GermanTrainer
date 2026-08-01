@@ -37,6 +37,7 @@ vi.mock('../../src/composables/useSettings', async () => {
 import Teil2Prep from '../../src/modules/sprechen/Teil2Prep.vue'
 import { TEIL2_STASH_KEY, type Teil2RunStash } from '../../src/data/sprechen'
 import { TOPIC_ARGUMENT_BANKS } from '../../src/data/sprechenArguments'
+import { loadCachedBank } from '../../src/composables/useSprechenArguments'
 
 // 'st-arbeit-vier-tage-woche' is one of the four flagship Topics with a
 // bespoke bank in TOPIC_ARGUMENT_BANKS (4 pro / 4 contra / 6 words) — using
@@ -114,18 +115,34 @@ describe('Teil2Prep — Argumentenspeicher', () => {
     expect(placeholder).toContain(flagshipBank.pro[0].claim)
   })
 
-  it('distinguishes a topic-specific bank from a tag-level fallback in the scope label', async () => {
+  it('branches the scope label three ways and never claims a bundled bank was AI-generated', async () => {
+    // 'topic' — hand-authored bundled data (one of the four flagship ids in
+    // TOPIC_ARGUMENT_BANKS), never generated, never cached.
     putStash(stashFor(FLAGSHIP_ID, 'Vier-Tage-Woche', 'Sollte die Vier-Tage-Woche zum Standard werden?'))
     const topicSpecific = mount(Teil2Prep)
     await flushPromises()
-    expect(topicSpecific.find('.spr-block-n').text()).toContain('themenspezifisch')
+    expect(topicSpecific.find('.spr-block-n').text()).toBe('themenspezifisch · mitgeliefert, ohne KI')
+    expect(topicSpecific.find('.spr-block-n').text()).not.toContain('erzeugt')
+    topicSpecific.unmount()   // otherwise its countdown interval keeps running for the rest of the file
 
-    // Not one of the four flagship ids in TOPIC_ARGUMENT_BANKS -> falls back
-    // to its tag's bank (tags: ['Umwelt'], per sprechenTopics.ts).
+    // A tag scope — not one of the four flagship ids in TOPIC_ARGUMENT_BANKS,
+    // so it falls back to its tag's bank (tags: ['Umwelt'], per
+    // sprechenTopics.ts). Equally hand-authored, equally not AI output.
     putStash(stashFor('st-umwelt-schottergaerten', 'Schottergärten', 'Sollten pflegeleichte Schottergärten verboten werden?'))
     const tagFallback = mount(Teil2Prep)
     await flushPromises()
-    expect(tagFallback.find('.spr-block-n').text()).toContain('Feld Umwelt')
+    expect(tagFallback.find('.spr-block-n').text()).toBe('Feld Umwelt · mitgeliefert, ohne KI')
+    expect(tagFallback.find('.spr-block-n').text()).not.toContain('erzeugt')
+    tagFallback.unmount()
+
+    // 'cached' — the one scope that IS AI-generated (a fresh Gemini call,
+    // saved to Dexie): the only branch allowed to say so.
+    vi.mocked(loadCachedBank).mockResolvedValueOnce(flagshipBank)
+    putStash(stashFor(FLAGSHIP_ID, 'Vier-Tage-Woche', 'Sollte die Vier-Tage-Woche zum Standard werden?'))
+    const cachedScope = mount(Teil2Prep)
+    await flushPromises()
+    expect(cachedScope.find('.spr-block-n').text()).toBe('themenspezifisch · von der KI erzeugt, dann gecacht')
+    cachedScope.unmount()
   })
 })
 
