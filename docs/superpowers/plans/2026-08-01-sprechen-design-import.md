@@ -1398,7 +1398,20 @@ vi.mock('../../src/composables/useSprechenDiscussion', () => ({
   deleteDiscussion: vi.fn(async () => undefined)
 }))
 vi.mock('../../src/composables/useSprechenArguments', () => ({
-  loadCachedBank: vi.fn(async () => undefined)
+  cachedBankIds: vi.fn(async () => new Set<string>())
+}))
+// jsdom has no SpeechRecognition and no speechSynthesis voices; both must be
+// faked or the spoken Modality is permanently unselectable in tests.
+vi.mock('../../src/composables/useSpeechRecognizer', () => ({
+  isSpeechRecognitionSupported: () => true
+}))
+vi.mock('../../src/composables/useSpeechVoice', () => ({
+  useSpeechVoice: () => ({
+    voices: { value: [{ name: 'Katja' }] },
+    voiceName: { value: 'Katja' },
+    rate: { value: 1 },
+    speak: vi.fn(async () => undefined)
+  })
 }))
 
 import Teil2Setup from '../../src/modules/sprechen/Teil2Setup.vue'
@@ -1426,10 +1439,22 @@ describe('Teil2Setup — Prüfungskarte', () => {
     expect(w.find('.spr-card-go .btn').attributes('disabled')).toBeUndefined()
   })
 
-  it('shows the voice picker only for the spoken Modality', async () => {
+  it('hides the voice picker for the typed Modality', async () => {
     const w = mount(Teil2Setup)
     await flushPromises()
     expect(w.find('.spr-voice').exists()).toBe(false)
+  })
+
+  it('shows the voice picker once the spoken Modality is selected', async () => {
+    // Needs BOTH mic support and a non-empty voice list, neither of which jsdom
+    // provides — without the mocks this test would pass even if the picker
+    // markup were deleted outright.
+    const w = mount(Teil2Setup)
+    await flushPromises()
+    const spoken = w.findAll('.spr-fld')[0].findAll('button')[1]
+    expect(spoken.attributes('disabled')).toBeUndefined()
+    await spoken.trigger('click')
+    expect(w.find('.spr-voice').exists()).toBe(true)
   })
 })
 
@@ -1474,18 +1499,29 @@ Expected: FAIL — no `.spr-fld-l` in the current markup.
 
 Keep the existing `<script setup>` almost entirely. Add exactly these:
 
+First add a bulk reader to `src/composables/useSprechenArguments.ts`, beside `loadCachedBank`. The marker only needs the *set of cached Topic ids*, and Dexie can answer that with a single primary-key scan — one read instead of one per Topic, which matters because the seed pool is 100 Topics and this runs on every mount:
+
+```ts
+/**
+ * Which Topics already have a cached bank. One primary-key scan rather than a
+ * `get()` per Topic — the setup screen asks this for the whole pool on mount.
+ */
+export async function cachedBankIds(): Promise<Set<string>> {
+  return new Set(await db.sprechenArgumentBanks.toCollection().primaryKeys())
+}
+```
+
+Then in the setup screen:
+
 ```ts
 // Row markers need to know which Topics already have a cached argument bank.
-// One Dexie read on mount; a failure just drops the marker.
-import { loadCachedBank } from '../../composables/useSprechenArguments'
+// One Dexie read on mount; a failure just drops the markers.
+import { cachedBankIds } from '../../composables/useSprechenArguments'
 
 const cachedIds = ref<Set<string>>(new Set())
 onMounted(async () => {
   try {
-    const found = await Promise.all(
-      pool.value.map(async t => ((await loadCachedBank(t.id)) ? t.id : null))
-    )
-    cachedIds.value = new Set(found.filter((x): x is string => x !== null))
+    cachedIds.value = await cachedBankIds()
   } catch {
     cachedIds.value = new Set()
   }
@@ -1687,7 +1723,11 @@ The Prüfungskarte, five fields, Modality first:
 </aside>
 ```
 
-Scoped styles reduce to `.spr-search-field { margin-bottom: 0 }`, `.spr-search-btns { display: flex; gap: 8px }`, `.spr-count-line { margin-top: 18px }`, `.spr-titem-main { min-width: 0 }`, `.spr-titem-block { display: block }`, `.spr-voice { margin-top: 8px }`, and `.spr-fld-note { font-size: 12.5px; color: var(--mute); font-style: italic; line-height: 1.5 }`. Delete everything else.
+Scoped styles reduce to `.spr-search-field { margin-bottom: 0 }`, `.spr-search-btns { display: flex; gap: 8px }`, `.spr-count-line { margin-top: 18px }`, `.spr-titem-main { min-width: 0 }`, `.spr-titem-block { display: block }`, `.spr-voice { margin-top: 8px }`, and `.spr-fld-note { font-size: 12.5px; color: var(--mute); font-style: italic; line-height: 1.5 }`.
+
+Delete every other scoped rule **except** those styling markup this task keeps verbatim — the resume banner and the custom-Topic generator/voice-picker blocks are ported unchanged, so the rules they depend on stay. Keep a scoped rule when, and only when, the markup it targets survives and `src/styles/sprechen.css` does not already own it.
+
+The brief's `disables the CTA until a Topic is chosen` test needs `canUseAi` to be true, which a bare `mount()` cannot produce under jsdom. Mock `useSettings` in the test file, following the pattern in `tests/modules/.../AnswerSetup.test.ts`. Do **not** remove the `canUseAi` gate from the CTA to make the test pass — that gate is required behaviour.
 
 - [ ] **Step 6: Run the tests**
 
