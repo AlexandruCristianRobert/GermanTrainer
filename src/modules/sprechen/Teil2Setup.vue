@@ -5,7 +5,10 @@
 // same prep time and hints. Only the input surface differs — Getippt or
 // Gesprochen is the first choice on the page, and only the options that
 // are genuinely modality-specific (partner voice, mic-support gate) render
-// conditionally under it.
+// conditionally under it. The Modalität field sits first in the
+// Prüfungskarte (spec decision): typed and spoken are one flow producing a
+// comparable result, not two separate tests, so Modality is a peer setting
+// alongside Beiträge/Position/Vorbereitung/Hilfen — not a screen-level switch.
 
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -19,6 +22,9 @@ import {
   loadCustomTopics, pickRandomTopic
 } from '../../composables/useSprechenTopics'
 import { abandonDiscussion, findActiveDiscussion } from '../../composables/useSprechenDiscussion'
+// Row markers need to know which Topics already have a cached argument bank.
+// One Dexie read on mount; a failure just drops the marker (see below).
+import { loadCachedBank } from '../../composables/useSprechenArguments'
 import { isSpeechRecognitionSupported } from '../../composables/useSpeechRecognizer'
 import { useSpeechVoice } from '../../composables/useSpeechVoice'
 import { resolveAiClient } from '../../composables/localClaude'
@@ -61,6 +67,7 @@ const customTopics = ref<SprechenTopic[]>([])
 const generating = ref(false)
 const done = ref<Set<string>>(new Set())
 const active = ref<SprechenDiscussion | null>(null)
+const cachedIds = ref<Set<string>>(new Set())
 
 const pool = computed(() => allTopics())
 
@@ -76,6 +83,17 @@ const visible = computed(() => {
 
 const topic = computed(() => pool.value.find(t => t.id === topicId.value) ?? null)
 const undoneCount = computed(() => visible.value.filter(t => !done.value.has(t.titleDe)).length)
+
+/**
+ * The learner argues the side the partner did NOT take (same formula as
+ * Teil2Prep.vue / Teil2Runner.vue). While `stance` is still 'random' this is
+ * only a provisional preview — `start()` resolves the real coin flip.
+ */
+const mySide = computed<'pro' | 'contra'>(() => (stance.value === 'pro' ? 'contra' : 'pro'))
+
+function tagCount(t: TopicTag): number {
+  return pool.value.filter(x => x.tags.includes(t)).length
+}
 
 onMounted(async () => {
   await loadSettings()
@@ -104,6 +122,19 @@ onMounted(async () => {
     toast.info('Gesprochen ist in diesem Browser nicht verfügbar', {
       description: 'Auf Getippt umgeschaltet — das läuft überall.'
     })
+  }
+})
+
+// Row markers need to know which Topics already have a cached argument bank.
+// One Dexie read on mount; a failure just drops the marker, never the screen.
+onMounted(async () => {
+  try {
+    const found = await Promise.all(
+      pool.value.map(async t => ((await loadCachedBank(t.id)) ? t.id : null))
+    )
+    cachedIds.value = new Set(found.filter((x): x is string => x !== null))
+  } catch {
+    cachedIds.value = new Set()
   }
 })
 
@@ -205,16 +236,14 @@ function start() {
   sessionStorage.setItem(TEIL2_STASH_KEY, JSON.stringify(stash))
   router.push({ name: prepSeconds.value > 0 ? 'sprechen-teil2-prep' : 'sprechen-teil2-run' })
 }
-
-function back() { router.push({ name: 'sprechen' }) }
 </script>
 
 <template>
-  <div class="page teil2-setup">
+  <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Sprechen Teil 2 · Einrichtung</div>
-        <h1 class="section-title">Diskussion<em>.</em></h1>
+        <div class="breadcrumb">Sprechen Teil 2 · Etappe 01</div>
+        <h1 class="section-title">Themenwahl<em>.</em></h1>
         <p class="section-subtitle">
           Pick a Topic and argue your side — typed or spoken, your choice. The
           partner takes a stance and argues back; your mistakes are marked
@@ -240,217 +269,214 @@ function back() { router.push({ name: 'sprechen' }) }
       </div>
     </div>
 
-    <template v-if="!active">
-    <div class="field modality-field">
-      <div class="field-label">Modalität</div>
-      <div class="segmented segmented-modality">
-        <button type="button" :class="{ active: modality === 'typed' }"
-          @click="selectModality('typed')">Getippt</button>
-        <button type="button" :class="{ active: modality === 'spoken' }" :disabled="!micSupported"
-          :title="!micSupported ? 'Dieser Browser kennt keine Spracherkennung.' : undefined"
-          @click="selectModality('spoken')">Gesprochen</button>
+    <div v-if="!active" class="spr-setup">
+      <div>
+        <div class="spr-search-row">
+          <div class="field spr-search-field">
+            <div class="field-label">Suche · Titel und These</div>
+            <input v-model="query" class="input" placeholder="z. B. Arbeit, Schule, verbieten …" />
+          </div>
+          <div class="spr-search-btns">
+            <button class="btn btn-quiet" type="button" @click="pickRandom">Zufallsthema</button>
+            <button class="btn btn-quiet" type="button" @click="onlyNew = !onlyNew">
+              {{ onlyNew ? '✓ Nur neue' : 'Nur neue' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="spr-tagrow">
+          <button v-for="t in TOPIC_TAGS" :key="t" type="button"
+            class="spr-tag" :class="{ on: tags.includes(t) }" @click="toggleTag(t)">
+            {{ t }}<i>{{ tagCount(t) }}</i>
+          </button>
+          <button v-if="tags.length > 0 || query || onlyNew" type="button"
+            class="spr-tag" @click="resetFilters">Filter zurücksetzen ×</button>
+        </div>
+
+        <div class="micro-mark spr-count-line">
+          {{ visible.length }} von {{ pool.length }} Themen ·
+          {{ undoneCount }} noch nicht diskutiert
+        </div>
+
+        <div class="spr-tlist">
+          <button v-for="(t, i) in visible" :key="t.id" type="button"
+            class="spr-titem"
+            :class="{ sel: t.id === topicId, done: done.has(t.titleDe) }"
+            @click="topicId = t.id">
+            <span class="spr-titem-mark">
+              {{ t.id === topicId ? '●' : done.has(t.titleDe) ? '✓' : String(i + 1).padStart(2, '0') }}
+            </span>
+            <span class="spr-titem-main">
+              <span class="spr-titem-t">
+                {{ t.titleDe }}
+                <span class="spr-titem-tags">{{ t.tags.join(' · ') }}</span>
+              </span>
+              <span class="spr-titem-s spr-titem-block">{{ t.statementDe }}</span>
+            </span>
+            <span class="spr-titem-r">
+              <span v-if="t.source === 'custom'" class="spr-flag cache">generiert</span>
+              <span v-if="done.has(t.titleDe)" class="spr-flag done">diskutiert</span>
+              <span v-if="cachedIds.has(t.id)" class="spr-flag cache">Argumente im Cache</span>
+            </span>
+          </button>
+          <p v-if="visible.length === 0" class="spr-empty">
+            Kein Thema passt zu diesen Filtern.
+          </p>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Neue Themen generieren</div>
+          <button class="btn btn-ghost" type="button" :disabled="!canUseAi || generating" @click="generate">
+            {{ generating ? 'Generiere…' : '5 neue Themen generieren' }}
+          </button>
+          <ul v-if="customTopics.length > 0" class="custom-list">
+            <li v-for="t in customTopics" :key="t.id">
+              <span class="cl-title">{{ t.titleDe }}</span>
+              <button class="btn btn-quiet" type="button" @click="removeCustom(t.id)">Löschen</button>
+            </li>
+          </ul>
+        </div>
       </div>
-      <p v-if="!micSupported" class="modality-note">
-        Gesprochen ist in diesem Browser nicht verfügbar — er kennt keine
-        Spracherkennung. Chrome, Edge oder Safari ab 14.1 funktionieren;
-        Firefox nur hinter einem about:config-Schalter. Getippt läuft überall.
-      </p>
-    </div>
 
-    <div v-if="modality === 'spoken'" class="field">
-      <div class="field-label">Stimme des Partners</div>
-      <div v-if="voice.voices.value.length > 0" class="voice-row">
-        <select v-model="voice.voiceName.value" class="select">
-          <option v-for="v in voice.voices.value" :key="v.name" :value="v.name">{{ v.name }}</option>
-        </select>
-        <label class="rate-label">
-          Tempo {{ voice.rate.value.toFixed(1) }}×
-          <input v-model.number="voice.rate.value" type="range" min="0.6" max="1.4" step="0.1" />
-        </label>
-        <button class="btn btn-quiet" type="button" @click="testVoice">Probe hören</button>
-      </div>
-      <p v-else class="ai-cost-note">Keine deutsche Stimme gefunden — der Partner erscheint nur als Text.</p>
-    </div>
-    <p v-else class="modality-plain-note">
-      Getippt braucht keine zusätzliche Einrichtung — funktioniert in jedem Browser.
-    </p>
+      <aside class="spr-card">
+        <div class="spr-card-h">
+          <span class="spr-lbl">Prüfungskarte</span>
+          <span class="spr-lbl">B2 · Teil 2</span>
+        </div>
+        <div class="spr-card-b">
+          <template v-if="topic">
+            <div class="spr-card-topic">{{ topic.titleDe }}</div>
+            <p class="spr-card-stmt">{{ topic.statementDe }}</p>
+          </template>
+          <p v-else class="spr-card-none">
+            Noch kein Thema gewählt. Nimm eines aus der Liste — oder lass den Zufall entscheiden.
+          </p>
 
-    <div class="field">
-      <div class="field-label">Suche · Titel und These</div>
-      <input v-model="query" class="input" placeholder="z. B. Arbeit, Schule, verbieten …" />
-      <div class="filter-actions">
-        <button class="btn btn-quiet" type="button" @click="pickRandom">Zufallsthema</button>
-        <button class="btn btn-quiet" type="button" @click="onlyNew = !onlyNew">
-          {{ onlyNew ? '✓ Nur neue' : 'Nur neue' }}
-        </button>
-      </div>
-    </div>
+          <div class="spr-card-f">
+            <div class="spr-fld">
+              <span class="spr-fld-l">Modalität</span>
+              <div class="segmented">
+                <button type="button" :class="{ active: modality === 'typed' }"
+                  @click="selectModality('typed')">Getippt</button>
+                <button type="button" :class="{ active: modality === 'spoken' }" :disabled="!micSupported"
+                  :title="!micSupported ? 'Dieser Browser kennt keine Spracherkennung.' : undefined"
+                  @click="selectModality('spoken')">Gesprochen</button>
+              </div>
+              <div v-if="modality === 'spoken' && voice.voices.value.length > 0" class="spr-voice">
+                <div class="voice-row">
+                  <select v-model="voice.voiceName.value" class="select">
+                    <option v-for="v in voice.voices.value" :key="v.name" :value="v.name">{{ v.name }}</option>
+                  </select>
+                  <label class="rate-label">
+                    Tempo {{ voice.rate.value.toFixed(1) }}×
+                    <input v-model.number="voice.rate.value" type="range" min="0.6" max="1.4" step="0.1" />
+                  </label>
+                  <button class="btn btn-quiet" type="button" @click="testVoice">Probe hören</button>
+                </div>
+              </div>
+              <span v-else-if="modality === 'spoken'" class="spr-fld-note">
+                Keine deutsche Stimme gefunden — der Partner erscheint nur als Text.
+              </span>
+              <span v-if="!micSupported" class="spr-fld-note">
+                Gesprochen ist in diesem Browser nicht verfügbar. Getippt läuft überall.
+              </span>
+            </div>
 
-    <div class="chip-row tag-row">
-      <button v-for="t in TOPIC_TAGS" :key="t" type="button"
-        class="chip" :class="{ selected: tags.includes(t) }" @click="toggleTag(t)">{{ t }}</button>
-      <button v-if="tags.length > 0 || query || onlyNew" class="chip" type="button" @click="resetFilters">
-        Filter zurücksetzen ×
-      </button>
-    </div>
+            <div class="spr-fld">
+              <span class="spr-fld-l">Deine Beiträge</span>
+              <div class="segmented">
+                <button v-for="n in TURN_TARGETS" :key="n" type="button"
+                  :class="{ active: turnTarget === n }" @click="turnTarget = n">{{ n }}</button>
+              </div>
+            </div>
 
-    <div class="micro-mark list-count">
-      {{ visible.length }} von {{ pool.length }} Themen · {{ undoneCount }} noch nicht diskutiert
-    </div>
+            <div class="spr-fld">
+              <span class="spr-fld-l">Position des Partners</span>
+              <div class="segmented">
+                <button type="button" :class="{ active: stance === 'random' }"
+                  @click="stance = 'random'">Zufall</button>
+                <button type="button" :class="{ active: stance === 'pro' }"
+                  @click="stance = 'pro'">Dafür</button>
+                <button type="button" :class="{ active: stance === 'contra' }"
+                  @click="stance = 'contra'">Dagegen</button>
+              </div>
+              <div v-if="topic" class="spr-card-side">
+                <span class="spr-lbl">Du</span>
+                <strong :class="mySide === 'pro' ? 'spr-side-pro' : 'spr-side-contra'">
+                  {{ mySide === 'pro' ? 'dafür' : 'dagegen' }}
+                </strong>
+                <span v-if="stance === 'random'" class="spr-fld-note">
+                  (bei Zufall erst beim Start endgültig)
+                </span>
+              </div>
+            </div>
 
-    <div class="topic-list">
-      <button v-for="(t, i) in visible" :key="t.id" type="button"
-        class="topic-item" :class="{ sel: t.id === topicId, done: done.has(t.titleDe) }"
-        @click="topicId = t.id">
-        <span class="ti-mark">{{ t.id === topicId ? '●' : done.has(t.titleDe) ? '✓' : String(i + 1).padStart(2, '0') }}</span>
-        <span class="ti-body">
-          <span class="ti-title">{{ t.titleDe }}<span class="ti-tags">{{ t.tags.join(' · ') }}</span></span>
-          <span class="ti-stmt">{{ t.statementDe }}</span>
-        </span>
-        <span class="ti-flags">
-          <span v-if="t.source === 'custom'" class="tag">generiert</span>
-          <span v-if="done.has(t.titleDe)" class="tag">diskutiert</span>
-        </span>
-      </button>
-      <p v-if="visible.length === 0" class="empty-note">Kein Thema passt zu diesen Filtern.</p>
-    </div>
+            <div class="spr-fld">
+              <span class="spr-fld-l">Vorbereitungszeit</span>
+              <div class="segmented">
+                <button v-for="[v, label] in PREP_CHOICES" :key="v" type="button"
+                  :class="{ active: prepSeconds === v }" @click="prepSeconds = v">{{ label }}</button>
+              </div>
+              <span class="spr-fld-note">
+                Argumente und Wortschatz zum Thema, plus ein Notizfeld, das während der
+                Diskussion sichtbar bleibt.
+              </span>
+            </div>
 
-    <div class="field">
-      <div class="field-label">Neue Themen generieren</div>
-      <button class="btn btn-ghost" type="button" :disabled="!canUseAi || generating" @click="generate">
-        {{ generating ? 'Generiere…' : '5 neue Themen generieren' }}
-      </button>
-      <ul v-if="customTopics.length > 0" class="custom-list">
-        <li v-for="t in customTopics" :key="t.id">
-          <span class="cl-title">{{ t.titleDe }}</span>
-          <button class="btn btn-quiet" type="button" @click="removeCustom(t.id)">Löschen</button>
-        </li>
-      </ul>
+            <div class="spr-fld">
+              <span class="spr-fld-l">Hilfen im Gespräch</span>
+              <div class="segmented">
+                <button type="button" :class="{ active: hintsOn }" @click="hintsOn = true">An</button>
+                <button type="button" :class="{ active: !hintsOn }" @click="hintsOn = false">Aus</button>
+              </div>
+              <span class="spr-fld-note">
+                Was (Argumente) und Wie (Redemittel) — kostenlos. KI-Tipp auf Abruf kostet einen Call.
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="spr-card-go">
+          <button class="btn btn-accent btn-meta"
+            :disabled="!topic || !canUseAi || (modality === 'spoken' && !micSupported)" @click="start">
+            <span class="bm-main">
+              {{ prepSeconds > 0 ? 'Vorbereitung' : 'Diskussion starten' }}
+              <span aria-hidden="true">→</span>
+            </span>
+            <span class="bm-sub">
+              {{ modality === 'spoken' ? 'gesprochen' : 'getippt' }} ·
+              {{ turnTarget }} Beiträge ·
+              {{ prepSeconds === 0 ? 'ohne Vorbereitung' : `${prepSeconds / 60} Min` }}
+            </span>
+          </button>
+        </div>
+      </aside>
     </div>
-
-    <div class="field">
-      <div class="field-label">Deine Redebeiträge</div>
-      <div class="segmented">
-        <button v-for="n in TURN_TARGETS" :key="n" type="button"
-          :class="{ active: turnTarget === n }" @click="turnTarget = n">{{ n }}</button>
-      </div>
-    </div>
-
-    <div class="field">
-      <div class="field-label">Position des Partners</div>
-      <div class="segmented">
-        <button type="button" :class="{ active: stance === 'random' }" @click="stance = 'random'">Zufällig</button>
-        <button type="button" :class="{ active: stance === 'pro' }" @click="stance = 'pro'">Dafür</button>
-        <button type="button" :class="{ active: stance === 'contra' }" @click="stance = 'contra'">Dagegen</button>
-      </div>
-    </div>
-
-    <div class="field">
-      <div class="field-label">Vorbereitungszeit</div>
-      <div class="segmented">
-        <button v-for="[v, label] in PREP_CHOICES" :key="v" type="button"
-          :class="{ active: prepSeconds === v }" @click="prepSeconds = v">{{ label }}</button>
-      </div>
-      <p class="ai-cost-note">Argumente und Wortschatz zum Thema, plus Notizen, die im Gespräch sichtbar bleiben.</p>
-    </div>
-
-    <div class="field">
-      <div class="field-label">Hints</div>
-      <div class="segmented">
-        <button type="button" :class="{ active: hintsOn }" @click="hintsOn = true">An</button>
-        <button type="button" :class="{ active: !hintsOn }" @click="hintsOn = false">Aus</button>
-      </div>
-      <p class="ai-cost-note">Move-Chips mit Redemitteln (kostenlos) + KI-Tipp auf Abruf (1 Call).</p>
-    </div>
-
-    <div v-if="modality === 'spoken'" class="alert alert-info">
-      <span class="alert-label">So läuft es</span>
-      <strong>Leertaste</strong> startet und beendet deinen Beitrag — Beenden schickt ihn
-      sofort ab. Was die Erkennung verstanden hat, zählt: korrigieren kannst du nicht.
-      Aussprache wird nicht bewertet, Sprechtempo und Pausen schon.
-    </div>
-    <div v-else class="alert alert-info">
-      <span class="alert-label">How it works</span>
-      The partner opens with its position, you alternate typed turns, and
-      after your last turn the discussion is analyzed: every mistake marked
-      and explained, four criteria scored to 100 points (Aussprache excluded).
-      The conversation is discarded afterwards; what is kept is the summary
-      and each marked mistake, with your own sentence, in the Fehlerarchiv.
-    </div>
-
-    <div class="setup-actions">
-      <button class="btn btn-ghost" type="button" @click="back">← Back</button>
-      <button class="btn btn-accent btn-meta" type="button"
-        :disabled="!topic || !canUseAi || (modality === 'spoken' && !micSupported)" @click="start">
-        <span class="bm-main">{{ prepSeconds > 0 ? 'Vorbereitung' : 'Diskussion starten' }} <span aria-hidden="true">→</span></span>
-        <span class="bm-sub">{{ turnTarget }} Beiträge · Partner {{ stance === 'random' ? 'zufällig' : stance === 'pro' ? 'dafür' : 'dagegen' }}</span>
-      </button>
-    </div>
-    </template>
   </div>
 </template>
 
 <style scoped>
-.teil2-setup { max-width: 820px; }
+.spr-search-field { margin-bottom: 0; }
+.spr-search-btns { display: flex; gap: 8px; }
+.spr-count-line { margin-top: 18px; }
+.spr-titem-main { min-width: 0; }
+.spr-titem-block { display: block; }
+.spr-voice { margin-top: 8px; }
+.spr-fld-note { font-size: 12.5px; color: var(--mute); font-style: italic; line-height: 1.5; }
+
+/* Not in Task 1's sheet (no equivalent in the design comp) — kept because the
+   generator block and the voice picker are preserved VERBATIM from the prior
+   markup (see brief Step 5) and would otherwise render unstyled. */
 .resume-actions { display: flex; gap: 10px; margin-top: 10px; }
-.modality-field { margin-bottom: 22px; }
-.segmented-modality button {
-  padding: 14px 22px;
-  font-family: var(--font-display);
-  font-size: 16px;
-}
-.segmented-modality button.active { background: var(--accent); color: var(--paper); }
-.modality-note {
-  margin: 10px 0 0; color: var(--mute); font-size: 13px; line-height: 1.5;
-}
-.modality-plain-note {
-  margin: 4px 0 20px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--mute);
-}
-.filter-actions { display: flex; gap: 8px; margin-top: 10px; }
-.tag-row { margin: 18px 0 0; }
-.list-count { margin: 16px 0 8px; }
-.topic-list { max-height: 46vh; overflow-y: auto; border-top: 1px solid var(--hairline); }
-.topic-item {
-  display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px;
-  width: 100%; text-align: left; background: none; border: 0;
-  border-bottom: 1px solid var(--hairline); padding: 10px 4px; cursor: pointer; font: inherit;
-}
-.topic-item:hover { background: var(--paper-deep); }
-.topic-item.sel { background: var(--accent-tint); }
-.topic-item.done .ti-title { color: var(--mute); }
-.ti-mark { font-family: var(--font-mono); font-size: 11px; color: var(--mute); padding-top: 3px; }
-.ti-body { min-width: 0; }
-.ti-title { font-family: var(--font-display); font-size: 16px; display: block; }
-.ti-tags {
-  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--mute); margin-left: 10px;
-}
-.ti-stmt { display: block; color: var(--mute); font-size: 13.5px; margin-top: 2px; }
-.ti-flags { display: flex; gap: 6px; align-items: flex-start; flex: 0 0 auto; }
-.empty-note { color: var(--mute); font-style: italic; padding: 18px 4px; }
 .custom-list { list-style: none; padding: 0; margin: 12px 0 0; }
 .custom-list li {
   display: flex; gap: 12px; align-items: baseline; justify-content: space-between;
   padding: 6px 0; border-bottom: 1px solid var(--hairline); font-size: 14px;
 }
 .cl-title { font-family: var(--font-display); }
-.voice-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.voice-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
 .rate-label {
   display: flex; align-items: center; gap: 8px;
   font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--mute);
-}
-.ai-cost-note {
-  margin: 8px 0 0; font-family: var(--font-mono); font-size: 10.5px;
-  letter-spacing: 0.14em; color: var(--mute); text-transform: uppercase;
-}
-.setup-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; gap: 16px; }
-@media (max-width: 720px) {
-  .setup-actions { flex-direction: column-reverse; align-items: stretch; }
-  .setup-actions .btn { justify-content: center; }
 }
 </style>
