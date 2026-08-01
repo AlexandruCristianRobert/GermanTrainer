@@ -2865,7 +2865,14 @@ const yieldIds = computed(
 </section>
 ```
 
-Keep the existing marked-transcript, mistake-detail, Stärken/Schwächen, Gesamturteil, fluency and DE/EN toggle logic; re-clothe them in `.spr-mistake`, `.spr-mkcard`, `.spr-mk-*`, `.spr-counts`, `.spr-sw`, `.spr-swlist`, `.spr-overall`. Keep re-anchoring by searching for `quote` — never trust stored offsets.
+Keep the existing marked-transcript, mistake-detail, Stärken/Schwächen, Gesamturteil, fluency and DE/EN toggle logic; re-clothe them in `.spr-mistake`, `.spr-mkcard`, `.spr-mk-*`, `.spr-counts`, `.spr-sw`, `.spr-swlist`, `.spr-overall`.
+
+**Two corrections to earlier drafts of this task, both found during implementation:**
+
+1. The transcript did **not** already re-anchor. `segmentTurn` sliced directly by `m.spanStart` / `m.spanEnd`. Those offsets *are* computed by `reAnchor` at validation time, so they are usually right — but the stash round-trips through `sessionStorage` JSON, and slicing by a stale offset marks the **wrong text** rather than dropping the mark, which is the worse failure. Export the grader's `reAnchor` helper and re-anchor at render, ignoring stored offsets entirely. §5.2 demanded this; the old screen never did it.
+2. `SprechenResultStash` had **no `modality` field**, so the spoken-descriptor requirement was unimplementable as written. Add `modality: Modality` to the stash and populate it from the Discussion in the runner — **outside** the guarded `if (!runRecorded.value)` block, since the stash is written on every attempt including retries.
+
+Also note the brief's test snippet needs `await flushPromises()` after `mount()`: `onMounted`'s ref update does not flush synchronously, so without it every assertion runs against a "Loading…" page.
 
 - [ ] **Step 5: Run the tests**
 
