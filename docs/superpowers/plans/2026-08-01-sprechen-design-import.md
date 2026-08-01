@@ -698,6 +698,7 @@ Create `tests/components/SprCriterionBars.test.ts`:
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SprCriterionBars from '../../src/components/sprechen/SprCriterionBars.vue'
+import { SPRECHEN_B2_TEIL2 } from '../../src/data/rubrics'
 
 const four = (n: number) => [
   { key: 'erfuellung', score: n, maxPoints: 25 },
@@ -715,15 +716,29 @@ describe('SprCriterionBars', () => {
     expect(w.findAll('.spr-crit-fill')).toHaveLength(0)
   })
 
-  it('renders one bar per criterion when only one Modality has runs', () => {
+  it('renders one bar per criterion when only typed has runs', () => {
     const w = mount(SprCriterionBars, { props: { typed: four(20), spoken: null } })
     expect(w.findAll('.spr-crit-fill')).toHaveLength(4)
     expect(w.text()).toContain('20/25')
   })
 
+  it('renders one FILLED bar per criterion when only spoken has runs', () => {
+    // Regression: gating the first bar's fill on `typed` alone showed a
+    // spoken-only learner correct numbers over a completely blank track.
+    const w = mount(SprCriterionBars, { props: { typed: null, spoken: four(14) } })
+    expect(w.findAll('.spr-crit-fill')).toHaveLength(4)
+    expect(w.text()).toContain('14/25')
+  })
+
   it('renders paired bars when both Modalities have runs', () => {
     const w = mount(SprCriterionBars, { props: { typed: four(20), spoken: four(14) } })
     expect(w.findAll('.spr-crit-fill')).toHaveLength(8)
+  })
+
+  it('prints BOTH scores in the paired case, not just the typed one', () => {
+    const w = mount(SprCriterionBars, { props: { typed: four(20), spoken: four(14) } })
+    expect(w.find('.spr-crit-max').text()).toBe('20·14')
+    expect(w.find('.spr-crit-max').attributes('title')).toBe('getippt · gesprochen')
   })
 
   it('shows the spoken delta only when both Modalities have runs', () => {
@@ -733,9 +748,24 @@ describe('SprCriterionBars', () => {
     expect(one.text()).not.toContain('Δ')
   })
 
-  it('always states the pass rule', () => {
+  it('reads the pass mark and total from the rubric rather than hardcoding them', () => {
     const w = mount(SprCriterionBars, { props: { typed: null, spoken: null } })
-    expect(w.text()).toContain('60')
+    // Assert against the rubric's OWN values, so changing rubrics.ts without
+    // changing the component breaks this test instead of going stale silently.
+    expect(w.find('.spr-pass').text()).toContain(String(SPRECHEN_B2_TEIL2.passingScore))
+    expect(w.find('.spr-pass').text()).toContain(String(SPRECHEN_B2_TEIL2.totalMax))
+    expect(w.find('.spr-pass').text()).toContain(`${SPRECHEN_B2_TEIL2.criteria.length} Kriterien`)
+  })
+
+  it('reads +/-0 as ±0 on an exact tie rather than as a negative', () => {
+    const w = mount(SprCriterionBars, { props: { typed: four(20), spoken: four(20) } })
+    expect(w.text()).toContain('±0')
+    expect(w.text()).not.toContain('−0')
+  })
+
+  it('signs a positive delta when spoken beats typed', () => {
+    const w = mount(SprCriterionBars, { props: { typed: four(14), spoken: four(20) } })
+    expect(w.text()).toContain('+24')
   })
 
   it('tolerates a criterion the rubric does not know', () => {
@@ -813,22 +843,35 @@ const props = defineProps<{
   spoken?: CriterionScore[] | null
 }>()
 
+const both = computed(() => !!props.typed?.length && !!props.spoken?.length)
+
 // The rubric drives the rows, not the data — so a run recorded before a
 // rubric change, or a hallucinated extra criterion, cannot add a row.
 const rows = computed(() =>
-  SPRECHEN_B2_TEIL2.criteria.map(def => ({
-    key: def.key,
-    labelDe: def.labelDe,
-    descriptorDe: def.descriptorDe,
-    maxPoints: def.maxPoints,
-    typed: props.typed?.find(c => c.key === def.key) ?? null,
-    spoken: props.spoken?.find(c => c.key === def.key) ?? null
-  }))
+  SPRECHEN_B2_TEIL2.criteria.map(def => {
+    const typed = props.typed?.find(c => c.key === def.key) ?? null
+    const spoken = props.spoken?.find(c => c.key === def.key) ?? null
+    return {
+      key: def.key,
+      labelDe: def.labelDe,
+      descriptorDe: def.descriptorDe,
+      maxPoints: def.maxPoints,
+      typed,
+      spoken,
+      // Whichever Modality the learner HAS is the primary bar. Gating the
+      // first bar on `typed` alone would show a spoken-only learner correct
+      // numbers over a blank track.
+      primary: typed ?? spoken,
+      secondary: typed && spoken ? spoken : null
+    }
+  })
 )
 
-const both = computed(() => !!props.typed?.length && !!props.spoken?.length)
 const sum = (cs?: CriterionScore[] | null) => (cs ?? []).reduce((s, c) => s + c.score, 0)
 const delta = computed(() => sum(props.spoken) - sum(props.typed))
+const deltaLabel = computed(() =>
+  delta.value === 0 ? '±0' : delta.value > 0 ? `+${delta.value}` : `−${Math.abs(delta.value)}`
+)
 
 function pct(c: CriterionScore | null, max: number): string {
   return c ? `${Math.max(0, Math.min(100, (c.score / max) * 100))}%` : '0%'
@@ -840,22 +883,25 @@ function pct(c: CriterionScore | null, max: number): string {
     <div class="spr-crits">
       <div v-for="r in rows" :key="r.key" class="spr-crit-row">
         <div class="spr-crit-name" :title="r.descriptorDe">{{ r.labelDe }}</div>
-        <div class="spr-crit-max spr-num">
-          {{ r.typed ? r.typed.score : (r.spoken ? r.spoken.score : '—') }}/{{ r.maxPoints }}
+        <div class="spr-crit-max spr-num" :title="r.secondary ? 'getippt · gesprochen' : undefined">
+          <template v-if="r.secondary">{{ r.typed!.score }}·{{ r.secondary.score }}</template>
+          <template v-else-if="r.primary">{{ r.primary.score }}/{{ r.maxPoints }}</template>
+          <template v-else>—/{{ r.maxPoints }}</template>
         </div>
         <div class="spr-crit-bar">
-          <span v-if="r.typed" class="spr-crit-fill" :style="{ width: pct(r.typed, r.maxPoints) }" />
+          <span v-if="r.primary" class="spr-crit-fill" :style="{ width: pct(r.primary, r.maxPoints) }" />
         </div>
-        <div v-if="both" class="spr-crit-bar">
-          <span v-if="r.spoken" class="spr-crit-fill" :style="{ width: pct(r.spoken, r.maxPoints) }" />
+        <div v-if="r.secondary" class="spr-crit-bar">
+          <span class="spr-crit-fill" :style="{ width: pct(r.secondary, r.maxPoints) }" />
         </div>
       </div>
     </div>
     <p class="spr-pass">
-      Vier Kriterien à 25 Punkte, Bestehensgrenze <b>60</b>.
+      {{ rows.length }} Kriterien, zusammen {{ SPRECHEN_B2_TEIL2.totalMax }} Punkte ·
+      Bestehensgrenze <b>{{ SPRECHEN_B2_TEIL2.passingScore }}</b>.
       <template v-if="both">
         Getippt und gesprochen teilen dieselbe Skala —
-        <b>Δ gesprochen {{ delta > 0 ? '+' : '−' }}{{ Math.abs(delta) }}</b>.
+        <b>Δ gesprochen {{ deltaLabel }}</b>.
       </template>
       <template v-else>
         Getippt und gesprochen teilen dieselbe Skala, damit die Werte vergleichbar bleiben.
