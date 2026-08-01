@@ -2147,7 +2147,14 @@ const partnerPlayed = computed(() => {
   return theirAngles.value.slice(0, n)
 })
 
-/** Insert a phrase stub at the caret, ellipsis stripped, then focus. */
+/**
+ * Insert a phrase stub at the caret, ellipsis stripped, then focus.
+ *
+ * TYPED ONLY. A spoken Discussion has no composer to insert into — the learner
+ * reads the phrase aloud instead, and CONTEXT.md → Redemittel yield counts it
+ * either way. So the drawer renders phrases as plain text, not buttons, when
+ * the Modality is spoken, and this function is never called there.
+ */
 function insertPhrase(phraseDe: string) {
   const stub = phraseDe.replace(/\s*…\s*$/, '').trim()
   const el = composerEl.value
@@ -2198,8 +2205,13 @@ Add `const composerEl = ref<HTMLTextAreaElement | null>(null)` and `ref="compose
       </div>
       <ul class="spr-phrases">
         <li v-for="p in drawerPhrases" :key="p.id" class="spr-phrase">
-          <button class="spr-phrase-t" :class="{ used: p.used }" type="button"
+          <!-- Tappable only when there is a caret to insert into. In a spoken
+               Discussion the phrase is something to read aloud, so it renders
+               as text — a button that does nothing would be a lie. -->
+          <button v-if="discussion.modality === 'typed'" class="spr-phrase-t"
+            :class="{ used: p.used }" type="button"
             @click="insertPhrase(p.phraseDe)">{{ p.phraseDe }}</button>
+          <span v-else class="spr-phrase-t" :class="{ used: p.used }">{{ p.phraseDe }}</span>
           <span class="spr-phrase-en">{{ p.used ? 'schon benutzt' : p.noteEn }}</span>
         </li>
       </ul>
@@ -2228,7 +2240,23 @@ Add `.spr-was-muted { color: var(--mute); font-weight: 400 }` to scoped styles.
 
 - [ ] **Step 4: Add tests**
 
-Append to `tests/modules/Teil2Runner.test.ts`:
+Append to `tests/modules/Teil2Runner.test.ts`. First add a helper beside the existing `discussion`
+fixture, so the spoken-Modality cases have something to mount — reuse the same fixture with the one
+field changed, and re-point whatever the file mocks `findActiveDiscussion`/`loadDiscussion` at:
+
+```ts
+async function mountSpoken() {
+  const spoken = { ...discussion, modality: 'spoken' as const }
+  const mod = await import('../../src/composables/useSprechenDiscussion')
+  vi.mocked(mod.findActiveDiscussion).mockResolvedValue(spoken)
+  vi.mocked(mod.loadDiscussion).mockResolvedValue(spoken)
+  const w = mount(Teil2Runner)
+  await flushPromises()
+  return w
+}
+```
+
+Adapt the mocked function names to whatever the runner actually imports — read it first.
 
 ```ts
 describe('Teil2Runner Move nudge', () => {
@@ -2267,6 +2295,14 @@ describe('Teil2Runner drawer', () => {
     const val = (w.find('.spr-composer textarea').element as HTMLTextAreaElement).value
     expect(val).not.toContain('…')
     expect(val.length).toBeGreaterThan(0)
+  })
+
+  it('renders phrases as plain text in a spoken Discussion', async () => {
+    // No composer, no caret — a tappable phrase would do nothing.
+    const w = await mountSpoken()
+    await w.find('.spr-dtab:nth-child(2)').trigger('click')
+    expect(w.findAll('.spr-phrase-t').length).toBeGreaterThan(0)
+    expect(w.findAll('button.spr-phrase-t')).toHaveLength(0)
   })
 
   it('hides the drawer and the nudge when hints are off', async () => {
