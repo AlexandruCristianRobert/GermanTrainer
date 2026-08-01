@@ -33,6 +33,25 @@ export interface SprechenCriterionScore {
 
 export interface BilingualNote { de: string; en: string }
 
+/**
+ * Descriptive only — see spec decision 4. The official Goethe B2 criteria do
+ * NOT score Argumentationsfähigkeit and Interaktionsfähigkeit separately; both
+ * are aspects of `erfuellung`, which is why its label is 'Erfüllung /
+ * Interaktion'. These fields explain where that criterion landed. They move
+ * no points and the rubric is unchanged.
+ */
+export interface TurnStructure {
+  these: boolean          // did the turn state a position?
+  begruendung: boolean    // did it give a reason?
+  beispiel: boolean       // did it give a concrete example?
+  reacts: boolean         // did it engage the partner's previous point?
+}
+
+export interface InteractionSummary {
+  askedBack: number       // Rückfragen to the partner
+  rate: number            // 0–1, turns that react / total turns
+}
+
 export interface SprechenGradeResult {
   totalScore: number
   passes: boolean
@@ -45,6 +64,8 @@ export interface SprechenGradeResult {
   overallEn: string
   generatedAt: number
   modelUsed: string
+  structure?: TurnStructure[]     // optional, descriptive — see TurnStructure above
+  interaction?: InteractionSummary // optional, descriptive — see InteractionSummary above
 }
 
 // ── Gemini client shape (matches useKonjunktivQuiz.GeminiClient) ──
@@ -118,7 +139,25 @@ export const SPRECHEN_GRADE_SCHEMA = {
       }
     },
     overallDe: { type: 'string' },
-    overallEn: { type: 'string' }
+    overallEn: { type: 'string' },
+    structure: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          these: { type: 'boolean' },
+          begruendung: { type: 'boolean' },
+          beispiel: { type: 'boolean' },
+          reacts: { type: 'boolean' }
+        },
+        required: ['these', 'begruendung', 'beispiel', 'reacts']
+      }
+    },
+    interaction: {
+      type: 'object',
+      properties: { askedBack: { type: 'number' }, rate: { type: 'number' } },
+      required: ['askedBack', 'rate']
+    }
   },
   required: ['totalScore', 'passes', 'criteria', 'mistakes', 'strengths', 'weaknesses', 'overallDe', 'overallEn']
 }
@@ -212,6 +251,41 @@ export function validateSprechenGrade(
       typeof n?.de === 'string' && typeof n?.en === 'string' ? [{ de: n.de, en: n.en }] : []
     )
 
+  // Descriptive extras: OPTIONAL by design. The local-claude bridge drops
+  // responseSchema, so anything required here becomes a way for a good grade
+  // to fail. Absent or malformed → undefined, and the result page omits the
+  // matrix. Never a reason to return null.
+  const turnCount = learnerTurns(d).length
+
+  let structure: TurnStructure[] | undefined
+  if (Array.isArray(r.structure)) {
+    const cells = (r.structure as unknown[]).map(x => {
+      const o = (x && typeof x === 'object' ? x : {}) as Record<string, unknown>
+      return {
+        these: o.these === true,
+        begruendung: o.begruendung === true,
+        beispiel: o.beispiel === true,
+        reacts: o.reacts === true
+      }
+    })
+    // Pad or truncate to the real turn count — never reject on length.
+    structure = Array.from({ length: turnCount }, (_, i) =>
+      cells[i] ?? { these: false, begruendung: false, beispiel: false, reacts: false }
+    )
+  }
+
+  let interaction: InteractionSummary | undefined
+  const ri = r.interaction
+  if (ri && typeof ri === 'object') {
+    const o = ri as Record<string, unknown>
+    if (typeof o.askedBack === 'number' && typeof o.rate === 'number') {
+      interaction = {
+        askedBack: Math.max(0, Math.round(o.askedBack)),
+        rate: Math.max(0, Math.min(1, o.rate))
+      }
+    }
+  }
+
   return {
     totalScore,
     passes,
@@ -223,7 +297,9 @@ export function validateSprechenGrade(
     overallDe: r.overallDe,
     overallEn: r.overallEn,
     generatedAt: Date.now(),
-    modelUsed: 'unknown'
+    modelUsed: 'unknown',
+    structure,
+    interaction
   }
 }
 
@@ -344,6 +420,17 @@ export function buildSprechenGraderPrompt(
     '"reasonDe": "…", "reasonEn": "…"}], ' +
     '"strengths": [{"de": "…", "en": "…"}], "weaknesses": [{"de": "…", "en": "…"}], ' +
     '"overallDe": "…", "overallEn": "…"}\n\n' +
+    'ZUSÄTZLICHE BESCHREIBENDE FELDER (beeinflussen die Punktzahl NICHT):\n' +
+    '"structure": ein Array mit GENAU einem Objekt pro Lernerbeitrag, in derselben ' +
+    'Reihenfolge wie die Beiträge. Jedes Objekt: {"these": <true|false>, ' +
+    '"begruendung": <true|false>, "beispiel": <true|false>, "reacts": <true|false>}. ' +
+    '"these" = der Beitrag vertritt eine Position; "begruendung" = er nennt einen Grund; ' +
+    '"beispiel" = er nennt ein konkretes Beispiel; "reacts" = er geht auf den letzten ' +
+    'Punkt des Partners ein.\n' +
+    '"interaction": {"askedBack": <Anzahl echter Rückfragen an den Partner>, ' +
+    '"rate": <Anteil der Beiträge mit reacts=true, als Dezimalzahl zwischen 0 und 1>}.\n' +
+    'Diese beiden Felder sind BESCHREIBEND. Verteile dafür keine Punkte und ändere ' +
+    'wegen ihnen keine Kriteriumsnote.\n\n' +
     rubricLines.join('\n')
 
   let li = 0

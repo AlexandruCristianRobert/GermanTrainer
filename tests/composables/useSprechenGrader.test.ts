@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { SprechenDiscussion } from '../../src/data/sprechen'
+import type { DiscussionTurn, SprechenDiscussion } from '../../src/data/sprechen'
 import { summarizeFluency } from '../../src/data/sprechen'
 import {
   buildSprechenGraderPrompt, gradeDiscussion, validateSprechenGrade
@@ -48,11 +48,38 @@ function spokenDiscNoSpeechData(): SprechenDiscussion {
   return { ...disc(), modality: 'spoken' }
 }
 
+// Builds a typed discussion with exactly `n` learner turns (partner turns
+// interleaved), for the descriptive-extras tests below which need to vary
+// the learner-turn count independently of `disc()`'s fixed two turns.
+function discussionWith(n: number): SprechenDiscussion {
+  const turns: DiscussionTurn[] = []
+  for (let i = 0; i < n; i++) {
+    turns.push({ role: 'partner', textDe: `Partnerbeitrag ${i}.`, at: i * 2 })
+    turns.push({ role: 'learner', textDe: `Lernerbeitrag ${i}.`, at: i * 2 + 1 })
+  }
+  return {
+    id: 'dn',
+    topic: { id: 'st-umwelt-tempolimit', titleDe: 'Tempolimit', statementDe: 'Brauchen wir ein generelles Tempolimit auf Autobahnen?', source: 'seed' },
+    turnTarget: 6,
+    stance: 'contra',
+    modality: 'typed',
+    status: 'submitted',
+    turns,
+    kiTippCount: 0,
+    startedAt: 0
+  }
+}
+
 // Captured verbatim from buildSprechenGraderPrompt(disc()) BEFORE the spoken
 // modality feature was added (via a throwaway baseline-capture test run
 // against the untouched source). Used to prove the typed prompt is still
 // byte-for-byte identical after adding spoken-modality support.
-const BASELINE_TYPED_SYSTEM = "Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-Prüfung, die hier in getippter Form geübt wird. Du bewertest AUSSCHLIESSLICH die Beiträge des Lernenden (mit L0, L1, … markiert) nach der Rubrik unten — die PARTNER-Beiträge stammen von einer KI und werden nicht bewertet.\n\nZusätzlich markierst du JEDEN sprachlichen Fehler in den Lernerbeiträgen:\n- \"turnIndex\": die Zahl hinter dem L des betroffenen Beitrags.\n- \"quote\": die fehlerhafte Stelle WÖRTLICH aus dem Beitrag zitiert (exakte Zeichenfolge, keine Umformulierung).\n- \"suggested\": die korrigierte Fassung der Stelle.\n- \"kind\": GENAU EINE Kategorie aus: grammar (Kasus, Konjugation, Endungen), word-order (Verbstellung, Satzklammer), vocabulary (falsches Wort, Kollokation), spelling (Rechtschreibung), register (Du/Sie, Stilebene).\n- \"reasonDe\" UND \"reasonEn\": kurze Erklärung, WARUM es falsch ist (Deutsch einfach halten — B2-Lernende lesen sie).\n\nFür jedes Kriterium: ganzzahlige Punktzahl im erlaubten Bereich plus kurze Begründung auf Deutsch UND Englisch. totalScore ist die exakte Summe der vier Kriterien; passes ist totalScore >= 60. Danach Stärken, Schwächen und ein Gesamturteil, jeweils Deutsch und Englisch.\nAntworte ausschließlich als EIN JSON-Objekt exakt dieser Form — kein Prosa-Vorspann, keine Markdown-Fences:\n{\"totalScore\": <ganze Zahl>, \"passes\": <true|false>, \"criteria\": [{\"key\": \"<erfuellung|kohaerenz|wortschatz|strukturen>\", \"score\": <ganze Zahl 0-25>, \"justificationDe\": \"…\", \"justificationEn\": \"…\"}, … genau 4, in genau dieser Reihenfolge], \"mistakes\": [{\"turnIndex\": <Zahl>, \"quote\": \"…\", \"suggested\": \"…\", \"kind\": \"<grammar|word-order|vocabulary|spelling|register>\", \"reasonDe\": \"…\", \"reasonEn\": \"…\"}], \"strengths\": [{\"de\": \"…\", \"en\": \"…\"}], \"weaknesses\": [{\"de\": \"…\", \"en\": \"…\"}], \"overallDe\": \"…\", \"overallEn\": \"…\"}\n\nRUBRIK: Goethe-Zertifikat B2 · Sprechen Teil 2 (adaptiert, ohne Aussprache)\nMaximalpunktzahl: 100 · Bestehensgrenze: 60\n\nKriterien (in dieser Reihenfolge, jedes mit max. Punktzahl):\n- key=\"erfuellung\" — Erfüllung / Interaktion (max 25 Punkte):\n    Vertritt die Person eine eigene Position zum Thema und begründet sie? Reagiert sie auf die Argumente des Gesprächspartners (zustimmen, widersprechen, abwägen) statt Monologe zu halten? Hält sie die Diskussion aktiv am Laufen, z. B. durch Nachfragen? Sehr kurze, einsilbige Beiträge mindern die Punktzahl in diesem Kriterium.\n- key=\"kohaerenz\" — Kohärenz & Flüssigkeit (max 25 Punkte):\n    Sind die Beiträge in sich logisch aufgebaut und an den Gesprächsverlauf angeschlossen? Werden Konnektoren und Verweismittel (deshalb, trotzdem, einerseits/andererseits, dabei, darauf) passend eingesetzt? Für die schriftliche Form angepasst: Flüssigkeit heißt hier natürlicher Gesprächsfluss, nicht Sprechtempo.\n- key=\"wortschatz\" — Wortschatz (max 25 Punkte):\n    Ist der Wortschatz für B2 angemessen breit und präzise? Werden Redemittel der Diskussion (Zustimmung, Widerspruch, Abwägung) variantenreich verwendet? Führen Wortschatzlücken zu Umschreibungen oder Brüchen?\n- key=\"strukturen\" — Strukturen (max 25 Punkte):\n    Wie korrekt und variantenreich sind die grammatischen Strukturen (Nebensätze, Konjunktiv II für Vorschläge, Passiv, Verbstellung)? Wie häufig und wie schwerwiegend sind Fehler, und beeinträchtigen sie das Verständnis?\n\nHinweis: Adaptierte Bewertung für getippte Diskussionsübungen: Aussprache wird nicht bewertet; vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, 60+ ausreichend, darunter nicht bestanden."
+// Re-captured after Task 10 added the optional structure/interaction prompt
+// block (ZUSÄTZLICHE BESCHREIBENDE FELDER) — that addition is unconditional
+// (both modalities), so it belongs in this golden value too. The purpose of
+// this test (typed vs. spoken byte-parity outside the modality-specific
+// pieces) is unaffected: only the expected literal grew.
+const BASELINE_TYPED_SYSTEM = "Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-Prüfung, die hier in getippter Form geübt wird. Du bewertest AUSSCHLIESSLICH die Beiträge des Lernenden (mit L0, L1, … markiert) nach der Rubrik unten — die PARTNER-Beiträge stammen von einer KI und werden nicht bewertet.\n\nZusätzlich markierst du JEDEN sprachlichen Fehler in den Lernerbeiträgen:\n- \"turnIndex\": die Zahl hinter dem L des betroffenen Beitrags.\n- \"quote\": die fehlerhafte Stelle WÖRTLICH aus dem Beitrag zitiert (exakte Zeichenfolge, keine Umformulierung).\n- \"suggested\": die korrigierte Fassung der Stelle.\n- \"kind\": GENAU EINE Kategorie aus: grammar (Kasus, Konjugation, Endungen), word-order (Verbstellung, Satzklammer), vocabulary (falsches Wort, Kollokation), spelling (Rechtschreibung), register (Du/Sie, Stilebene).\n- \"reasonDe\" UND \"reasonEn\": kurze Erklärung, WARUM es falsch ist (Deutsch einfach halten — B2-Lernende lesen sie).\n\nFür jedes Kriterium: ganzzahlige Punktzahl im erlaubten Bereich plus kurze Begründung auf Deutsch UND Englisch. totalScore ist die exakte Summe der vier Kriterien; passes ist totalScore >= 60. Danach Stärken, Schwächen und ein Gesamturteil, jeweils Deutsch und Englisch.\nAntworte ausschließlich als EIN JSON-Objekt exakt dieser Form — kein Prosa-Vorspann, keine Markdown-Fences:\n{\"totalScore\": <ganze Zahl>, \"passes\": <true|false>, \"criteria\": [{\"key\": \"<erfuellung|kohaerenz|wortschatz|strukturen>\", \"score\": <ganze Zahl 0-25>, \"justificationDe\": \"…\", \"justificationEn\": \"…\"}, … genau 4, in genau dieser Reihenfolge], \"mistakes\": [{\"turnIndex\": <Zahl>, \"quote\": \"…\", \"suggested\": \"…\", \"kind\": \"<grammar|word-order|vocabulary|spelling|register>\", \"reasonDe\": \"…\", \"reasonEn\": \"…\"}], \"strengths\": [{\"de\": \"…\", \"en\": \"…\"}], \"weaknesses\": [{\"de\": \"…\", \"en\": \"…\"}], \"overallDe\": \"…\", \"overallEn\": \"…\"}\n\nZUSÄTZLICHE BESCHREIBENDE FELDER (beeinflussen die Punktzahl NICHT):\n\"structure\": ein Array mit GENAU einem Objekt pro Lernerbeitrag, in derselben Reihenfolge wie die Beiträge. Jedes Objekt: {\"these\": <true|false>, \"begruendung\": <true|false>, \"beispiel\": <true|false>, \"reacts\": <true|false>}. \"these\" = der Beitrag vertritt eine Position; \"begruendung\" = er nennt einen Grund; \"beispiel\" = er nennt ein konkretes Beispiel; \"reacts\" = er geht auf den letzten Punkt des Partners ein.\n\"interaction\": {\"askedBack\": <Anzahl echter Rückfragen an den Partner>, \"rate\": <Anteil der Beiträge mit reacts=true, als Dezimalzahl zwischen 0 und 1>}.\nDiese beiden Felder sind BESCHREIBEND. Verteile dafür keine Punkte und ändere wegen ihnen keine Kriteriumsnote.\n\nRUBRIK: Goethe-Zertifikat B2 · Sprechen Teil 2 (adaptiert, ohne Aussprache)\nMaximalpunktzahl: 100 · Bestehensgrenze: 60\n\nKriterien (in dieser Reihenfolge, jedes mit max. Punktzahl):\n- key=\"erfuellung\" — Erfüllung / Interaktion (max 25 Punkte):\n    Vertritt die Person eine eigene Position zum Thema und begründet sie? Reagiert sie auf die Argumente des Gesprächspartners (zustimmen, widersprechen, abwägen) statt Monologe zu halten? Hält sie die Diskussion aktiv am Laufen, z. B. durch Nachfragen? Sehr kurze, einsilbige Beiträge mindern die Punktzahl in diesem Kriterium.\n- key=\"kohaerenz\" — Kohärenz & Flüssigkeit (max 25 Punkte):\n    Sind die Beiträge in sich logisch aufgebaut und an den Gesprächsverlauf angeschlossen? Werden Konnektoren und Verweismittel (deshalb, trotzdem, einerseits/andererseits, dabei, darauf) passend eingesetzt? Für die schriftliche Form angepasst: Flüssigkeit heißt hier natürlicher Gesprächsfluss, nicht Sprechtempo.\n- key=\"wortschatz\" — Wortschatz (max 25 Punkte):\n    Ist der Wortschatz für B2 angemessen breit und präzise? Werden Redemittel der Diskussion (Zustimmung, Widerspruch, Abwägung) variantenreich verwendet? Führen Wortschatzlücken zu Umschreibungen oder Brüchen?\n- key=\"strukturen\" — Strukturen (max 25 Punkte):\n    Wie korrekt und variantenreich sind die grammatischen Strukturen (Nebensätze, Konjunktiv II für Vorschläge, Passiv, Verbstellung)? Wie häufig und wie schwerwiegend sind Fehler, und beeinträchtigen sie das Verständnis?\n\nHinweis: Adaptierte Bewertung für getippte Diskussionsübungen: Aussprache wird nicht bewertet; vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, 60+ ausreichend, darunter nicht bestanden."
 const BASELINE_TYPED_USER = "THEMA: „Tempolimit\" — Brauchen wir ein generelles Tempolimit auf Autobahnen?\nPosition des PARTNERS: dagegen.\n\nGESPRÄCH:\nPARTNER: Ich bin gegen ein Tempolimit.\nL0: Ich denke das ein Tempolimit gut ist.\nPARTNER: Warum denn?\nL1: Weil es macht die Straßen sicherer.\n\nACHTUNG: Die Diskussion wurde früh beendet — es gibt wenig Material. Bewerte trotzdem nach der Rubrik, aber sei bei \"erfuellung\" entsprechend streng."
 
 function validRaw() {
@@ -155,6 +182,81 @@ describe('validateSprechenGrade', () => {
     const r = validateSprechenGrade(raw, disc())
     expect(r).not.toBeNull()
     expect(r!.mistakes.length).toBe(0)
+  })
+})
+
+describe('validateSprechenGrade — descriptive extras', () => {
+  it('validates a response with no structure or interaction at all', () => {
+    const r = validateSprechenGrade(validRaw(), discussionWith(3))
+    expect(r).not.toBeNull()
+    expect(r!.structure).toBeUndefined()
+    expect(r!.interaction).toBeUndefined()
+    expect(r!.totalScore).toBeGreaterThan(0)
+  })
+
+  it('keeps a well-formed structure array', () => {
+    const raw = { ...validRaw(), structure: [
+      { these: true, begruendung: true, beispiel: false, reacts: false },
+      { these: true, begruendung: false, beispiel: true, reacts: true },
+      { these: false, begruendung: true, beispiel: false, reacts: true }
+    ] }
+    const r = validateSprechenGrade(raw, discussionWith(3))
+    expect(r!.structure).toHaveLength(3)
+    expect(r!.structure![1].beispiel).toBe(true)
+  })
+
+  it('pads a short structure array to the learner-turn count', () => {
+    const raw = { ...validRaw(), structure: [
+      { these: true, begruendung: true, beispiel: true, reacts: true }
+    ] }
+    const r = validateSprechenGrade(raw, discussionWith(3))
+    expect(r!.structure).toHaveLength(3)
+    expect(r!.structure![2]).toEqual({
+      these: false, begruendung: false, beispiel: false, reacts: false
+    })
+  })
+
+  it('truncates a long structure array', () => {
+    const one = { these: true, begruendung: true, beispiel: true, reacts: true }
+    const raw = { ...validRaw(), structure: [one, one, one, one, one] }
+    expect(validateSprechenGrade(raw, discussionWith(3))!.structure).toHaveLength(3)
+  })
+
+  it('drops a structure that is not an array rather than failing the grade', () => {
+    const raw = { ...validRaw(), structure: 'nope' }
+    const r = validateSprechenGrade(raw, discussionWith(3))
+    expect(r).not.toBeNull()
+    expect(r!.structure).toBeUndefined()
+  })
+
+  it('coerces non-boolean cells to false', () => {
+    const raw = { ...validRaw(), structure: [
+      { these: 'yes', begruendung: 1, beispiel: null, reacts: true }
+    ] }
+    const r = validateSprechenGrade(raw, discussionWith(1))
+    expect(r!.structure![0]).toEqual({
+      these: false, begruendung: false, beispiel: false, reacts: true
+    })
+  })
+
+  it('clamps the interaction rate to 0–1 and floors askedBack at 0', () => {
+    const raw = { ...validRaw(), interaction: { askedBack: -4, rate: 3 } }
+    const r = validateSprechenGrade(raw, discussionWith(3))
+    expect(r!.interaction).toEqual({ askedBack: 0, rate: 1 })
+  })
+
+  it('drops a malformed interaction object', () => {
+    const raw = { ...validRaw(), interaction: { askedBack: 'x' } }
+    expect(validateSprechenGrade(raw, discussionWith(3))!.interaction).toBeUndefined()
+  })
+
+  it('does not let structure or interaction change the total', () => {
+    const base = validateSprechenGrade(validRaw(), discussionWith(3))!
+    const withExtras = validateSprechenGrade(
+      { ...validRaw(), structure: [], interaction: { askedBack: 9, rate: 1 } },
+      discussionWith(3)
+    )!
+    expect(withExtras.totalScore).toBe(base.totalScore)
   })
 })
 
