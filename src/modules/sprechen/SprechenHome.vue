@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadHistory } from '../../composables/useQuizHistory'
+import { countsByKind, openCorrections } from '../../composables/useSprechenArchive'
 
 const router = useRouter()
 
@@ -10,6 +11,20 @@ const recent = computed(() =>
     .filter(h => h.type === 'sprechen-teil2')
     .slice(0, 5)
 )
+
+// Live counts for the Fehlerarchiv card — a nice-to-have, never a blocker.
+// A failed archive read must not break this hub, so it's swallowed and the
+// card simply falls back to its static copy (archiveStats stays null).
+const archiveStats = ref<{ total: number; open: number } | null>(null)
+onMounted(async () => {
+  try {
+    const [counts, open] = await Promise.all([countsByKind(), openCorrections()])
+    const total = Object.values(counts).reduce((a, b) => a + b, 0)
+    archiveStats.value = { total, open: open.length }
+  } catch {
+    archiveStats.value = null
+  }
+})
 
 function go(name: string) { router.push({ name }) }
 function back() { router.push({ name: 'home' }) }
@@ -29,10 +44,10 @@ function onCardKey(e: KeyboardEvent, name: string) {
         <div class="breadcrumb">Kapitel · Sprechen</div>
         <h1 class="section-title">Sprechen<em>.</em></h1>
         <p class="section-subtitle">
-          Goethe B2 speaking practice, typed. Teil 2: argue a controversial
-          Topic with an AI partner, then get every mistake marked and a
-          rubric-graded verdict. Aussprache stays out of scope — this trains
-          argumentation, Redemittel, and reaction.
+          Goethe B2 speaking practice. Teil 2: argue a controversial Topic with
+          an AI partner — typed, or out loud into the microphone — then get every
+          mistake marked and a rubric-graded verdict. Aussprache stays out of
+          scope either way; this trains argumentation, Redemittel, and reaction.
         </p>
       </div>
     </header>
@@ -62,6 +77,24 @@ function onCardKey(e: KeyboardEvent, name: string) {
           tempo, reaction time and pauses.
         </p>
         <div class="module-cta">Start <span aria-hidden="true">→</span></div>
+      </article>
+
+      <article class="card module-card interactive" role="button" tabindex="0"
+        @click="go('sprechen-archive')" @keydown="onCardKey($event, 'sprechen-archive')">
+        <div class="module-numeral">III</div>
+        <h2>Fehlerarchiv</h2>
+        <div class="module-de">Wiederkehrende Fehler</div>
+        <p class="module-desc">
+          The Discussion itself is discarded once it's graded — every marked mistake is not. Your own
+          wrong wording, the fix, and the sentence it came from, kept here and grouped by Sprechen
+          error tag so repetition becomes visible.
+        </p>
+        <div v-if="archiveStats" class="module-meta">
+          {{ archiveStats.total === 0
+            ? 'Noch nichts archiviert'
+            : `${archiveStats.total} archiviert${archiveStats.open > 0 ? ` · ${archiveStats.open} offen` : ''}` }}
+        </div>
+        <div class="module-cta">Open <span aria-hidden="true">→</span></div>
       </article>
     </div>
 
