@@ -4,9 +4,9 @@
 // to Dexie — it flows to sessionStorage['gt:lastSprechenResult'] for the
 // one-time result page, and only summary fields reach Run meta.
 
-import { SPRECHEN_B2_TEIL2, praedikat, type Praedikat } from '../data/rubrics'
-import type { DiscussionTurn, SprechenDiscussion } from '../data/sprechen'
-import { learnerTurnCount } from '../data/sprechen'
+import { SPRECHEN_B2_TEIL2, praedikat, sprechenDescriptor, sprechenNotes, type Praedikat } from '../data/rubrics'
+import type { DiscussionTurn, Modality, SprechenDiscussion } from '../data/sprechen'
+import { learnerTurnCount, summarizeFluency } from '../data/sprechen'
 import type { SprechenErrorTag } from './useQuizHistory'
 
 // ── Result types ─────────────────────────────────────────────────
@@ -33,6 +33,25 @@ export interface SprechenCriterionScore {
 
 export interface BilingualNote { de: string; en: string }
 
+/**
+ * Descriptive only — see spec decision 4. The official Goethe B2 criteria do
+ * NOT score Argumentationsfähigkeit and Interaktionsfähigkeit separately; both
+ * are aspects of `erfuellung`, which is why its label is 'Erfüllung /
+ * Interaktion'. These fields explain where that criterion landed. They move
+ * no points and the rubric is unchanged.
+ */
+export interface TurnStructure {
+  these: boolean          // did the turn state a position?
+  begruendung: boolean    // did it give a reason?
+  beispiel: boolean       // did it give a concrete example?
+  reacts: boolean         // did it engage the partner's previous point?
+}
+
+export interface InteractionSummary {
+  askedBack: number       // Rückfragen to the partner
+  rate: number            // 0–1, turns that react / total turns
+}
+
 export interface SprechenGradeResult {
   totalScore: number
   passes: boolean
@@ -45,6 +64,8 @@ export interface SprechenGradeResult {
   overallEn: string
   generatedAt: number
   modelUsed: string
+  structure?: TurnStructure[]     // optional, descriptive — see TurnStructure above
+  interaction?: InteractionSummary // optional, descriptive — see InteractionSummary above
 }
 
 // ── Gemini client shape (matches useKonjunktivQuiz.GeminiClient) ──
@@ -118,7 +139,25 @@ export const SPRECHEN_GRADE_SCHEMA = {
       }
     },
     overallDe: { type: 'string' },
-    overallEn: { type: 'string' }
+    overallEn: { type: 'string' },
+    structure: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          these: { type: 'boolean' },
+          begruendung: { type: 'boolean' },
+          beispiel: { type: 'boolean' },
+          reacts: { type: 'boolean' }
+        },
+        required: ['these', 'begruendung', 'beispiel', 'reacts']
+      }
+    },
+    interaction: {
+      type: 'object',
+      properties: { askedBack: { type: 'number' }, rate: { type: 'number' } },
+      required: ['askedBack', 'rate']
+    }
   },
   required: ['totalScore', 'passes', 'criteria', 'mistakes', 'strengths', 'weaknesses', 'overallDe', 'overallEn']
 }
@@ -131,7 +170,11 @@ export function learnerTurns(d: Pick<SprechenDiscussion, 'turns'>): DiscussionTu
   return d.turns.filter(t => t.role === 'learner')
 }
 
-function reAnchor(quote: string, text: string): { spanStart: number; spanEnd: number } {
+// Exported for Teil2Result.vue: the result page re-anchors a mistake's span
+// against the CURRENT turn text at render time rather than trusting the span
+// it happens to carry in the stash — a stored spanStart/spanEnd is only ever
+// a snapshot from grade time, and the result page must never rely on it.
+export function reAnchor(quote: string, text: string): { spanStart: number; spanEnd: number } {
   if (quote.length === 0) return { spanStart: -1, spanEnd: -1 }
   const exact = text.indexOf(quote)
   if (exact >= 0) return { spanStart: exact, spanEnd: exact + quote.length }
@@ -212,6 +255,41 @@ export function validateSprechenGrade(
       typeof n?.de === 'string' && typeof n?.en === 'string' ? [{ de: n.de, en: n.en }] : []
     )
 
+  // Descriptive extras: OPTIONAL by design. The local-claude bridge drops
+  // responseSchema, so anything required here becomes a way for a good grade
+  // to fail. Absent or malformed → undefined, and the result page omits the
+  // matrix. Never a reason to return null.
+  const turnCount = learnerTurns(d).length
+
+  let structure: TurnStructure[] | undefined
+  if (Array.isArray(r.structure)) {
+    const cells = (r.structure as unknown[]).map(x => {
+      const o = (x && typeof x === 'object' ? x : {}) as Record<string, unknown>
+      return {
+        these: o.these === true,
+        begruendung: o.begruendung === true,
+        beispiel: o.beispiel === true,
+        reacts: o.reacts === true
+      }
+    })
+    // Pad or truncate to the real turn count — never reject on length.
+    structure = Array.from({ length: turnCount }, (_, i) =>
+      cells[i] ?? { these: false, begruendung: false, beispiel: false, reacts: false }
+    )
+  }
+
+  let interaction: InteractionSummary | undefined
+  const ri = r.interaction
+  if (ri && typeof ri === 'object') {
+    const o = ri as Record<string, unknown>
+    if (typeof o.askedBack === 'number' && typeof o.rate === 'number') {
+      interaction = {
+        askedBack: Math.max(0, Math.round(o.askedBack)),
+        rate: Math.max(0, Math.min(1, o.rate))
+      }
+    }
+  }
+
   return {
     totalScore,
     passes,
@@ -223,8 +301,80 @@ export function validateSprechenGrade(
     overallDe: r.overallDe,
     overallEn: r.overallEn,
     generatedAt: Date.now(),
-    modelUsed: 'unknown'
+    modelUsed: 'unknown',
+    structure,
+    interaction
   }
+}
+
+// ── Fluency evidence (spoken modality only) ───────────────────────
+//
+// SPRECHDATEN block for the user message. Delivery evidence ONLY — it must
+// sway `kohaerenz` alone, never the other three criteria (see the warning
+// text below). Degrades gracefully (no throw, no NaN) when a learner turn,
+// or the whole discussion, carries no `speech` data: summarizeFluency()
+// already returns null for that case, and per-turn WPM guards divide-by-zero.
+function formatSprechdaten(d: SprechenDiscussion): string {
+  let li = 0
+  const perTurnLines: string[] = []
+  for (const t of d.turns) {
+    if (t.role !== 'learner') continue
+    const idx = li++
+    if (!t.speech) {
+      perTurnLines.push(`L${idx}: keine Sprechdaten erfasst.`)
+      continue
+    }
+    const { spokenMs, reactionMs, restarts, words } = t.speech
+    const minutes = spokenMs / 60_000
+    const wpm = minutes > 0 ? Math.round(words / minutes) : 0
+    const reactionS = (reactionMs / 1000).toFixed(1)
+    perTurnLines.push(`L${idx}: ${wpm} Wörter/Min · Reaktionszeit ${reactionS} s · ${restarts} lange(n) Pause(n)`)
+  }
+
+  const summary = summarizeFluency(d.turns)
+  const summaryLine = summary
+    ? `Aggregiert über ${summary.turns} Redebeitrag/-träge: ${summary.wordsPerMinute} Wörter/Min · ` +
+      `durchschnittliche Reaktionszeit ${(summary.avgReactionMs / 1000).toFixed(1)} s · ` +
+      `${summary.pauses} lange(n) Pause(n) insgesamt.`
+    : 'Aggregiert: keine Sprechdaten für diese Sitzung verfügbar.'
+
+  return (
+    'SPRECHDATEN (nur für die Bewertung von "kohaerenz" — siehe Warnung oben):\n' +
+    perTurnLines.join('\n') + '\n' +
+    summaryLine
+  )
+}
+
+// ── Modality-aware prompt fragments ───────────────────────────────
+//
+// Same resolver pattern as `sprechenDescriptor`/`sprechenNotes` in
+// rubrics.ts: a typed default plus a spoken override, chosen by modality.
+// The typed branch is byte-identical to the pre-spoken-feature strings —
+// see BASELINE_TYPED_SYSTEM in the test file — so it must never be touched;
+// only the spoken branch may change.
+
+/** Opening sentence of the grader's system persona. */
+function graderPersonaDe(modality: Modality): string {
+  return modality === 'spoken'
+    ? 'Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-' +
+      'Prüfung, die hier gesprochen und automatisch per Spracherkennung ' +
+      'transkribiert wird.'
+    : 'Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-' +
+      'Prüfung, die hier in getippter Form geübt wird.'
+}
+
+// For spoken runs the transcript's spelling is the speech recognizer's
+// choice, not the learner's — assigning "spelling" against it would archive
+// a phantom mistake as the learner's own. The tag itself stays valid (old
+// typed runs and history still use it); only the spoken PROMPT is told to
+// never assign it.
+function spellingCaveatDe(modality: Modality): string {
+  return modality === 'spoken'
+    ? '- WICHTIG: Diese Diskussion wurde GESPROCHEN und automatisch per ' +
+      'Spracherkennung transkribiert. Die Schreibweise stammt von der ' +
+      'Erkennungssoftware, NICHT vom Lernenden — vergib daher NIEMALS die ' +
+      'Kategorie "spelling".\n'
+    : ''
 }
 
 // ── Prompt builder ───────────────────────────────────────────────
@@ -239,14 +389,13 @@ export function buildSprechenGraderPrompt(
   rubricLines.push('Kriterien (in dieser Reihenfolge, jedes mit max. Punktzahl):')
   for (const c of SPRECHEN_B2_TEIL2.criteria) {
     rubricLines.push(`- key="${c.key}" — ${c.labelDe} (max ${c.maxPoints} Punkte):`)
-    rubricLines.push(`    ${c.descriptorDe}`)
+    rubricLines.push(`    ${sprechenDescriptor(c, d.modality)}`)
   }
   rubricLines.push('')
-  rubricLines.push(`Hinweis: ${SPRECHEN_B2_TEIL2.notes}`)
+  rubricLines.push(`Hinweis: ${sprechenNotes(SPRECHEN_B2_TEIL2, d.modality)}`)
 
   const system =
-    'Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-' +
-    'Prüfung, die hier in getippter Form geübt wird. Du bewertest AUSSCHLIESSLICH ' +
+    graderPersonaDe(d.modality) + ' Du bewertest AUSSCHLIESSLICH ' +
     'die Beiträge des Lernenden (mit L0, L1, … markiert) nach der Rubrik unten — ' +
     'die PARTNER-Beiträge stammen von einer KI und werden nicht bewertet.\n\n' +
     'Zusätzlich markierst du JEDEN sprachlichen Fehler in den Lernerbeiträgen:\n' +
@@ -257,6 +406,7 @@ export function buildSprechenGraderPrompt(
     '- "kind": GENAU EINE Kategorie aus: grammar (Kasus, Konjugation, Endungen), ' +
     'word-order (Verbstellung, Satzklammer), vocabulary (falsches Wort, ' +
     'Kollokation), spelling (Rechtschreibung), register (Du/Sie, Stilebene).\n' +
+    spellingCaveatDe(d.modality) +
     '- "reasonDe" UND "reasonEn": kurze Erklärung, WARUM es falsch ist ' +
     '(Deutsch einfach halten — B2-Lernende lesen sie).\n\n' +
     'Für jedes Kriterium: ganzzahlige Punktzahl im erlaubten Bereich plus kurze ' +
@@ -274,6 +424,17 @@ export function buildSprechenGraderPrompt(
     '"reasonDe": "…", "reasonEn": "…"}], ' +
     '"strengths": [{"de": "…", "en": "…"}], "weaknesses": [{"de": "…", "en": "…"}], ' +
     '"overallDe": "…", "overallEn": "…"}\n\n' +
+    'ZUSÄTZLICHE BESCHREIBENDE FELDER (beeinflussen die Punktzahl NICHT):\n' +
+    '"structure": ein Array mit GENAU einem Objekt pro Lernerbeitrag, in derselben ' +
+    'Reihenfolge wie die Beiträge. Jedes Objekt: {"these": <true|false>, ' +
+    '"begruendung": <true|false>, "beispiel": <true|false>, "reacts": <true|false>}. ' +
+    '"these" = der Beitrag vertritt eine Position; "begruendung" = er nennt einen Grund; ' +
+    '"beispiel" = er nennt ein konkretes Beispiel; "reacts" = er geht auf den letzten ' +
+    'Punkt des Partners ein.\n' +
+    '"interaction": {"askedBack": <Anzahl echter Rückfragen an den Partner>, ' +
+    '"rate": <Anteil der Beiträge mit reacts=true, als Dezimalzahl zwischen 0 und 1>}.\n' +
+    'Diese beiden Felder sind BESCHREIBEND. Verteile dafür keine Punkte und ändere ' +
+    'wegen ihnen keine Kriteriumsnote.\n\n' +
     rubricLines.join('\n')
 
   let li = 0
@@ -286,10 +447,22 @@ export function buildSprechenGraderPrompt(
       'Bewerte trotzdem nach der Rubrik, aber sei bei "erfuellung" entsprechend streng.'
     : ''
 
+  // Spoken-only evidence block. Typed runs never touch this branch, so their
+  // `user` string stays byte-identical to before this feature existed.
+  const sprechdaten = d.modality === 'spoken'
+    ? '\n\n' +
+      'SPRECHDATEN-HINWEIS: Diese Diskussion wurde GESPROCHEN geführt (Spracherkennung, ' +
+      'keine Audioaufnahme). Die folgenden Werte — Sprechtempo, Reaktionszeit, Anzahl ' +
+      'langer Pausen — beschreiben AUSSCHLIESSLICH die Vortragsweise (Delivery) des ' +
+      'Lernenden. Nutze sie NUR für die Bewertung von "kohaerenz". Sie dürfen die ' +
+      'Bewertung von "erfuellung", "wortschatz" und "strukturen" NICHT beeinflussen.\n\n' +
+      formatSprechdaten(d)
+    : ''
+
   const user =
     `THEMA: „${d.topic.titleDe}" — ${d.topic.statementDe}\n` +
     `Position des PARTNERS: ${d.stance === 'pro' ? 'dafür' : 'dagegen'}.\n\n` +
-    `GESPRÄCH:\n${transcript}${fewTurns}`
+    `GESPRÄCH:\n${transcript}${fewTurns}${sprechdaten}`
 
   return { system, user }
 }
@@ -350,6 +523,11 @@ export const SPRECHEN_RESULT_KEY = 'gt:lastSprechenResult'
 export interface SprechenResultStash {
   topic: { id: string; titleDe: string; statementDe: string; source: 'seed' | 'custom' }
   stance: 'pro' | 'contra'
+  // The Discussion's Modality (CONTEXT.md → "Modality"), fixed at creation.
+  // The Auswertung needs it verbatim — not inferred from whether a turn
+  // happens to carry `speech` data — to pick `kohaerenz`'s spoken descriptor
+  // (§5.2: read the rubric's own variant, never paraphrase it).
+  modality: Modality
   turnTarget: number
   turns: DiscussionTurn[]
   kiTippCount: number

@@ -145,20 +145,32 @@ _Avoid_: illustration, image, picture hint
 ### Sprechen
 
 **Discussion** (de Diskussion):
-A Teil 2 speaking-practice conversation between the learner and the AI partner, arguing a [Topic] in typed turns. Resumable while in progress; once graded it is recorded as a [Run] — the conversation itself is never kept.
+A Teil 2 speaking-practice conversation between the learner and the AI partner, arguing a [Topic] turn by turn. Its [Modality] decides whether the learner's turns are typed or spoken; everything else — the [Topic] pool, [Move]s, [Sprechen error tag]s, the rubric, the [Prädikat] — is the same either way. Resumable while in progress; once graded it is recorded as a [Run] and the conversation is discarded — what outlives it is the [Run]'s summary and, for each marked mistake, an [Archived correction] carrying the learner's own sentence. The partner's turns are kept nowhere.
 _Avoid_: session, chat, dialogue, Diskussionsrunde
+
+**Modality**:
+Whether a [Discussion]'s learner turns are `typed` or `spoken`. A [Discussion] has exactly one Modality, chosen at setup and fixed once it starts. It changes only the input surface — a text field or a microphone — and what can be measured from it: a spoken [Discussion] yields real speaking tempo, reaction time and pause counts, so its rubric judges Flüssigkeit on evidence instead of adapting around its absence. Everything else is shared: the same [Topic] pool, the same preparation, the same [Move]s and hints, the same rubric, and the *same* kind of [Run] — so a typed and a spoken score are directly comparable, and "how much worse am I when I have to speak?" is an answerable question.
+_Avoid_: mode (collides with [Grading mode]), input method, voice mode, separate test
 
 **Topic** (de Thema):
 A controversial statement or question a [Discussion] argues — drawn from the app's seeded pool or AI-generated into the learner's custom pool.
 _Avoid_: theme (a noun vocabulary category), subject, statement
 
 **Sprechen error tag**:
-A classification the post-Discussion analysis assigns to each marked mistake in a learner's turns, naming *what* went wrong. One of: `grammar` (case, conjugation, endings, agreement), `word-order` (verb-second, verb-final, separable-prefix placement), `vocabulary` (wrong word, false friend, broken collocation), `spelling`, `register` (du/Sie slips, tone). Unlike [Error tag] and [Verb error tag], exactly one kind per marked mistake — each annotation is a single span with a single explanation.
+A classification the post-Discussion analysis assigns to each marked mistake in a learner's turns, naming *what* went wrong. One of: `grammar` (case, conjugation, endings, agreement), `word-order` (verb-second, verb-final, separable-prefix placement), `vocabulary` (wrong word, false friend, broken collocation), `spelling`, `register` (du/Sie slips, tone). Unlike [Error tag] and [Verb error tag], exactly one kind per marked mistake — each annotation is a single span with a single explanation. `spelling` is never assigned in a `spoken` [Modality]: the spelling there is the speech recognizer's, not the learner's.
 _Avoid_: mistake type, error category
 
 **Move**:
 A named discussion tactic — agree, disagree, partially agree, ask back, give an example, summarize — under which the Sprechen cheatsheet and the in-Discussion hint panel group their stock phrases (Redemittel). A seventh, stating an opinion, appears in the cheatsheet only.
 _Avoid_: hint category, strategy, tactic chip
+
+**Redemittel yield** (de Redemittel-Ausbeute):
+How many distinct Redemittel the learner's turns actually contained, grouped by [Move] — counted locally by text matching, never by AI, and never affecting the score. It measures *use*, not command: a phrase counts whether the learner recalled it, inserted it from the hint panel, or read it aloud from the panel mid-turn. Read at two scopes: the yield *of one [Discussion]*, visible while it runs and on its result; and the learner's *lifetime* yield, which accumulates across [Run]s and is the basis for suggesting a [Move] they have not reached for. The lifetime figure is banked as each [Discussion] is graded, because the conversation it was counted from is discarded immediately afterwards and can never be re-counted.
+_Avoid_: Redemittel score, phrase coverage, mastery
+
+**Move nudge**:
+A single [Move] the app names to the learner mid-[Discussion] — *„Diesmal: nachfragen"* — chosen from the Moves they have not used in this Discussion, preferring the one their lifetime [Redemittel yield] shows they reach for least. Purely a suggestion: it is never validated against, never scored, and carries no obligation — the learner may ignore it and the [Discussion] proceeds identically. Dismissible for the run, and absent when hints are off. Distinct from a [KI-Tipp], which costs an AI call and suggests *what* to argue; the nudge is free, local, and suggests *how*.
+_Avoid_: prompt, task, challenge, goal, required move
 
 **KI-Tipp**:
 An on-demand AI-generated suggestion during the learner's turn in a [Discussion]: a strategic direction for what to argue next, never ready-made text. Uses are counted and shown with the result, but never affect the score.
@@ -167,6 +179,18 @@ _Avoid_: AI hint, tip (unqualified)
 **Prädikat**:
 The Goethe grade band a graded [Discussion]'s score maps to: *sehr gut* (90+), *gut* (80+), *befriedigend* (70+), *ausreichend* (60+), *nicht bestanden* (below 60).
 _Avoid_: grade, mark, rating
+
+**Archived correction** (de Korrektur):
+One marked mistake from a graded [Discussion], kept after the conversation itself is discarded: the learner's wrong wording, the suggested fix, its [Sprechen error tag], and enough of the surrounding sentence to make the fix intelligible. The only part of a [Discussion] that outlives it. Corrections from a `spoken` [Modality] are archived on the same terms as typed ones and are not distinguished — a mistake the recognizer invented is archived as readily as one the learner made, which is a known and accepted cost.
+_Avoid_: mistake (that is the in-Discussion marking), error record, flashcard
+
+**Error archive** (de Fehlerarchiv):
+The learner's whole standing collection of [Archived correction]s, grouped by [Sprechen error tag] so that repetition becomes visible. Cold storage: never read while a [Discussion] runs, only when the learner opens it or a [Correction drill].
+_Avoid_: mistake history, error log, weak points (that term belongs to the drill modules)
+
+**Correction drill** (de Korrekturdrill):
+A practice run over the [Error archive] that replays the learner's own [Archived correction]s and asks them to rewrite just the marked wording. Unlike a [Remedial drill], its items are the learner's own recorded sentences rather than generated ones.
+_Avoid_: remedial drill (that is the preposition/verb one), review, retry
 
 ### Identity & history
 

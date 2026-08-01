@@ -52,7 +52,9 @@ export const USER_DATA_KEYS = [
   // quiz history
   'gt:quizHistory',
   // lifetime per-drill mastery rollup (Direction Words / Da-Compounds)
-  'gt:drillTotals'
+  'gt:drillTotals',
+  // lifetime Redemittel yield rollup (Sprechen)
+  'gt:sprechenRedemittel'
 ] as const
 
 export type UserDataKey = (typeof USER_DATA_KEYS)[number]
@@ -82,7 +84,8 @@ const KEY_LABELS: Record<UserDataKey, { label: string; group: string }> = {
   nounQuizGroups: { label: 'Noun groups (legacy)', group: 'Quiz setup' },
   adjectiveQuizGroups: { label: 'Adjective groups (legacy)', group: 'Quiz setup' },
   'gt:quizHistory': { label: 'Quiz history', group: 'History' },
-  'gt:drillTotals': { label: 'Drill mastery totals', group: 'History' }
+  'gt:drillTotals': { label: 'Drill mastery totals', group: 'History' },
+  'gt:sprechenRedemittel': { label: 'Sprechen Redemittel yield', group: 'History' }
 }
 
 export interface ExportSummaryRow {

@@ -3,6 +3,8 @@ import type { Adjective, Noun, NounGroup, Settings } from './types'
 import type { WritingDraft } from '../data/writingPrompts'
 import type { SimulatorSession } from '../data/simulatorC1'
 import type { SprechenDiscussion } from '../data/sprechen'
+import type { ArchivedCorrection, CorrectionEvent } from '../composables/useSprechenArchive'
+import type { CachedArgumentBank } from '../data/sprechenArguments'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
 
@@ -13,6 +15,10 @@ export class GermanTrainerDb extends Dexie {
   writingDrafts!: Table<WritingDraft, string>
   simulatorSessions!: Table<SimulatorSession, string>
   sprechenDiscussions!: Table<SprechenDiscussion, string>
+  // Error archive (ADR-0012) — append-only, see useSprechenArchive.ts.
+  sprechenCorrections!: Table<ArchivedCorrection, string>
+  sprechenCorrectionEvents!: Table<CorrectionEvent, string>
+  sprechenArgumentBanks!: Table<CachedArgumentBank, string>
 
   constructor() {
     super('GermanTrainerDb')
@@ -115,6 +121,29 @@ export class GermanTrainerDb extends Dexie {
       writingDrafts: '&id, promptId, gradedAt, createdAt',
       simulatorSessions: '&id, status, startedAt',
       sprechenDiscussions: '&id, status, startedAt'
+    })
+    this.version(10).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt',
+      sprechenDiscussions: '&id, status, startedAt',
+      // Error archive (ADR-0012): append-only corrections + a separate
+      // append-only events table. "Drilled" is derived by joining the two —
+      // see useSprechenArchive.ts — never a field on sprechenCorrections.
+      sprechenCorrections: '&id, kind, createdAt, topicTitle',
+      sprechenCorrectionEvents: '&id, correctionId, at',
+      // Cached AI-generated argument bank per topic (see ../data/sprechenArguments).
+      sprechenArgumentBanks: 'topicId'
+    }).upgrade(async tx => {
+      // sprechenDiscussions gained a required `modality` field (typed vs.
+      // spoken) after some rows were already persisted. Default legacy rows
+      // to 'typed', the only modality that existed before spoken practice
+      // shipped.
+      await tx.table('sprechenDiscussions').toCollection().modify(d => {
+        if (!d.modality) d.modality = 'typed'
+      })
     })
   }
 }

@@ -15,6 +15,7 @@ function disc(overrides: Partial<SprechenDiscussion> = {}): SprechenDiscussion {
     turns: [],
     kiTippCount: 0,
     startedAt: 0,
+    modality: 'typed',
     ...overrides
   }
 }

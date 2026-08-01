@@ -58,6 +58,7 @@ export type QuizHistoryType =
   | 'writing-grade'
   | 'simulator-c1'
   | 'sprechen-teil2'
+  | 'sprechen-drill'
 
 export type PrepErrorTag = 'preposition' | 'case' | 'noun' | 'typo'
 
@@ -241,6 +242,26 @@ export interface QuizHistoryMeta {
   sprechenWeaknesses?: Array<{ de: string; en: string }>
   sprechenOverallDe?: string
   sprechenOverallEn?: string
+  // Redemittel matched in this Discussion's turns, banked into the lifetime
+  // yield rollup at grade time (CONTEXT.md → "Redemittel yield"). The runner's
+  // grade pipeline is the sole writer (added in Task 11 of the design-import
+  // plan) — older Runs simply lack this field.
+  sprechenRedemittel?: string[]
+  // Spoken Discussions only (CONTEXT.md → "Modality"). One Run type covers both
+  // modalities so typed and spoken scores stay comparable on the same scale;
+  // these fields are simply absent for a typed run.
+  sprechenModality?: 'typed' | 'spoken'
+  sprechenWpm?: number
+  sprechenAvgReactionMs?: number
+  sprechenSpokenMs?: number
+  sprechenPauses?: number
+
+  // Sprechen Korrekturdrill (sprechen-drill) — replays the learner's own
+  // archived corrections (CONTEXT.md → "Correction drill"). Optional and
+  // summary-only: how many of the drilled items fell into each error kind.
+  // The per-attempt CorrectionEvent record is the source of truth (ADR-0012);
+  // this is just a convenience breakdown for the Run itself.
+  sprechenDrilledKinds?: Partial<Record<SprechenErrorTag, number>>
 }
 
 export interface QuizHistoryEntry {

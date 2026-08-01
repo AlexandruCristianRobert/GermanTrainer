@@ -11,6 +11,7 @@
 //   - telc Deutsch C1 Übungstest 1 — Bewertungsbogen Schreiben
 
 import type { WritingTaskType } from './writingPrompts'
+import type { Modality } from './sprechen'
 
 export type RubricSystem = 'goethe-c1' | 'telc-c1'
 
@@ -316,6 +317,13 @@ export interface SprechenCriterion {
   labelEn: string
   maxPoints: number
   descriptorDe: string
+  // Spoken-modality variant of descriptorDe (Requirement: real speaking-rate
+  // evidence). Only `kohaerenz` differs: the typed descriptor hedges fluency
+  // as "nicht Sprechtempo" because typed turns have no tempo; spoken runs
+  // capture real timing data, so the hedge is dropped and tempo, hesitation
+  // and pausing become explicitly in scope. Absent on the other criteria —
+  // `sprechenDescriptor()` falls back to descriptorDe for those.
+  descriptorSpokenDe?: string
 }
 
 export interface SprechenRubric {
@@ -324,6 +332,11 @@ export interface SprechenRubric {
   passingScore: number
   criteria: SprechenCriterion[]
   notes: string
+  // Spoken-modality variant of `notes` (same resolver pattern as
+  // `descriptorSpokenDe`/`sprechenDescriptor` above). Only the "getippte" vs.
+  // "gesprochene" wording differs — Aussprache stays excluded and the point
+  // structure stays identical either way (see `sprechenNotes`).
+  notesSpokenDe?: string
 }
 
 export const SPRECHEN_B2_TEIL2: SprechenRubric = {
@@ -353,7 +366,15 @@ export const SPRECHEN_B2_TEIL2: SprechenRubric = {
         'angeschlossen? Werden Konnektoren und Verweismittel (deshalb, trotzdem, ' +
         'einerseits/andererseits, dabei, darauf) passend eingesetzt? Für die ' +
         'schriftliche Form angepasst: Flüssigkeit heißt hier natürlicher ' +
-        'Gesprächsfluss, nicht Sprechtempo.'
+        'Gesprächsfluss, nicht Sprechtempo.',
+      descriptorSpokenDe:
+        'Sind die Beiträge in sich logisch aufgebaut und an den Gesprächsverlauf ' +
+        'angeschlossen? Werden Konnektoren und Verweismittel (deshalb, trotzdem, ' +
+        'einerseits/andererseits, dabei, darauf) passend eingesetzt? Da dies eine ' +
+        'gesprochene Übung ist, gehört hier auch das tatsächliche Sprechtempo zur ' +
+        'Bewertung: Spricht die Person in einem natürlichen Tempo, ohne lähmendes ' +
+        'Zögern oder auffällig häufige Pausen? Nutze dafür die mitgelieferten ' +
+        'SPRECHDATEN (Wörter pro Minute, Reaktionszeit, Anzahl langer Pausen).'
     },
     {
       key: 'wortschatz',
@@ -382,7 +403,36 @@ export const SPRECHEN_B2_TEIL2: SprechenRubric = {
     'Adaptierte Bewertung für getippte Diskussionsübungen: Aussprache wird ' +
     'nicht bewertet; vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. ' +
     'Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, ' +
+    '60+ ausreichend, darunter nicht bestanden.',
+  notesSpokenDe:
+    'Adaptierte Bewertung für gesprochene Diskussionsübungen: Aussprache wird ' +
+    'nicht bewertet; vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. ' +
+    'Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, ' +
     '60+ ausreichend, darunter nicht bestanden.'
+}
+
+/**
+ * Resolves the modality-appropriate descriptor for a Sprechen criterion.
+ * Typed runs (and any criterion without a spoken variant) get descriptorDe
+ * unchanged; spoken runs get descriptorSpokenDe where one is defined. The
+ * rubric's shape (keys, order, points) never changes between modalities —
+ * only this one criterion's wording does, so typed and spoken scores stay
+ * directly comparable on one 100-point scale.
+ */
+export function sprechenDescriptor(c: SprechenCriterion, modality: Modality): string {
+  return modality === 'spoken' && c.descriptorSpokenDe ? c.descriptorSpokenDe : c.descriptorDe
+}
+
+/**
+ * Resolves the modality-appropriate footer note for a Sprechen rubric — same
+ * resolver pattern as `sprechenDescriptor` above, applied to `notes` instead
+ * of a single criterion's descriptor. Typed runs get `notes` unchanged;
+ * spoken runs get `notesSpokenDe` where one is defined. Only the wording
+ * changes (getippt → gesprochen); the point structure the grader is told
+ * about never does.
+ */
+export function sprechenNotes(r: SprechenRubric, modality: Modality): string {
+  return modality === 'spoken' && r.notesSpokenDe ? r.notesSpokenDe : r.notes
 }
 
 export type Praedikat = 'sehr gut' | 'gut' | 'befriedigend' | 'ausreichend' | 'nicht bestanden'
