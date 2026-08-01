@@ -74,7 +74,6 @@ const recents = computed(() =>
   }))
 )
 
-// Task 13 appends the Korrekturdrill row here, once its route exists.
 const rows = [
   {
     n: 'I', route: 'sprechen-cheatsheet', title: 'Redemittel',
@@ -85,6 +84,11 @@ const rows = [
     n: 'II', route: 'sprechen-archive', title: 'Fehlerarchiv',
     de: 'Wiederkehrende Fehler',
     desc: 'Deine eigenen falschen Stellen aus den Diskussionen, nach Fehlerart sortiert. Das Gespräch selbst wird verworfen — diese Sätze nicht.'
+  },
+  {
+    n: 'III', route: 'sprechen-drill', title: 'Korrekturdrill',
+    de: 'Deine Sätze, noch einmal',
+    desc: 'Spielt deine eigenen markierten Stellen aus — du tippst nur die Korrektur. Was du richtig hast, gilt als nachgeübt.'
   }
 ]
 
@@ -95,6 +99,9 @@ function metaFor(route: string): string[] {
   if (archiveState.value === 'loading') return ['Archiv wird geladen']
   if (archiveState.value === 'failed' || !archive.value) return ['Archiv nicht lesbar']
   if (archive.value.total === 0) return ['Noch nichts archiviert']
+  if (route === 'sprechen-drill') {
+    return [`${archive.value.open} offen`, `${archive.value.total - archive.value.open} nachgeübt`]
+  }
   return [`${archive.value.total} Korrekturen`, `${archive.value.open} offen`]
 }
 </script>

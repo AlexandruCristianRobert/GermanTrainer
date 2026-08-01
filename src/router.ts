@@ -150,7 +150,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/sprechen/teil2/prep', name: 'sprechen-teil2-prep', component: () => import('./modules/sprechen/Teil2Prep.vue') },
   { path: '/sprechen/teil2/run', name: 'sprechen-teil2-run', component: () => import('./modules/sprechen/Teil2Runner.vue') },
   { path: '/sprechen/teil2/result', name: 'sprechen-teil2-result', component: () => import('./modules/sprechen/Teil2Result.vue') },
-  { path: '/sprechen/archive', name: 'sprechen-archive', component: () => import('./modules/sprechen/SprechenArchive.vue') }
+  { path: '/sprechen/archive', name: 'sprechen-archive', component: () => import('./modules/sprechen/SprechenArchive.vue') },
+  { path: '/sprechen/drill', name: 'sprechen-drill', component: () => import('./modules/sprechen/SprechenDrill.vue') }
 ]
 
 export const router = createRouter({

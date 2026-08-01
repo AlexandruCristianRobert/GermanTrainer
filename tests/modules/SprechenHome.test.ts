@@ -50,14 +50,13 @@ describe('SprechenHome', () => {
     expect(w.findAll('.spr-stage')).toHaveLength(4)
   })
 
-  it('renders two shared ledger rows — Redemittel, Fehlerarchiv', () => {
-    // The Korrekturdrill row arrives in Task 13, with its route. Rendering it
-    // here would give the learner a CTA that throws on an unknown route name.
+  it('renders three shared ledger rows — Redemittel, Fehlerarchiv, Korrekturdrill', () => {
     const w = mount(SprechenHome, { global })
     const rows = w.findAll('.spr-rows')[0].findAll('.spr-row')
-    expect(rows).toHaveLength(2)
+    expect(rows).toHaveLength(3)
     expect(rows[0].text()).toContain('Redemittel')
     expect(rows[1].text()).toContain('Fehlerarchiv')
+    expect(rows[2].text()).toContain('Korrekturdrill')
   })
 
   it('renders the rubric maxima with no runs rather than an empty state', () => {
