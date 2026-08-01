@@ -209,6 +209,12 @@ equivalent list):
 - **Add `flex-wrap:wrap` to `.spr-sides`.** The design's row carries three items; the app's carries
   four because Modality joins them, and the rule it replaces (`.sides` in the old `Teil2Prep.vue`)
   wrapped. Without it the row overflows at narrow widths.
+- **Add `.spr-kind:disabled` and `.spr-kind:disabled:hover`.** The design has no disabled state for an
+  error-kind tile; the rule it replaces (`.kind-tile:disabled`) dimmed it. Without both rules a
+  zero-count tile is correctly unclickable but still looks and hovers like a live one.
+- **Add `min-width:0` to `.spr-run-main`.** The design never styled this grid track. Every other
+  text-holding grid child in the sheet declares it to avoid implicit min-content overflow —
+  `.spr-mast-main`, `.spr-stage`, `.spr-acol`, `.spr-ymove`, `.spr-turn-b` all do.
 
 ### 12 · The masthead compares Modalities
 

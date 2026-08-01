@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.15.00'
+export const APP_VERSION = '1.16.00'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,19 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.16.00', date: '2026-08-01', kind: 'major',
+    title: 'Sprechen · the editorial revamp, plus the Korrekturdrill',
+    notes: [
+      '<strong>The module home is now an index, not a card grid.</strong> A masthead lays out the four stages every exam part shares, and beside it your last two results — getippt and gesprochen — stand side by side on the same four criteria, with the gap between them named outright. That comparison is the point: the two modes share one rubric precisely so <em>how much worse am I when I have to speak?</em> is a question with an answer. Teil 1 · Vortrag has its panel in place but is not built yet, and says so rather than pretending.',
+      '<strong>Themenwahl is a browser now.</strong> Search across titles and theses, filter by field, see at a glance which of the hundred topics you have already argued and which already have their arguments cached. The exam card on the right holds the whole configuration — modality first, because that is the choice that decides what can be measured.',
+      '<strong>The discussion runner keeps a protocol, not a chat.</strong> Ruled turns instead of bubbles, and a rail that tracks what you are actually doing: each contribution labelled with the move it used, all forty-two Redemittel as a grid that fills as you reach for them, and — when you are speaking — your live tempo. The hint drawer now answers <em>what</em> to argue as well as <em>how</em> to say it, and marks which phrases you have already spent.',
+      '<strong>A nudge, not an instruction.</strong> From your second contribution the runner names one move you have not used — preferring the one you reach for least across every discussion you have ever had. It is a suggestion and nothing more: nothing checks whether you took it, and it never touches your score.',
+      '<strong>The Auswertung shows its reasoning.</strong> Beneath the verdict, a row per contribution: did it state a position, give a reason, give an example, engage what the partner just said. Argumentation and interaction both live inside one official criterion, so this explains where that criterion landed rather than inventing a new one — it moves no points. Below it, which Redemittel you actually used, then every mistake marked in your own sentences.',
+      '<strong>Fehlerarchiv gains a Korrekturdrill.</strong> Your own marked wordings, replayed one at a time: you retype just the wrong span, and a miss is not punished — it stays open and comes back. Graded locally, so it works with no connection at all.',
+      '<strong>Under the hood.</strong> Which phrases you have ever used is now banked as each discussion is graded, because the conversation itself is discarded moments later and could never be counted again. A speaking-mode fix worth naming: a quarter of the stock phrases could not be detected at all when spoken, because the matcher expected commas the speech recogniser never produces.'
+    ]
+  },
   {
     version: '1.15.00', date: '2026-07-31', kind: 'major',
     title: 'Direction Words & Da-Compounds · the editorial revamp',
