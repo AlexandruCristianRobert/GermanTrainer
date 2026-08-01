@@ -219,7 +219,7 @@ already carries `meta.sprechenCriteria` + `meta.sprechenModality`.
 |---|---|
 | `src/styles/sprechen.css` | ported `.spr-*` sheet (decision 11) |
 | `src/composables/useRedemittelMatch.ts` | `needle()`, `matchRedemittel(texts)`, `movesUsed()`, `movePerTurn()`; pure, no network, no Vue import — mirrors the `useDwSentenceStats.ts` convention |
-| `src/composables/useRedemittelYield.ts` | the `gt:sprechenRedemittel` rollup: read, bump, seed-once from existing history |
+| `src/composables/useRedemittelYield.ts` | the `gt:sprechenRedemittel` rollup: read + bump. Cannot be seeded from history — old Runs carry no matched ids and their transcripts are gone |
 | `src/modules/sprechen/SprechenDrill.vue` | Korrekturdrill runner, route `sprechen-drill` at `/sprechen/drill` |
 | `src/components/sprechen/SprYield.vue` | one column per Move, `hit/total`, a tick row, an italic line under any zero-hit Move |
 | `src/components/sprechen/SprCriterionBars.vue` | the paired typed/spoken bars, reused by hub masthead and Auswertung |
@@ -272,7 +272,7 @@ radius.** New tests target the new logic instead:
   match a comma-free haystack), the zero-collision invariant across all 42 phrases as a guarded data
   test in the spirit of `tests/data/directionItems.test.ts`, `movePerTurn` tie-breaks, the no-match
   `—` case.
-- `tests/composables/useRedemittelYield.test.ts` — seed-once, bump, absent key reads as zero.
+- `tests/composables/useRedemittelYield.test.ts` — bump, absent key reads as zero, corrupt JSON and malformed entries discarded.
 - `useSprechenGrader.test.ts` additions — a response *without* `structure`/`interaction` still
   validates; a wrong-length `structure` is padded/truncated, not rejected.
 - Move-nudge selection: unused-this-run filtered, lifetime tie-break, hidden when hints off.

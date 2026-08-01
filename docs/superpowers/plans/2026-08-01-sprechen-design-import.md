@@ -38,7 +38,7 @@
 | `src/components/sprechen/SprCriterionBars.vue` | paired typed/spoken criterion bars |
 | `src/modules/sprechen/SprechenDrill.vue` | Korrekturdrill runner |
 | `tests/composables/useRedemittelMatch.test.ts` | matcher invariants incl. the punctuation regression |
-| `tests/composables/useRedemittelYield.test.ts` | rollup seed/bump |
+|  `tests/composables/useRedemittelYield.test.ts` | rollup read/bump + defensive reads |
 | `tests/components/SprYield.test.ts` | yield rendering |
 | `tests/components/SprCriterionBars.test.ts` | paired-bar fallbacks |
 | `tests/modules/SprechenDrill.test.ts` | drill grading + event/Run recording |
@@ -458,7 +458,7 @@ git commit -m "feat(sprechen): local Redemittel matcher with full punctuation fo
 - Test: `tests/composables/useRedemittelYield.test.ts`
 
 **Interfaces:**
-- Consumes: `loadHistory()` from `src/composables/useQuizHistory.ts`; `matchRedemittel` is *not* used here — the rollup stores ids that were already matched at grade time.
+- Consumes: nothing. Deliberately **not** `matchRedemittel` (the rollup stores ids already matched elsewhere) and deliberately **not** `loadHistory()` — unlike ADR-0011's `gt:drillTotals`, this rollup **cannot** be seeded from existing history: historical Runs carry no `meta.sprechenRedemittel` (Task 11 is the first writer) and their transcripts are already deleted, so there is nothing to back-fill from. An absent key reading as zero is the whole migration.
 - Produces:
   ```ts
   export const REDEMITTEL_YIELD_KEY = 'gt:sprechenRedemittel'
