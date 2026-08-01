@@ -34,4 +34,10 @@ describe('SprechenCheatsheet', () => {
       expect(w.text()).toContain(step)
     }
   })
+
+  it('connects the Bauplan\'s Rückfrage to the Auswertung\'s Reaktion', () => {
+    const w = mount(SprechenCheatsheet)
+    expect(w.text()).toContain('Reaktion')
+    expect(w.text()).toContain('Rückfrage')
+  })
 })

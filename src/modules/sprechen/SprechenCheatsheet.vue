@@ -5,9 +5,12 @@ import { lifetimeCounts } from '../../composables/useRedemittelYield'
 // Roman numerals continue after plate I (Strategie) — one per Move group.
 const moveNumerals = ['II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
 
-// The four-step shape of a good discussion turn. Names must match the
-// "Argumentation & Interaktion" matrix on the result screen (Task 11) —
-// see CONTEXT.md → "Move" and the matrix column headers in Teil2Result.vue.
+// The four-step shape of a good discussion turn. The result screen's
+// "Argumentation & Interaktion" matrix (Teil2Result.vue) does NOT reuse these
+// four names for its columns — its fourth column is "Reaktion" (grader field
+// `reacts`: did this turn engage the partner's last point?), and a Rückfrage
+// is counted separately again as `interaction.askedBack`. The note below the
+// table spells out that relationship so the two screens still read as one story.
 const BAUPLAN = [
   { step: 'These', ex: 'Meiner Meinung nach ist das ein wichtiges Thema.' },
   { step: 'Begründung', ex: '…, weil es unseren Alltag direkt betrifft.' },
@@ -61,6 +64,11 @@ function everUsed(id: string): boolean {
             </tr>
           </tbody>
         </table>
+        <p class="spr-note">
+          In der Auswertung erscheint der vierte Punkt als <em>Reaktion</em> — also
+          ob du auf den letzten Punkt des Partners eingehst. Eine Rückfrage ist der
+          direkteste Weg dahin und wird zusätzlich einzeln gezählt.
+        </p>
       </div>
     </section>
 
@@ -97,4 +105,11 @@ function everUsed(id: string): boolean {
 
 .spr-usedot { color: var(--mute); }
 .spr-usedot.on { color: var(--accent); }
+
+/* Neither reference cheatsheet (DirectionWords/DaCompounds) has a dedicated
+   small-note class — their .plate-b asides are plain <p> tags. This one
+   annotation needs a lighter, italic treatment than a regular paragraph, so
+   one scoped rule is added here rather than reusing an unrelated global
+   (e.g. .reveal-note belongs to the drill-runner reveal-panel family). */
+.spr-note { font-style: italic; font-size: 13.5px; line-height: 1.6; color: var(--mute); margin: 12px 0 0; }
 </style>
