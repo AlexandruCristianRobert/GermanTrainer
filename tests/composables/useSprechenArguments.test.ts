@@ -11,14 +11,18 @@ vi.mock('../../src/db', () => {
         get: async (topicId: string) => store.get(topicId),
         put: async (row: { topicId: string; bank: unknown; generatedAt: number }) => {
           store.set(row.topicId, row)
-        }
+        },
+        toCollection: () => ({
+          primaryKeys: async () => Array.from(store.keys())
+        })
       }
     }
   }
 })
 
 import {
-  buildArgumentBankPrompt, generateArgumentBank, loadCachedBank, saveCachedBank, validateArgumentBank
+  buildArgumentBankPrompt, cachedBankIds, generateArgumentBank, loadCachedBank, saveCachedBank,
+  validateArgumentBank
 } from '../../src/composables/useSprechenArguments'
 import type { ArgumentBank } from '../../src/data/sprechenArguments'
 
@@ -151,6 +155,25 @@ describe('generateArgumentBank', () => {
   it('throws once retries are exhausted with nothing usable', async () => {
     const { client } = fakeClient(['garbage', 'still garbage'])
     await expect(generateArgumentBank(client, 'test-model', topic, 1)).rejects.toThrow()
+  })
+})
+
+describe('cachedBankIds', () => {
+  // Runs before the "Dexie cache" describe below populates the shared mock
+  // store, so this is the first test in the file to touch it — the store is
+  // genuinely empty here, not just unqueried.
+  it('returns an empty set when the table is empty', async () => {
+    const ids = await cachedBankIds()
+    expect(ids.size).toBe(0)
+  })
+
+  it('returns the ids of every cached bank', async () => {
+    const bank: ArgumentBank = validateArgumentBank(validRaw())!
+    await saveCachedBank('st-cached-ids-a', bank)
+    await saveCachedBank('st-cached-ids-b', bank)
+    const ids = await cachedBankIds()
+    expect(ids.has('st-cached-ids-a')).toBe(true)
+    expect(ids.has('st-cached-ids-b')).toBe(true)
   })
 })
 

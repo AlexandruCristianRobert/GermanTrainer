@@ -23,8 +23,8 @@ import {
 } from '../../composables/useSprechenTopics'
 import { abandonDiscussion, findActiveDiscussion } from '../../composables/useSprechenDiscussion'
 // Row markers need to know which Topics already have a cached argument bank.
-// One Dexie read on mount; a failure just drops the marker (see below).
-import { loadCachedBank } from '../../composables/useSprechenArguments'
+// One Dexie read on mount; a failure just drops the markers (see below).
+import { cachedBankIds } from '../../composables/useSprechenArguments'
 import { isSpeechRecognitionSupported } from '../../composables/useSpeechRecognizer'
 import { useSpeechVoice } from '../../composables/useSpeechVoice'
 import { resolveAiClient } from '../../composables/localClaude'
@@ -126,13 +126,10 @@ onMounted(async () => {
 })
 
 // Row markers need to know which Topics already have a cached argument bank.
-// One Dexie read on mount; a failure just drops the marker, never the screen.
+// One Dexie read on mount; a failure just drops the markers, never the screen.
 onMounted(async () => {
   try {
-    const found = await Promise.all(
-      pool.value.map(async t => ((await loadCachedBank(t.id)) ? t.id : null))
-    )
-    cachedIds.value = new Set(found.filter((x): x is string => x !== null))
+    cachedIds.value = await cachedBankIds()
   } catch {
     cachedIds.value = new Set()
   }

@@ -9,7 +9,20 @@ vi.mock('../../src/composables/useSprechenDiscussion', () => ({
   deleteDiscussion: vi.fn(async () => undefined)
 }))
 vi.mock('../../src/composables/useSprechenArguments', () => ({
-  loadCachedBank: vi.fn(async () => undefined)
+  cachedBankIds: vi.fn(async () => new Set<string>())
+}))
+// jsdom has no SpeechRecognition and no speechSynthesis voices; both must be
+// faked or the spoken Modality is permanently unselectable in tests.
+vi.mock('../../src/composables/useSpeechRecognizer', () => ({
+  isSpeechRecognitionSupported: () => true
+}))
+vi.mock('../../src/composables/useSpeechVoice', () => ({
+  useSpeechVoice: () => ({
+    voices: { value: [{ name: 'Katja' }] },
+    voiceName: { value: 'Katja' },
+    rate: { value: 1 },
+    speak: vi.fn(async () => undefined)
+  })
 }))
 // The real useSettings() probes a dev-only local endpoint and reads Dexie —
 // neither resolves truthy under jsdom, which would leave canUseAi false and
@@ -58,10 +71,22 @@ describe('Teil2Setup — Prüfungskarte', () => {
     expect(w.find('.spr-card-go .btn').attributes('disabled')).toBeUndefined()
   })
 
-  it('shows the voice picker only for the spoken Modality', async () => {
+  it('hides the voice picker for the typed Modality', async () => {
     const w = mount(Teil2Setup)
     await flushPromises()
     expect(w.find('.spr-voice').exists()).toBe(false)
+  })
+
+  it('shows the voice picker once the spoken Modality is selected', async () => {
+    // Needs BOTH mic support and a non-empty voice list, neither of which jsdom
+    // provides — without the mocks this test would pass even if the picker
+    // markup were deleted outright.
+    const w = mount(Teil2Setup)
+    await flushPromises()
+    const spoken = w.findAll('.spr-fld')[0].findAll('button')[1]
+    expect(spoken.attributes('disabled')).toBeUndefined()
+    await spoken.trigger('click')
+    expect(w.find('.spr-voice').exists()).toBe(true)
   })
 })
 

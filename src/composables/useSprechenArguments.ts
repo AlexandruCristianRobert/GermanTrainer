@@ -138,6 +138,14 @@ export async function loadCachedBank(topicId: string): Promise<ArgumentBank | un
   return row?.bank
 }
 
+/**
+ * Which Topics already have a cached bank. One primary-key scan rather than a
+ * `get()` per Topic — the setup screen asks this for the whole pool on mount.
+ */
+export async function cachedBankIds(): Promise<Set<string>> {
+  return new Set(await db.sprechenArgumentBanks.toCollection().primaryKeys())
+}
+
 export async function saveCachedBank(topicId: string, bank: ArgumentBank): Promise<void> {
   const row: CachedArgumentBank = { topicId, bank, generatedAt: Date.now() }
   await db.sprechenArgumentBanks.put(row)
