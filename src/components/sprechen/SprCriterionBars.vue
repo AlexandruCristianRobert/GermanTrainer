@@ -13,22 +13,35 @@ const props = defineProps<{
   spoken?: CriterionScore[] | null
 }>()
 
+const both = computed(() => !!props.typed?.length && !!props.spoken?.length)
+
 // The rubric drives the rows, not the data — so a run recorded before a
 // rubric change, or a hallucinated extra criterion, cannot add a row.
 const rows = computed(() =>
-  SPRECHEN_B2_TEIL2.criteria.map(def => ({
-    key: def.key,
-    labelDe: def.labelDe,
-    descriptorDe: def.descriptorDe,
-    maxPoints: def.maxPoints,
-    typed: props.typed?.find(c => c.key === def.key) ?? null,
-    spoken: props.spoken?.find(c => c.key === def.key) ?? null
-  }))
+  SPRECHEN_B2_TEIL2.criteria.map(def => {
+    const typed = props.typed?.find(c => c.key === def.key) ?? null
+    const spoken = props.spoken?.find(c => c.key === def.key) ?? null
+    return {
+      key: def.key,
+      labelDe: def.labelDe,
+      descriptorDe: def.descriptorDe,
+      maxPoints: def.maxPoints,
+      typed,
+      spoken,
+      // Whichever Modality the learner HAS is the primary bar. Gating the
+      // first bar on `typed` alone would show a spoken-only learner correct
+      // numbers over a blank track.
+      primary: typed ?? spoken,
+      secondary: typed && spoken ? spoken : null
+    }
+  })
 )
 
-const both = computed(() => !!props.typed?.length && !!props.spoken?.length)
 const sum = (cs?: CriterionScore[] | null) => (cs ?? []).reduce((s, c) => s + c.score, 0)
 const delta = computed(() => sum(props.spoken) - sum(props.typed))
+const deltaLabel = computed(() =>
+  delta.value === 0 ? '±0' : delta.value > 0 ? `+${delta.value}` : `−${Math.abs(delta.value)}`
+)
 
 function pct(c: CriterionScore | null, max: number): string {
   return c ? `${Math.max(0, Math.min(100, (c.score / max) * 100))}%` : '0%'
@@ -40,22 +53,25 @@ function pct(c: CriterionScore | null, max: number): string {
     <div class="spr-crits">
       <div v-for="r in rows" :key="r.key" class="spr-crit-row">
         <div class="spr-crit-name" :title="r.descriptorDe">{{ r.labelDe }}</div>
-        <div class="spr-crit-max spr-num">
-          {{ r.typed ? r.typed.score : (r.spoken ? r.spoken.score : '—') }}/{{ r.maxPoints }}
+        <div class="spr-crit-max spr-num" :title="r.secondary ? 'getippt · gesprochen' : undefined">
+          <template v-if="r.secondary">{{ r.typed!.score }}·{{ r.secondary.score }}</template>
+          <template v-else-if="r.primary">{{ r.primary.score }}/{{ r.maxPoints }}</template>
+          <template v-else>—/{{ r.maxPoints }}</template>
         </div>
         <div class="spr-crit-bar">
-          <span v-if="r.typed" class="spr-crit-fill" :style="{ width: pct(r.typed, r.maxPoints) }" />
+          <span v-if="r.primary" class="spr-crit-fill" :style="{ width: pct(r.primary, r.maxPoints) }" />
         </div>
-        <div v-if="both" class="spr-crit-bar">
-          <span v-if="r.spoken" class="spr-crit-fill" :style="{ width: pct(r.spoken, r.maxPoints) }" />
+        <div v-if="r.secondary" class="spr-crit-bar">
+          <span class="spr-crit-fill" :style="{ width: pct(r.secondary, r.maxPoints) }" />
         </div>
       </div>
     </div>
     <p class="spr-pass">
-      Vier Kriterien à 25 Punkte, Bestehensgrenze <b>60</b>.
+      {{ rows.length }} Kriterien, zusammen {{ SPRECHEN_B2_TEIL2.totalMax }} Punkte ·
+      Bestehensgrenze <b>{{ SPRECHEN_B2_TEIL2.passingScore }}</b>.
       <template v-if="both">
         Getippt und gesprochen teilen dieselbe Skala —
-        <b>Δ gesprochen {{ delta > 0 ? '+' : '−' }}{{ Math.abs(delta) }}</b>.
+        <b>Δ gesprochen {{ deltaLabel }}</b>.
       </template>
       <template v-else>
         Getippt und gesprochen teilen dieselbe Skala, damit die Werte vergleichbar bleiben.
