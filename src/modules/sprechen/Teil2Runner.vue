@@ -27,9 +27,10 @@ import {
   type SprechenDiscussion, type Teil2RunStash
 } from '../../data/sprechen'
 import {
-  HINT_MOVES, MOVE_LABEL, phrasesForMove, SPRECHEN_REDEMITTEL, type Move
+  HINT_MOVES, MOVE_LABEL, SPRECHEN_REDEMITTEL, type Move
 } from '../../data/sprechenRedemittel'
-import { matchRedemittel, movePerTurn } from '../../composables/useRedemittelMatch'
+import { matchRedemittel, movePerTurn, pickMoveNudge } from '../../composables/useRedemittelMatch'
+import { lifetimeCounts } from '../../composables/useRedemittelYield'
 import { resolveArgumentBank, type ArgumentBank } from '../../data/sprechenArguments'
 import { loadCachedBank } from '../../composables/useSprechenArguments'
 import { SPRECHEN_TOPICS } from '../../data/sprechenTopics'
@@ -60,8 +61,11 @@ const bank = ref<ArgumentBank | null>(null)
 const notes = ref('')
 const hintsOn = ref(true)
 const input = ref('')            // typed composer only
-const tab = ref<'was' | 'wie' | null>('was')
-const move = ref<Move>('partial')
+const tab = ref<'was' | 'wie'>('was')
+// The first entry of HINT_MOVES so opening the drawer always highlights a
+// real, non-arbitrary category rather than one picked out of the six.
+const move = ref<Move>(HINT_MOVES[0])
+const composerEl = ref<HTMLTextAreaElement | null>(null)
 const kiTipp = ref<string | null>(null)
 const kiBusy = ref(false)
 const partnerBusy = ref(false)
@@ -110,6 +114,12 @@ const mine = computed(() => {
   return mySide.value === 'pro' ? bank.value.pro : bank.value.contra
 })
 
+/** The partner's angles — the argument bank's other side. */
+const theirs = computed(() => {
+  if (!bank.value || !discussion.value) return []
+  return discussion.value.stance === 'pro' ? bank.value.pro : bank.value.contra
+})
+
 /** Every learner turn's own text — the rail's raw material for the Redemittel
  *  yield and the per-turn Move labels. Spoken or typed, a turn is just text
  *  once it lands on the Discussion (see DiscussionTurn). */
@@ -119,6 +129,38 @@ const learnerTexts = computed(
 
 /** Live yield for the rail's 42-dot grid. */
 const usedIds = computed(() => new Set(matchRedemittel(learnerTexts.value).map(r => r.id)))
+
+const lifetime = lifetimeCounts()   // read once; the rollup only changes at grade time
+const nudgeDismissed = ref(false)
+
+/**
+ * Move nudge (CONTEXT.md → "Move nudge"). Shown from turn 2 so there is
+ * something to not-have-used yet. A suggestion only — never validated against.
+ */
+const moveNudge = computed(() => {
+  if (nudgeDismissed.value) return null
+  if (!hintsOn.value) return null
+  if (learnerTexts.value.length < 1) return null
+  return pickMoveNudge(learnerTexts.value, lifetime)
+})
+
+/** Moves the learner has not reached for this run get a ·neu mark. */
+const freshMoves = computed(() => {
+  const used = new Set(matchRedemittel(learnerTexts.value).map(r => r.move))
+  return new Set(HINT_MOVES.filter(m => !used.has(m)))
+})
+
+const drawerPhrases = computed(() =>
+  SPRECHEN_REDEMITTEL
+    .filter(r => r.move === move.value)
+    .map(r => ({ ...r, used: usedIds.value.has(r.id) }))
+)
+
+/** The partner's angles already played, so *Was* can mute them. */
+const partnerPlayed = computed(() => {
+  const n = (discussion.value?.turns ?? []).filter(t => t.role === 'partner').length
+  return theirs.value.slice(0, n)
+})
 
 /** L1–Ln stepper: one entry per planned turn, labelled with the Move it used. */
 const steps = computed(() => {
@@ -160,6 +202,27 @@ const composerPlaceholder = computed(() => myTurn.value
 )
 
 function sideDe(side: 'pro' | 'contra') { return side === 'pro' ? 'dafür' : 'dagegen' }
+
+/**
+ * Insert a phrase stub at the caret, ellipsis stripped, then focus.
+ *
+ * TYPED ONLY. A spoken Discussion has no composer to insert into — the learner
+ * reads the phrase aloud instead, and CONTEXT.md → Redemittel yield counts it
+ * either way. So the drawer renders phrases as plain text, not buttons, when
+ * the Modality is spoken, and this function is never called there.
+ */
+function insertPhrase(phraseDe: string) {
+  const stub = phraseDe.replace(/\s*…\s*$/, '').trim()
+  const el = composerEl.value
+  if (!el) { input.value = `${input.value}${input.value ? ' ' : ''}${stub}`; return }
+  const at = el.selectionStart ?? input.value.length
+  input.value = `${input.value.slice(0, at)}${stub}${input.value.slice(at)}`
+  requestAnimationFrame(() => {
+    el.focus()
+    const pos = at + stub.length
+    el.setSelectionRange(pos, pos)
+  })
+}
 
 onMounted(async () => {
   await loadSettings()
@@ -593,11 +656,17 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
         </div>
 
         <template v-else-if="discussion.status === 'in_progress'">
-          <!-- Move nudge + hint drawer land here in Task 9 -->
+          <div v-if="moveNudge" class="spr-nudge">
+            <span class="spr-nudge-l">Diesmal</span>
+            <span class="spr-nudge-t">{{ MOVE_LABEL[moveNudge].de.toLowerCase() }}</span>
+            <button class="spr-nudge-x" type="button" aria-label="Hinweis ausblenden"
+              @click="nudgeDismissed = true">×</button>
+          </div>
 
           <div class="spr-composer">
             <textarea
               v-if="!spoken"
+              ref="composerEl"
               v-model="input"
               :disabled="!myTurn || sending"
               :placeholder="composerPlaceholder"
@@ -636,42 +705,56 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
             </div>
           </div>
 
-          <div v-if="hintsOn" class="drawer">
-            <div class="drawer-head">
-              <button class="dtab" :class="{ on: tab === 'was' }" @click="tab = tab === 'was' ? null : 'was'">
-                Was<span class="dtab-sub">Argumente</span>
+          <div v-if="hintsOn" class="spr-drawer">
+            <div class="spr-drawer-h">
+              <button class="spr-dtab" :class="{ on: tab === 'was' }" type="button" @click="tab = 'was'">
+                Was<span class="spr-dtab-sub">Argumente</span>
               </button>
-              <button class="dtab" :class="{ on: tab === 'wie' }" @click="tab = tab === 'wie' ? null : 'wie'">
-                Wie<span class="dtab-sub">Redemittel</span>
+              <button class="spr-dtab" :class="{ on: tab === 'wie' }" type="button" @click="tab = 'wie'">
+                Wie<span class="spr-dtab-sub">Redemittel</span>
               </button>
-              <button class="dtab ki" :disabled="kiBusy" @click="fetchKiTipp">
+              <button class="spr-drawer-x" type="button" :disabled="kiBusy" @click="fetchKiTipp">
                 {{ kiBusy ? '✦ KI-Tipp…' : '✦ KI-Tipp · 1 Call' }}
               </button>
             </div>
 
-            <div v-if="tab === 'was'" class="drawer-body">
-              <div v-for="(a, i) in mine" :key="i" class="was-item">
-                <div class="was-claim">{{ a.claim }}</div>
-                <p class="was-why">{{ a.why }}</p>
-              </div>
-            </div>
+            <div class="spr-drawer-b">
+              <template v-if="tab === 'wie'">
+                <div class="spr-moverow">
+                  <button v-for="m in HINT_MOVES" :key="m" type="button" class="spr-move"
+                    :class="{ on: move === m, fresh: freshMoves.has(m) }"
+                    @click="move = m">{{ MOVE_LABEL[m].de }}</button>
+                </div>
+                <ul class="spr-phrases">
+                  <li v-for="p in drawerPhrases" :key="p.id" class="spr-phrase">
+                    <!-- Tappable only when there is a caret to insert into. In a
+                         spoken Discussion the phrase is something to read aloud, so
+                         it renders as text — a button that does nothing would be a
+                         lie. -->
+                    <button v-if="!spoken" class="spr-phrase-t" :class="{ used: p.used }"
+                      type="button" @click="insertPhrase(p.phraseDe)">{{ p.phraseDe }}</button>
+                    <span v-else class="spr-phrase-t" :class="{ used: p.used }">{{ p.phraseDe }}</span>
+                    <span class="spr-phrase-en">{{ p.used ? 'schon benutzt' : p.noteEn }}</span>
+                  </li>
+                </ul>
+              </template>
 
-            <div v-if="tab === 'wie'" class="drawer-body">
-              <div class="chip-row">
-                <button v-for="m in HINT_MOVES" :key="m" type="button"
-                  class="chip" :class="{ selected: move === m }" @click="move = m">
-                  {{ MOVE_LABEL[m].de }}
-                </button>
+              <div v-else class="spr-was">
+                <div class="spr-was-h">Deine Seite</div>
+                <div v-for="(a, i) in mine" :key="`m${i}`" class="spr-was-i">
+                  <div class="spr-was-c">{{ a.claim }}</div>
+                  <p class="spr-was-w">{{ a.why }}</p>
+                </div>
+                <template v-if="partnerPlayed.length > 0">
+                  <div class="spr-was-h">Schon gespielt vom Partner</div>
+                  <div v-for="(a, i) in partnerPlayed" :key="`p${i}`" class="spr-was-i">
+                    <div class="spr-was-c spr-was-muted">{{ a.claim }}</div>
+                  </div>
+                </template>
               </div>
-              <ul class="phrases">
-                <li v-for="r in phrasesForMove(move)" :key="r.id">
-                  <span class="phrase-de">{{ r.phraseDe }}</span>
-                  <span class="phrase-en">{{ r.noteEn }}</span>
-                </li>
-              </ul>
-            </div>
 
-            <div v-if="kiTipp" class="drawer-body"><p class="kitipp">{{ kiTipp }}</p></div>
+              <p v-if="kiTipp" class="spr-kitipp">{{ kiTipp }}</p>
+            </div>
           </div>
           <div v-else class="alert alert-info exam-note">
             <span class="alert-label">Prüfungsbedingungen</span>
@@ -708,34 +791,9 @@ function backToSetup() { router.push({ name: 'sprechen-teil2' }) }
 .spr-composer-f .mic-row { margin-left: auto; }
 
 .exam-note { margin-top: 8px; }
-.drawer { border-top: 1px solid var(--hairline); }
-.drawer-head { display: flex; gap: 4px; }
-.dtab {
-  background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer;
-  padding: 10px 14px; font: inherit; font-size: 14px; color: var(--mute);
-  display: flex; gap: 8px; align-items: baseline;
-}
-.dtab.on { color: var(--ink); border-bottom-color: var(--accent); }
-.dtab.ki { margin-left: auto; color: var(--accent); }
-.dtab-sub {
-  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.16em;
-  text-transform: uppercase; opacity: 0.7;
-}
-.drawer-body { padding: 14px 2px; }
-.was-item { margin-bottom: 12px; }
-.was-claim { font-family: var(--font-display); font-size: 15.5px; }
-.was-why { margin: 3px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink-soft); }
-.phrases { list-style: none; padding: 0; margin: 12px 0 0; }
-.phrases li {
-  display: flex; justify-content: space-between; gap: 16px; align-items: baseline;
-  padding: 6px 0; border-bottom: 1px solid var(--hairline);
-}
-.phrase-de { font-family: var(--font-display); font-size: 15px; }
-.phrase-en { color: var(--mute); font-size: 12px; font-style: italic; text-align: right; flex: 0 0 auto; }
-.kitipp {
-  margin: 0; padding: 10px 14px; font-size: 14px; line-height: 1.5;
-  background: var(--paper-deep); border-left: 3px solid var(--accent); border-radius: 4px;
-}
+/* Task 1's shared sheet owns the rest of .spr-was-*, but has no dedicated rule
+   for the partner's already-played angles — muted so they read as spent. */
+.spr-was-muted { color: var(--mute); font-weight: 400; }
 @media (max-width: 860px) {
   .run-head { flex-direction: column; }
 }

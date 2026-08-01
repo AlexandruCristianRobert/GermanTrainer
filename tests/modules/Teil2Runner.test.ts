@@ -24,6 +24,10 @@ const discussion: SprechenDiscussion = {
 
 vi.mock('../../src/composables/useSprechenDiscussion', () => ({
   findActiveDiscussion: vi.fn(async () => discussion),
+  // Only exercised by the sessionStorage-stash path (see the "hints off" test
+  // below) — the runner's real createDiscussion ignores nothing, but every
+  // other test here resumes via findActiveDiscussion instead.
+  createDiscussion: vi.fn(async () => discussion),
   loadDiscussion: vi.fn(async () => discussion),
   appendTurn: vi.fn(async () => discussion),
   saveDiscussion: vi.fn(async () => undefined),
@@ -118,5 +122,80 @@ describe('Teil2Runner composer', () => {
     const w = await mountReady()
     await w.find('.spr-composer textarea').setValue(Array(25).fill('Wort').join(' '))
     expect(w.find('.spr-count').classes()).not.toContain('short')
+  })
+})
+
+/**
+ * The runner never imports `loadDiscussion` (that name is not exported by
+ * useSprechenDiscussion.ts at all — only findActiveDiscussion matters for
+ * resuming). Polls like mountReady() rather than a single flushPromises():
+ * onMounted chains several real Dexie round trips before `discussion` settles.
+ */
+async function mountSpoken(): Promise<VueWrapper> {
+  const spoken = { ...discussion, modality: 'spoken' as const }
+  const mod = await import('../../src/composables/useSprechenDiscussion')
+  vi.mocked(mod.findActiveDiscussion).mockResolvedValue(spoken)
+  const w = mount(Teil2Runner)
+  for (let i = 0; i < 40; i++) {
+    await flushPromises()
+    if (!w.find('.loading-state').exists()) return w
+  }
+  return w
+}
+
+describe('Teil2Runner Move nudge', () => {
+  it('names a Move the learner has not used this run', async () => {
+    const w = await mountReady()
+    // The seeded turn used an 'agree' phrase, so the nudge must not say Zustimmen.
+    const nudge = w.find('.spr-nudge')
+    expect(nudge.exists()).toBe(true)
+    expect(nudge.text().toLowerCase()).not.toContain('zustimmen')
+  })
+
+  it('is dismissible for the run', async () => {
+    const w = await mountReady()
+    await w.find('.spr-nudge-x').trigger('click')
+    expect(w.find('.spr-nudge').exists()).toBe(false)
+  })
+})
+
+describe('Teil2Runner drawer', () => {
+  it('marks unused Moves ·neu', async () => {
+    const w = await mountReady()
+    await w.find('.spr-dtab:nth-child(2)').trigger('click')
+    expect(w.findAll('.spr-move.fresh').length).toBeGreaterThan(0)
+  })
+
+  it('reads schon benutzt instead of the gloss for a used phrase', async () => {
+    const w = await mountReady()
+    await w.find('.spr-dtab:nth-child(2)').trigger('click')
+    expect(w.text()).toContain('schon benutzt')
+  })
+
+  it('inserts a phrase stub with the ellipsis stripped', async () => {
+    const w = await mountReady()
+    await w.find('.spr-dtab:nth-child(2)').trigger('click')
+    await w.findAll('.spr-phrase-t')[0].trigger('click')
+    const val = (w.find('.spr-composer textarea').element as HTMLTextAreaElement).value
+    expect(val).not.toContain('…')
+    expect(val.length).toBeGreaterThan(0)
+  })
+
+  it('renders phrases as plain text in a spoken Discussion', async () => {
+    // No composer, no caret — a tappable phrase would do nothing.
+    const w = await mountSpoken()
+    await w.find('.spr-dtab:nth-child(2)').trigger('click')
+    expect(w.findAll('.spr-phrase-t').length).toBeGreaterThan(0)
+    expect(w.findAll('button.spr-phrase-t')).toHaveLength(0)
+  })
+
+  it('hides the drawer and the nudge when hints are off', async () => {
+    // hintsOn comes off the stash — this exercises the sessionStorage-stash
+    // creation path (not findActiveDiscussion), which is why createDiscussion
+    // must be mocked above.
+    sessionStorage.setItem('gt:lastSprechenTeil2', JSON.stringify({ hintsOn: false }))
+    const w = await mountReady()
+    expect(w.find('.spr-drawer').exists()).toBe(false)
+    expect(w.find('.spr-nudge').exists()).toBe(false)
   })
 })
