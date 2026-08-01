@@ -139,7 +139,12 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'passiv-transform': 'Passiv transformation',
   'writing-grade': 'graded essay (writing tutor)',
   'simulator-c1': 'Goethe C1 simulator (mock exam)',
-  'sprechen-teil2': 'Sprechen Teil 2 — typed discussion with AI partner (score 0-100, Goethe B2 rubric)'
+  'sprechen-teil2': 'Sprechen Teil 2 — discussion with an AI partner, typed or spoken (score 0-100, Goethe B2 rubric)',
+  'sprechen-drill':
+    'Sprechen Korrekturdrill — re-practice of the learner\'s OWN previously marked ' +
+    'mistakes, replayed from the error archive. A high score means earlier corrections ' +
+    'were revised successfully; it is NOT evidence of fresh B2 command, because every ' +
+    'item was already a known weak spot.'
 }
 
 function fmtPct(n: number): string {

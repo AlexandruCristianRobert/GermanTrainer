@@ -58,6 +58,7 @@ export type QuizHistoryType =
   | 'writing-grade'
   | 'simulator-c1'
   | 'sprechen-teil2'
+  | 'sprechen-drill'
 
 export type PrepErrorTag = 'preposition' | 'case' | 'noun' | 'typo'
 
@@ -254,6 +255,13 @@ export interface QuizHistoryMeta {
   sprechenAvgReactionMs?: number
   sprechenSpokenMs?: number
   sprechenPauses?: number
+
+  // Sprechen Korrekturdrill (sprechen-drill) — replays the learner's own
+  // archived corrections (CONTEXT.md → "Correction drill"). Optional and
+  // summary-only: how many of the drilled items fell into each error kind.
+  // The per-attempt CorrectionEvent record is the source of truth (ADR-0012);
+  // this is just a convenience breakdown for the Run itself.
+  sprechenDrilledKinds?: Partial<Record<SprechenErrorTag, number>>
 }
 
 export interface QuizHistoryEntry {
