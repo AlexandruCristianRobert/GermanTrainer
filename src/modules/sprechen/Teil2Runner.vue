@@ -30,7 +30,7 @@ import {
   HINT_MOVES, MOVE_LABEL, SPRECHEN_REDEMITTEL, type Move
 } from '../../data/sprechenRedemittel'
 import { matchRedemittel, movePerTurn, pickMoveNudge } from '../../composables/useRedemittelMatch'
-import { lifetimeCounts } from '../../composables/useRedemittelYield'
+import { bumpRedemittelYield, lifetimeCounts } from '../../composables/useRedemittelYield'
 import { resolveArgumentBank, type ArgumentBank } from '../../data/sprechenArguments'
 import { loadCachedBank } from '../../composables/useSprechenArguments'
 import { SPRECHEN_TOPICS } from '../../data/sprechenTopics'
@@ -443,6 +443,13 @@ async function runGrading() {
       const counts: Partial<Record<SprechenErrorTag, number>> = {}
       for (const m of result.mistakes) counts[m.kind] = (counts[m.kind] ?? 0) + 1
 
+      // Bank the Redemittel yield now — the conversation is deleted moments
+      // from here and can never be re-counted (CONTEXT.md → Redemittel yield).
+      const matched = matchRedemittel(
+        d.turns.filter(t => t.role === 'learner').map(t => t.textDe)
+      ).map(r => r.id)
+      bumpRedemittelYield(matched, finishedAt)
+
       saveQuizRun({
         type: 'sprechen-teil2',
         startedAt: new Date(d.startedAt).toISOString(),
@@ -459,6 +466,7 @@ async function runGrading() {
           sprechenPraedikat: result.praedikat,
           sprechenCriteria: result.criteria.map(c => ({ key: c.key, score: c.score, maxPoints: c.maxPoints })),
           sprechenMistakeCounts: counts,
+          sprechenRedemittel: matched,
           kiTippCount: d.kiTippCount,
           sprechenStrengths: result.strengths,
           sprechenWeaknesses: result.weaknesses,
@@ -503,6 +511,7 @@ async function runGrading() {
     const stash: SprechenResultStash = {
       topic: d.topic,
       stance: d.stance,
+      modality: d.modality,
       turnTarget: d.turnTarget,
       turns: d.turns,
       kiTippCount: d.kiTippCount,

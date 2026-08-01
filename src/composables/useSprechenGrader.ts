@@ -170,7 +170,11 @@ export function learnerTurns(d: Pick<SprechenDiscussion, 'turns'>): DiscussionTu
   return d.turns.filter(t => t.role === 'learner')
 }
 
-function reAnchor(quote: string, text: string): { spanStart: number; spanEnd: number } {
+// Exported for Teil2Result.vue: the result page re-anchors a mistake's span
+// against the CURRENT turn text at render time rather than trusting the span
+// it happens to carry in the stash — a stored spanStart/spanEnd is only ever
+// a snapshot from grade time, and the result page must never rely on it.
+export function reAnchor(quote: string, text: string): { spanStart: number; spanEnd: number } {
   if (quote.length === 0) return { spanStart: -1, spanEnd: -1 }
   const exact = text.indexOf(quote)
   if (exact >= 0) return { spanStart: exact, spanEnd: exact + quote.length }
@@ -519,6 +523,11 @@ export const SPRECHEN_RESULT_KEY = 'gt:lastSprechenResult'
 export interface SprechenResultStash {
   topic: { id: string; titleDe: string; statementDe: string; source: 'seed' | 'custom' }
   stance: 'pro' | 'contra'
+  // The Discussion's Modality (CONTEXT.md → "Modality"), fixed at creation.
+  // The Auswertung needs it verbatim — not inferred from whether a turn
+  // happens to carry `speech` data — to pick `kohaerenz`'s spoken descriptor
+  // (§5.2: read the rubric's own variant, never paraphrase it).
+  modality: Modality
   turnTarget: number
   turns: DiscussionTurn[]
   kiTippCount: number
