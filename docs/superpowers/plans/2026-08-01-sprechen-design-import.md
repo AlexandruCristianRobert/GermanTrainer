@@ -2951,6 +2951,11 @@ Expected: FAIL — `'sprechen-drill'` is not assignable to `QuizHistoryType`.
   | 'sprechen-drill'
 ```
 
+Two things the compiler will also demand, both missing from earlier drafts of this task:
+
+- `QuizHistoryMeta` needs `sprechenDrilledKinds?: Partial<Record<SprechenErrorTag, number>>` — the drill Run records which error kinds it served, and reading an undeclared meta property is a TS2353 excess-property error.
+- The label map's real export name is `QUIZ_TYPE_LABEL`, singular — not `QUIZ_TYPE_LABELS`. Check the sibling test file rather than trusting the snippet.
+
 Then `npm run typecheck` and fill each error site:
 
 - `quiz-type-labels.ts` → `QUIZ_TYPE_LABELS`: `'Sprechen · Korrekturdrill'`; `QUIZ_TYPE_DE`: `'Sprechen · Korrekturdrill'`; add `'sprechen-drill'` to `QUIZ_TYPES_ORDER` immediately after `'sprechen-teil2'`.
@@ -3157,6 +3162,15 @@ onMounted(async () => {
 
 const current = computed(() => items.value[index.value] ?? null)
 
+/** Tally of the error kinds served so far, for the Run's meta. */
+const servedKinds = computed(() => {
+  const counts: Partial<Record<SprechenErrorTag, number>> = {}
+  for (const c of items.value.slice(0, attempted.value)) {
+    counts[c.kind] = (counts[c.kind] ?? 0) + 1
+  }
+  return counts
+})
+
 /** Split the context on the wrong span so it can be marked inline. */
 const parts = computed(() => {
   const c = current.value
@@ -3203,7 +3217,10 @@ function finish() {
     count: attempted.value,
     // First-try only: an item missed here stays open and returns in a LATER
     // session, which is a different Run (ADR-0013).
-    correct: firstTryCorrect.value
+    correct: firstTryCorrect.value,
+    // Which error kinds this sitting actually served — Task 12 declared this
+    // field, so write it rather than leaving it dead.
+    meta: { sprechenDrilledKinds: servedKinds.value }
   })
 }
 </script>
