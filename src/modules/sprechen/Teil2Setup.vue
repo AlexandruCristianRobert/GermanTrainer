@@ -470,10 +470,20 @@ function start() {
   padding: 6px 0; border-bottom: 1px solid var(--hairline); font-size: 14px;
 }
 .cl-title { font-family: var(--font-display); }
-.voice-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+/* Everything here has to survive the Prüfungskarte's 316px column. A native
+   <select> sizes itself to its widest <option>, and German voice names run to
+   "Microsoft Katja Online (Natural) - German (Germany)" — so without an
+   explicit min-width:0 the select refuses to shrink and hangs out of the card.
+   It gets a row to itself; tempo and Probe hören share the next one. */
+.voice-row { display: flex; gap: 10px 14px; align-items: center; flex-wrap: wrap; }
+.voice-row .select {
+  flex: 1 1 100%; min-width: 0; max-width: 100%;
+  font-size: 14px; text-overflow: ellipsis;
+}
 .rate-label {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 8px; flex: 1 1 150px; min-width: 0;
   font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--mute);
 }
+.rate-label input[type="range"] { flex: 1 1 60px; min-width: 0; }
 </style>
