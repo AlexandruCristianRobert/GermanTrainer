@@ -81,9 +81,13 @@
 .spr-titem-tags{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
 .spr-empty{padding:40px 4px;font-style:italic;color:var(--mute)}
 
-.spr-card{position:sticky;top:92px;border:1px solid var(--rule);background:var(--paper-card)}
-.spr-card-h{padding:14px 18px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;gap:10px;background:var(--paper-deep)}
-.spr-card-b{padding:18px}
+/* The card is bounded by the viewport and scrolls its own body, so the Start
+   button in .spr-card-go is on screen from the moment the page loads. Left
+   unbounded, a card taller than the viewport hangs its footer below the fold
+   and the learner has to scroll the whole topic list to find the CTA. */
+.spr-card{position:sticky;top:92px;display:flex;flex-direction:column;max-height:calc(100vh - 92px - 28px);border:1px solid var(--rule);background:var(--paper-card)}
+.spr-card-h{flex:0 0 auto;padding:14px 18px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;gap:10px;background:var(--paper-deep)}
+.spr-card-b{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:18px}
 .spr-card-topic{font-family:var(--font-display);font-size:20px;font-weight:500;letter-spacing:-.01em;line-height:1.25}
 .spr-card-stmt{font-family:var(--font-display);font-style:italic;font-size:15px;color:var(--ink-soft);margin:7px 0 0;line-height:1.45;text-wrap:pretty}
 .spr-card-none{font-style:italic;color:var(--mute);font-size:14.5px;line-height:1.5}
@@ -93,7 +97,7 @@
 .spr-card-side{display:flex;align-items:baseline;gap:8px;font-family:var(--font-display);font-size:16px}
 .spr-side-pro{color:var(--success)}
 .spr-side-contra{color:var(--clay)}
-.spr-card-go{padding:16px 18px;border-top:1px solid var(--rule)}
+.spr-card-go{flex:0 0 auto;padding:16px 18px;border-top:1px solid var(--rule)}
 .spr-card-go .btn{width:100%;justify-content:center}
 
 /* ── Prep: die Denkminute ── */
@@ -324,6 +328,10 @@
 @media (max-width:1080px){
   .spr-setup,.spr-run,.spr-notes-wrap{grid-template-columns:minmax(0,1fr);gap:34px}
   .spr-rail,.spr-card{position:static}
+  /* Full-width and in normal flow below the list — nothing to pin against, so
+     the card goes back to its natural height and the page does the scrolling. */
+  .spr-card{max-height:none}
+  .spr-card-b{overflow:visible}
   .spr-mast,.spr-verdict{grid-template-columns:minmax(0,1fr)}
   .spr-mast-main{border-right:0;border-bottom:1px solid var(--hairline)}
   .spr-verdict{gap:26px}
