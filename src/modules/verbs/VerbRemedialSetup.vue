@@ -6,6 +6,7 @@ import { useNouns } from '../../composables/useNouns'
 import { useSettings } from '../../composables/useSettings'
 import { useToast } from '../../composables/useToast'
 import { loadHistory } from '../../composables/useQuizHistory'
+import { isSpeechRecognitionSupported } from '../../composables/useSpeechRecognizer'
 import { NOUN_GROUPS } from '../../db/types'
 import { nounToRef, type NounRef } from '../../composables/useSentenceQuiz'
 import { verbToRef, buildVerbSpecs, levelLabel, type VerbRef } from '../../composables/useVerbSentenceQuiz'
@@ -19,11 +20,17 @@ const { sampleByGroups } = useNouns()
 const { canUseAi, load: loadSettings } = useSettings()
 const toast = useToast()
 
+// Static for the lifetime of the page — the browser either has
+// SpeechRecognition or it doesn't. Only SPOKEN depends on it; TYPED must
+// stay usable regardless.
+const micSupported = isSpeechRecognitionSupported()
+
 const wp = ref(computeVerbWeakPoints([]))
 type CountPreset = 10 | 15 | 20 | 'custom'
 const count = ref<CountPreset>(10)
 const customCount = ref(15)
 const wordHints = ref(true)
+const modality = ref<'typed' | 'spoken'>('typed')
 
 const effective = computed(() => count.value === 'custom' ? Math.max(1, customCount.value) : count.value)
 const weakVerbCount = computed(() => wp.value.weakVerbs.filter(v => v.wrong > 0).length)
@@ -34,6 +41,13 @@ onMounted(async () => {
   await loadSettings()
   wp.value = computeVerbWeakPoints(loadHistory())
 })
+
+function selectModality(m: 'typed' | 'spoken') {
+  // The segment is also :disabled in the template; this guard is defense in
+  // depth so nothing can ever land the learner on Gesprochen without a mic.
+  if (m === 'spoken' && !micSupported) return
+  modality.value = m
+}
 
 async function start() {
   if (!canUseAi.value) { toast.error('AI access needed', { description: 'Set a Gemini API key (or Local Claude) in Settings.' }); return }
@@ -51,8 +65,11 @@ async function start() {
   const nounPool = selectRemedialPool(weakNounRefs, allNouns)
 
   const specs = buildVerbSpecs(verbPool, nounPool, effective.value, 'mix', 'mix')
+  // Belt-and-suspenders: the segment can't be selected without a mic, but
+  // never let a stale ref value start an unsupported spoken run.
+  const effectiveModality: 'typed' | 'spoken' = modality.value === 'spoken' && !micSupported ? 'typed' : modality.value
   sessionStorage.setItem(STASH_KEY, JSON.stringify({
-    specs, runType: 'verb-remedial', level: levelLabel([...VERB_LEVELS]), wordHints: wordHints.value,
+    specs, runType: 'verb-remedial', level: levelLabel([...VERB_LEVELS]), modality: effectiveModality, wordHints: wordHints.value,
     meta: { levels: [], types: [], cases: [], groups: [], verbsPer: 'mix', nounsPer: 'mix' }
   }))
   router.push({ name: 'verbs-sentence-run' })
@@ -85,6 +102,22 @@ function back() { router.push({ name: 'verbs' }) }
         <button :class="{ active: wordHints }" @click="wordHints = true">On</button>
         <button :class="{ active: !wordHints }" @click="wordHints = false">Off</button>
       </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Modalität</div>
+      <div class="segmented">
+        <button :class="{ active: modality === 'typed' }" @click="selectModality('typed')">Getippt</button>
+        <button :class="{ active: modality === 'spoken' }" :disabled="!micSupported"
+          :title="!micSupported ? 'Dieser Browser kennt keine Spracherkennung.' : undefined"
+          @click="selectModality('spoken')">Gesprochen</button>
+      </div>
+      <p class="micro-mark grading-hint">
+        {{ modality === 'typed'
+          ? 'Getippt: Du schreibst die deutsche Übersetzung und bestätigst mit Enter.'
+          : 'Gesprochen: Leertaste startet die Aufnahme, sprich den Satz, Leertaste beendet sie und schickt die Antwort direkt ab — es gibt keinen Bearbeitungsschritt.' }}
+        <template v-if="!micSupported"> Dieser Browser kennt keine Spracherkennung — nur Getippt ist verfügbar.</template>
+      </p>
     </div>
 
     <div class="field">

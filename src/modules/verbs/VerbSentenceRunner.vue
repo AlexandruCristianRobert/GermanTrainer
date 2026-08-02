@@ -1,5 +1,17 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+//
+// Verb sentence quiz — ONE runner for both Modalities (CONTEXT.md → "Modality",
+// widened by this feature to cover this drill too, not just Sprechen).
+// Generation, progressive streaming, hints, grading, retry-wrong and history
+// are all shared. The only thing that switches on `spoken` is the composer at
+// the bottom of the card — an <input>+Enter for `typed`, a mic button for
+// `spoken` — reusing the exact interaction the Sprechen Diskussion
+// (Teil2Runner.vue) already teaches: Space starts the turn, Space again ends
+// it AND submits. There is no edit step: what the recognizer heard is what
+// was answered. Space therefore drives the whole run — speak, submit,
+// advance, speak — see onKey().
+//
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
 import { buildHintSegments, checkSentence, type HintSegment } from '../../composables/useSentenceQuiz'
@@ -11,6 +23,7 @@ import { planRampBatches, generateProgressively } from '../../composables/usePro
 import { saveQuizRun, type QuizHistoryType } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
 import { resolveAiClient } from '../../composables/localClaude'
+import { useSpeechRecognizer } from '../../composables/useSpeechRecognizer'
 import { useToast } from '../../composables/useToast'
 import { useSound } from '../../composables/useSound'
 import RetryModal from '../../components/RetryModal.vue'
@@ -21,6 +34,7 @@ const router = useRouter()
 const { settings, load: loadSettings } = useSettings()
 const toast = useToast()
 const sound = useSound()
+const recognizer = useSpeechRecognizer('de-DE')
 let chimed = false
 
 interface Stash {
@@ -28,6 +42,7 @@ interface Stash {
   runType?: QuizHistoryType
   level?: string
   wordHints?: boolean
+  modality?: 'typed' | 'spoken'
   meta?: { levels: string[]; types: string[]; cases: string[]; groups: string[]; verbsPer: 1 | 2 | 'mix'; nounsPer: 1 | 2 | 'mix' }
 }
 
@@ -53,6 +68,14 @@ const awaitingNext = ref(false)    // outran generation
 const inputRef = ref<HTMLInputElement | null>(null)
 const nextBtnRef = ref<HTMLButtonElement | null>(null)
 
+// Fixed for the run, same as Sprechen's Modality — set once in onMounted from
+// the stash, never toggled back on except by the denied-mic fallback below.
+const spoken = ref(false)
+/** True from the start of endAndSubmit() until it resolves — gates a
+ *  re-entrant Space from restarting the recognizer under an in-flight end()
+ *  and wiping the buffer that promise is about to resolve from. */
+const ending = ref(false)
+
 const ready = computed(() => deck.value.length > 0 || generationDone.value || error.value !== null)
 const total = computed(() => expected.value)
 const current = computed<GeneratedVerbSentence | null>(() => deck.value[index.value] ?? null)
@@ -63,6 +86,15 @@ const generatedTotal = computed(() => deck.value.length)
 const wrongCount = computed(() => generatedTotal.value - correctCount.value)
 const allCorrect = computed(() => finished.value && wrongCount.value === 0)
 const isLastGenerated = computed(() => index.value + 1 >= deck.value.length)
+
+// Spoken composer only — the transcript rendered where the typed <input> was.
+const micListening = computed(() => phase.value === 'input' && recognizer.listening.value)
+const micPlaceholder = computed(() => phase.value === 'input' && !recognizer.listening.value && userInput.value.trim().length === 0)
+const micTranscript = computed(() => {
+  if (micListening.value) return recognizer.liveText.value || '…'
+  if (userInput.value) return userInput.value
+  return phase.value === 'input' ? 'Deutsch…' : ''
+})
 
 // Tap-to-toggle reveal, keyed by segment index.
 const revealed = ref<Set<number>>(new Set())
@@ -94,6 +126,15 @@ onMounted(async () => {
   level.value = stash.level ?? 'A2–B1'
   wordHints.value = stash.wordHints !== false
   metaInfo.value = stash.meta
+  // A stash that says 'spoken' still falls back to typed when the browser has
+  // no SpeechRecognition — the setup page's mic gate should already prevent
+  // this, but the runner does not trust it blindly (spec: "Failure modes").
+  spoken.value = stash.modality === 'spoken' && recognizer.supported
+  // Space is only ever meaningful in a spoken run — bound here, torn down in
+  // onUnmounted. Modality is fixed for the run (barring the denied fallback,
+  // which flips spoken.value but leaves this listener attached; onKey's own
+  // `if (!spoken.value) return` makes it a no-op from then on).
+  if (spoken.value) window.addEventListener('keydown', onKey)
   startedAt.value = Date.now()
   answers.value = []
 
@@ -110,7 +151,7 @@ onMounted(async () => {
       for (const s of sentences) { deck.value.push(s); answers.value.push('') }
       if (!chimed && deck.value.length > 0) { chimed = true; sound.playReady() }
       if (awaitingNext.value) tryAdvance()
-      nextTick(() => { if (deck.value.length === sentences.length) inputRef.value?.focus() })
+      nextTick(() => { if (!spoken.value && deck.value.length === sentences.length) inputRef.value?.focus() })
     },
     concurrency: 4
   }).finally(() => {
@@ -118,6 +159,23 @@ onMounted(async () => {
     if (deck.value.length === 0) error.value = 'The model returned no usable sentences. Go back and try again.'
     if (awaitingNext.value) tryAdvance()
   })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKey)
+  recognizer.abort()
+})
+
+// Denied is terminal for voice (CONTEXT.md → "Modality"): the run drops to
+// the typed composer, a toast explains, and the text input takes focus once
+// it exists again. The quiz continues — no answers are lost.
+watch(recognizer.error, err => {
+  if (err?.kind !== 'denied') return
+  spoken.value = false
+  toast.error('Kein Mikrofonzugriff', {
+    description: 'Der Rest des Tests läuft jetzt getippt weiter — deine bisherigen Antworten bleiben erhalten.'
+  })
+  nextTick(() => inputRef.value?.focus())
 })
 
 async function submit() {
@@ -132,7 +190,8 @@ async function submit() {
       model: settings.value.model,
       english: s.english, german: s.german,
       verbsGerman: s.verbs.map(v => v.german), nounsGerman: s.nouns.map(n => n.german),
-      userAnswer: userInput.value
+      userAnswer: userInput.value,
+      spoken: spoken.value
     })
     verdict = { index: i, correct: grade.correct, correction: s.german, tip: grade.tip, tags: grade.tags }
   } catch {
@@ -164,7 +223,8 @@ function finishQuiz() {
       verbSentenceLevels: metaInfo.value?.levels, verbSentenceTypes: metaInfo.value?.types,
       verbSentenceCases: metaInfo.value?.cases, verbSentenceGroups: metaInfo.value?.groups,
       verbsPerSentence: metaInfo.value?.verbsPer, verbSentenceNounsPer: metaInfo.value?.nounsPer,
-      verbSentenceHints: wordHints.value, verbSentenceItems: items
+      verbSentenceHints: wordHints.value, verbSentenceItems: items,
+      verbSentenceModality: spoken.value ? 'spoken' : 'typed'
     }
   })
 }
@@ -177,7 +237,7 @@ function tryAdvance() {
     phase.value = 'input'
     awaitingNext.value = false
     revealed.value = new Set()
-    nextTick(() => inputRef.value?.focus())
+    nextTick(() => { if (!spoken.value) inputRef.value?.focus() })
   } else if (generationDone.value) {
     finishQuiz()
   } else {
@@ -196,6 +256,54 @@ function onEnter(e: KeyboardEvent) {
   else if (phase.value === 'graded') next()
 }
 
+/** Space toggles the mic — but ONLY in a spoken run, never while typing in a
+ *  field, and never on a key-repeat (holding Space down fires repeated
+ *  keydowns; only the first should act, or a held key re-enters toggleMic()
+ *  while end() is in flight). */
+function onKey(e: KeyboardEvent) {
+  if (!spoken.value) return
+  if (e.code !== 'Space') return
+  if (e.repeat) return
+  const el = e.target as HTMLElement | null
+  if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return
+  if (ending.value) return
+  // Not recording and not on an input-phase card: let Space fall through
+  // WITHOUT preventDefault, so the browser's native Space-activates-the-
+  // focused-button carries the learner from the graded card to the next one.
+  // Space therefore drives the whole run — speak, submit, advance, speak.
+  if (phase.value !== 'input' && !recognizer.listening.value) return
+  e.preventDefault()
+  void toggleMic()
+}
+
+async function toggleMic() {
+  if (ending.value) return
+  if (recognizer.listening.value) {
+    await endAndSubmit()
+  } else if (phase.value === 'input' && current.value) {
+    recognizer.start()
+  }
+}
+
+/** Ends the turn and submits whatever the recognizer heard. Empty is not a
+ *  wrong answer — nothing is graded, nothing is marked, the learner stays on
+ *  the card and tries again. */
+async function endAndSubmit() {
+  ending.value = true
+  try {
+    const result = await recognizer.end()
+    const text = result.text.trim()
+    if (text.length === 0) {
+      toast.error('Nichts verstanden', { description: 'Nochmal — Leertaste startet die Aufnahme.' })
+      return
+    }
+    userInput.value = text
+    await submit()
+  } finally {
+    ending.value = false
+  }
+}
+
 function retryWrong() {
   const wrong = deck.value.filter((_, i) => !verdicts.value.get(i)?.correct)
   if (wrong.length === 0) return
@@ -207,7 +315,7 @@ function retryWrong() {
   index.value = 0; userInput.value = ''; phase.value = 'input'; finished.value = false
   revealed.value = new Set()
   startedAt.value = Date.now(); historySaved.value = false
-  nextTick(() => inputRef.value?.focus())
+  nextTick(() => { if (!spoken.value) inputRef.value?.focus() })
 }
 
 function newQuiz() { router.push({ name: 'verbs-sentence' }) }
@@ -292,7 +400,24 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
           <div class="en-hint">Translate into German.</div>
         </div>
 
-        <form class="prep-input-wrap" @submit.prevent="submit">
+        <div v-if="spoken" class="mic-wrap">
+          <div v-if="micListening" class="mic-live-badge">● Aufnahme läuft</div>
+          <div class="input prep-input mic-transcript" :class="{ 'mic-placeholder': micPlaceholder }"
+            :style="phase === 'graded' ? { color: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)', borderBottomColor: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)' } : undefined"
+          >{{ micTranscript }}</div>
+          <div class="mic-row">
+            <template v-if="phase !== 'graded'">
+              <button class="btn mic-btn" :class="(recognizer.listening.value || ending) ? 'btn-danger' : 'btn-accent'" type="button"
+                :disabled="phase === 'checking'" @click="toggleMic">
+                {{ (recognizer.listening.value || ending) ? '■ Antwort abgeben' : '● Sprechen' }}
+              </button>
+              <span class="mic-hint">{{ (recognizer.listening.value || ending) ? 'Leertaste beendet — und schickt ab.' : 'Leertaste oder Knopf startet die Aufnahme.' }}</span>
+            </template>
+            <button v-else ref="nextBtnRef" type="button" class="btn btn-accent" @click="next">{{ (isLastGenerated && generationDone) ? 'Finish quiz' : 'Next' }} <span aria-hidden="true">→</span></button>
+          </div>
+        </div>
+
+        <form v-else class="prep-input-wrap" @submit.prevent="submit">
           <input ref="inputRef" class="input prep-input" type="text" placeholder="Deutsch…" v-model="userInput"
             :readonly="phase !== 'input'" autocomplete="off" spellcheck="false" @keydown.enter="onEnter"
             :style="phase === 'graded' ? { color: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)', borderBottomColor: currentVerdict?.correct ? 'var(--success)' : 'var(--danger)' } : undefined" />
@@ -333,6 +458,16 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 .prep-input-wrap { display: flex; gap: 12px; align-items: flex-end; margin-top: 36px; }
 .prep-input { flex: 1; text-align: center; font-size: 22px; border: 0; border-bottom: 2px solid var(--rule); padding: 8px 0; }
 .prep-input:focus { border-bottom-color: var(--accent); outline: none; }
+/* Spoken composer — replaces .prep-input-wrap entirely (see VerbSentenceRunner
+   header comment). .mic-transcript reuses .prep-input's type so the two
+   composers read as the same drill. */
+.mic-wrap { margin-top: 36px; text-align: center; }
+.mic-live-badge { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--danger); margin-bottom: 8px; }
+.mic-transcript { min-height: 1.3em; }
+.mic-placeholder { color: var(--mute); font-style: italic; }
+.mic-row { display: flex; gap: 14px; align-items: center; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+.mic-btn { min-width: 190px; justify-content: center; }
+.mic-hint { color: var(--mute); font-size: 13px; font-style: italic; }
 .prep-feedback { margin-top: 18px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
 .prep-feedback-mark { font-family: var(--font-display); font-style: italic; font-size: 17px; }
 .prep-feedback-ok { color: var(--success); }

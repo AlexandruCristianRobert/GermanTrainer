@@ -386,6 +386,8 @@ export interface GradeVerbOptions {
   verbsGerman: string[]  // drilled verb infinitives
   nounsGerman: string[]  // theme noun heads
   userAnswer: string
+  /** The learner spoke the answer and a browser speech recognizer transcribed it. */
+  spoken?: boolean
 }
 
 export interface VerbAnswerGrade {
@@ -406,27 +408,53 @@ const VERB_GRADE_SCHEMA = {
   required: ['correct']
 }
 
+const VERB_GRADE_SYSTEM_TYPED =
+  'You are a German teacher grading one translation exercise. The learner was shown the ENGLISH ' +
+  'sentence and typed a GERMAN translation. Respond ONLY as JSON {"correct": boolean, "tip": string, ' +
+  '"errorTags": string[]} — no prose, no markdown fences. Set "correct" true when the German is a ' +
+  'correct, grammatical translation that uses the target verb(s) appropriately; accept natural ' +
+  'alternative phrasings, synonyms, and word order — do not require an exact match to the reference. ' +
+  'When "correct" is false, set "tip" to ONE short English sentence pinpointing the mistake, and set ' +
+  '"errorTags" to every applicable value from exactly: "conjugation" (right verb, wrong form — tense, ' +
+  'person, auxiliary, or Partizip), "case" (wrong case for an object the verb governs), "word-order" ' +
+  '(verb-second, verb-final, or split separable-prefix placement wrong), "noun" (a wrong theme noun — ' +
+  'word, gender, or form), "typo" (a slip elsewhere). When "correct" is true, "tip" may be empty and ' +
+  '"errorTags" omitted.'
+
+// Spoken variant: the learner SPOKE the German and a browser speech recognizer
+// transcribed it. The transcript has no reliable capitalisation and no
+// punctuation at all, so the grader must ignore both — and the spelling in
+// the transcript is the recognizer's choice, not the learner's, so "typo"
+// must never be assigned (see the deterministic strip in gradeVerbAnswer,
+// which backs this up even if the model ignores the instruction).
+const VERB_GRADE_SYSTEM_SPOKEN =
+  'You are a German teacher grading one translation exercise. The learner was shown the ENGLISH ' +
+  'sentence and SPOKE a GERMAN translation, which a browser speech recognizer transcribed. Judge ' +
+  'only the German words as transcribed; ignore capitalisation and punctuation entirely — the ' +
+  'transcript has neither reliably. Respond ONLY as JSON {"correct": boolean, "tip": string, ' +
+  '"errorTags": string[]} — no prose, no markdown fences. Set "correct" true when the German is a ' +
+  'correct, grammatical translation that uses the target verb(s) appropriately; accept natural ' +
+  'alternative phrasings, synonyms, and word order — do not require an exact match to the reference. ' +
+  'When "correct" is false, set "tip" to ONE short English sentence pinpointing the mistake, and set ' +
+  '"errorTags" to every applicable value from exactly: "conjugation" (right verb, wrong form — tense, ' +
+  'person, auxiliary, or Partizip), "case" (wrong case for an object the verb governs), "word-order" ' +
+  '(verb-second, verb-final, or split separable-prefix placement wrong), "noun" (a wrong theme noun — ' +
+  'word, gender, or form). NEVER return "typo" — the spelling in the transcript is the speech ' +
+  "recognizer's, not the learner's. When \"correct\" is true, \"tip\" may be empty and \"errorTags\" omitted."
+
 export function buildVerbGradePrompt(opts: GradeVerbOptions): { system: string; user: string } {
-  const system =
-    'You are a German teacher grading one translation exercise. The learner was shown the ENGLISH ' +
-    'sentence and typed a GERMAN translation. Respond ONLY as JSON {"correct": boolean, "tip": string, ' +
-    '"errorTags": string[]} — no prose, no markdown fences. Set "correct" true when the German is a ' +
-    'correct, grammatical translation that uses the target verb(s) appropriately; accept natural ' +
-    'alternative phrasings, synonyms, and word order — do not require an exact match to the reference. ' +
-    'When "correct" is false, set "tip" to ONE short English sentence pinpointing the mistake, and set ' +
-    '"errorTags" to every applicable value from exactly: "conjugation" (right verb, wrong form — tense, ' +
-    'person, auxiliary, or Partizip), "case" (wrong case for an object the verb governs), "word-order" ' +
-    '(verb-second, verb-final, or split separable-prefix placement wrong), "noun" (a wrong theme noun — ' +
-    'word, gender, or form), "typo" (a slip elsewhere). When "correct" is true, "tip" may be empty and ' +
-    '"errorTags" omitted.'
+  const system = opts.spoken ? VERB_GRADE_SYSTEM_SPOKEN : VERB_GRADE_SYSTEM_TYPED
   const verbs = opts.verbsGerman.length ? opts.verbsGerman.join(', ') : '(any fitting verb)'
   const nouns = opts.nounsGerman.length ? opts.nounsGerman.join(', ') : '(none)'
+  const answerLabel = opts.spoken
+    ? "LEARNER'S SPOKEN GERMAN ANSWER (transcript):"
+    : "LEARNER'S GERMAN ANSWER:"
   const user =
     `ENGLISH (source shown to the learner): ${opts.english}\n` +
     `GERMAN (reference translation): ${opts.german}\n` +
     `TARGET VERB(S): ${verbs}\n` +
     `THEME NOUN(S): ${nouns}\n` +
-    `LEARNER'S GERMAN ANSWER: ${opts.userAnswer}`
+    `${answerLabel} ${opts.userAnswer}`
   return { system, user }
 }
 
@@ -465,6 +493,13 @@ export async function gradeVerbAnswer(client: AiClient, opts: GradeVerbOptions):
       try { parsed = JSON.parse(response.text ?? '') } catch { lastError = 'malformed JSON'; continue }
       const grade = parseVerbGrade(parsed)
       if (grade === null) { lastError = 'validation failed'; continue }
+      // Deterministic guarantee, not merely a prompt request: a spoken answer's
+      // spelling is the speech recognizer's, not the learner's, so "typo" must
+      // never reach history even if the model ignores the system prompt above.
+      if (opts.spoken && grade.tags) {
+        const tags = grade.tags.filter(t => t !== 'typo')
+        if (tags.length > 0) grade.tags = tags; else delete grade.tags
+      }
       return grade
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err)

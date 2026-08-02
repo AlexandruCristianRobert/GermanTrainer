@@ -5,6 +5,7 @@ import { useVerbs } from '../../composables/useVerbs'
 import { useNouns } from '../../composables/useNouns'
 import { useSettings } from '../../composables/useSettings'
 import { useToast } from '../../composables/useToast'
+import { isSpeechRecognitionSupported } from '../../composables/useSpeechRecognizer'
 import { VERB_LEVELS, VERB_TYPES, VERB_CASES, migrateVerbLevels, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
 import { NOUN_GROUPS, type NounGroup } from '../../db/types'
 import { nounToRef } from '../../composables/useSentenceQuiz'
@@ -19,12 +20,18 @@ const { sampleByGroups, countsByGroup } = useNouns()
 const { settings, canUseAi, load: loadSettings } = useSettings()
 const toast = useToast()
 
+// Static for the lifetime of the page — the browser either has
+// SpeechRecognition or it doesn't. Only SPOKEN depends on it; TYPED must
+// stay usable regardless.
+const micSupported = isSpeechRecognitionSupported()
+
 const levels = ref<VerbLevel[]>([...VERB_LEVELS])
 const types = ref<VerbType[]>([...VERB_TYPES])
 const cases = ref<VerbCase[]>([...VERB_CASES])
 const groups = ref<NounGroup[]>([])
 const verbsPer = ref<WordsPer>('mix')
 const nounsPer = ref<WordsPer>('mix')
+const modality = ref<'typed' | 'spoken'>('typed')
 const wordHints = ref(true)
 type CountPreset = 10 | 15 | 20 | 25 | 'custom'
 const count = ref<CountPreset>(10)
@@ -36,7 +43,8 @@ const nounCounts = ref<Record<NounGroup, number>>(
 
 interface Stored {
   levels?: VerbLevel[]; types?: VerbType[]; cases?: VerbCase[]; groups?: NounGroup[]
-  verbsPer?: WordsPer; nounsPer?: WordsPer; wordHints?: boolean; count?: CountPreset; customCount?: number
+  verbsPer?: WordsPer; nounsPer?: WordsPer; modality?: 'typed' | 'spoken'; wordHints?: boolean
+  count?: CountPreset; customCount?: number
 }
 function loadStored(): Stored | null {
   try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) as Stored : null } catch { return null }
@@ -45,7 +53,7 @@ function saveStored(): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       levels: [...levels.value], types: [...types.value], cases: [...cases.value], groups: [...groups.value],
-      verbsPer: verbsPer.value, nounsPer: nounsPer.value, wordHints: wordHints.value,
+      verbsPer: verbsPer.value, nounsPer: nounsPer.value, modality: modality.value, wordHints: wordHints.value,
       count: count.value, customCount: customCount.value
     } satisfies Stored))
   } catch { /* ignore */ }
@@ -62,13 +70,30 @@ onMounted(async () => {
     if (Array.isArray(s.groups)) groups.value = s.groups.filter(g => (NOUN_GROUPS as readonly string[]).includes(g))
     if (s.verbsPer === 1 || s.verbsPer === 2 || s.verbsPer === 'mix') verbsPer.value = s.verbsPer
     if (s.nounsPer === 1 || s.nounsPer === 2 || s.nounsPer === 'mix') nounsPer.value = s.nounsPer
+    if (s.modality === 'typed' || s.modality === 'spoken') modality.value = s.modality
     if (typeof s.wordHints === 'boolean') wordHints.value = s.wordHints
     if (s.count !== undefined) count.value = s.count
     if (typeof s.customCount === 'number' && s.customCount > 0) customCount.value = s.customCount
   }
   if (groups.value.length === 0) groups.value = NOUN_GROUPS.filter(g => (nounCounts.value[g] ?? 0) > 0)
+
+  // A stored preference for Gesprochen can predate this browser session — never
+  // leave the learner stuck on an unselectable modality.
+  if (modality.value === 'spoken' && !micSupported) {
+    modality.value = 'typed'
+    toast.info('Gesprochen ist in diesem Browser nicht verfügbar', {
+      description: 'Auf Getippt umgeschaltet — das läuft überall.'
+    })
+  }
 })
-watch([levels, types, cases, groups, verbsPer, nounsPer, wordHints, count, customCount], saveStored, { deep: true })
+watch([levels, types, cases, groups, verbsPer, nounsPer, modality, wordHints, count, customCount], saveStored, { deep: true })
+
+function selectModality(m: 'typed' | 'spoken') {
+  // The segment is also :disabled in the template; this guard is defense in
+  // depth so nothing can ever land the learner on Gesprochen without a mic.
+  if (m === 'spoken' && !micSupported) return
+  modality.value = m
+}
 
 const availableVerbs = computed(() => filter({ levels: levels.value, types: types.value, cases: cases.value }).length)
 const effective = computed(() => count.value === 'custom' ? Math.max(1, customCount.value) : count.value)
@@ -94,10 +119,15 @@ async function start() {
   const verbPool = filter({ levels: levels.value, types: types.value, cases: cases.value }).map(verbToRef)
   const nounPool = (await sampleByGroups(groups.value, 100000)).map(nounToRef)
   const specs = buildVerbSpecs(verbPool, nounPool, n, verbsPer.value, nounsPer.value)
+  // Belt-and-suspenders: the segment can't be selected without a mic and we
+  // fall back on mount, but never let a stale ref value start an
+  // unsupported spoken run.
+  const effectiveModality: 'typed' | 'spoken' = modality.value === 'spoken' && !micSupported ? 'typed' : modality.value
   sessionStorage.setItem(STASH_KEY, JSON.stringify({
     specs,
     runType: 'verb-sentence',
     level: levelLabel(levels.value),
+    modality: effectiveModality,
     wordHints: wordHints.value,
     meta: { levels: levels.value, types: types.value, cases: cases.value, groups: groups.value, verbsPer: verbsPer.value, nounsPer: nounsPer.value }
   }))
@@ -115,7 +145,7 @@ function back() { router.push({ name: 'verbs' }) }
         <h1 class="section-title">Setup<em>.</em></h1>
         <p class="section-subtitle">
           Pick a verb pool and a noun theme. The AI writes one English+German sentence per item using
-          1–2 of your verbs and 1–2 nouns — you read the English and type the German, and the AI grades it.
+          1–2 of your verbs and 1–2 nouns — you read the English and type or speak the German, and the AI grades it.
         </p>
       </div>
     </header>
@@ -195,6 +225,22 @@ function back() { router.push({ name: 'verbs' }) }
         <button :class="{ active: nounsPer === 2 }" @click="nounsPer = 2">2</button>
         <button :class="{ active: nounsPer === 'mix' }" @click="nounsPer = 'mix'">1–2 (mixed)</button>
       </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Modalität</div>
+      <div class="segmented">
+        <button :class="{ active: modality === 'typed' }" @click="selectModality('typed')">Getippt</button>
+        <button :class="{ active: modality === 'spoken' }" :disabled="!micSupported"
+          :title="!micSupported ? 'Dieser Browser kennt keine Spracherkennung.' : undefined"
+          @click="selectModality('spoken')">Gesprochen</button>
+      </div>
+      <p class="micro-mark grading-hint">
+        {{ modality === 'typed'
+          ? 'Getippt: Du schreibst die deutsche Übersetzung und bestätigst mit Enter.'
+          : 'Gesprochen: Leertaste startet die Aufnahme, sprich den Satz, Leertaste beendet sie und schickt die Antwort direkt ab — es gibt keinen Bearbeitungsschritt.' }}
+        <template v-if="!micSupported"> Dieser Browser kennt keine Spracherkennung — nur Getippt ist verfügbar.</template>
+      </p>
     </div>
 
     <div class="field">

@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.16.00'
+export const APP_VERSION = '1.16.01'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.16.01', date: '2026-08-02', kind: 'polish',
+    title: 'Satzübersetzung · say it instead of typing it',
+    notes: [
+      '<strong>The verb sentence quiz can now be spoken.</strong> Pick <em>Gesprochen</em> at setup and the text field is replaced by a microphone: Leertaste starts the recording, you say the German, Leertaste again ends it <em>and</em> submits. There is no edit step — what the recogniser heard is what you answered — so the whole run goes by keyboard-free: speak, submit, advance, speak. The remedial drill offers the same choice.',
+      '<strong>The grader knows it is reading a transcript.</strong> Speech recognition produces no punctuation and no reliable capitalisation, so a spoken answer is judged on the words alone and can never be marked down for a <code>typo</code> — that spelling is the recogniser\'s, not yours. The same rule the Diskussion already applies to its own spoken mistakes.',
+      '<strong>Your runs remember which way you answered.</strong> Same sentences, same grader, same kind of run either way — so a typed and a spoken score are directly comparable. If the browser has no speech recognition the option is greyed out, and if you refuse the microphone mid-quiz it simply carries on typed with nothing lost.'
+    ]
+  },
   {
     version: '1.16.00', date: '2026-08-01', kind: 'major',
     title: 'Sprechen · the editorial revamp, plus the Korrekturdrill',
