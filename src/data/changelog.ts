@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.16.01'
+export const APP_VERSION = '1.16.02'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.16.02', date: '2026-08-02', kind: 'fix',
+    title: 'Themenwahl · the Prüfungskarte stays where you can reach it',
+    notes: [
+      '<strong>Start is on screen now.</strong> The exam card is pinned, but a card taller than the window left its Start button below the fold — and with a hundred topics above it, the only way to reach the button was to scroll to the very bottom of the page. The card is now bounded by the window and scrolls its own fields, so its heading and its Start button are both always in view.',
+      '<strong>The voice picker fits.</strong> A dropdown sizes itself to its longest entry, and Windows voice names run to <em>Microsoft Katja Online (Natural) - German (Germany)</em> — nearly twice the width of the card, so it hung out over the topic list. It now takes a line of its own and shortens the name instead of the card, with Tempo and <em>Probe hören</em> on the line beneath.'
+    ]
+  },
   {
     version: '1.16.01', date: '2026-08-02', kind: 'polish',
     title: 'Satzübersetzung · say it instead of typing it',
