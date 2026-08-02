@@ -8,8 +8,11 @@
 // `spoken` — reusing the exact interaction the Sprechen Diskussion
 // (Teil2Runner.vue) already teaches: Space starts the turn, Space again ends
 // it AND submits. There is no edit step: what the recognizer heard is what
-// was answered. Space therefore drives the whole run — speak, submit,
-// advance, speak — see onKey().
+// was answered. During the answer phase Space records then submits; once a
+// card is graded, Space instead plays the reference sentence aloud
+// (hearReference(), via useSpeechVoice()) and Enter advances — see onKey().
+// Playback is available in BOTH Modalities: it is output, not input, so
+// unlike the composer above it is not a property of Modality.
 //
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -24,6 +27,7 @@ import { saveQuizRun, type QuizHistoryType } from '../../composables/useQuizHist
 import { useSettings } from '../../composables/useSettings'
 import { resolveAiClient } from '../../composables/localClaude'
 import { useSpeechRecognizer } from '../../composables/useSpeechRecognizer'
+import { useSpeechVoice } from '../../composables/useSpeechVoice'
 import { useToast } from '../../composables/useToast'
 import { useSound } from '../../composables/useSound'
 import RetryModal from '../../components/RetryModal.vue'
@@ -35,6 +39,7 @@ const { settings, load: loadSettings } = useSettings()
 const toast = useToast()
 const sound = useSound()
 const recognizer = useSpeechRecognizer('de-DE')
+const voice = useSpeechVoice()
 let chimed = false
 
 interface Stash {
@@ -87,6 +92,13 @@ const wrongCount = computed(() => generatedTotal.value - correctCount.value)
 const allCorrect = computed(() => finished.value && wrongCount.value === 0)
 const isLastGenerated = computed(() => index.value + 1 >= deck.value.length)
 
+// Same bar Teil2Setup applies before it offers a spoken run at all: TTS
+// support AND at least one German voice. A browser can have speechSynthesis
+// but no German voice installed — reading German in an English voice is the
+// same failure Sprechen already treats as "no voice available", so playback
+// is simply not offered rather than offered broken.
+const canHear = computed(() => voice.supported && voice.voices.value.length > 0)
+
 // Spoken composer only — the transcript rendered where the typed <input> was.
 const micListening = computed(() => phase.value === 'input' && recognizer.listening.value)
 const micPlaceholder = computed(() => phase.value === 'input' && !recognizer.listening.value && userInput.value.trim().length === 0)
@@ -130,11 +142,13 @@ onMounted(async () => {
   // no SpeechRecognition — the setup page's mic gate should already prevent
   // this, but the runner does not trust it blindly (spec: "Failure modes").
   spoken.value = stash.modality === 'spoken' && recognizer.supported
-  // Space is only ever meaningful in a spoken run — bound here, torn down in
-  // onUnmounted. Modality is fixed for the run (barring the denied fallback,
-  // which flips spoken.value but leaves this listener attached; onKey's own
-  // `if (!spoken.value) return` makes it a no-op from then on).
-  if (spoken.value) window.addEventListener('keydown', onKey)
+  // Bound in BOTH Modalities — a typed run needs Space (hear the reference)
+  // and Enter (advance) on its graded cards just as much as a spoken run
+  // needs them for recording. Torn down in onUnmounted. Modality is fixed
+  // for the run (barring the denied fallback, which flips spoken.value but
+  // leaves this listener attached; onKey's own phase/Modality guards make it
+  // behave correctly either way).
+  window.addEventListener('keydown', onKey)
   startedAt.value = Date.now()
   answers.value = []
 
@@ -164,6 +178,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('keydown', onKey)
   recognizer.abort()
+  voice.cancel()
 })
 
 // Denied is terminal for voice (CONTEXT.md → "Modality"): the run drops to
@@ -206,6 +221,7 @@ async function submit() {
 }
 
 function finishQuiz() {
+  voice.cancel()
   finished.value = true
   awaitingNext.value = false
   if (historySaved.value) return
@@ -231,6 +247,7 @@ function finishQuiz() {
 
 /** Move to the next card, or wait for generation, or finish. */
 function tryAdvance() {
+  voice.cancel() // a half-spoken sentence must never bleed into the next card
   if (index.value + 1 < deck.value.length) {
     index.value++
     userInput.value = ''
@@ -256,24 +273,62 @@ function onEnter(e: KeyboardEvent) {
   else if (phase.value === 'graded') next()
 }
 
-/** Space toggles the mic — but ONLY in a spoken run, never while typing in a
- *  field, and never on a key-repeat (holding Space down fires repeated
- *  keydowns; only the first should act, or a held key re-enters toggleMic()
- *  while end() is in flight). */
+/** Replays the reference sentence from the start — never the learner's own
+ *  answer, even when it was correct (spec: "What is spoken?"). Cancelling
+ *  first means Space always means the same thing however often it is
+ *  pressed, so there is no "resume" state to reason about. */
+function hearReference() {
+  if (phase.value !== 'graded' || !current.value || !canHear.value) return
+  voice.cancel()
+  void voice.speak(currentVerdict.value?.correction || current.value.german)
+}
+
+/** One window-level handler for both keys, evaluated in this exact order
+ *  (spec: "Keyboard, precisely"):
+ *   1. not Space/Enter, or a key-repeat → ignore
+ *   2. focus is in an INPUT/TEXTAREA/contentEditable → ignore, so typing a
+ *      space still types a space and the typed composer's own Enter-to-
+ *      submit (onEnter, on the <input>) still works
+ *   3. an end() is in flight → ignore
+ *   4. Space, spoken run, and (phase is 'input' or the recognizer is
+ *      listening) → record / end-and-submit, exactly as before this feature
+ *   5. Space, phase is 'graded', playback available → speak the reference
+ *   6. Enter, phase is 'graded' → next
+ *   7. anything else → return WITHOUT preventDefault, so e.g. Space still
+ *      activates a focused Next button when playback is unavailable — a
+ *      learner who can hear nothing keeps a working keyboard flow rather
+ *      than a dead key.
+ *  Both handled cases (4/5 and 6) call preventDefault(), which also cancels
+ *  the browser's native Space/Enter-activates-the-focused-button. That
+ *  matters for Enter specifically: after clicking the Anhören button, focus
+ *  sits on *it*, so without this explicit Enter case, Enter would replay the
+ *  reference (native button activation) instead of advancing. Owning both
+ *  keys at the window makes the mapping independent of what happens to hold
+ *  focus. */
 function onKey(e: KeyboardEvent) {
-  if (!spoken.value) return
-  if (e.code !== 'Space') return
+  if (e.code !== 'Space' && e.code !== 'Enter') return
   if (e.repeat) return
   const el = e.target as HTMLElement | null
   if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return
   if (ending.value) return
-  // Not recording and not on an input-phase card: let Space fall through
-  // WITHOUT preventDefault, so the browser's native Space-activates-the-
-  // focused-button carries the learner from the graded card to the next one.
-  // Space therefore drives the whole run — speak, submit, advance, speak.
-  if (phase.value !== 'input' && !recognizer.listening.value) return
-  e.preventDefault()
-  void toggleMic()
+  if (e.code === 'Space' && spoken.value && (phase.value === 'input' || recognizer.listening.value)) {
+    e.preventDefault()
+    void toggleMic()
+    return
+  }
+  if (e.code === 'Space' && phase.value === 'graded' && canHear.value) {
+    e.preventDefault()
+    hearReference()
+    return
+  }
+  // Explicit Enter case: after clicking Anhören, focus sits on that button,
+  // so without this Enter would replay the reference (native button
+  // activation) instead of advancing.
+  if (e.code === 'Enter' && phase.value === 'graded') {
+    e.preventDefault()
+    next()
+    return
+  }
 }
 
 async function toggleMic() {
@@ -305,6 +360,7 @@ async function endAndSubmit() {
 }
 
 function retryWrong() {
+  voice.cancel()
   const wrong = deck.value.filter((_, i) => !verdicts.value.get(i)?.correct)
   if (wrong.length === 0) return
   deck.value = shuffle(wrong)
@@ -429,6 +485,10 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
         <div v-if="phase === 'graded' && currentVerdict" class="prep-feedback">
           <span class="prep-feedback-mark" :class="currentVerdict.correct ? 'prep-feedback-ok' : 'prep-feedback-bad'">{{ currentVerdict.correct ? '✓ Richtig.' : '✗ Nicht ganz.' }}</span>
           <span class="prep-feedback-full">{{ currentVerdict.correction || current.german }}</span>
+          <div v-if="canHear" class="hear-row">
+            <button class="btn btn-quiet hear-btn" type="button" @click="hearReference">{{ voice.speaking.value ? '● Spricht…' : '🔊 Anhören' }}</button>
+            <span class="hear-hint">Leertaste hören · Enter weiter</span>
+          </div>
           <span v-if="currentVerdict.tip" class="prep-feedback-tip">💡 {{ currentVerdict.tip }}</span>
           <span v-if="currentVerdict.tags?.length" class="prep-feedback-tags">
             <span v-for="t in currentVerdict.tags" :key="t" class="tag tag-error">{{ t }}</span>
@@ -473,6 +533,8 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 .prep-feedback-ok { color: var(--success); }
 .prep-feedback-bad { color: var(--danger); }
 .prep-feedback-full { font-family: var(--font-display); font-size: 18px; color: var(--ink); }
+.hear-row { display: flex; gap: 14px; align-items: center; justify-content: center; }
+.hear-hint { color: var(--mute); font-size: 13px; font-style: italic; }
 .prep-feedback-tip { font-size: 14px; color: var(--ink-soft); }
 .prep-feedback-tags { margin-top: 4px; display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 .tag.tag-error { background: var(--danger-tint); color: var(--danger); }

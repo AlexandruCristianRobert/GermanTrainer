@@ -83,7 +83,7 @@ A label naming one frequency-ordered batch of the verb pool (`A1`, `A2`, `B1`, `
 _Avoid_: CEFR level (the learner-assessment scale is separate), difficulty, tier
 
 **Verb sentence quiz**:
-An AI-generated EN→DE translation drill for verbs, the verb counterpart of the preposition sentence quiz. The learner picks a verb pool (level + type + governed case) and a noun theme; the app samples verbs, the AI writes an English+German sentence pair per item using 1–2 [Drilled verb]s and 1–2 [Assigned theme noun]s, the learner types or speaks the German (see [Modality]), and the AI grades it. Distinct from the older word-level **Verb translation** (infinitive ↔ English) and **Verb conjugation** drills, which it does not replace.
+An AI-generated EN→DE translation drill for verbs, the verb counterpart of the preposition sentence quiz. The learner picks a verb pool (level + type + governed case) and a noun theme; the app samples verbs, the AI writes an English+German sentence pair per item using 1–2 [Drilled verb]s and 1–2 [Assigned theme noun]s, the learner types or speaks the German (see [Modality]), and the AI grades it. Either [Modality] can play the reference sentence aloud on demand once a card is graded — that is output, not input, so it is not part of the Modality distinction. Distinct from the older word-level **Verb translation** (infinitive ↔ English) and **Verb conjugation** drills, which it does not replace.
 _Avoid_: verb translation (means the word-level drill), sentence builder
 
 **Drilled verb**:
