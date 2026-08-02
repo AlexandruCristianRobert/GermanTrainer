@@ -83,7 +83,7 @@ A label naming one frequency-ordered batch of the verb pool (`A1`, `A2`, `B1`, `
 _Avoid_: CEFR level (the learner-assessment scale is separate), difficulty, tier
 
 **Verb sentence quiz**:
-An AI-generated EN→DE translation drill for verbs, the verb counterpart of the preposition sentence quiz. The learner picks a verb pool (level + type + governed case) and a noun theme; the app samples verbs, the AI writes an English+German sentence pair per item using 1–2 [Drilled verb]s and 1–2 [Assigned theme noun]s, the learner types the German, and the AI grades it. Distinct from the older word-level **Verb translation** (infinitive ↔ English) and **Verb conjugation** drills, which it does not replace.
+An AI-generated EN→DE translation drill for verbs, the verb counterpart of the preposition sentence quiz. The learner picks a verb pool (level + type + governed case) and a noun theme; the app samples verbs, the AI writes an English+German sentence pair per item using 1–2 [Drilled verb]s and 1–2 [Assigned theme noun]s, the learner types or speaks the German (see [Modality]), and the AI grades it. Distinct from the older word-level **Verb translation** (infinitive ↔ English) and **Verb conjugation** drills, which it does not replace.
 _Avoid_: verb translation (means the word-level drill), sentence builder
 
 **Drilled verb**:
@@ -91,7 +91,7 @@ A verb the verb sentence quiz deliberately samples from the chosen level/type/ca
 _Avoid_: target verb, chosen verb
 
 **Verb error tag**:
-A classification the grader assigns to a wrong verb-sentence answer, the verb counterpart of [Error tag]. One of: `conjugation` (the right verb but a wrong form — tense, person, auxiliary, or Partizip), `case` (the wrong case for an object the verb governs), `word-order` (verb-second, verb-final, or split separable-prefix placement gone wrong), `noun` (a wrong assigned theme noun — word, gender, or form), `typo` (a slip elsewhere). A single answer may carry several. EN→DE + AI grading only.
+A classification the grader assigns to a wrong verb-sentence answer, the verb counterpart of [Error tag]. One of: `conjugation` (the right verb but a wrong form — tense, person, auxiliary, or Partizip), `case` (the wrong case for an object the verb governs), `word-order` (verb-second, verb-final, or split separable-prefix placement gone wrong), `noun` (a wrong assigned theme noun — word, gender, or form), `typo` (a slip elsewhere). A single answer may carry several. EN→DE + AI grading only. `typo` is never assigned in a `spoken` [Modality]: the spelling there is the speech recognizer's, not the learner's.
 _Avoid_: verb mistake type, conjugation error
 
 **Verb remedial drill**:
@@ -149,7 +149,7 @@ A Teil 2 speaking-practice conversation between the learner and the AI partner, 
 _Avoid_: session, chat, dialogue, Diskussionsrunde
 
 **Modality**:
-Whether a [Discussion]'s learner turns are `typed` or `spoken`. A [Discussion] has exactly one Modality, chosen at setup and fixed once it starts. It changes only the input surface — a text field or a microphone — and what can be measured from it: a spoken [Discussion] yields real speaking tempo, reaction time and pause counts, so its rubric judges Flüssigkeit on evidence instead of adapting around its absence. Everything else is shared: the same [Topic] pool, the same preparation, the same [Move]s and hints, the same rubric, and the *same* kind of [Run] — so a typed and a spoken score are directly comparable, and "how much worse am I when I have to speak?" is an answerable question.
+Whether a [Discussion]'s or a [Verb sentence quiz]'s learner turns are `typed` or `spoken`. Chosen at setup and fixed for the run in both. For a [Discussion] it changes only the input surface — a text field or a microphone — and what can be measured from it: a spoken [Discussion] yields real speaking tempo, reaction time and pause counts, so its rubric judges Flüssigkeit on evidence instead of adapting around its absence. Everything else is shared: the same [Topic] pool, the same preparation, the same [Move]s and hints, the same rubric, and the *same* kind of [Run] — so a typed and a spoken score are directly comparable, and "how much worse am I when I have to speak?" is an answerable question. In a [Verb sentence quiz] the spoken Modality changes only the input surface too — the same generated sentences, the same AI grader, the same [Verb error tag]s, the same kind of [Run] — with no fluency measurement, because a translation drill is graded right or wrong.
 _Avoid_: mode (collides with [Grading mode]), input method, voice mode, separate test
 
 **Topic** (de Thema):

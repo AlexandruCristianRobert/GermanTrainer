@@ -162,6 +162,7 @@ export interface QuizHistoryMeta {
   verbSentenceNounsPer?: 1 | 2 | 'mix'
   verbSentenceHints?: boolean
   verbSentenceItems?: VerbDrillItem[]
+  verbSentenceModality?: 'typed' | 'spoken'  // absent means typed (runs before this field existed)
 
   // Da-compound sentence-translation (AI) — T14 EN→DE / T15 DE→EN, AI-graded
   dacSentenceLevels?: string[]

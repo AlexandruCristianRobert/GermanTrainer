@@ -237,6 +237,39 @@ describe('buildVerbGradePrompt', () => {
     expect(p.user).toContain('gehen')
     expect(p.user).toContain('Ich gehe zur Schule.')
   })
+  test('typed prompt is unchanged: says the learner typed, and lists "typo"', () => {
+    expect(p.system).toContain('typed a GERMAN translation')
+    expect(p.system).toContain('typo')
+    expect(p.user).toContain("LEARNER'S GERMAN ANSWER:")
+  })
+
+  const sp = buildVerbGradePrompt({
+    model: 'm', english: 'I go to school.', german: 'Ich gehe zur Schule.',
+    verbsGerman: ['gehen'], nounsGerman: ['Schule'], userAnswer: 'ich gehe zur schule',
+    spoken: true
+  })
+  test('spoken prompt mentions the transcript/recognizer', () => {
+    expect(sp.system).toContain('SPOKE a GERMAN translation')
+    expect(sp.system).toContain('speech recognizer')
+    expect(sp.system).toContain('transcribed')
+  })
+  test('spoken prompt tells the grader to ignore capitalisation and punctuation', () => {
+    expect(sp.system).toContain('ignore capitalisation and punctuation')
+  })
+  test('spoken prompt forbids the "typo" tag', () => {
+    expect(sp.system).toContain('NEVER return "typo"')
+  })
+  test('spoken prompt still keeps the other tag definitions verbatim', () => {
+    expect(sp.system).toContain('"conjugation" (right verb, wrong form — tense, ' +
+      'person, auxiliary, or Partizip)')
+    expect(sp.system).toContain('"case" (wrong case for an object the verb governs)')
+    expect(sp.system).toContain('(verb-second, verb-final, or split separable-prefix placement wrong)')
+    expect(sp.system).toContain('"noun" (a wrong theme noun — word, gender, or form)')
+  })
+  test('spoken prompt uses the transcript label for the answer line', () => {
+    expect(sp.user).toContain("LEARNER'S SPOKEN GERMAN ANSWER (transcript): ich gehe zur schule")
+    expect(sp.user).not.toContain("LEARNER'S GERMAN ANSWER:")
+  })
 })
 
 describe('parseVerbGrade', () => {
@@ -263,6 +296,22 @@ describe('gradeVerbAnswer', () => {
   test('throws after exhausting retries on bad JSON', async () => {
     const client: AiClient = { models: { generateContent: async () => ({ text: 'nope' }) } }
     await expect(gradeVerbAnswer(client, { model: 'm', english: 'x', german: 'y', verbsGerman: [], nounsGerman: [], userAnswer: 'z' })).rejects.toThrow()
+  })
+  test('without spoken, keeps a "typo" tag returned by the model', async () => {
+    const client: AiClient = { models: { generateContent: async () => ({ text: JSON.stringify({ correct: false, tip: 'Slip.', errorTags: ['typo', 'case'] }) }) } }
+    const g = await gradeVerbAnswer(client, { model: 'm', english: 'x', german: 'y', verbsGerman: [], nounsGerman: [], userAnswer: 'z' })
+    expect(g.tags).toEqual(['typo', 'case'])
+  })
+  test('spoken: strips a "typo" tag from the model while keeping other tags', async () => {
+    const client: AiClient = { models: { generateContent: async () => ({ text: JSON.stringify({ correct: false, tip: 'Wrong case.', errorTags: ['typo', 'case'] }) }) } }
+    const g = await gradeVerbAnswer(client, { model: 'm', english: 'x', german: 'y', verbsGerman: [], nounsGerman: [], userAnswer: 'z', spoken: true })
+    expect(g.tags).toEqual(['case'])
+  })
+  test('spoken: when "typo" was the only tag, "tags" is absent afterwards', async () => {
+    const client: AiClient = { models: { generateContent: async () => ({ text: JSON.stringify({ correct: false, tip: 'Slip.', errorTags: ['typo'] }) }) } }
+    const g = await gradeVerbAnswer(client, { model: 'm', english: 'x', german: 'y', verbsGerman: [], nounsGerman: [], userAnswer: 'z', spoken: true })
+    expect(g.tags).toBeUndefined()
+    expect('tags' in g).toBe(false)
   })
 })
 
