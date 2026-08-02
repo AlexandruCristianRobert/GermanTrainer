@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.16.02'
+export const APP_VERSION = '1.16.03'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.16.03', date: '2026-08-02', kind: 'polish',
+    title: 'Satzübersetzung · hear the sentence you were aiming for',
+    notes: [
+      '<strong>A graded card can say its sentence out loud.</strong> Leertaste plays the model German, Enter moves on. On demand only — nothing speaks by itself — and always the reference, never your own answer back at you, so what you hear is the sentence worth imitating whether you got it right or not.',
+      '<strong>Typed runs get this too.</strong> Hearing the sentence is output, not input, so it has nothing to do with whether you typed or spoke your answer. It uses the German voice and tempo you chose for the Diskussion; change it there and this follows.',
+      '<strong>One consequence.</strong> In a spoken run Leertaste no longer jumps to the next sentence — it still records and submits your answer, then reads the reference once the card is graded. Enter is what moves you on now, in both modes. Where a browser has no German voice the button is simply absent and Leertaste still advances.'
+    ]
+  },
   {
     version: '1.16.02', date: '2026-08-02', kind: 'fix',
     title: 'Themenwahl · the Prüfungskarte stays where you can reach it',
