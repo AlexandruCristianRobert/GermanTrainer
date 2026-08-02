@@ -185,14 +185,14 @@ describe('VerbSentenceRunner — spoken Modality', () => {
     wrapper.unmount()
   })
 
-  it('a typed stash registers no window Space handler and still renders the text input', async () => {
+  it('a typed stash still renders the text input, and now registers a window keydown handler too (hear/advance on graded cards)', async () => {
     const addSpy = vi.spyOn(window, 'addEventListener')
     setStash('typed')
     const wrapper = await mountReady()
 
     expect(wrapper.find('input.prep-input').exists()).toBe(true)
     expect(wrapper.find('.mic-wrap').exists()).toBe(false)
-    expect(addSpy.mock.calls.some(call => call[0] === 'keydown')).toBe(false)
+    expect(addSpy.mock.calls.some(call => call[0] === 'keydown')).toBe(true)
 
     addSpy.mockRestore()
     wrapper.unmount()
