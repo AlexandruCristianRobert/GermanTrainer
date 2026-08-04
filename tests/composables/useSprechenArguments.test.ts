@@ -177,6 +177,45 @@ describe('cachedBankIds', () => {
   })
 })
 
+describe('collocations on the argument bank', () => {
+  it('accepts a bank without phrases — cached banks predate the field', () => {
+    const v = validateArgumentBank({
+      pro: [{ claim: 'A', why: 'B' }, { claim: 'C', why: 'D' }, { claim: 'E', why: 'F' }],
+      contra: [{ claim: 'A', why: 'B' }, { claim: 'C', why: 'D' }, { claim: 'E', why: 'F' }],
+      words: [{ de: 'der Test', en: 'the test' }, { de: 'die Sache', en: 'the thing' }, { de: 'das Ding', en: 'the object' }, { de: 'die Zeit', en: 'the time' }]
+    })
+    expect(v).not.toBeNull()
+    expect(v!.phrases).toBeUndefined()
+  })
+
+  it('keeps well-formed phrases when present', () => {
+    const v = validateArgumentBank({
+      pro: [{ claim: 'A', why: 'B' }, { claim: 'C', why: 'D' }, { claim: 'E', why: 'F' }],
+      contra: [{ claim: 'A', why: 'B' }, { claim: 'C', why: 'D' }, { claim: 'E', why: 'F' }],
+      words: [{ de: 'der Test', en: 'the test' }, { de: 'die Sache', en: 'the thing' }, { de: 'das Ding', en: 'the object' }, { de: 'die Zeit', en: 'the time' }],
+      phrases: [{ de: 'eine Rolle spielen', en: 'to play a role' }]
+    })
+    expect(v!.phrases).toEqual([{ de: 'eine Rolle spielen', en: 'to play a role' }])
+  })
+
+  it('drops a malformed phrases field rather than failing the whole bank', () => {
+    const v = validateArgumentBank({
+      pro: [{ claim: 'A', why: 'B' }, { claim: 'C', why: 'D' }, { claim: 'E', why: 'F' }],
+      contra: [{ claim: 'A', why: 'B' }, { claim: 'C', why: 'D' }, { claim: 'E', why: 'F' }],
+      words: [{ de: 'der Test', en: 'the test' }, { de: 'die Sache', en: 'the thing' }, { de: 'das Ding', en: 'the object' }, { de: 'die Zeit', en: 'the time' }],
+      phrases: 'nope'
+    })
+    expect(v).not.toBeNull()
+    expect(v!.phrases).toBeUndefined()
+  })
+
+  it('asks the generator for collocations', () => {
+    const p = buildArgumentBankPrompt({ titleDe: 'X', statementDe: 'Y?' })
+    expect(p).toContain('phrases')
+    expect(p).toContain('Wortverbindungen')
+  })
+})
+
 describe('Dexie cache (loadCachedBank / saveCachedBank)', () => {
   beforeEach(() => {
     vi.clearAllMocks()

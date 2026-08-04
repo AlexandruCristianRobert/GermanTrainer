@@ -3,6 +3,7 @@ import {
   redemittelNeedle, matchRedemittel, movesUsed, movePerTurn, pickMoveNudge
 } from '../../src/composables/useRedemittelMatch'
 import { SPRECHEN_REDEMITTEL } from '../../src/data/sprechenRedemittel'
+import { SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES } from '../../src/data/sprechenVortragsmittel'
 
 describe('redemittelNeedle', () => {
   it('strips every punctuation mark, not just sentence enders', () => {
@@ -154,5 +155,55 @@ describe('pickMoveNudge', () => {
   it('ignores the opinion Move — it is not offered by the hint panel', () => {
     const lifetime = { 'rm-opinion-1': 0, 'rm-agree-1': 99 }
     expect(pickMoveNudge([], lifetime)).not.toBe('opinion')
+  })
+})
+
+describe('bank parameterisation', () => {
+  it('defaults to the Teil 2 bank, unchanged', () => {
+    const hits = matchRedemittel(['Da stimme ich Ihnen völlig zu, das sehe ich auch so.'])
+    expect(hits.length).toBeGreaterThan(0)
+    expect(hits.every(r => r.id.startsWith('rm-'))).toBe(true)
+  })
+
+  it('matches the Vortragsmittel bank when given it', () => {
+    const hits = matchRedemittel(
+      ['Ich möchte heute über das Thema Ehrenamt sprechen. Vielen Dank für Ihre Aufmerksamkeit.'],
+      SPRECHEN_VORTRAGSMITTEL
+    )
+    const ids = hits.map(h => h.id)
+    expect(ids).toContain('vm-einstieg-1')
+    expect(ids).toContain('vm-abschluss-5')
+  })
+
+  it('never returns a phrase from the other bank', () => {
+    const hits = matchRedemittel(
+      ['Da stimme ich Ihnen völlig zu. Ich möchte heute über das Thema Sport sprechen.'],
+      SPRECHEN_VORTRAGSMITTEL
+    )
+    expect(hits.every(r => r.id.startsWith('vm-'))).toBe(true)
+  })
+
+  it('nudges a Vortrag Move the learner has not used', () => {
+    const nudge = pickMoveNudge(
+      ['Ich möchte heute über das Thema Sport sprechen.'],
+      {},
+      SPRECHEN_VORTRAGSMITTEL,
+      VORTRAG_MOVES
+    )
+    expect(nudge).not.toBe('einstieg')
+    expect(VORTRAG_MOVES).toContain(nudge as any)
+  })
+
+  it('prefers the Vortrag Move with the coldest lifetime count', () => {
+    const lifetime: Record<string, number> = {}
+    // Make every group warm except 'kontrast'.
+    for (const r of SPRECHEN_VORTRAGSMITTEL) if (r.move !== 'kontrast') lifetime[r.id] = 5
+    const nudge = pickMoveNudge([''], lifetime, SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES)
+    expect(nudge).toBe('kontrast')
+  })
+
+  it('returns null when every Move of the given bank was used', () => {
+    const all = SPRECHEN_VORTRAGSMITTEL.map(r => r.phraseDe).join(' ')
+    expect(pickMoveNudge([all], {}, SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES)).toBeNull()
   })
 })

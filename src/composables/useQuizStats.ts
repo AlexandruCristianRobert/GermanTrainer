@@ -140,6 +140,7 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'passiv-transform': 0,
     'writing-grade': 0,
     'simulator-c1': 0,
+    'sprechen-teil1': 0,
     'sprechen-teil2': 0,
     'sprechen-drill': 0
   }
@@ -200,6 +201,7 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'passiv-transform': emptyBucket(),
     'writing-grade': emptyBucket(),
     'simulator-c1': emptyBucket(),
+    'sprechen-teil1': emptyBucket(),
     'sprechen-teil2': emptyBucket(),
     'sprechen-drill': emptyBucket()
   }

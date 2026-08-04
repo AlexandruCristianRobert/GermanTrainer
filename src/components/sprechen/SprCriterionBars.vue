@@ -4,21 +4,28 @@
 // that "how much worse am I when I have to speak?" is answerable, so both
 // Modalities are shown side by side. LATEST per Modality, not best or mean.
 import { computed } from 'vue'
-import { SPRECHEN_B2_TEIL2 } from '../../data/rubrics'
+import { SPRECHEN_B2_TEIL2, type SprechenRubric } from '../../data/rubrics'
 
 export interface CriterionScore { key: string; score: number; maxPoints: number }
 
 const props = defineProps<{
   typed?: CriterionScore[] | null
   spoken?: CriterionScore[] | null
+  // Which rubric labels the rows. Defaults to Teil 2 so every pre-Teil-1
+  // caller is unchanged; the hub passes SPRECHEN_B2_TEIL1 when its part toggle
+  // is on Teil 1, because the first criterion is named differently there
+  // (Erfüllung / Gliederung, not / Interaktion) even though the weights match.
+  rubric?: SprechenRubric
 }>()
+
+const rubric = computed(() => props.rubric ?? SPRECHEN_B2_TEIL2)
 
 const both = computed(() => !!props.typed?.length && !!props.spoken?.length)
 
 // The rubric drives the rows, not the data — so a run recorded before a
 // rubric change, or a hallucinated extra criterion, cannot add a row.
 const rows = computed(() =>
-  SPRECHEN_B2_TEIL2.criteria.map(def => {
+  rubric.value.criteria.map(def => {
     const typed = props.typed?.find(c => c.key === def.key) ?? null
     const spoken = props.spoken?.find(c => c.key === def.key) ?? null
     return {
@@ -67,8 +74,8 @@ function pct(c: CriterionScore | null, max: number): string {
       </div>
     </div>
     <p class="spr-pass">
-      {{ rows.length }} Kriterien, zusammen {{ SPRECHEN_B2_TEIL2.totalMax }} Punkte ·
-      Bestehensgrenze <b>{{ SPRECHEN_B2_TEIL2.passingScore }}</b>.
+      {{ rows.length }} Kriterien, zusammen {{ rubric.totalMax }} Punkte ·
+      Bestehensgrenze <b>{{ rubric.passingScore }}</b>.
       <template v-if="both">
         Getippt und gesprochen teilen dieselbe Skala —
         <b>Δ gesprochen {{ deltaLabel }}</b>.

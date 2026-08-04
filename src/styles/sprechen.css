@@ -350,3 +350,81 @@
   .spr-timer{text-align:left}
   .spr-timer-ctl{justify-content:flex-start}
 }
+
+/* ── Teil 1 · Vortrag ── */
+
+/* The two task sheets */
+.spr-ab{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:34px;align-items:stretch}
+.spr-sheet{display:flex;flex-direction:column;align-items:flex-start;text-align:left;font:inherit;color:inherit;background:var(--paper-card);border:1px solid var(--rule);padding:22px 24px 20px;cursor:pointer;transition:all .18s;position:relative}
+.spr-sheet:hover{background:var(--accent-wash)}
+.spr-sheet.sel{border-color:var(--accent);background:var(--accent-tint)}
+.spr-sheet:focus-visible{outline:1px dotted var(--rule);outline-offset:3px}
+.spr-sheet-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;width:100%;padding-bottom:12px;border-bottom:1px solid var(--hairline)}
+.spr-sheet-letter{font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+.spr-sheet-flags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.spr-sheet-t{font-family:var(--font-display);font-size:25px;font-weight:500;letter-spacing:-.02em;line-height:1.15;margin-top:14px}
+.spr-sheet-task{font-family:var(--font-display);font-style:italic;font-size:15px;line-height:1.45;color:var(--ink-soft);margin:8px 0 0;text-wrap:pretty}
+.spr-sheet-glied{list-style:none;counter-reset:g;margin:16px 0 0;padding:0;display:flex;flex-direction:column;width:100%}
+.spr-sheet-glied li{counter-increment:g;display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;padding:7px 0;border-bottom:1px dotted var(--hairline);font-size:13px;line-height:1.5;color:var(--mute)}
+.spr-sheet-glied li::before{content:counter(g,decimal-leading-zero);font-family:var(--font-mono);font-size:10px;color:var(--accent);padding-top:2px}
+.spr-sheet-glied b{display:block;font-family:var(--font-display);font-size:15px;font-weight:500;letter-spacing:-.01em;color:var(--ink);margin-bottom:1px}
+.spr-sheet-f{display:flex;align-items:baseline;justify-content:space-between;gap:12px;width:100%;margin-top:auto;padding-top:16px}
+.spr-sheet-pick{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+.spr-sheet.sel .spr-sheet-pick{color:var(--accent)}
+.spr-ab-ctl{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid var(--hairline)}
+
+/* The Gliederung planner */
+.spr-plan{border-top:1px solid var(--rule)}
+.spr-plan-row{display:grid;grid-template-columns:40px minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:center;padding:15px 4px;border-bottom:1px solid var(--hairline)}
+.spr-plan-row.on{background:var(--accent-wash)}
+.spr-plan-n{font-family:var(--font-mono);font-size:11px;color:var(--mute)}
+.spr-plan-row.on .spr-plan-n{color:var(--accent)}
+.spr-plan-t{font-family:var(--font-display);font-size:19px;font-weight:500;letter-spacing:-.015em}
+.spr-plan-h{font-size:13.5px;color:var(--ink-soft);margin-top:2px;line-height:1.5}
+.spr-plan-w{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:4px}
+.spr-plan-in{width:100%;background:transparent;border:0;border-bottom:1px solid var(--hairline);padding:8px 2px;font-family:var(--font-display);font-size:17px;color:var(--ink)}
+.spr-plan-in:focus{outline:0;border-bottom-color:var(--accent)}
+.spr-plan-in::placeholder{color:var(--mute);font-style:italic;font-size:15px}
+
+/* The rail checklist's step button. The design had no .done/.now modifiers for
+   this class (it was a section-jump button in the dropped section-stepper) —
+   authored here to match the existing .spr-step.done/.spr-step.now idiom
+   above, since this build repurposes .spr-step-btn for the Live-Checkliste
+   rows instead. */
+.spr-step-btn{width:100%;background:transparent;border:0;border-bottom:1px dotted var(--hairline);text-align:left;font:inherit;cursor:pointer;transition:color .15s}
+.spr-step-btn:hover{color:var(--ink)}
+.spr-step-btn.done{color:var(--ink-soft)}
+.spr-step-btn.now{color:var(--ink)}
+.spr-step-t{display:block;font-family:var(--font-display);font-size:15px;font-weight:500;letter-spacing:-.01em;line-height:1.25}
+
+/* The time bar and the Gliederung coverage table */
+.spr-timebar{height:6px;background:var(--hairline);margin-top:10px;position:relative}
+.spr-timebar span{position:absolute;inset:0 auto 0 0;background:var(--ochre);transition:width .25s}
+.spr-timebar span.ok{background:var(--success)}
+.spr-timebar-l{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--mute);margin-top:6px}
+.spr-move.fit{border-color:color-mix(in srgb,var(--accent) 45%,transparent);color:var(--ink)}
+.spr-cov{border-top:1px solid var(--rule)}
+.spr-cov-row{display:grid;grid-template-columns:18px minmax(0,1.1fr) 100px 80px minmax(0,1.3fr);gap:16px;align-items:center;padding:13px 4px;border-bottom:1px dotted var(--hairline)}
+.spr-cov-t{font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:-.01em}
+.spr-cov-bar{height:5px;background:var(--hairline);position:relative}
+.spr-cov-bar span{position:absolute;inset:0 auto 0 0;background:var(--ochre)}
+.spr-cov-bar span.ok{background:var(--accent)}
+.spr-cov-w{font-family:var(--font-mono);font-size:10.5px;color:var(--mute)}
+.spr-cov-n{font-size:13.5px;color:var(--ink-soft);line-height:1.5;text-wrap:pretty}
+
+/* Deliberate additions — the design's Teil 1 had no continuous-take composer
+   and no Rettungsleine. Both reuse existing tokens only. */
+.spr-timebar span.over{background:var(--danger)}
+.spr-lifeline{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 12px;border-left:2px solid var(--ochre);background:var(--paper-deep)}
+.spr-lifeline-t{font-size:14px;line-height:1.5;color:var(--ink-soft);flex:1 1 auto}
+
+@media (max-width:1080px){
+  .spr-ab{grid-template-columns:minmax(0,1fr);gap:20px}
+  .spr-plan-row{grid-template-columns:34px minmax(0,1fr)}
+  .spr-plan-in{grid-column:2}
+  .spr-cov-row{grid-template-columns:18px minmax(0,1fr) 80px;row-gap:8px}
+  .spr-cov-t{grid-column:2/-1;grid-row:1}
+  .spr-cov-bar{grid-column:2;grid-row:2}
+  .spr-cov-w{grid-column:3;grid-row:2;text-align:right}
+  .spr-cov-n{grid-column:2/-1;grid-row:3}
+}

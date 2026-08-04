@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
-const routes: RouteRecordRaw[] = [
+export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('./modules/home/Home.vue') },
   { path: '/history', name: 'history', component: () => import('./modules/history/HistoryPage.vue') },
   { path: '/version', name: 'version', component: () => import('./modules/version/VersionPage.vue') },
@@ -143,6 +143,12 @@ const routes: RouteRecordRaw[] = [
   // NavShell derives the active tab via name.split('-')[0].
   { path: '/sprechen', name: 'sprechen', component: () => import('./modules/sprechen/SprechenHome.vue') },
   { path: '/sprechen/cheatsheet', name: 'sprechen-cheatsheet', component: () => import('./modules/sprechen/SprechenCheatsheet.vue') },
+  // Teil 1 — ONE continuous Rede, not five composers (ADR-0014). Prep is a real
+  // route so it survives a reload, exactly like the runner.
+  { path: '/sprechen/teil1', name: 'sprechen-teil1', component: () => import('./modules/sprechen/Teil1Setup.vue') },
+  { path: '/sprechen/teil1/prep', name: 'sprechen-teil1-prep', component: () => import('./modules/sprechen/Teil1Prep.vue') },
+  { path: '/sprechen/teil1/run', name: 'sprechen-teil1-run', component: () => import('./modules/sprechen/Teil1Runner.vue') },
+  { path: '/sprechen/teil1/result', name: 'sprechen-teil1-result', component: () => import('./modules/sprechen/Teil1Result.vue') },
   // Teil 2 — ONE flow for both Modalities (CONTEXT.md → "Modality"). The
   // learner picks typed or spoken at setup; prep, runner and result are shared
   // and read the modality off the Discussion.

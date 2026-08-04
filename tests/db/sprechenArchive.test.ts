@@ -186,6 +186,52 @@ describe('sprechenCorrections / sprechenCorrectionEvents (db version 10)', () =>
   })
 })
 
+describe('part on archived corrections', () => {
+  beforeEach(async () => { await clearArchive() })
+
+  const base = {
+    discussionId: 'v-1', topicTitle: 'Ehrenamt', modality: 'typed' as const,
+    kind: 'grammar' as const, quote: 'für die Wettkämpfe gefahren',
+    suggested: 'zu den Wettkämpfen gefahren', reasonDe: 'Ziel: zu + Dativ.',
+    reasonEn: 'Destination takes zu + dative.', context: 'Ich bin für die Wettkämpfe gefahren.'
+  }
+
+  it('stores the part it came from', async () => {
+    await appendCorrections([{ ...base, part: 1 }])
+    const [row] = await listCorrections()
+    expect(row.part).toBe(1)
+  })
+
+  it('reads a row stored without part as Teil 2, without rewriting it', async () => {
+    // ADR-0012: an Archived correction row is never mutated, so there is no
+    // backfill — the default happens on read.
+    await db.sprechenCorrections.add({ ...base, id: 'legacy-1', createdAt: Date.now() } as any)
+    const [row] = await listCorrections()
+    expect(row.part).toBe(2)
+    const raw = await db.sprechenCorrections.get('legacy-1')
+    expect((raw as any).part).toBeUndefined()
+  })
+
+  it('filters by part', async () => {
+    await appendCorrections([{ ...base, part: 1 }, { ...base, part: 2, quote: 'anders' }])
+    expect(await listCorrections({ part: 1 })).toHaveLength(1)
+    expect(await listCorrections({ part: 2 })).toHaveLength(1)
+    expect(await listCorrections()).toHaveLength(2)
+  })
+
+  it('counts by kind per part', async () => {
+    await appendCorrections([{ ...base, part: 1 }, { ...base, part: 2, quote: 'anders' }])
+    expect((await countsByKind(1)).grammar).toBe(1)
+    expect((await countsByKind()).grammar).toBe(2)
+  })
+
+  it('serves open corrections from both parts to the drill', async () => {
+    await appendCorrections([{ ...base, part: 1 }, { ...base, part: 2, quote: 'anders' }])
+    expect(await openCorrections()).toHaveLength(2)
+    expect(await openCorrections(undefined, 1)).toHaveLength(1)
+  })
+})
+
 describe('version 10 migration: modality backfill', () => {
   beforeEach(async () => {
     await db.delete()
