@@ -34,6 +34,13 @@ export interface ArchivedCorrection {
   reasonEn: string
   context: string        // the learner's FULL sentence containing the mistake
   createdAt: number
+  /**
+   * Which exam part the correction came from. OPTIONAL and written on new rows
+   * only: ADR-0012 forbids mutating an Archived correction row, so there is no
+   * backfill migration. `undefined` reads as 2 — the only part that existed —
+   * and the defaulting lives here in the repository, never in the schema.
+   */
+  part?: 1 | 2
 }
 
 /**
@@ -62,12 +69,20 @@ export async function appendCorrections(
   return rows
 }
 
-/** Newest first, with optional kind filter and result cap. */
+/**
+ * Newest first, with optional kind/part filter and result cap.
+ *
+ * Every row is normalised on read — `part: row.part ?? 2` — so no consumer
+ * ever sees `undefined`. This is a full-table scan, same as every other read
+ * in this module; `part` gets no Dexie index (that needs a version bump this
+ * task does not own).
+ */
 export async function listCorrections(
-  filter: { kind?: SprechenErrorTag; limit?: number } = {}
+  filter: { kind?: SprechenErrorTag; part?: 1 | 2; limit?: number } = {}
 ): Promise<ArchivedCorrection[]> {
-  let all = await db.sprechenCorrections.toArray()
+  let all = (await db.sprechenCorrections.toArray()).map(c => ({ ...c, part: c.part ?? 2 as const }))
   if (filter.kind) all = all.filter(c => c.kind === filter.kind)
+  if (filter.part != null) all = all.filter(c => c.part === filter.part)
   all.sort((a, b) => b.createdAt - a.createdAt)
   return filter.limit != null ? all.slice(0, filter.limit) : all
 }
@@ -106,15 +121,15 @@ export async function drilledIds(): Promise<Set<string>> {
 }
 
 /** Corrections with no successful drill event yet, newest first. */
-export async function openCorrections(limit?: number): Promise<ArchivedCorrection[]> {
+export async function openCorrections(limit?: number, part?: 1 | 2): Promise<ArchivedCorrection[]> {
   const drilled = await drilledIds()
-  const all = await listCorrections()
+  const all = await listCorrections(part != null ? { part } : {})
   const open = all.filter(c => !drilled.has(c.id))
   return limit != null ? open.slice(0, limit) : open
 }
 
-/** Standing counts per Sprechen error tag, for the archive's grouped view. */
-export async function countsByKind(): Promise<Record<SprechenErrorTag, number>> {
+/** Standing counts per Sprechen error tag, for the archive's grouped view. Optionally scoped to one exam part. */
+export async function countsByKind(part?: 1 | 2): Promise<Record<SprechenErrorTag, number>> {
   const counts: Record<SprechenErrorTag, number> = {
     grammar: 0,
     'word-order': 0,
@@ -122,7 +137,7 @@ export async function countsByKind(): Promise<Record<SprechenErrorTag, number>> 
     spelling: 0,
     register: 0
   }
-  const all = await db.sprechenCorrections.toArray()
+  const all = await listCorrections(part != null ? { part } : {})
   for (const c of all) counts[c.kind] += 1
   return counts
 }

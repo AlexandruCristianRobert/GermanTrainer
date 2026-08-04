@@ -18,6 +18,7 @@ describe('db', () => {
       'sprechenCorrectionEvents',
       'sprechenCorrections',
       'sprechenDiscussions',
+      'sprechenVortraege',
       'writingDrafts'
     ])
   })

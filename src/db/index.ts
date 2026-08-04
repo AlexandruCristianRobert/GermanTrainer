@@ -2,7 +2,7 @@ import Dexie, { type Table, type Transaction } from 'dexie'
 import type { Adjective, Noun, NounGroup, Settings } from './types'
 import type { WritingDraft } from '../data/writingPrompts'
 import type { SimulatorSession } from '../data/simulatorC1'
-import type { SprechenDiscussion } from '../data/sprechen'
+import type { SprechenDiscussion, SprechenVortrag } from '../data/sprechen'
 import type { ArchivedCorrection, CorrectionEvent } from '../composables/useSprechenArchive'
 import type { CachedArgumentBank } from '../data/sprechenArguments'
 import nounsSeed from '../data/nouns.seed.json'
@@ -19,6 +19,8 @@ export class GermanTrainerDb extends Dexie {
   sprechenCorrections!: Table<ArchivedCorrection, string>
   sprechenCorrectionEvents!: Table<CorrectionEvent, string>
   sprechenArgumentBanks!: Table<CachedArgumentBank, string>
+  /** Teil 1 working state — one in-flight Vortrag at a time (see useVortrag.ts). */
+  sprechenVortraege!: Table<SprechenVortrag, string>
 
   constructor() {
     super('GermanTrainerDb')
@@ -144,6 +146,20 @@ export class GermanTrainerDb extends Dexie {
       await tx.table('sprechenDiscussions').toCollection().modify(d => {
         if (!d.modality) d.modality = 'typed'
       })
+    })
+    this.version(11).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt',
+      sprechenDiscussions: '&id, status, startedAt',
+      sprechenCorrections: '&id, kind, createdAt, topicTitle',
+      sprechenCorrectionEvents: '&id, correctionId, at',
+      sprechenArgumentBanks: 'topicId',
+      // Teil 1 working state. Purely additive — no upgrade hook, because no
+      // existing row gains a required field.
+      sprechenVortraege: '&id, status, startedAt'
     })
   }
 }

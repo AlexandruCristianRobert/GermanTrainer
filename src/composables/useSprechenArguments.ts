@@ -37,12 +37,19 @@ export function buildArgumentBankPrompt(topic: Pick<SprechenTopic, 'titleDe' | '
     '- "words": genau 6 nützliche B2-Vokabeln zum Thema, jede als Objekt ' +
     '{"de": "…", "en": "…"} — "de" IMMER mit Artikel bei Nomen (z. B. ' +
     '"der Fachkräftemangel"), "en" eine natürliche englische Übersetzung.\n' +
+    '- "phrases": genau 5 feste Wortverbindungen (Kollokationen) zum Thema, ' +
+    'jede als Objekt {"de": "…", "en": "…"} — "de" die feste Wortverbindung ' +
+    'inklusive der von ihr geforderten Präposition oder des Kasus, falls ' +
+    'relevant (z. B. "auf … angewiesen sein", "in Kauf nehmen"), "en" eine ' +
+    'natürliche englische Übersetzung. Keine bloßen Einzelnomen — der Sinn ' +
+    'sind Verbindungen aus mehreren Wörtern.\n' +
     '- Alltagsnah, meinungsfähig, B2-Niveau — keine Fachdebatte, nichts Verletzendes.\n' +
     '- Kein Satz darf länger als 120 Zeichen sein.\n\n' +
     'Antworte ausschließlich als JSON-Objekt exakt dieser Form — keine ' +
     'Markdown-Fences: {"pro": [{"claim": "…", "why": "…"}], ' +
     '"contra": [{"claim": "…", "why": "…"}], ' +
-    '"words": [{"de": "…", "en": "…"}]}'
+    '"words": [{"de": "…", "en": "…"}], ' +
+    '"phrases": [{"de": "…", "en": "…"}]}'
   )
 }
 
@@ -91,7 +98,10 @@ export function validateArgumentBank(raw: unknown): ArgumentBank | null {
   if (pro.length < 3 || contra.length < 3) return null
   if (words.length < 4) return null
 
-  return { pro, contra, words }
+  // `phrases` is optional and never fails the bank: a malformed or absent
+  // value just means one Wortschatz row instead of two (see ArgumentBank).
+  const phrases = validateWords(r.phrases)
+  return { pro, contra, words, ...(phrases && phrases.length > 0 ? { phrases } : {}) }
 }
 
 // ── Generator call with retries ─────────────────────────────────

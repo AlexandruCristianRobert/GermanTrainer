@@ -32,6 +32,14 @@ export interface ArgumentBank {
   pro: ArgumentAngle[]
   contra: ArgumentAngle[]
   words: TopicWord[]
+  /**
+   * Topic collocations — „eine Rolle spielen", „auf … angewiesen sein".
+   * OPTIONAL because banks already cached in `sprechenArgumentBanks` predate
+   * the field: a missing value renders one Wortschatz row instead of two and is
+   * never an error. Bare nouns do not lift the Wortschatz criterion;
+   * combinations do.
+   */
+  phrases?: TopicWord[]
 }
 
 /** Dexie row — `db.sprechenArgumentBanks`, primary key `topicId` (see src/db/index.ts). */
@@ -62,6 +70,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'die Artenvielfalt', en: 'biodiversity' },
       { de: 'die Klimaneutralität', en: 'climate neutrality' },
       { de: 'der Raubbau', en: 'overexploitation (of nature)' }
+    ],
+    phrases: [
+      { de: 'eine entscheidende Rolle spielen', en: 'to play a decisive role' },
+      { de: 'auf fossile Brennstoffe verzichten', en: 'to do without fossil fuels' },
+      { de: 'Maßnahmen gegen den Klimawandel ergreifen', en: 'to take measures against climate change' },
+      { de: 'Rücksicht nehmen auf …', en: 'to show consideration for …' },
+      { de: 'im Einklang mit der Natur leben', en: 'to live in harmony with nature' }
     ]
   },
   Arbeit: {
@@ -82,6 +97,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'der Betriebsrat', en: 'works council' },
       { de: 'die Teilzeitarbeit', en: 'part-time work' },
       { de: 'der Berufseinstieg', en: 'career entry' }
+    ],
+    phrases: [
+      { de: 'auf einen sicheren Arbeitsplatz angewiesen sein', en: 'to depend on having a secure job' },
+      { de: 'Überstunden in Kauf nehmen', en: 'to accept overtime as a trade-off' },
+      { de: 'flexible Arbeitszeiten zur Verfügung stellen', en: 'to provide flexible working hours' },
+      { de: 'sich an neue Bedingungen anpassen', en: 'to adapt to new conditions' },
+      { de: 'unter Zeitdruck stehen', en: 'to be under time pressure' }
     ]
   },
   Technologie: {
@@ -102,6 +124,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'der Chatbot', en: 'chatbot' },
       { de: 'die Bildschirmzeit', en: 'screen time' },
       { de: 'die Vernetzung', en: 'interconnectedness' }
+    ],
+    phrases: [
+      { de: 'auf Technik angewiesen sein', en: 'to be dependent on technology' },
+      { de: 'zum Einsatz kommen', en: 'to be put to use' },
+      { de: 'mit der Entwicklung Schritt halten', en: 'to keep pace with developments' },
+      { de: 'Risiken in Kauf nehmen', en: 'to accept risks as a trade-off' },
+      { de: 'einen Beitrag zur Digitalisierung leisten', en: 'to make a contribution to digitalization' }
     ]
   },
   Bildung: {
@@ -122,6 +151,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'die Leistungsbeurteilung', en: 'performance assessment' },
       { de: 'der Frontalunterricht', en: 'teacher-centered instruction' },
       { de: 'die Lernfreude', en: 'joy of learning' }
+    ],
+    phrases: [
+      { de: 'eine wichtige Rolle spielen', en: 'to play an important role' },
+      { de: 'Wert legen auf …', en: 'to place value on …' },
+      { de: 'Mittel zur Verfügung stellen', en: 'to provide funding' },
+      { de: 'auf individuelle Förderung angewiesen sein', en: 'to depend on individual support' },
+      { de: 'sich auf den Unterricht vorbereiten', en: 'to prepare for class' }
     ]
   },
   Gesundheit: {
@@ -142,6 +178,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'das Gesundheitsbewusstsein', en: 'health awareness' },
       { de: 'die Krankenkasse', en: 'health insurance fund' },
       { de: 'die Suchtgefahr', en: 'risk of addiction' }
+    ],
+    phrases: [
+      { de: 'eine zentrale Rolle spielen', en: 'to play a central role' },
+      { de: 'auf ärztliche Hilfe angewiesen sein', en: 'to depend on medical help' },
+      { de: 'Vorsorgeuntersuchungen in Anspruch nehmen', en: 'to make use of preventive checkups' },
+      { de: 'Risiken in Kauf nehmen', en: 'to accept risks as a trade-off' },
+      { de: 'sich fit halten', en: 'to keep fit' }
     ]
   },
   Medien: {
@@ -162,6 +205,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'die Filterblase', en: 'filter bubble' },
       { de: 'die Reichweite', en: 'reach (audience size)' },
       { de: 'die Aufmerksamkeitsspanne', en: 'attention span' }
+    ],
+    phrases: [
+      { de: 'eine zunehmende Rolle spielen', en: 'to play a growing role' },
+      { de: 'auf verlässliche Quellen angewiesen sein', en: 'to depend on reliable sources' },
+      { de: 'die Aufmerksamkeit auf sich ziehen', en: 'to attract attention' },
+      { de: 'zur Meinungsbildung beitragen', en: 'to contribute to opinion-forming' },
+      { de: 'Informationen zur Verfügung stellen', en: 'to provide information' }
     ]
   },
   Gesellschaft: {
@@ -182,6 +232,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'die Solidargemeinschaft', en: 'solidarity community' },
       { de: 'der soziale Wandel', en: 'social change' },
       { de: 'die Toleranz', en: 'tolerance' }
+    ],
+    phrases: [
+      { de: 'eine zentrale Rolle spielen', en: 'to play a central role' },
+      { de: 'auf gegenseitige Hilfe angewiesen sein', en: 'to depend on mutual help' },
+      { de: 'Kompromisse in Kauf nehmen', en: 'to accept compromises' },
+      { de: 'Unterstützung zur Verfügung stellen', en: 'to provide support' },
+      { de: 'sich engagieren für …', en: 'to get involved in …' }
     ]
   },
   Reisen: {
@@ -202,6 +259,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'das Reiseziel', en: 'destination' },
       { de: 'die Gastfreundschaft', en: 'hospitality' },
       { de: 'der Pauschalurlaub', en: 'package holiday' }
+    ],
+    phrases: [
+      { de: 'eine große Rolle spielen', en: 'to play a major role' },
+      { de: 'auf öffentliche Verkehrsmittel angewiesen sein', en: 'to depend on public transport' },
+      { de: 'Umwege in Kauf nehmen', en: 'to accept detours as a trade-off' },
+      { de: 'genügend Zeit zur Verfügung haben', en: 'to have enough time available' },
+      { de: 'sich auf eine neue Kultur einlassen', en: 'to engage with a new culture' }
     ]
   },
   Konsum: {
@@ -222,6 +286,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'die Lieferkette', en: 'supply chain' },
       { de: 'das Sonderangebot', en: 'special offer' },
       { de: 'der Konsumrausch', en: 'buying frenzy' }
+    ],
+    phrases: [
+      { de: 'eine entscheidende Rolle spielen', en: 'to play a decisive role' },
+      { de: 'auf günstige Angebote angewiesen sein', en: 'to depend on affordable deals' },
+      { de: 'höhere Preise in Kauf nehmen', en: 'to accept higher prices as a trade-off' },
+      { de: 'auf Qualität achten', en: 'to pay attention to quality' },
+      { de: 'sich für ein Produkt entscheiden', en: 'to decide on a product' }
     ]
   },
   Familie: {
@@ -242,6 +313,13 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'das Familienbild', en: 'model/image of family' },
       { de: 'die Erziehung', en: 'upbringing' },
       { de: 'die Geschwisterbeziehung', en: 'sibling relationship' }
+    ],
+    phrases: [
+      { de: 'eine zentrale Rolle spielen', en: 'to play a central role' },
+      { de: 'auf gegenseitige Unterstützung angewiesen sein', en: 'to depend on mutual support' },
+      { de: 'Kompromisse in Kauf nehmen', en: 'to accept compromises' },
+      { de: 'Betreuungsplätze zur Verfügung stellen', en: 'to provide childcare places' },
+      { de: 'sich um die Kinder kümmern', en: 'to take care of the children' }
     ]
   }
 }
@@ -271,6 +349,13 @@ export const TOPIC_ARGUMENT_BANKS: Record<string, ArgumentBank> = {
       { de: 'die Kernarbeitszeit', en: 'core working hours' },
       { de: 'der Erholungstag', en: 'recovery day' },
       { de: 'die Produktivitätssteigerung', en: 'productivity increase' }
+    ],
+    phrases: [
+      { de: 'auf zusätzliches Personal angewiesen sein', en: 'to depend on additional staff' },
+      { de: 'Produktivitätseinbußen in Kauf nehmen', en: 'to accept productivity losses' },
+      { de: 'mehr Freizeit zur Verfügung haben', en: 'to have more free time available' },
+      { de: 'sich auf neue Arbeitszeitmodelle einstellen', en: 'to adjust to new working-time models' },
+      { de: 'eine Vorreiterrolle spielen', en: 'to play a pioneering role' }
     ]
   },
   'st-tech-ki-im-alltag': {
@@ -293,6 +378,13 @@ export const TOPIC_ARGUMENT_BANKS: Record<string, ArgumentBank> = {
       { de: 'die Nachvollziehbarkeit', en: 'traceability/transparency' },
       { de: 'der Datenschutz', en: 'data protection' },
       { de: 'die Mustererkennung', en: 'pattern recognition' }
+    ],
+    phrases: [
+      { de: 'auf künstliche Intelligenz angewiesen sein', en: 'to depend on artificial intelligence' },
+      { de: 'Fehlentscheidungen in Kauf nehmen', en: 'to accept wrong decisions as a trade-off' },
+      { de: 'Daten zur Verfügung stellen', en: 'to provide data' },
+      { de: 'eine wachsende Rolle spielen', en: 'to play a growing role' },
+      { de: 'sich mit den Risiken auseinandersetzen', en: 'to engage with the risks' }
     ]
   },
   'st-bildung-schulnoten': {
@@ -315,6 +407,13 @@ export const TOPIC_ARGUMENT_BANKS: Record<string, ArgumentBank> = {
       { de: 'die Bewertungsskala', en: 'rating scale' },
       { de: 'die Rückmeldung', en: 'feedback' },
       { de: 'die Versetzung', en: 'grade promotion' }
+    ],
+    phrases: [
+      { de: 'eine entscheidende Rolle spielen', en: 'to play a decisive role' },
+      { de: 'auf gute Noten angewiesen sein', en: 'to depend on good grades' },
+      { de: 'Leistungsdruck in Kauf nehmen', en: 'to accept performance pressure as a trade-off' },
+      { de: 'ausführliches Feedback zur Verfügung stellen', en: 'to provide detailed feedback' },
+      { de: 'sich mit dem eigenen Leistungsstand auseinandersetzen', en: "to engage with one's own performance level" }
     ]
   },
   'st-umwelt-autofreie-innenstadt': {
@@ -337,6 +436,13 @@ export const TOPIC_ARGUMENT_BANKS: Record<string, ArgumentBank> = {
       { de: 'die Verkehrsberuhigung', en: 'traffic calming' },
       { de: 'der Lieferverkehr', en: 'delivery traffic' },
       { de: 'die Aufenthaltsqualität', en: 'quality of public space' }
+    ],
+    phrases: [
+      { de: 'eine wichtige Rolle spielen', en: 'to play an important role' },
+      { de: 'auf das eigene Auto angewiesen sein', en: "to depend on one's own car" },
+      { de: 'Umwege in Kauf nehmen', en: 'to accept detours as a trade-off' },
+      { de: 'mehr Platz für Fußgänger zur Verfügung stellen', en: 'to provide more space for pedestrians' },
+      { de: 'sich an neue Verkehrsregeln gewöhnen', en: 'to get used to new traffic rules' }
     ]
   }
 }

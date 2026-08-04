@@ -54,6 +54,7 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'passiv-transform': 'Passiv transformation',
   'writing-grade': 'Writing · graded essay',
   'simulator-c1': 'Goethe C1 · Mock exam',
+  'sprechen-teil1': 'Sprechen · Teil 1 Vortrag',
   'sprechen-teil2': 'Sprechen · Teil 2 discussion',
   'sprechen-drill': 'Sprechen · Korrekturdrill'
 }
@@ -112,6 +113,7 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'passiv-transform': 'Passiv · Transformation',
   'writing-grade': 'Schreiben · benoteter Aufsatz',
   'simulator-c1': 'Goethe C1 · Prüfungssimulation',
+  'sprechen-teil1': 'Sprechen · Teil 1 Vortrag',
   'sprechen-teil2': 'Sprechen · Teil 2 Diskussion',
   'sprechen-drill': 'Sprechen · Korrekturdrill'
 }
@@ -170,6 +172,7 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'passiv-transform',
   'writing-grade',
   'simulator-c1',
+  'sprechen-teil1',
   'sprechen-teil2',
   'sprechen-drill'
 ]

@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import {
   REDEMITTEL_YIELD_KEY, loadRedemittelYield, bumpRedemittelYield, lifetimeCounts
 } from '../../src/composables/useRedemittelYield'
+import { SPRECHEN_VORTRAGSMITTEL } from '../../src/data/sprechenVortragsmittel'
+import { SPRECHEN_REDEMITTEL } from '../../src/data/sprechenRedemittel'
 
 beforeEach(() => localStorage.clear())
 
@@ -59,5 +61,24 @@ describe('lifetimeCounts', () => {
     bumpRedemittelYield(['rm-agree-1', 'rm-ask-1'], 5000)
     bumpRedemittelYield(['rm-agree-1'], 6000)
     expect(lifetimeCounts()).toEqual({ 'rm-agree-1': 2, 'rm-ask-1': 1 })
+  })
+})
+
+describe('lifetimeCounts bank filter', () => {
+  it('returns every id when no bank is given — today’s behaviour', () => {
+    bumpRedemittelYield(['rm-agree-1', 'vm-einstieg-1'], 1000)
+    expect(Object.keys(lifetimeCounts()).sort()).toEqual(['rm-agree-1', 'vm-einstieg-1'])
+  })
+
+  it('keeps the two banks’ tallies separate when filtered', () => {
+    bumpRedemittelYield(['rm-agree-1', 'vm-einstieg-1', 'vm-abschluss-5'], 1000)
+    expect(Object.keys(lifetimeCounts(SPRECHEN_REDEMITTEL))).toEqual(['rm-agree-1'])
+    expect(Object.keys(lifetimeCounts(SPRECHEN_VORTRAGSMITTEL)).sort())
+      .toEqual(['vm-abschluss-5', 'vm-einstieg-1'])
+  })
+
+  it('drops ids that belong to no given bank', () => {
+    bumpRedemittelYield(['ghost-1'], 1000)
+    expect(lifetimeCounts(SPRECHEN_REDEMITTEL)['ghost-1']).toBeUndefined()
   })
 })

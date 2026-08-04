@@ -32,15 +32,31 @@ export function redemittelNeedle(phraseDe: string): string {
   return normalize(phraseDe).slice(0, NEEDLE_MAX)
 }
 
-/** Which of the 42 Redemittel the learner's turns actually contained. */
-export function matchRedemittel(learnerTexts: readonly string[]): Redemittel[] {
-  const hay = learnerTexts.map(normalize).join(TURN_SEP)
-  if (hay.length === 0) return []
-  return SPRECHEN_REDEMITTEL.filter(r => hay.includes(redemittelNeedle(r.phraseDe)))
+/** The minimum a phrase bank must provide to be matchable. */
+export interface PhraseLike {
+  id: string
+  move: string
+  phraseDe: string
 }
 
-export function movesUsed(used: readonly Redemittel[]): Partial<Record<Move, number>> {
-  const counts: Partial<Record<Move, number>> = {}
+/**
+ * Which phrases of `bank` the learner's own words actually contained.
+ * Generic over the bank so the Vortragsmittel bank works without widening
+ * Teil 2's return type: with the default, `T` infers as `Redemittel`.
+ */
+export function matchRedemittel<T extends PhraseLike = Redemittel>(
+  learnerTexts: readonly string[],
+  bank: readonly T[] = SPRECHEN_REDEMITTEL as unknown as readonly T[]
+): T[] {
+  const hay = learnerTexts.map(normalize).join(TURN_SEP)
+  if (hay.length === 0) return []
+  return bank.filter(r => hay.includes(redemittelNeedle(r.phraseDe)))
+}
+
+export function movesUsed<M extends string>(
+  used: readonly { move: M }[]
+): Partial<Record<M, number>> {
+  const counts: Partial<Record<M, number>> = {}
   for (const r of used) counts[r.move] = (counts[r.move] ?? 0) + 1
   return counts
 }
@@ -68,25 +84,26 @@ export function movePerTurn(learnerTexts: readonly string[]): (Move | null)[] {
 }
 
 /**
- * The Move nudge (CONTEXT.md → "Move nudge"): a Move not used in THIS
- * Discussion, preferring the one the learner's LIFETIME yield shows they reach
- * for least. Satisfies both readings — actionable now, informed by history.
- * Never includes 'opinion': the hint panel does not offer it.
+ * The Move nudge (CONTEXT.md → "Move nudge"): a Move not used in THIS run,
+ * preferring the one the learner's LIFETIME yield shows they reach for least.
+ * Generic over the Move type, so Teil 2 callers keep `Move | null` and Teil 1
+ * gets `VortragMove | null`.
  */
-export function pickMoveNudge(
+export function pickMoveNudge<M extends string = Move>(
   learnerTexts: readonly string[],
-  lifetime: Readonly<Record<string, number>>
-): Move | null {
-  const usedThisRun = movesUsed(matchRedemittel(learnerTexts))
-  const candidates = HINT_MOVES.filter(m => (usedThisRun[m] ?? 0) === 0)
+  lifetime: Readonly<Record<string, number>>,
+  bank: readonly (PhraseLike & { move: M })[] =
+    SPRECHEN_REDEMITTEL as unknown as readonly (PhraseLike & { move: M })[],
+  moves: readonly M[] = HINT_MOVES as unknown as readonly M[]
+): M | null {
+  const usedThisRun = movesUsed(matchRedemittel(learnerTexts, bank))
+  const candidates = moves.filter(m => (usedThisRun[m] ?? 0) === 0)
   if (candidates.length === 0) return null
 
-  const lifetimeFor = (m: Move): number =>
-    SPRECHEN_REDEMITTEL
-      .filter(r => r.move === m)
-      .reduce((sum, r) => sum + (lifetime[r.id] ?? 0), 0)
+  const lifetimeFor = (m: M): number =>
+    bank.filter(r => r.move === m).reduce((sum, r) => sum + (lifetime[r.id] ?? 0), 0)
 
-  // HINT_MOVES order is the tie-break, so a strict `<` keeps the first-listed
+  // `moves` order is the tie-break, so a strict `<` keeps the first-listed
   // candidate when totals are equal.
   let best = candidates[0]
   let bestN = lifetimeFor(best)

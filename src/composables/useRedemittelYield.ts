@@ -63,8 +63,23 @@ export function bumpRedemittelYield(ids: readonly string[], at: number): void {
   }
 }
 
-export function lifetimeCounts(): Record<string, number> {
+/**
+ * Lifetime counts, optionally narrowed to one phrase bank.
+ *
+ * The store is shared because phrase ids are globally unique (`rm-*` vs
+ * `vm-*`), but the two banks' Move sets are disjoint, so any figure the learner
+ * SEES must be per bank (CONTEXT.md → "Redemittel yield"). Omitting `bank`
+ * returns everything, which is what every pre-Teil-1 caller wants.
+ */
+export function lifetimeCounts(
+  bank?: readonly { id: string }[]
+): Record<string, number> {
+  const store = loadRedemittelYield()
+  const allow = bank ? new Set(bank.map(r => r.id)) : null
   const out: Record<string, number> = {}
-  for (const [id, use] of Object.entries(loadRedemittelYield())) out[id] = use.count
+  for (const [id, use] of Object.entries(store)) {
+    if (allow && !allow.has(id)) continue
+    out[id] = use.count
+  }
   return out
 }

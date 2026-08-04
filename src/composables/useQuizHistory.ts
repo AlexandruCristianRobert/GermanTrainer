@@ -57,6 +57,7 @@ export type QuizHistoryType =
   | 'passiv-transform'
   | 'writing-grade'
   | 'simulator-c1'
+  | 'sprechen-teil1'
   | 'sprechen-teil2'
   | 'sprechen-drill'
 
@@ -229,6 +230,7 @@ export interface QuizHistoryMeta {
   task2Score?: number
   combinedScore?: number
   passes?: boolean
+  maxScore?: number                                       // generic total-possible score (Sprechen Teil 1 sends it explicitly; Teil 2 implies 100)
 
   // Sprechen Teil 2 (Discussion) — summary only, no transcript (spec decision)
   topicTitle?: string
@@ -263,6 +265,16 @@ export interface QuizHistoryMeta {
   // The per-attempt CorrectionEvent record is the source of truth (ADR-0012);
   // this is just a convenience breakdown for the Run itself.
   sprechenDrilledKinds?: Partial<Record<SprechenErrorTag, number>>
+
+  // Sprechen Teil 1 (Vortrag) — summary only, no Rede, no Nachfrage.
+  // `topicTitle` is deliberately reused rather than forked to `themaTitle`:
+  // the hub's merged recents list reads meta.topicTitle for both parts, and
+  // the Topic/Vortragsthema distinction is a domain one, not a storage one.
+  sectionsCovered?: number                          // 0–5, the GRADER's coverage, never the rail's dots
+  spokenSeconds?: number
+  sprechenVortragsmittel?: string[]
+  sprechenHelps?: { hints: boolean; checklist: boolean; kiTipp: boolean; hardLimit: boolean }
+  sprechenAufwertungen?: Array<{ quote: string; better: string; whyDe: string; whyEn: string }>
 }
 
 export interface QuizHistoryEntry {
