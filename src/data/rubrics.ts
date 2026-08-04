@@ -412,6 +412,88 @@ export const SPRECHEN_B2_TEIL2: SprechenRubric = {
 }
 
 /**
+ * Teil 1 · Vortrag. Structurally identical to Teil 2 — four criteria à 25,
+ * pass at 60, same Prädikat bands — so a Teil 1 and a Teil 2 score sit on one
+ * scale. Two things differ: `erfuellung` becomes Erfüllung / Gliederung and
+ * asks about the five Gliederungspunkte and the Nachfrage instead of about
+ * interaction, and `kohaerenz` carries a spoken variant, because a Rede is
+ * ENTIRELY a fluency performance and the typed hedge cannot cover both.
+ */
+export const SPRECHEN_B2_TEIL1: SprechenRubric = {
+  labelDe: 'Goethe-Zertifikat B2 · Sprechen Teil 1 (adaptiert, ohne Aussprache)',
+  totalMax: 100,
+  passingScore: 60,
+  criteria: [
+    {
+      key: 'erfuellung',
+      labelDe: 'Erfüllung / Gliederung',
+      labelEn: 'Task fulfilment / structure',
+      maxPoints: 25,
+      descriptorDe:
+        'Werden alle fünf Gliederungspunkte des Aufgabenblatts behandelt — Einstieg, ' +
+        'Situation, Vor- und Nachteile, eigene Erfahrung, Meinung und Abschluss? ' +
+        'Ist der Vortrag angemessen lang und durchgehend auf das Thema bezogen? ' +
+        'Wird eine eigene Position genannt UND begründet? Wird die Nachfrage am Ende ' +
+        'inhaltlich beantwortet, statt nur höflich quittiert? Ein ausgelassener oder ' +
+        'nur angetippter Gliederungspunkt mindert die Punktzahl in diesem Kriterium.'
+    },
+    {
+      key: 'kohaerenz',
+      labelDe: 'Kohärenz & Flüssigkeit',
+      labelEn: 'Coherence & flow',
+      maxPoints: 25,
+      descriptorDe:
+        'Ist der Vortrag als Ganzes erkennbar gegliedert (Einstieg, Hauptteil, Schluss)? ' +
+        'Werden die Punkte durch Signalwörter verbunden (zunächst, anschließend, ' +
+        'einerseits/andererseits, zusammenfassend) statt bloß aneinandergereiht? ' +
+        'Für die schriftliche Form angepasst: Flüssigkeit heißt hier ein tragender ' +
+        'Aufbau, nicht Sprechtempo.',
+      descriptorSpokenDe:
+        'Ist der Vortrag als Ganzes erkennbar gegliedert (Einstieg, Hauptteil, Schluss)? ' +
+        'Werden die Punkte durch Signalwörter verbunden (zunächst, anschließend, ' +
+        'einerseits/andererseits, zusammenfassend) statt bloß aneinandergereiht? ' +
+        'Da dies ein gesprochener Vortrag ist, gehört hier auch die Vortragsweise zur ' +
+        'Bewertung: Spricht die Person in einem natürlichen Sprechtempo, vier Minuten ' +
+        'lang, ohne lähmendes Zögern oder auffällig häufige Pausen? Nutze dafür die ' +
+        'mitgelieferten SPRECHDATEN (Redezeit, Wörter pro Minute, Anzahl langer Pausen).'
+    },
+    {
+      key: 'wortschatz',
+      labelDe: 'Wortschatz',
+      labelEn: 'Vocabulary',
+      maxPoints: 25,
+      descriptorDe:
+        'Ist der Wortschatz für einen B2-Vortrag breit und präzise? Werden ' +
+        'themenspezifische Begriffe und feste Wortverbindungen verwendet statt ' +
+        'Allgemeinplätze wie „machen" und „gut"? Werden Vortragsmittel ' +
+        'variantenreich eingesetzt oder immer dieselben zwei?'
+    },
+    {
+      key: 'strukturen',
+      labelDe: 'Strukturen',
+      labelEn: 'Structures',
+      maxPoints: 25,
+      descriptorDe:
+        'Wie korrekt und variantenreich sind die grammatischen Strukturen im Monolog ' +
+        '(Nebensätze, Passiv, Konjunktiv II, Nominalisierungen, Verbstellung)? ' +
+        'Wie häufig und wie schwerwiegend sind Fehler, und beeinträchtigen sie das ' +
+        'Verständnis?'
+    }
+  ],
+  notes:
+    'Adaptierte Bewertung für getippte Vorträge: Aussprache wird nicht bewertet; ' +
+    'vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. Die Redezeit wird hier ' +
+    'über den Umfang geschätzt (360 Wörter ≈ 4 Minuten), nicht über eine Uhr. ' +
+    'Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, ' +
+    '60+ ausreichend, darunter nicht bestanden.',
+  notesSpokenDe:
+    'Adaptierte Bewertung für gesprochene Vorträge: Aussprache wird nicht bewertet; ' +
+    'vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. Die Redezeit ist hier ' +
+    'gemessen, nicht geschätzt. Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, ' +
+    '80+ gut, 70+ befriedigend, 60+ ausreichend, darunter nicht bestanden.'
+}
+
+/**
  * Resolves the modality-appropriate descriptor for a Sprechen criterion.
  * Typed runs (and any criterion without a spoken variant) get descriptorDe
  * unchanged; spoken runs get descriptorSpokenDe where one is defined. The

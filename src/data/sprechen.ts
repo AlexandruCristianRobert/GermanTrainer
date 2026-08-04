@@ -6,6 +6,8 @@
 // conversation is discarded (user decision in the spec) — what outlives it is
 // the Run summary plus one Archived correction per marked mistake.
 
+import type { GliederungKey } from './sprechenVortragsmittel'
+
 export type DiscussionStatus = 'in_progress' | 'submitted'
 
 export type PartnerStance = 'pro' | 'contra'
@@ -147,3 +149,85 @@ export function summarizeFluency(
     turns: spoken.length
   }
 }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Sprechen Teil 1 — Vortrag. See CONTEXT.md → "Vortrag", "Rede", "Nachfrage".
+
+   A Vortrag is the whole practice unit: one Vortragsthema, one Rede, one
+   Nachfrage, one grade, one Run. The Rede is the monologue inside it and is
+   composed in ONE take — never point by point (ADR-0014).
+   ──────────────────────────────────────────────────────────────────────────── */
+
+export type VortragStatus = 'in_progress' | 'submitted'
+
+export interface VortragThemaRef {
+  id: string
+  titleDe: string
+  taskDe: string
+  source: 'seed' | 'custom'
+}
+
+/** The four help switches, frozen when the Vortrag starts. */
+export interface VortragHelps {
+  hints: boolean       // drawer, Move nudge, Rettungsleine, stuck detection
+  checklist: boolean   // live Gliederung checklist + Redezeit bar
+  kiTipp: boolean      // the one paid live help
+  hardLimit: boolean   // spoken only — always false when typed
+}
+
+/** What the Hilfe-Protokoll counts. Descriptive only, never scored. */
+export type HelpKind = 'drawer' | 'phrase' | 'rettungsleine' | 'nudge' | 'kitipp' | 'vorsprechen'
+
+export interface HelpLogEntry {
+  at: number           // ms epoch
+  kind: HelpKind
+}
+
+/** One line of the Vortragsplan: a keyword against a Gliederungspunkt. */
+export interface VortragPlanEntry {
+  key: GliederungKey
+  keyword: string
+}
+
+export interface RedeRecord {
+  textDe: string
+  seconds?: number     // spoken only — real elapsed
+  restarts?: number    // spoken only — long-pause proxy
+  spans?: SpeechSpan[] // spoken only
+}
+
+export interface NachfrageRecord {
+  questionDe: string
+  answerDe: string
+}
+
+export interface SprechenVortrag {
+  id: string                     // crypto.randomUUID()
+  thema: VortragThemaRef
+  modality: Modality             // fixed at creation
+  helps: VortragHelps            // frozen at creation
+  plan: VortragPlanEntry[]       // the Vortragsplan — five entries, keywords may be ''
+  notes: string
+  rede: RedeRecord
+  nachfrage?: NachfrageRecord
+  kiTippCount: number
+  helpLog: HelpLogEntry[]
+  status: VortragStatus          // no graded/abandoned states — those rows are deleted
+  startedAt: number
+  endedAt?: number                // set when submitted
+}
+
+export const TEIL1_STASH_KEY = 'gt:lastSprechenTeil1'
+
+/** Setup → prep → runner handoff, sessionStorage. */
+export interface Teil1RunStash {
+  thema: VortragThemaRef
+  modality: Modality
+  helps: VortragHelps
+  prepSeconds: number
+  plan: VortragPlanEntry[]
+  notes: string
+  model: string
+}
+
+export const PREP_SECONDS = [0, 180, 900] as const
