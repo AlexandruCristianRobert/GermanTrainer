@@ -19,6 +19,18 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.17.00', date: '2026-08-05', kind: 'module',
+    title: 'Sprechen Teil 1 · der Vortrag — vier Minuten am Stück',
+    notes: [
+      '<strong>Die andere Hälfte der mündlichen Prüfung ist da.</strong> Zwei Aufgabenblätter liegen vor dir, du nimmst eines, planst die Gliederung und hältst den Vortrag — <em>am Stück</em>, nicht Abschnitt für Abschnitt. Danach stellt der Partner genau eine Nachfrage, und zwar zu dem, was du wirklich gesagt hast. Bewertet wird auf derselben Skala wie Teil 2, damit die beiden Werte vergleichbar bleiben.',
+      '<strong>Die Themenwahl ist eine echte Entscheidung.</strong> Beide Blätter drucken alle fünf Gliederungspunkte aus, du wählst also nach Inhalt und nicht nach Titel. Darunter fragen drei Häkchen, ob du das Thema füllen kannst: eigenes Beispiel, drei Wörter, eine Meinung. Nur für dich, wird nicht gespeichert — genau die halbe Minute, an der diese Prüfungsaufgabe sonst verloren geht.',
+      '<strong>Aus der Vorbereitung wird eine Live-Checkliste.</strong> Du schreibst ein Stichwort pro Gliederungspunkt, und dieselben fünf Stichwörter stehen im Vortrag neben dir und haken sich selbst ab, sobald du sie sagst. Lokal gezählt, ohne KI, aus <em>deinem</em> Plan — kein Schema. Die Liste sagt darum <em>gesagt</em> und nie <em>abgedeckt</em>: ob ein Punkt wirklich getragen hat, sagt erst die Auswertung.',
+      '<strong>Hilfen, die im Ernstfall etwas taugen.</strong> 35 Vortragsmittel in sieben Gruppen, jede zum Anhören, bevor du sie sagst. Eine Konnektoren-Palette für genau die Übergänge, an denen ein Vortrag sonst abreißt. Drei feste Fragen, die dir dein eigenes Beispiel ausgraben. Und eine Rettungsleine: vier Minuten ohne Totenstille zu füllen ist Prüfungsstoff, keine Ausrede. Bleibst du hängen, meldet sich die Hilfe von selbst — bezahlt wird aber nie ohne dich.',
+      '<strong>Aufwertungen, getrennt von Fehlern.</strong> Die Auswertung markiert wie gewohnt jede falsche Stelle und legt sie ins gemeinsame Fehlerarchiv — Vortrag und Diskussion schreiben ins selbe. Daneben steht jetzt ein eigener Block: Stellen, die <em>nicht</em> falsch waren und auf B2 trotzdem besser klingen. Die wandern absichtlich nicht ins Archiv, denn das Archiv bedeutet „das hatte ich falsch". Sie bleiben aber in der Bilanz lesbar, auch wenn der Vortrag selbst längst verworfen ist.',
+      '<strong>Vier Regeln, an die sich alle Hilfen halten.</strong> Keine wird gegen dich geprüft, keine kostet Punkte, keine außer dem KI-Tipp kostet einen Call — und was du benutzt hast, steht hinterher offen im Hilfe-Protokoll. Das harte Zeitlimit gibt es nur beim Sprechen: ein Wortdeckel auf einen getippten Vortrag hätte in der Prüfung kein Gegenstück und würde nur Ausführlichkeit bestrafen.'
+    ]
+  },
+  {
     version: '1.16.03', date: '2026-08-02', kind: 'polish',
     title: 'Satzübersetzung · hear the sentence you were aiming for',
     notes: [
