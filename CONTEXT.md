@@ -148,44 +148,80 @@ _Avoid_: illustration, image, picture hint
 A Teil 2 speaking-practice conversation between the learner and the AI partner, arguing a [Topic] turn by turn. Its [Modality] decides whether the learner's turns are typed or spoken; everything else — the [Topic] pool, [Move]s, [Sprechen error tag]s, the rubric, the [Prädikat] — is the same either way. Resumable while in progress; once graded it is recorded as a [Run] and the conversation is discarded — what outlives it is the [Run]'s summary and, for each marked mistake, an [Archived correction] carrying the learner's own sentence. The partner's turns are kept nowhere.
 _Avoid_: session, chat, dialogue, Diskussionsrunde
 
+**Vortrag**:
+A Teil 1 speaking-practice unit: one [Vortragsthema] chosen from two offered task sheets, a [Rede] of about four minutes, and one [Nachfrage] — graded as a whole against the Teil-1 rubric. Its [Modality] decides whether the learner speaks or types. Resumable while in progress; once graded it is recorded as a [Run] and both the Rede and the Nachfrage are discarded, leaving the Run's summary and one [Archived correction] per marked mistake. The Teil 1 counterpart of a [Discussion].
+_Avoid_: presentation, talk, monologue (that is the [Rede]), Teil 1 (the exam part, not one practice unit)
+
+**Rede**:
+The monologue inside a [Vortrag]: one continuous stretch of the learner's German covering the five [Gliederungspunkt]s, budgeted at 360 words ≈ 4:00 at 90 words per minute — a rate chosen to be reachable by a B2 speaker, so that a typed and a spoken Rede are asked for the same amount of content. Composed **in one take**, never point by point. The Redezeit budget applies to the Rede alone.
+_Avoid_: talk, speech, monologue, transcript, sections
+
+**Nachfrage**:
+The single follow-up question the AI partner asks once a [Rede] has ended — generated from what the learner actually said — together with the learner's answer to it. Graded inside the [Vortrag]'s Erfüllung criterion; not counted against the Rede's word budget, but its mistakes are archived and its Redemittel counted like any other. Exactly one per Vortrag.
+_Avoid_: follow-up, question round, Rückfrage (in a [Discussion] that is the learner asking the partner)
+
+**Gliederungspunkt**:
+One of the five fixed points a Teil 1 task sheet prints and a [Rede] must cover — Einstieg, Situation, Vor- und Nachteile, Eigene Erfahrung, Meinung & Abschluss — each with its own hint and word target (45 / 75 / 95 / 75 / 70, summing to the [Rede]'s 360). The same five for every [Vortragsthema], and what the grader's coverage judgement is made against.
+_Avoid_: section, bullet, outline point, Abschnitt
+
+**Vortragsplan**:
+The five keywords the learner writes against the [Gliederungspunkt]s while preparing, one per point. Carried into the [Vortrag] and matched locally against the live [Rede], so each point can show whether its own planned keyword has been said yet. Never graded.
+_Avoid_: outline, script, notes (the free-text notes field is a separate thing)
+
 **Modality**:
-Whether a [Discussion]'s or a [Verb sentence quiz]'s learner turns are `typed` or `spoken`. Chosen at setup and fixed for the run in both. For a [Discussion] it changes only the input surface — a text field or a microphone — and what can be measured from it: a spoken [Discussion] yields real speaking tempo, reaction time and pause counts, so its rubric judges Flüssigkeit on evidence instead of adapting around its absence. Everything else is shared: the same [Topic] pool, the same preparation, the same [Move]s and hints, the same rubric, and the *same* kind of [Run] — so a typed and a spoken score are directly comparable, and "how much worse am I when I have to speak?" is an answerable question. In a [Verb sentence quiz] the spoken Modality changes only the input surface too — the same generated sentences, the same AI grader, the same [Verb error tag]s, the same kind of [Run] — with no fluency measurement, because a translation drill is graded right or wrong.
+Whether the learner's own German in a [Discussion], a [Vortrag] or a [Verb sentence quiz] is `typed` or `spoken`. Chosen at setup and fixed for the run in all three. For a [Vortrag] it changes the input surface and how Redezeit is measured — real seconds against 4:00 when spoken, words against 445 when typed — and, as in a [Discussion], only the `kohaerenz` criterion's descriptor differs: a [Rede] is entirely a fluency performance, so the typed wording keeps the written-form hedge while the spoken one judges tempo, hesitation and pausing on evidence. The rubric, its four criteria and their weights are identical either way, so a typed and a spoken score stay directly comparable. For a [Discussion] it changes only the input surface — a text field or a microphone — and what can be measured from it: a spoken [Discussion] yields real speaking tempo, reaction time and pause counts, so its rubric judges Flüssigkeit on evidence instead of adapting around its absence. Everything else is shared: the same [Topic] pool, the same preparation, the same [Move]s and hints, the same rubric, and the *same* kind of [Run] — so a typed and a spoken score are directly comparable, and "how much worse am I when I have to speak?" is an answerable question. In a [Verb sentence quiz] the spoken Modality changes only the input surface too — the same generated sentences, the same AI grader, the same [Verb error tag]s, the same kind of [Run] — with no fluency measurement, because a translation drill is graded right or wrong.
 _Avoid_: mode (collides with [Grading mode]), input method, voice mode, separate test
 
 **Topic** (de Thema):
-A controversial statement or question a [Discussion] argues — drawn from the app's seeded pool or AI-generated into the learner's custom pool.
+A controversial statement or question a [Discussion] argues — drawn from the app's seeded pool or AI-generated into the learner's custom pool. Teil 2 only; the Teil 1 counterpart is a [Vortragsthema], which is deliberately *not* a Topic.
 _Avoid_: theme (a noun vocabulary category), subject, statement
+
+**Vortragsthema**:
+The subject a [Vortrag] treats, together with the task-sheet instruction that frames it (*„Halten Sie einen kurzen Vortrag darüber, …"*). Unlike a [Topic] it is **not controversial and takes no sides** — there is nothing for a partner to argue against, which is what makes Teil 1 a monologue. Its own seeded pool and its own AI-generated custom pool, kept separate from the Topic pools; both are tagged with the same ten fields, so both resolve an argument bank the same way.
+_Avoid_: Topic (that is the Teil 2 concept), Thema (ambiguous across parts), prompt, task
 
 **Sprechen error tag**:
 A classification the post-Discussion analysis assigns to each marked mistake in a learner's turns, naming *what* went wrong. One of: `grammar` (case, conjugation, endings, agreement), `word-order` (verb-second, verb-final, separable-prefix placement), `vocabulary` (wrong word, false friend, broken collocation), `spelling`, `register` (du/Sie slips, tone). Unlike [Error tag] and [Verb error tag], exactly one kind per marked mistake — each annotation is a single span with a single explanation. `spelling` is never assigned in a `spoken` [Modality]: the spelling there is the speech recognizer's, not the learner's.
 _Avoid_: mistake type, error category
 
 **Move**:
-A named discussion tactic — agree, disagree, partially agree, ask back, give an example, summarize — under which the Sprechen cheatsheet and the in-Discussion hint panel group their stock phrases (Redemittel). A seventh, stating an opinion, appears in the cheatsheet only.
-_Avoid_: hint category, strategy, tactic chip
+The communicative job a Redemittel does, and the group the Sprechen cheatsheet and the in-test hint panel file it under. **Two disjoint sets, one per exam part**: in a [Discussion] the six Gesprächszüge — agree, disagree, partially agree, ask back, give an example, summarize (a seventh, stating an opinion, appears in the cheatsheet only); in a [Vortrag] the seven Vortragsfunktionen — open the topic, announce the structure, introduce an aspect, contrast, give evidence, summarize & close, answer a follow-up. A Move never spans parts, and the two sets are never counted together.
+_Avoid_: hint category, strategy, tactic chip, section (Vortragsfunktionen outnumber the [Gliederungspunkt]s and do not map one-to-one)
+
+**Vortragsmittel**:
+The Teil 1 phrase bank: 35 stock German phrases for holding a [Vortrag], filed under the seven Vortragsfunktionen (see [Move]). A kind of Redemittel, not a rival concept — so [Redemittel yield] counts them, on their own separate tally, and the cheatsheet gives them their own tab.
+_Avoid_: Redemittel (unqualified, where the Teil 1 bank specifically is meant), presentation phrases, Wendungen
 
 **Redemittel yield** (de Redemittel-Ausbeute):
-How many distinct Redemittel the learner's turns actually contained, grouped by [Move] — counted locally by text matching, never by AI, and never affecting the score. It measures *use*, not command: a phrase counts whether the learner recalled it, inserted it from the hint panel, or read it aloud from the panel mid-turn. Read at two scopes: the yield *of one [Discussion]*, visible while it runs and on its result; and the learner's *lifetime* yield, which accumulates across [Run]s and is the basis for suggesting a [Move] they have not reached for. The lifetime figure is banked as each [Discussion] is graded, because the conversation it was counted from is discarded immediately afterwards and can never be re-counted.
+How many distinct Redemittel the learner's own words actually contained, grouped by [Move] — counted locally by text matching, never by AI, and never affecting the score. It measures *use*, not command: a phrase counts whether the learner recalled it, inserted it from the hint panel, or read it aloud from the panel mid-turn. Read at two scopes: the yield *of one [Discussion] or [Vortrag]*, visible while it runs and on its result; and the learner's *lifetime* yield, which accumulates across [Run]s and is the basis for suggesting a [Move] they have not reached for. **Counted per phrase bank**: a Discussion's Redemittel and a Vortrag's Vortragsmittel are separate tallies and are never summed, because their [Move] sets are disjoint. The lifetime figure is banked as each [Discussion] or [Vortrag] is graded, because the text it was counted from is discarded immediately afterwards and can never be re-counted.
 _Avoid_: Redemittel score, phrase coverage, mastery
 
 **Move nudge**:
-A single [Move] the app names to the learner mid-[Discussion] — *„Diesmal: nachfragen"* — chosen from the Moves they have not used in this Discussion, preferring the one their lifetime [Redemittel yield] shows they reach for least. Purely a suggestion: it is never validated against, never scored, and carries no obligation — the learner may ignore it and the [Discussion] proceeds identically. Dismissible for the run, and absent when hints are off. Distinct from a [KI-Tipp], which costs an AI call and suggests *what* to argue; the nudge is free, local, and suggests *how*.
+A single [Move] the app names to the learner mid-test — *„Diesmal: nachfragen"* in a [Discussion], *„Diesmal: gegenüberstellen"* in a [Vortrag] — chosen from the Moves they have not used in this run, preferring the one their lifetime [Redemittel yield] shows they reach for least. Purely a suggestion: it is never validated against, never scored, and carries no obligation — the learner may ignore it and the run proceeds identically. Dismissible for the run, and absent when hints are off. Distinct from a [KI-Tipp], which costs an AI call and suggests *what* to argue; the nudge is free, local, and suggests *how*.
 _Avoid_: prompt, task, challenge, goal, required move
 
 **KI-Tipp**:
 An on-demand AI-generated suggestion during the learner's turn in a [Discussion]: a strategic direction for what to argue next, never ready-made text. Uses are counted and shown with the result, but never affect the score.
 _Avoid_: AI hint, tip (unqualified)
 
+**Hilfe-Protokoll**:
+The record of which helps the learner reached for during a [Vortrag] and when — hint-drawer opens, [Move nudge]s shown, Rettungsleinen taken, [KI-Tipp]s spent — shown with the result as counts against a minute timeline. Purely descriptive: it never affects the score and imposes no obligation. Teil 1 only for now.
+_Avoid_: help score, usage stats, penalty, crutch count
+
 **Prädikat**:
-The Goethe grade band a graded [Discussion]'s score maps to: *sehr gut* (90+), *gut* (80+), *befriedigend* (70+), *ausreichend* (60+), *nicht bestanden* (below 60).
+The Goethe grade band a graded [Discussion]'s or [Vortrag]'s score maps to: *sehr gut* (90+), *gut* (80+), *befriedigend* (70+), *ausreichend* (60+), *nicht bestanden* (below 60).
 _Avoid_: grade, mark, rating
 
+**Aufwertung**:
+A style upgrade the analysis of a graded [Vortrag] proposes: a stretch of the learner's German that was **not wrong**, together with a more B2-like wording and why it reads better. It carries no [Sprechen error tag], never enters the [Error archive] and is never drilled — an [Archived correction] says "you got this wrong", an Aufwertung says "this was fine and could be better". Kept in full in the [Run]'s summary, because it is the app's advice rather than the learner's own speech.
+_Avoid_: correction, improvement, suggestion, mistake, better version
+
 **Archived correction** (de Korrektur):
-One marked mistake from a graded [Discussion], kept after the conversation itself is discarded: the learner's wrong wording, the suggested fix, its [Sprechen error tag], and enough of the surrounding sentence to make the fix intelligible. The only part of a [Discussion] that outlives it. Corrections from a `spoken` [Modality] are archived on the same terms as typed ones and are not distinguished — a mistake the recognizer invented is archived as readily as one the learner made, which is a known and accepted cost.
+One marked mistake from a graded [Discussion] or [Vortrag], kept after the learner's own words are discarded: the wrong wording, the suggested fix, its [Sprechen error tag], and enough of the surrounding sentence to make the fix intelligible. The only part of a [Discussion] or [Vortrag] that outlives it. Corrections from a `spoken` [Modality] are archived on the same terms as typed ones and are not distinguished — a mistake the recognizer invented is archived as readily as one the learner made, which is a known and accepted cost.
 _Avoid_: mistake (that is the in-Discussion marking), error record, flashcard
 
 **Error archive** (de Fehlerarchiv):
-The learner's whole standing collection of [Archived correction]s, grouped by [Sprechen error tag] so that repetition becomes visible. Cold storage: never read while a [Discussion] runs, only when the learner opens it or a [Correction drill].
+The learner's whole standing collection of [Archived correction]s, from both exam parts, grouped by [Sprechen error tag] so that repetition becomes visible and filterable by part. Cold storage: never read while a [Discussion] or [Vortrag] runs, only when the learner opens it or a [Correction drill]. [Aufwertung]s are deliberately not in it.
 _Avoid_: mistake history, error log, weak points (that term belongs to the drill modules)
 
 **Correction drill** (de Korrekturdrill):
