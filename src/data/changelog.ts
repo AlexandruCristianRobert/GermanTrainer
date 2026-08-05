@@ -19,6 +19,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.17.01', date: '2026-08-05', kind: 'fix',
+    title: 'Sprechen Teil 1 · die Messungen sagen jetzt die Wahrheit',
+    notes: [
+      '<strong>Die Prüfungsuhr läuft weiter, auch wenn du das Mikrofon anhältst.</strong> Bisher zählte die 4:00-Grenze nur die reine Sprechzeit — wer pausierte, um nachzudenken, bekam eine makellose Flüssigkeitsbilanz für einen Vortrag, der in Wirklichkeit zwölf Minuten brauchte. Jetzt gibt es beide Zahlen, Redezeit <em>und</em> Gesamtdauer, das harte Zeitlimit greift auf die echte Uhr, und die Auswertung sieht deine Pausenzeit — als Information, nicht als Vorwurf.',
+      '<strong>Ein gesprochener Vortrag übersteht jetzt einen toten Tab.</strong> Der Text wird bei jedem erkannten Satzstück gesichert statt erst beim Schließen des Mikrofons; auch die Nachfrage samt deiner angefangenen Antwort und die fünf Stichwörter der Vorbereitung überleben ein Neuladen. Und wer keinen KI-Zugang eingerichtet hat, erfährt das jetzt vor dem Vortrag, nicht nach vier Minuten Reden.',
+      '<strong>„Einerseits …, andererseits …" zählt endlich.</strong> Vier Vortragsmittel waren durch ihre Platzhalter technisch unauffindbar — ausgerechnet das Kontrastpaar, das die Bewertung namentlich sehen will, konnte nie aufleuchten. Und das Antippen einer Wendung fügt jetzt die ganze Wendung ein, nicht mehr ein einzelnes abgeschnittenes „Für".',
+      '<strong>Der KI-Tipp behauptet nichts mehr, was er nicht wissen kann.</strong> Ob ein Gliederungspunkt behandelt ist, beurteilt er jetzt am Vortragstext selbst; deine geplanten Stichwörter reicht er nur noch als ausdrücklich unzuverlässigen Hinweis weiter. Vorher schickte er dich zurück zu Punkten, die du längst behandelt hattest — für einen bezahlten Tipp zu wenig. Er kennt jetzt auch deine Redezeit und kann raten, wo du kürzen solltest.',
+      '<strong>Die Bewertung ist geeicht.</strong> Jedes Kriterium trägt jetzt vier ausgeschriebene Punktbänder statt einer freien Zahl, ein ausgelassener Gliederungspunkt kostet benannt mindestens vier Punkte, und ein Ergebnis, dessen Erfüllungsnote der eigenen Abdeckungstabelle widerspricht, wird verworfen statt angezeigt. Der Vorbereitungstipp, der zum Weglassen eines Punktes riet — das Gegenteil dessen, was die Rubrik bestraft — ist ersetzt.',
+      '<strong>Hilfen, die ehrlicher helfen.</strong> Konnektoren kommen als Satzrahmen mit ihrer Wortstellung („Trotzdem ist …") statt als lose Wörter, die Wortstellungsfehler produzieren. Die Rettungsleine steht jetzt über der Schublade, spricht auf Wunsch, und meldet sich, wenn du stockst — als eigener Eintrag im Hilfe-Protokoll, das keine Hilfen mehr zählt, die du nie benutzt hast. Ein Prüfungsmodus-Knopf stellt mit einem Griff Prüfungsbedingungen her, und „Live-Checkliste: Aus" versteckt jetzt wirklich jede Uhr.',
+      '<strong>Kleinigkeiten mit Wirkung.</strong> Doppelte oder ineinander steckende Stichwörter warnen schon in der Vorbereitung. Zehn Vortragsthemen, die ihre eigene Schlussfolgerung schon behaupteten, sind offen umformuliert. Die Nachfrage variiert ihren Typ — Vertiefung, Beispiel, Gegenposition, Transfer — und ein Mikrofonausfall mitten im Vortrag wird als das protokolliert, was er ist, statt die Bewertung stillschweigend umzuetikettieren.'
+    ]
+  },
+  {
     version: '1.17.00', date: '2026-08-05', kind: 'module',
     title: 'Sprechen Teil 1 · der Vortrag — vier Minuten am Stück',
     notes: [
