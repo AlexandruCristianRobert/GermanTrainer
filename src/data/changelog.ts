@@ -19,6 +19,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.17.02', date: '2026-08-05', kind: 'fix',
+    title: 'Übersetzung · a shared meaning accepts every verb that carries it',
+    notes: [
+      '<strong>EN→DE no longer insists on the one verb it happened to draw.</strong> The sheet shows only the English, and „achieve / attain" gives no way of knowing whether it came from <code>erzielen</code> or <code>leisten</code> — yet only the drawn verb counted. Grading now accepts any verb in the collection that shares a meaning with the prompted one, so when the same English appears twice in a round, the same answer is right both times.',
+      '<strong>The whole collection vouches, not just today\'s deck.</strong> The synonym doesn\'t have to be sampled in the current round to count — a correct translation is correct regardless of what else was drawn. This brings the reverse direction level with DE→EN, which has always taken any one of a verb\'s listed meanings.'
+    ]
+  },
+  {
     version: '1.17.01', date: '2026-08-05', kind: 'fix',
     title: 'Sprechen Teil 1 · die Messungen sagen jetzt die Wahrheit',
     notes: [
