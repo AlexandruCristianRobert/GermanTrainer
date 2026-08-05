@@ -648,3 +648,53 @@
   .k-col + .k-col { border-left: 0; border-top: 1px solid var(--hairline); }
   .plate-de { margin-left: 0; width: 100%; }
 }
+
+/* ── Verbs · EN→DE Bedeutungsfeld runner ── */
+.vq-top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 18px; }
+.vq-pips { flex: 1; max-width: 260px; margin: 0; }
+.vq-streak { font-family: var(--font-mono); }
+.vq-streak.hot { background: var(--ochre-tint); color: var(--ochre); }
+.vq-hint { font-size: 12.5px; font-style: italic; color: var(--mute); }
+.vq-card { position: relative; margin-top: 22px; border: 1px solid var(--rule); background: var(--paper-card); padding: 34px 38px 30px; transition: box-shadow .3s, border-color .3s; }
+.vq-card.hit { border-color: var(--success); box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 14%, transparent); }
+.vq-card.miss { border-color: var(--clay); box-shadow: 0 0 0 3px color-mix(in srgb, var(--clay) 14%, transparent); }
+.vq-meaning { font-family: var(--font-display); font-size: 44px; font-weight: 500; letter-spacing: -.025em; line-height: 1.05; margin-top: 10px; padding-right: 280px; }
+@media (max-width: 860px) { .vq-meaning { padding-right: 0; } }
+.vq-sub { font-size: 14px; font-style: italic; color: var(--ink-soft); margin: 10px 0 0; }
+.vq-slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 26px; }
+.vq-slot { border: 1px dashed var(--hairline); padding: 14px 16px; min-height: 74px; transition: border-color .25s, background .25s; }
+.vq-slot-de { font-family: var(--font-display); font-size: 21px; font-weight: 500; letter-spacing: -.01em; color: var(--mute); }
+.vq-slot.found { border: 1px solid var(--success); background: color-mix(in srgb, var(--success) 6%, transparent); }
+.vq-slot.found .vq-slot-de, .vq-slot.revealed .vq-slot-de { color: var(--ink); }
+.vq-slot.revealed { border: 1px solid var(--hairline); background: var(--paper-deep); }
+.vq-slot-c { font-size: 12.5px; font-style: italic; color: var(--ink-soft); margin-top: 5px; }
+.vq-slot-n { margin-top: 8px; }
+.vq-input-row { display: flex; gap: 12px; margin-top: 26px; align-items: stretch; }
+.vq-input { flex: 1; background: var(--paper); border: 1px solid var(--hairline); border-left: 2px solid var(--accent); padding: 13px 16px; font-family: var(--font-body); font-size: 17px; color: var(--ink); }
+.vq-input:focus { outline: 0; border-color: var(--ink-soft); border-left-color: var(--accent); }
+.vq-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.vq-verdict { margin: 22px 0 0; font-size: 14.5px; line-height: 1.6; }
+.vq-verdict.ok { color: var(--success); }
+.vq-verdict.miss { color: var(--clay); }
+.vq-legend { margin-top: 18px; font-size: 12.5px; font-style: italic; color: var(--mute); }
+.vq-gaps { display: flex; flex-direction: column; gap: 10px; }
+.vq-gap { display: flex; align-items: baseline; gap: 14px; border-bottom: 1px dotted var(--hairline); padding-bottom: 9px; }
+.vq-gap-m { font-family: var(--font-display); font-size: 16px; font-weight: 500; min-width: 130px; }
+.vq-gap-v { font-size: 13.5px; color: var(--ink-soft); flex: 1; }
+.vq-gap-n { font-family: var(--font-mono); font-size: 10.5px; color: var(--mute); }
+@media (max-width: 720px) { .vq-meaning { font-size: 32px; } }
+
+/* ── Bedeutungsfeld · last-result mini card ── */
+.vq-last { position: absolute; right: 18px; top: 18px; z-index: 5; max-width: 260px; background: var(--paper); border: 1px solid var(--rule); padding: 12px 15px 13px; box-shadow: 0 4px 16px rgba(0, 0, 0, .07); animation: vq-last-in .25s ease-out; }
+.vq-last.ok { border-left: 3px solid var(--success); }
+.vq-last.miss { border-left: 3px solid var(--clay); }
+.vq-last-h { display: flex; justify-content: space-between; gap: 12px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+.vq-last.ok .vq-last-s { color: var(--success); }
+.vq-last.miss .vq-last-s { color: var(--clay); }
+.vq-last-m { font-family: var(--font-display); font-size: 16.5px; font-weight: 500; letter-spacing: -.01em; margin-top: 6px; line-height: 1.25; }
+.vq-last-v { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.vq-last-verb { font-size: 12.5px; padding: 2px 8px; background: var(--paper-deep); color: var(--ink-soft); }
+.vq-last-verb.hit { background: color-mix(in srgb, var(--success) 12%, transparent); color: var(--ink); }
+.vq-last-n { font-size: 12px; font-style: italic; color: var(--clay); margin-top: 8px; line-height: 1.5; }
+@keyframes vq-last-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (max-width: 720px) { .vq-last { position: static; margin-bottom: 14px; max-width: none; } }

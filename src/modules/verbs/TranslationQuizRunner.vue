@@ -3,10 +3,11 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import { shuffle } from '../../data/pool'
-import { checkTranslation, checkGermanTranslationWithSynonyms, type TranslationDirection } from '../../composables/useVerbQuiz'
+import { checkTranslation, type TranslationDirection } from '../../composables/useVerbQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { VERB_LEVELS, VERB_TYPES, VERB_CASES, type Verb, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
 import { getVerbTip } from '../../data/verb-tips'
+import BedeutungsfeldRunner from './BedeutungsfeldRunner.vue'
 
 function typeTagClass(t: string): string {
   if (t === 'irregular') return 'tag-clay'
@@ -25,11 +26,25 @@ function caseTagClass(c: string): string {
 
 const route = useRoute()
 const router = useRouter()
-const { sample, all } = useVerbs()
+const { sample } = useVerbs()
+
+// EN→DE runs render the Bedeutungsfeld runner instead of this sheet, so the
+// direction must resolve synchronously — from the retry stash on retry
+// rounds, from the query otherwise.
+function resolveDirection(): TranslationDirection {
+  if (route.query.retry === '1') {
+    try {
+      const raw = sessionStorage.getItem('gt:verbTranslationRetry')
+      const stash = raw ? JSON.parse(raw) as { direction?: TranslationDirection } : null
+      return stash?.direction === 'en-de' ? 'en-de' : 'de-en'
+    } catch { return 'de-en' }
+  }
+  return route.query.direction === 'en-de' ? 'en-de' : 'de-en'
+}
 
 const loading = ref(true)
 const error = ref<string | null>(null)
-const direction = ref<TranslationDirection>('de-en')
+const direction = ref<TranslationDirection>(resolveDirection())
 const deck = ref<Verb[]>([])
 const answers = ref<string[]>([])
 const startedAt = ref<number>(0)
@@ -60,7 +75,6 @@ function loadRetryDeck() {
       error.value = 'Nothing to retry — start a fresh round from setup.'
       return
     }
-    direction.value = stash?.direction === 'en-de' ? 'en-de' : 'de-en'
     startDeck(shuffle(verbs))
   } catch {
     error.value = 'Nothing to retry — start a fresh round from setup.'
@@ -68,6 +82,7 @@ function loadRetryDeck() {
 }
 
 onMounted(() => {
+  if (direction.value === 'en-de') return
   if (route.query.retry === '1') {
     loadRetryDeck()
     loading.value = false
@@ -75,7 +90,6 @@ onMounted(() => {
     return
   }
   const count = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
-  direction.value = route.query.direction === 'en-de' ? 'en-de' : 'de-en'
   const f = {
     levels: csvFilter<VerbLevel>(route.query.levels, VERB_LEVELS),
     types: csvFilter<VerbType>(route.query.types, VERB_TYPES),
@@ -104,12 +118,11 @@ function toggleTip(i: number) {
   showTip.value[i] = !showTip.value[i]
 }
 
-// Shift+R while typing toggles the row's hint (de-en only — answers are
-// lowercase, so the capital R never collides with real input).
+// Shift+R while typing toggles the row's hint — answers are lowercase, so
+// the capital R never collides with real input.
 function onInputKeydown(e: KeyboardEvent, i: number) {
   if (
-    direction.value === 'de-en'
-    && e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey
+    e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey
     && e.key.toLowerCase() === 'r'
   ) {
     e.preventDefault()
@@ -150,11 +163,7 @@ function submitAll() {
   const graded = deck.value.map((verb, i) => ({
     verb,
     input: answers.value[i],
-    correct: direction.value === 'en-de'
-      // Grade against the full verb list, not the deck: a synonym is a
-      // correct translation whether or not it was sampled this round.
-      ? checkGermanTranslationWithSynonyms(answers.value[i], verb, all())
-      : checkTranslation(answers.value[i], verb.english)
+    correct: checkTranslation(answers.value[i], verb.english)
   }))
   const finishedAt = Date.now()
   const correct = graded.filter(g => g.correct).length
@@ -184,7 +193,9 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
 </script>
 
 <template>
-  <div v-if="loading" class="page loading-state"><div class="micro-mark">Loading…</div></div>
+  <BedeutungsfeldRunner v-if="direction === 'en-de'" />
+
+  <div v-else-if="loading" class="page loading-state"><div class="micro-mark">Loading…</div></div>
 
   <div v-else-if="error" class="page">
     <div class="alert alert-danger">
@@ -199,12 +210,9 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
         <div>
           <div class="breadcrumb">Kapitel III · Übersetzen · {{ total }} Verben</div>
           <h1 class="section-title">Übersetzung<em>.</em></h1>
-          <p v-if="direction === 'de-en'" class="section-subtitle">
+          <p class="section-subtitle">
             Type the English meaning of each verb. "to" is optional, and where several meanings are listed any one counts. Press Enter to jump to the next line.
             <em class="hint-aside">Double-click a verb — or press Shift+R while typing — for an English hint that nudges you toward the meaning.</em>
-          </p>
-          <p v-else class="section-subtitle">
-            Type the German infinitive for each meaning. For reflexive verbs "sich" is optional, and where several verbs share a meaning any of them counts. Press Enter to jump to the next line.
           </p>
         </div>
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
@@ -236,13 +244,11 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
           <div class="test-content">
             <div class="test-prompt-row">
               <span
-                v-if="direction === 'de-en'"
                 class="test-verb"
                 :class="{ 'with-tip': showTip[i] }"
                 :title="showTip[i] ? 'Double-click or Shift+R to show the verb' : 'Double-click or Shift+R for an English hint'"
                 @dblclick="toggleTip(i)"
               >{{ showTip[i] ? getVerbTip(verb.german) : verb.german }}</span>
-              <span v-else class="test-verb">{{ verb.english }}</span>
               <span class="test-chips">
                 <span class="tag">{{ verb.level }}</span>
                 <span class="tag" :class="typeTagClass(verb.type)">{{ verb.type }}</span>
@@ -253,7 +259,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
               :ref="(el) => { if (el) inputRefs[i] = el as HTMLInputElement }"
               class="test-input"
               type="text"
-              :placeholder="direction === 'en-de' ? 'German infinitive…' : 'English (to is optional)…'"
+              placeholder="English (to is optional)…"
               :value="answers[i]"
               @input="setAnswer(i, ($event.target as HTMLInputElement).value)"
               @keydown.enter="onEnter($event, i)"

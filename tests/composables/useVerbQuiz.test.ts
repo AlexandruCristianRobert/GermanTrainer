@@ -5,7 +5,9 @@ import {
   checkTranslation,
   checkGermanTranslation,
   checkGermanTranslationWithSynonyms,
-  checkConjugation
+  checkConjugation,
+  meaningField,
+  buildMeaningFields
 } from '../../src/composables/useVerbQuiz'
 import type { Verb } from '../../src/data/verbs'
 
@@ -224,6 +226,73 @@ describe('checkGermanTranslationWithSynonyms — verbs sharing an English meanin
     expect(checkGermanTranslationWithSynonyms('leisten', realErzielen!, VERBS)).toBe(true)
     expect(checkGermanTranslationWithSynonyms('erzielen', realLeisten!, VERBS)).toBe(true)
     expect(checkGermanTranslationWithSynonyms('gehen', realErzielen!, VERBS)).toBe(false)
+  })
+})
+
+describe('meaningField / buildMeaningFields — EN→DE Bedeutungsfeld', () => {
+  function mkVerb(german: string, english: string): Verb {
+    return {
+      german, english,
+      level: 'B2.1', type: 'regular', case: 'accusative', auxiliary: 'haben',
+      praesens: ['', '', '', '', '', ''],
+      praeteritumStem: '', partizip2: ''
+    }
+  }
+
+  const erzielen = mkVerb('erzielen', 'achieve / attain')
+  const leisten = mkVerb('leisten', 'achieve / accomplish')
+  const erreichen = mkVerb('erreichen', 'to attain / reach')
+  const gehen = mkVerb('gehen', 'go')
+  const collection = [erzielen, leisten, gehen, erreichen]
+
+  it('puts the prompted verb first and pulls in every collection verb sharing an alternative', () => {
+    const members = meaningField(erzielen, collection)
+    expect(members.map(v => v.german)).toEqual(['erzielen', 'leisten', 'erreichen'])
+  })
+
+  it('normalizes "to " and parentheticals when comparing alternatives', () => {
+    const wissen = mkVerb('wissen', 'know (a fact)')
+    const kennen = mkVerb('kennen', 'to know (a person)')
+    const members = meaningField(wissen, [wissen, kennen, gehen])
+    expect(members.map(v => v.german)).toEqual(['wissen', 'kennen'])
+  })
+
+  it('a verb with no meaning twins fields alone', () => {
+    expect(meaningField(gehen, collection).map(v => v.german)).toEqual(['gehen'])
+  })
+
+  it('builds one field per uncovered pool verb, prompting with the displayed english', () => {
+    const fields = buildMeaningFields([gehen, erzielen], collection, 10)
+    expect(fields.map(f => f.prompt)).toEqual(['go', 'achieve / attain'])
+    expect(fields[1].members.map(v => v.german)).toEqual(['erzielen', 'leisten', 'erreichen'])
+  })
+
+  it('skips pool verbs already covered by an earlier field', () => {
+    const fields = buildMeaningFields([erzielen, leisten, erreichen, gehen], collection, 10)
+    expect(fields.map(f => f.prompt)).toEqual(['achieve / attain', 'go'])
+  })
+
+  it('caps the number of fields at count', () => {
+    const fields = buildMeaningFields([erzielen, gehen], collection, 1)
+    expect(fields.length).toBe(1)
+  })
+
+  it('draws members from the whole collection even when they are not in the pool', () => {
+    const fields = buildMeaningFields([erzielen], collection, 5)
+    expect(fields[0].members.map(v => v.german)).toContain('erreichen')
+  })
+
+  it('real dataset: every verb fields at least itself and no field duplicates a member', async () => {
+    const { VERBS } = await import('../../src/data/verbs')
+    const fields = buildMeaningFields(VERBS, VERBS, VERBS.length)
+    for (const f of fields) {
+      expect(f.members.length).toBeGreaterThan(0)
+      const seen = new Set(f.members.map(m => m.german))
+      expect(seen.size).toBe(f.members.length)
+    }
+    // Every pool verb appears in exactly one field
+    const allMembersPrompted = new Set(fields.flatMap(f => f.members.map(m => m.german)))
+    for (const v of VERBS) expect(allMembersPrompted.has(v.german)).toBe(true)
   })
 })
 

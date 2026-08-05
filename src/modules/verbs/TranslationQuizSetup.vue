@@ -13,7 +13,7 @@ const { filter } = useVerbs()
 const levels = ref<VerbLevel[]>([...VERB_LEVELS])
 const types = ref<VerbType[]>([...VERB_TYPES])
 const cases = ref<VerbCase[]>([...VERB_CASES])
-const direction = ref<TranslationDirection>('de-en')
+const direction = ref<TranslationDirection>('en-de')
 type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
 const count = ref<CountPreset>(10)
 const customCount = ref(15)
@@ -106,6 +106,17 @@ function back() { router.push({ name: 'verbs' }) }
     </header>
 
     <div class="field">
+      <div class="field-label">Richtung</div>
+      <div class="direction-row">
+        <div class="segmented">
+          <button :class="{ active: direction === 'en-de' }" @click="direction = 'en-de'">EN → DE · Bedeutungsfeld</button>
+          <button :class="{ active: direction === 'de-en' }" @click="direction = 'de-en'">DE → EN · Blatt</button>
+        </div>
+        <span class="micro-mark">{{ direction === 'en-de' ? 'eine Bedeutung, alle ihre Verben' : 'das klassische Übungsblatt' }}</span>
+      </div>
+    </div>
+
+    <div class="field">
       <div class="field-row">
         <div class="field-label">Level · {{ levels.length }} of {{ VERB_LEVELS.length }}</div>
         <div class="field-actions">
@@ -160,14 +171,6 @@ function back() { router.push({ name: 'verbs' }) }
     </div>
 
     <div class="field">
-      <div class="field-label">Direction</div>
-      <div class="segmented">
-        <button :class="{ active: direction === 'de-en' }" @click="direction = 'de-en'">German → English</button>
-        <button :class="{ active: direction === 'en-de' }" @click="direction = 'en-de'">English → German</button>
-      </div>
-    </div>
-
-    <div class="field">
       <div class="field-label">Number of verbs</div>
       <div class="field-row count-row">
         <div class="segmented">
@@ -200,7 +203,7 @@ function back() { router.push({ name: 'verbs' }) }
         Answers ignore case &amp; whitespace. A leading "to" is optional. Slash-separated alternatives are all accepted — e.g. "to go / to walk" matches either.
       </template>
       <template v-else>
-        Answers ignore case &amp; whitespace. Type the German infinitive — umlauts matter (hören, not horen). For reflexive verbs the "sich" is optional.
+        Gezeigt wird die Bedeutung — jedes deutsche Verb, das sie trägt, zählt. Bei reflexiven Verben ist „sich" optional. Wer mehr Verben desselben Feldes kennt, sammelt sie als Bonus.
       </template>
     </div>
 
@@ -213,7 +216,7 @@ function back() { router.push({ name: 'verbs' }) }
         @click="start"
       >
         <span class="bm-main">Start quiz <span aria-hidden="true">→</span></span>
-        <span class="bm-sub">{{ effective }} verbs</span>
+        <span class="bm-sub">{{ effective }} {{ direction === 'en-de' ? 'Bedeutungsfelder' : 'verbs' }}</span>
       </button>
     </div>
   </div>
@@ -233,6 +236,7 @@ function back() { router.push({ name: 'verbs' }) }
 .field-actions { display: flex; gap: 4px; }
 
 .count-row { align-items: center; gap: 12px; }
+.direction-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .custom-count { width: 80px; font-size: 17px; padding: 4px 0; }
 .count-avail { margin-left: auto; }
 

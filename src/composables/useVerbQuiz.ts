@@ -68,13 +68,43 @@ export function checkGermanTranslationWithSynonyms(input: string, verb: Verb, po
   // of e.g. "erzielen"/"leisten" a shared "achieve" came from. Any pool verb
   // sharing at least one English alternative with the prompted verb is an
   // acceptable German answer.
-  if (checkGermanTranslation(input, verb.german)) return true
-  const prompted = new Set(verb.english.split('/').map(normalizeTranslation).filter(s => s.length > 0))
-  return pool.some(v =>
-    v.german !== verb.german
-    && v.english.split('/').some(alt => prompted.has(normalizeTranslation(alt)))
-    && checkGermanTranslation(input, v.german)
-  )
+  return meaningField(verb, pool).some(v => checkGermanTranslation(input, v.german))
+}
+
+// ───── EN→DE meaning fields (Bedeutungsfeld) ────────────────────────
+
+export interface MeaningField {
+  /** The English meaning exactly as displayed — the prompted verb's english. */
+  prompt: string
+  /** Every verb carrying ≥1 of the prompt's meanings; the prompted verb first. */
+  members: Verb[]
+}
+
+function englishAlternatives(english: string): string[] {
+  return english.split('/').map(normalizeTranslation).filter(s => s.length > 0)
+}
+
+export function meaningField(verb: Verb, allVerbs: readonly Verb[]): Verb[] {
+  const alts = new Set(englishAlternatives(verb.english))
+  return [verb, ...allVerbs.filter(v =>
+    v.german !== verb.german && englishAlternatives(v.english).some(a => alts.has(a))
+  )]
+}
+
+export function buildMeaningFields(pool: readonly Verb[], allVerbs: readonly Verb[], count: number): MeaningField[] {
+  // One field per pool verb not already absorbed into an earlier field.
+  // Members are drawn from the whole collection, not the pool: a synonym is
+  // part of the field whether or not it was sampled this round.
+  const fields: MeaningField[] = []
+  const covered = new Set<string>()
+  for (const v of pool) {
+    if (fields.length >= count) break
+    if (covered.has(v.german)) continue
+    const members = meaningField(v, allVerbs)
+    for (const m of members) covered.add(m.german)
+    fields.push({ prompt: v.english, members })
+  }
+  return fields
 }
 
 export function useTranslationQuiz(verbs: Verb[]) {
