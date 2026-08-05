@@ -108,6 +108,14 @@ const nudgeDismissed = ref(false)
 const nudgeLogged = ref(false)
 const lifelineIdx = ref(0)
 
+/** F6/F17 — stuck-detection state. `stuckCount` caps the automatic 'stuck'
+ *  log at twice per run; `armStuckTimer` itself refuses to schedule once the
+ *  cap is hit, so the timer is never re-armed past that (F6) no matter which
+ *  caller asks. `lifelineRaised` is the visual "raise" F17 asks for — once a
+ *  stuck trigger fires, the Rettungsleine stays visually raised for the run. */
+const stuckCount = ref(0)
+const lifelineRaised = ref(false)
+
 const kiBusy = ref(false)
 const kiTipp = ref<string | null>(null)
 const kiOfferedOnce = ref(false)
@@ -230,12 +238,26 @@ const usedIds = computed(() =>
   new Set(matchRedemittel([liveRedeText.value, nachfrageAnswer.value], SPRECHEN_VORTRAGSMITTEL).map(r => r.id))
 )
 
+/** F22 — "re-evaluates per ~40 words, not per keystroke": `pickMoveNudge`
+ *  reads a FROZEN text snapshot, refreshed only when the 40-word band
+ *  actually changes, never on every keystroke. Without this, `moveNudge`
+ *  would recompute (and potentially flip) on every character typed, since it
+ *  would otherwise read `liveRedeText` directly. */
+const nudgeBand = computed(() => Math.floor(currentWords.value / 40))
+const frozenNudgeText = ref('')
+let lastNudgeBand = -1
+watch(nudgeBand, band => {
+  if (band === lastNudgeBand) return
+  lastNudgeBand = band
+  frozenNudgeText.value = liveRedeText.value
+}, { immediate: true })
+
 const moveNudge = computed(() => {
   if (!v.value?.helps.hints) return null
   if (phase.value !== 'rede') return null
   if (nudgeDismissed.value) return null
-  if (currentWords.value < 40) return null
-  return pickMoveNudge([liveRedeText.value], lifetime, SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES)
+  if (nudgeBand.value < 1) return null
+  return pickMoveNudge([frozenNudgeText.value], lifetime, SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES)
 })
 
 const freshMoves = computed(() => {
@@ -312,9 +334,13 @@ watch(nachfrageAnswer, val => {
   }, 1000)
 })
 
+/** F6 — refuses to schedule once `stuckCount` has hit its cap of 2, so the
+ *  timer is genuinely "never re-armed past that" no matter which caller asks
+ *  (a keystroke, a tab switch, a phrase tap, `triggerStuck`'s own re-arm…). */
 function armStuckTimer() {
   if (!v.value?.helps.hints) return
   if (spoken.value || phase.value !== 'rede') return
+  if (stuckCount.value >= 2) return
   if (stuckTimer) clearTimeout(stuckTimer)
   stuckTimer = setTimeout(() => triggerStuck(), 20000)
 }
@@ -325,12 +351,21 @@ function stopStuckTimer() {
 
 /**
  * Stuck-Erkennung. Never spends a call by itself — it raises the
- * Rettungsleine (already visible whenever helps.hints is on) and, once per
- * run, offers the KI-Tipp by highlighting the button. The learner spends it.
+ * Rettungsleine (F17 — both visibly, via `lifelineRaised`, and it was already
+ * visible whenever helps.hints is on) and, once per run, offers the KI-Tipp
+ * by highlighting the button. The learner spends it.
+ *
+ * F6 — logs the descriptive 'stuck' kind, never 'rettungsleine': that kind is
+ * reserved for the learner's OWN manual "Nächste" tap or a spoken lifeline —
+ * a help the learner never touched must not be recorded as one they did.
+ * Capped at twice per run so an idle learner cannot accrue phantom entries.
  */
 function triggerStuck() {
   if (!v.value?.helps.hints) return
-  logHelpAsync('rettungsleine')
+  if (stuckCount.value >= 2) return
+  stuckCount.value += 1
+  lifelineRaised.value = true
+  logHelpAsync('stuck')
   if (v.value.helps.kiTipp && !kiOfferedOnce.value) {
     kiOfferedOnce.value = true
     kiTippSuggested.value = true
@@ -413,41 +448,68 @@ function logHelpAsync(kind: HelpKind) {
   void logHelp(v.value.id, kind, at)
 }
 
+/** F6 — 'drawer' logs genuine consultation only: a tab switch to a
+ *  DIFFERENT tab, never a no-op re-tap of the one already open. Any tap
+ *  still counts as interacting with the help surface, so it resets the
+ *  stuck timer regardless. */
 function selectTab(t: 'wie' | 'was') {
+  const changed = t !== tab.value
   tab.value = t
-  logHelpAsync('drawer')
+  armStuckTimer()
+  if (changed) logHelpAsync('drawer')
 }
 
+/** F6 — same genuine-change gating as `selectTab`, for the Move row. */
+function selectMove(m: VortragMove) {
+  const changed = m !== move.value
+  move.value = m
+  armStuckTimer()
+  if (changed) logHelpAsync('drawer')
+}
+
+/** F5 — inserts the FULL phrase, placeholders intact (`Einerseits …,
+ *  andererseits …`); the old stub-before-the-first-… insertion silently
+ *  dropped everything after the first placeholder. */
 function insertPhrase(phraseDe: string) {
   if (!typedSurface.value) return
-  const stub = phraseDe.split('…')[0].trim()
   if (phase.value === 'nachfrage') {
     const el = nachfrageEl.value
     const cur = nachfrageAnswer.value
-    if (!el) { nachfrageAnswer.value = cur ? `${cur} ${stub}` : stub } else {
+    if (!el) { nachfrageAnswer.value = cur ? `${cur} ${phraseDe}` : phraseDe } else {
       const at = el.selectionStart ?? cur.length
-      nachfrageAnswer.value = `${cur.slice(0, at)}${stub}${cur.slice(at)}`
-      requestAnimationFrame(() => { el.focus(); const pos = at + stub.length; el.setSelectionRange(pos, pos) })
+      nachfrageAnswer.value = `${cur.slice(0, at)}${phraseDe}${cur.slice(at)}`
+      requestAnimationFrame(() => { el.focus(); const pos = at + phraseDe.length; el.setSelectionRange(pos, pos) })
     }
   } else {
     const el = redeEl.value
     const cur = redeDraft.value
-    if (!el) { redeDraft.value = cur ? `${cur} ${stub}` : stub } else {
+    if (!el) { redeDraft.value = cur ? `${cur} ${phraseDe}` : phraseDe } else {
       const at = el.selectionStart ?? cur.length
-      redeDraft.value = `${cur.slice(0, at)}${stub}${cur.slice(at)}`
-      requestAnimationFrame(() => { el.focus(); const pos = at + stub.length; el.setSelectionRange(pos, pos) })
+      redeDraft.value = `${cur.slice(0, at)}${phraseDe}${cur.slice(at)}`
+      requestAnimationFrame(() => { el.focus(); const pos = at + phraseDe.length; el.setSelectionRange(pos, pos) })
     }
   }
+  armStuckTimer()
   logHelpAsync('phrase')
 }
 
+/** F22 — cancels any speech already in flight before starting the new one
+ *  (two overlapping utterances is worse than none), and never hands the
+ *  engine a literal "…": some engines vocalize U+2026, so it becomes a comma
+ *  instead — the learner's own continuation is exactly what the ellipsis
+ *  marked, so a pause-inducing comma reads naturally. A trailing one (most
+ *  phrases end mid-placeholder) is dropped rather than left as a dangling
+ *  comma. */
 function speakPhrase(text: string) {
-  void voice.speak(text)
+  voice.cancel()
+  void voice.speak(text.replace(/\s*…\s*/g, ', ').replace(/, $/, ''))
+  armStuckTimer()
   logHelpAsync('vorsprechen')
 }
 
 function nextLifeline() {
   lifelineIdx.value = (lifelineIdx.value + 1) % RETTUNGSLEINEN.length
+  armStuckTimer()
   logHelpAsync('rettungsleine')
 }
 
@@ -886,7 +948,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
         <h1 class="run-thesis">Vortrag<em>.</em></h1>
       </div>
       <div class="run-meta">
-        <span class="quiz-counter">{{ currentWords }} Wörter · {{ redeState.clock }}</span>
+        <span v-if="v.helps.checklist" class="quiz-counter">{{ currentWords }} Wörter · {{ redeState.clock }}</span>
         <button
           v-if="phase === 'rede'" class="btn btn-quiet" type="button"
           :disabled="grading || currentWords === 0" @click="finishRede()"
@@ -908,8 +970,8 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
         <div v-if="v.helps.checklist" class="spr-rail-sec">
           <div class="spr-lbl">Live-Checkliste</div>
           <div class="spr-steps">
-            <button
-              v-for="s in signals" :key="s.key" type="button" class="spr-step spr-step-btn"
+            <div
+              v-for="s in signals" :key="s.key" class="spr-step spr-step-btn"
               :class="{ done: s.said, now: s.key === furthest }"
             >
               <span class="spr-step-n">{{ String(s.n).padStart(2, '0') }}</span>
@@ -917,7 +979,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
                 <span class="spr-step-t"><span class="spr-step-dot" :class="{ on: s.said }" />{{ s.labelDe }}</span>
                 <span class="spr-step-m">{{ s.keyword || '—' }}<template v-if="s.said"> · gesagt</template></span>
               </span>
-            </button>
+            </div>
           </div>
         </div>
 
@@ -953,10 +1015,13 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
 
       <div class="spr-run-main">
         <div v-if="phase === 'nachfrage'" class="spr-proto">
-          <div class="spr-turn learner">
-            <div class="spr-turn-m">Vortrag</div>
-            <div class="spr-turn-b">{{ v.rede.textDe }}</div>
-          </div>
+          <details class="spr-rede-replay">
+            <summary>Vortrag anzeigen</summary>
+            <div class="spr-turn learner">
+              <div class="spr-turn-m">Vortrag</div>
+              <div class="spr-turn-b">{{ v.rede.textDe }}</div>
+            </div>
+          </details>
           <div v-if="nachfrageBusy" class="spr-turn partner">
             <div class="spr-turn-m">Partner</div>
             <div class="spr-turn-b spr-typing">···</div>
@@ -1004,7 +1069,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
               > {{ recognizer.liveText.value }}</span>
             </div>
             <div class="spr-composer-f">
-              <span class="spr-count">{{ currentWords }} Wörter</span>
+              <span v-if="v.helps.checklist" class="spr-count">{{ currentWords }} Wörter</span>
               <div v-if="!typedSurface" class="mic-row">
                 <button
                   class="btn mic-btn" :class="recognizer.listening.value ? 'btn-danger' : 'btn-accent'"
@@ -1038,6 +1103,19 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
               <button class="spr-nudge-x" type="button" aria-label="Hinweis ausblenden" @click="nudgeDismissed = true">×</button>
             </div>
 
+            <!-- F17: the Rettungsleine sits ABOVE the drawer — the zero-cost
+                 help must never be below the fold while the paid KI-Tipp sits
+                 above it. `raised` fires once stuck-detection has (F17). -->
+            <p class="lifeline-caption">„Zeit gewinnen ist Prüfungsstoff, keine Ausrede."</p>
+            <div class="spr-lifeline" :class="{ raised: lifelineRaised }">
+              <span class="spr-lifeline-t">{{ RETTUNGSLEINEN[lifelineIdx] }}</span>
+              <button class="btn btn-quiet" type="button" @click="nextLifeline">Nächste</button>
+              <button
+                v-if="voice.supported && voice.voices.value.length > 0" class="spr-phrase-hear"
+                type="button" title="Anhören" @click="speakPhrase(RETTUNGSLEINEN[lifelineIdx])"
+              >🔊</button>
+            </div>
+
             <div class="spr-drawer">
               <div class="spr-drawer-h">
                 <button class="spr-dtab" :class="{ on: tab === 'wie' }" type="button" @click="selectTab('wie')">
@@ -1054,7 +1132,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
                     <button
                       v-for="m in VORTRAG_MOVES" :key="m" type="button" class="spr-move"
                       :class="{ on: move === m, fit: outlined.includes(m), fresh: freshMoves.has(m) }"
-                      @click="move = m"
+                      @click="selectMove(m)"
                     >{{ VORTRAG_MOVE_LABEL[m].de }}</button>
                   </div>
                   <ul class="spr-phrases">
@@ -1084,13 +1162,8 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
                 </div>
               </div>
             </div>
-
-            <p class="lifeline-caption">„Zeit gewinnen ist Prüfungsstoff, keine Ausrede."</p>
-            <div class="spr-lifeline">
-              <span class="spr-lifeline-t">{{ RETTUNGSLEINEN[lifelineIdx] }}</span>
-              <button class="btn btn-quiet" type="button" @click="nextLifeline">Nächste</button>
-            </div>
           </template>
+          <div v-else class="alert alert-info exam-note">Prüfungsbedingungen — ohne Hilfsmittel.</div>
         </template>
 
         <template v-else-if="phase === 'nachfrage'">
@@ -1109,27 +1182,36 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
             </div>
           </div>
 
-          <div v-else-if="v.nachfrage" class="spr-composer">
-            <textarea
-              v-if="typedSurface" ref="nachfrageEl" v-model="nachfrageAnswer"
-              placeholder="Deine Antwort — bedanken, Position halten, kurz begründen."
-            />
-            <div v-else class="rede-text" :class="{ empty: !nachfrageAnswer }">
-              {{ nachfrageAnswer || 'Antworte gesprochen…' }}<span
-                v-if="recognizer.listening.value" class="rede-interim"
-              > {{ recognizer.liveText.value }}</span>
-            </div>
-            <div class="spr-composer-f">
-              <span class="spr-count">{{ countWords(nachfrageAnswer) }} Wörter · zwei bis drei Sätze reichen</span>
-              <div v-if="!typedSurface" class="mic-row">
-                <button
-                  class="btn mic-btn" :class="recognizer.listening.value ? 'btn-danger' : 'btn-accent'"
-                  type="button" :disabled="ending" @click="toggleMic"
-                >{{ recognizer.listening.value ? '■ Beenden' : '● Sprechen' }}</button>
+          <template v-else-if="v.nachfrage">
+            <!-- F18: the nachfrage Move group is by construction the one
+                 never practised in the Rede — a short strategy line above
+                 the composer, not gated on helps.hints, since it is advice
+                 about HOW to answer, not a phrase crutch. -->
+            <p class="spr-nachfrage-strategy">
+              Nimm die Frage erst in eigenen Worten auf, dann antworte — zwei bis drei Sätze reichen.
+            </p>
+            <div class="spr-composer">
+              <textarea
+                v-if="typedSurface" ref="nachfrageEl" v-model="nachfrageAnswer"
+                placeholder="Deine Antwort — bedanken, Position halten, kurz begründen."
+              />
+              <div v-else class="rede-text" :class="{ empty: !nachfrageAnswer }">
+                {{ nachfrageAnswer || 'Antworte gesprochen…' }}<span
+                  v-if="recognizer.listening.value" class="rede-interim"
+                > {{ recognizer.liveText.value }}</span>
               </div>
-              <button class="btn btn-accent" type="button" :disabled="!nachfrageAnswer.trim() || sending" @click="submitVortrag">Abgeben →</button>
+              <div class="spr-composer-f">
+                <span class="spr-count">{{ countWords(nachfrageAnswer) }} Wörter · zwei bis drei Sätze reichen</span>
+                <div v-if="!typedSurface" class="mic-row">
+                  <button
+                    class="btn mic-btn" :class="recognizer.listening.value ? 'btn-danger' : 'btn-accent'"
+                    type="button" :disabled="ending" @click="toggleMic"
+                  >{{ recognizer.listening.value ? '■ Beenden' : '● Sprechen' }}</button>
+                </div>
+                <button class="btn btn-accent" type="button" :disabled="!nachfrageAnswer.trim() || sending" @click="submitVortrag">Abgeben →</button>
+              </div>
             </div>
-          </div>
+          </template>
 
           <div v-if="v.helps.hints" class="spr-drawer">
             <div class="spr-drawer-h">
@@ -1146,13 +1228,17 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
                   <button
                     v-for="m in VORTRAG_MOVES" :key="m" type="button" class="spr-move"
                     :class="{ on: move === m, fresh: freshMoves.has(m) }"
-                    @click="move = m"
+                    @click="selectMove(m)"
                   >{{ VORTRAG_MOVE_LABEL[m].de }}</button>
                 </div>
                 <ul class="spr-phrases">
                   <li v-for="p in drawerPhrases" :key="p.id" class="spr-phrase">
                     <button v-if="typedSurface" class="spr-phrase-t" :class="{ used: p.used }" type="button" @click="insertPhrase(p.phraseDe)">{{ p.phraseDe }}</button>
                     <span v-else class="spr-phrase-t" :class="{ used: p.used }">{{ p.phraseDe }}</span>
+                    <button
+                      v-if="voice.supported && voice.voices.value.length > 0" class="spr-phrase-hear"
+                      type="button" title="Anhören" @click="speakPhrase(p.phraseDe)"
+                    >🔊</button>
                     <span class="spr-phrase-en">{{ p.used ? 'schon benutzt' : p.noteEn }}</span>
                   </li>
                 </ul>
@@ -1208,6 +1294,22 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
 .ki-suggest { font-size: 13px; font-style: italic; color: var(--ochre); }
 
 .lifeline-caption { font-size: 12.5px; font-style: italic; color: var(--mute); margin: 20px 0 0; }
+
+/* F17 — visually raised once stuck-detection fires: the ochre rail thickens
+   and picks up the same accent wash a learner turn already uses elsewhere,
+   no new tokens. */
+.spr-lifeline.raised { border-left-color: var(--accent); background: var(--accent-wash); }
+
+/* F18 — the Rede replay collapses behind a native <details>; the marker is
+   hidden in favour of the italic "Vortrag anzeigen" summary text itself. */
+.spr-rede-replay { border-top: 1px solid var(--rule); }
+.spr-rede-replay summary { cursor: pointer; font-size: 12.5px; font-style: italic; color: var(--mute); padding: 10px 0; list-style: none; }
+.spr-rede-replay summary::-webkit-details-marker { display: none; }
+.spr-rede-replay[open] summary { color: var(--ink-soft); }
+
+.spr-nachfrage-strategy { font-size: 13px; font-style: italic; color: var(--mute); margin: 4px 0 12px; }
+
+.exam-note { margin-top: 12px; }
 
 .nf-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 

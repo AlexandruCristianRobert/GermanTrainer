@@ -185,6 +185,33 @@ vi.mock('../../src/composables/useVortragPartner', () => ({
   generateVortragKiTipp: vi.fn(async () => 'Geh jetzt auf die Nachteile ein.')
 }))
 
+// jsdom implements neither speechSynthesis nor SpeechSynthesisUtterance, and
+// the real useSpeechVoice() caches `supported`/`synth` as a MODULE-LEVEL
+// singleton evaluated on first import (see its own header comment) — there is
+// no window-stubbing trick that reaches it from here. Mocked outright instead,
+// same as every other composable boundary in this file. `callOrder` records
+// cancel/speak interleaving for the F22 TTS-hygiene tests below; note the
+// `mock`-prefixed names, which is what lets vitest's hoisting rule permit a
+// vi.mock() factory to close over module-level state.
+const callOrder: string[] = []
+const mockVoiceSpeak = vi.fn(async (text: string) => { callOrder.push(`speak:${text}`) })
+const mockVoiceCancel = vi.fn(() => { callOrder.push('cancel') })
+
+vi.mock('../../src/composables/useSpeechVoice', async () => {
+  const vue = await import('vue')
+  return {
+    useSpeechVoice: () => ({
+      supported: true,
+      voices: vue.ref([{ name: 'Test-Stimme', lang: 'de-DE' }]),
+      voiceName: vue.ref(''),
+      rate: vue.ref(1),
+      speaking: vue.ref(false),
+      speak: mockVoiceSpeak,
+      cancel: mockVoiceCancel
+    })
+  }
+})
+
 function goodResult(over: Partial<VortragGradeResult> = {}): VortragGradeResult {
   return {
     totalScore: 74, passes: true, praedikat: 'befriedigend',
@@ -302,6 +329,9 @@ beforeEach(() => {
   vi.mocked(incrementVortragKiTipp).mockClear()
   vi.mocked(incrementVortragKiTipp).mockResolvedValue(undefined)
   vi.mocked(loadCachedBank).mockClear()
+  mockVoiceSpeak.mockClear()
+  mockVoiceCancel.mockClear()
+  callOrder.length = 0
 })
 
 afterEach(() => {
@@ -384,13 +414,14 @@ describe('Teil1Runner help surface', () => {
     expect(w.find('.ki-standalone').exists()).toBe(false)
   })
 
-  it('inserts a phrase stub into the composer and logs a help', async () => {
+  it('inserts the full phrase with its placeholders intact (F5), and logs a help', async () => {
     const w = await mountReady()
-    const phraseBtn = w.findAll('.spr-phrase-t')[0]
+    const moveBtn = w.findAll('.spr-move').find(b => b.text() === VORTRAG_MOVE_LABEL.kontrast.de)!
+    await moveBtn.trigger('click')
+    const phraseBtn = w.findAll('.spr-phrase-t').find(b => b.text().includes('Einerseits'))!
     await phraseBtn.trigger('click')
     const val = (w.find('.rede-textarea').element as HTMLTextAreaElement).value
-    expect(val.length).toBeGreaterThan(0)
-    expect(val).not.toContain('…')
+    expect(val).toContain('Einerseits …, andererseits …')
     expect(vi.mocked(logHelp)).toHaveBeenCalledWith('v1', 'phrase', expect.any(Number))
   })
 
@@ -411,7 +442,9 @@ describe('Teil1Runner help surface', () => {
       await flushPromises()
       expect(vi.mocked(generateVortragKiTipp)).not.toHaveBeenCalled()
       expect(w.find('.ki-suggest').exists()).toBe(true)
-      expect(vi.mocked(logHelp)).toHaveBeenCalledWith('v1', 'rettungsleine', expect.any(Number))
+      // F6: the automatic trigger logs 'stuck', never 'rettungsleine' — that
+      // kind is reserved for the learner's own manual lifeline use.
+      expect(vi.mocked(logHelp)).toHaveBeenCalledWith('v1', 'stuck', expect.any(Number))
     } finally {
       vi.useRealTimers()
     }
@@ -830,5 +863,213 @@ describe('Teil1Runner exits and resume gating (F14)', () => {
     await flushPromises()
     expect(w.find('.spr-kitipp').exists()).toBe(false)
     expect(vi.mocked(logHelp)).not.toHaveBeenCalledWith('v1', 'kitipp', expect.any(Number))
+  })
+})
+
+describe('Teil1Runner speakPhrase — TTS hygiene (F22)', () => {
+  it('cancels any speech in flight before speaking, and never hands the engine a literal …', async () => {
+    const w = await mountReady()
+    // .spr-drawer's phrase list — NOT the Rettungsleine's own hear button,
+    // which (F17) now sits earlier in the DOM.
+    await w.find('.spr-drawer .spr-phrase-hear').trigger('click')
+    await flushPromises()
+
+    expect(mockVoiceCancel).toHaveBeenCalledTimes(1)
+    expect(mockVoiceSpeak).toHaveBeenCalledTimes(1)
+    expect(callOrder[0]).toBe('cancel')
+    expect(callOrder[1]).toMatch(/^speak:/)
+
+    const spoken = mockVoiceSpeak.mock.calls[0][0] as string
+    expect(spoken).toMatch(/^[^…]*$/)
+    expect(spoken).toContain(',')
+    expect(vi.mocked(logHelp)).toHaveBeenCalledWith('v1', 'vorsprechen', expect.any(Number))
+  })
+
+  it('drops a trailing ellipsis entirely rather than leaving a dangling comma', async () => {
+    const w = await mountReady()
+    // drawerPhrases defaults to move 'einstieg'; its second phrase
+    // ("In meinem Vortrag geht es um …") ends directly in the placeholder.
+    const hearButtons = w.findAll('.spr-drawer .spr-phrase-hear')
+    await hearButtons[1].trigger('click')
+    await flushPromises()
+    expect(mockVoiceSpeak).toHaveBeenCalledWith('In meinem Vortrag geht es um')
+  })
+})
+
+describe('Teil1Runner Rettungsleine placement and voice (F17)', () => {
+  it('renders the Rettungsleine above the drawer, with its own speaker button', async () => {
+    const w = await mountReady()
+    const html = w.find('.spr-run-main').html()
+    const lifelineAt = html.indexOf('spr-lifeline')
+    const drawerAt = html.indexOf('spr-drawer')
+    expect(lifelineAt).toBeGreaterThan(-1)
+    expect(drawerAt).toBeGreaterThan(-1)
+    expect(lifelineAt).toBeLessThan(drawerAt)
+
+    expect(w.find('.spr-lifeline .spr-phrase-hear').exists()).toBe(true)
+  })
+
+  it('raises the Rettungsleine visually once stuck-detection fires', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      const w = await mountReady()
+      expect(w.find('.spr-lifeline').classes()).not.toContain('raised')
+      await w.find('.rede-textarea').setValue('Ich beginne meinen Vortrag heute')
+      vi.advanceTimersByTime(20000)
+      await flushPromises()
+      expect(w.find('.spr-lifeline').classes()).toContain('raised')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
+describe('Teil1Runner Hilfe-Protokoll truthfulness (F6)', () => {
+  it('logs the automatic trigger as stuck (never rettungsleine), at most twice per run', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      const w = await mountReady()
+      await w.find('.rede-textarea').setValue('Text eins')
+      vi.advanceTimersByTime(20000)
+      await flushPromises()
+      await w.find('.rede-textarea').setValue('Text eins und mehr Text')
+      vi.advanceTimersByTime(20000)
+      await flushPromises()
+      // A third stretch must not log again — the timer is never re-armed
+      // past the cap.
+      await w.find('.rede-textarea').setValue('Text eins und noch mehr Text als zuvor')
+      vi.advanceTimersByTime(20000)
+      await flushPromises()
+
+      const stuckCalls = vi.mocked(logHelp).mock.calls.filter(([, kind]) => kind === 'stuck')
+      expect(stuckCalls).toHaveLength(2)
+      expect(vi.mocked(logHelp)).not.toHaveBeenCalledWith('v1', 'rettungsleine', expect.any(Number))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('resets the stuck timer on any interaction with the help surface', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      const w = await mountReady()
+      vi.advanceTimersByTime(15000)
+      await w.findAll('.spr-dtab')[0].trigger('click') // interaction — even a same-tab re-tap
+      vi.advanceTimersByTime(15000)
+      await flushPromises()
+      expect(vi.mocked(logHelp)).not.toHaveBeenCalledWith('v1', 'stuck', expect.any(Number))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('logs drawer once on a genuine tab switch, and nothing on a same-tab re-tap', async () => {
+    const w = await mountReady()
+    vi.mocked(logHelp).mockClear()
+    const tabs = w.findAll('.spr-dtab')
+
+    await tabs[1].trigger('click') // wie -> was: a genuine switch
+    expect(vi.mocked(logHelp)).toHaveBeenCalledWith('v1', 'drawer', expect.any(Number))
+
+    vi.mocked(logHelp).mockClear()
+    await tabs[1].trigger('click') // was -> was: a no-op re-tap
+    expect(vi.mocked(logHelp)).not.toHaveBeenCalledWith('v1', 'drawer', expect.any(Number))
+  })
+
+  it('logs drawer when the Move group changes', async () => {
+    const w = await mountReady()
+    vi.mocked(logHelp).mockClear()
+    const moveBtn = w.findAll('.spr-move').find(b => b.text() === VORTRAG_MOVE_LABEL.kontrast.de)!
+    await moveBtn.trigger('click')
+    expect(vi.mocked(logHelp)).toHaveBeenCalledWith('v1', 'drawer', expect.any(Number))
+  })
+})
+
+describe('Teil1Runner Nachfrage gets its missing helps (F18)', () => {
+  it('gives the Nachfrage drawer phrase list the same speaker button as the Rede drawer', async () => {
+    const w = await mountReady()
+    await reachNachfrageAnswer(w)
+    expect(w.findAll('.spr-drawer .spr-phrase-hear').length).toBeGreaterThan(0)
+  })
+
+  it('shows the strategy line above the answer composer', async () => {
+    const w = await mountReady()
+    await reachNachfrageAnswer(w)
+    const main = w.find('.spr-run-main').html()
+    const strategyAt = main.indexOf('Nimm die Frage erst in eigenen Worten auf')
+    const composerAt = main.indexOf('spr-composer')
+    expect(strategyAt).toBeGreaterThan(-1)
+    expect(strategyAt).toBeLessThan(composerAt)
+  })
+
+  it('collapses the Rede replay behind "Vortrag anzeigen" while the question and composer stay visible', async () => {
+    const w = await mountReady()
+    await reachNachfrageAnswer(w)
+
+    const details = w.find('.spr-rede-replay')
+    expect(details.exists()).toBe(true)
+    expect(details.element.tagName).toBe('DETAILS')
+    expect(details.find('summary').text()).toBe('Vortrag anzeigen')
+    expect((details.element as HTMLDetailsElement).open).toBe(false)
+
+    expect(w.text()).toContain('Wer soll diese Ausfallzeit bezahlen?')
+    expect(w.find('.spr-composer textarea').exists()).toBe(true)
+  })
+})
+
+describe('Teil1Runner Prüfungsmodus gating (F15/F22)', () => {
+  it('hides the header word/clock stats and the Rede composer word counter when helps.checklist is off', async () => {
+    vi.mocked(findActiveVortrag).mockResolvedValueOnce(
+      baseVortrag({ helps: { hints: true, checklist: false, kiTipp: true, hardLimit: false } })
+    )
+    const w = await mountReady()
+    expect(w.find('.run-meta .quiz-counter').exists()).toBe(false)
+    expect(w.find('.spr-composer .spr-count').exists()).toBe(false)
+  })
+
+  it('shows the Prüfungsbedingungen reassurance line when helps.hints is off', async () => {
+    vi.mocked(findActiveVortrag).mockResolvedValueOnce(
+      baseVortrag({ helps: { hints: false, checklist: true, kiTipp: true, hardLimit: false } })
+    )
+    const w = await mountReady()
+    expect(w.text()).toContain('Prüfungsbedingungen — ohne Hilfsmittel.')
+  })
+
+  it('renders the Live-Checkliste rows as non-interactive divs, not buttons', async () => {
+    const w = await mountReady()
+    const rows = w.findAll('.spr-steps .spr-step-btn')
+    expect(rows).toHaveLength(5)
+    for (const row of rows) expect(row.element.tagName).toBe('DIV')
+  })
+})
+
+describe('Teil1Runner Move nudge quantization (F22)', () => {
+  it('does not flip within a 40-word band, but may change once a new band is crossed', async () => {
+    const w = await mountReady()
+    const filler = (n: number, prefix: string) =>
+      Array.from({ length: n }, (_, i) => `${prefix}${i}`).join(' ')
+
+    // Band 1 (40 words, no Vortragsmittel phrase present): 'einstieg' wins
+    // the tie-break — VORTRAG_MOVES order, every lifetime count is 0.
+    await w.find('.rede-textarea').setValue(filler(40, 'Wort'))
+    await flushPromises()
+    expect(w.find('.spr-nudge-t').text()).toBe(VORTRAG_MOVE_LABEL.einstieg.de.toLowerCase())
+
+    // Still band 1 (77 words) — the text now ALSO contains the einstieg
+    // phrase, which would flip the pick away from 'einstieg' if this were
+    // recomputed live. The frozen snapshot must not have moved.
+    await w.find('.rede-textarea').setValue(
+      `${filler(40, 'Wort')} Ich möchte heute über das Thema sprechen ${filler(30, 'Mehr')}`
+    )
+    await flushPromises()
+    expect(w.find('.spr-nudge-t').text()).toBe(VORTRAG_MOVE_LABEL.einstieg.de.toLowerCase())
+
+    // Crossing into band 2 (87 words) re-freezes: 'einstieg' is now genuinely
+    // used, so the tie-break moves on to the next unused Move.
+    await w.find('.rede-textarea').setValue(
+      `${filler(40, 'Wort')} Ich möchte heute über das Thema sprechen ${filler(40, 'Mehr')}`
+    )
+    await flushPromises()
+    expect(w.find('.spr-nudge-t').text()).toBe(VORTRAG_MOVE_LABEL.gliederung.de.toLowerCase())
   })
 })
