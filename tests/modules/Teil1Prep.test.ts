@@ -39,7 +39,7 @@ vi.mock('../../src/composables/useSettings', async () => {
 
 import Teil1Prep from '../../src/modules/sprechen/Teil1Prep.vue'
 import { TEIL1_STASH_KEY, type Teil1RunStash, type VortragHelps } from '../../src/data/sprechen'
-import { GLIEDERUNGSPUNKTE, vortragClock } from '../../src/data/sprechenVortragsmittel'
+import { GLIEDERUNGSPUNKTE, vortragClock, KONNEKTOREN } from '../../src/data/sprechenVortragsmittel'
 import { emptyPlan } from '../../src/composables/useVortragCoverage'
 import { loadCachedBank } from '../../src/composables/useSprechenArguments'
 import type { ArgumentBank } from '../../src/data/sprechenArguments'
@@ -121,30 +121,127 @@ describe('Teil1Prep — Gliederung planner', () => {
     expect(w.find('.spr-sides').text()).toContain('1 geplant')
   })
 
-  it('presents the three Erfahrungs-Ausgrabung questions verbatim, pinned to the erfahrung row', async () => {
+  it('presents the four Erfahrungs-Ausgrabung questions verbatim, pinned to the erfahrung row, ending with the connective question (F22)', async () => {
     putStash(stashFor())
     const w = mount(Teil1Prep)
     await flushPromises()
 
     const box = w.find('.spr-ausgrabung')
     expect(box.exists()).toBe(true)
-    const text = box.text()
-    expect(text).toContain('Wann hattest du damit zu tun?')
-    expect(text).toContain('Was hast du gemacht?')
-    expect(text).toContain('Was kam dabei heraus?')
+    const items = box.findAll('li')
+    expect(items).toHaveLength(4)
+    expect(items[0].text()).toBe('Wann hattest du damit zu tun?')
+    expect(items[1].text()).toBe('Was hast du gemacht?')
+    expect(items[2].text()).toBe('Was kam dabei heraus?')
+    expect(items[3].text()).toBe('Und was zeigt das Beispiel?')
   })
 })
 
-describe('Teil1Prep — Konnektoren-Palette', () => {
-  it('appends a clicked Konnektor to the notes textarea', async () => {
+describe('Teil1Prep — Konnektoren-Palette (F10)', () => {
+  it('renders every group with its label, Stellung rule and konnektoren', async () => {
     putStash(stashFor())
     const w = mount(Teil1Prep)
     await flushPromises()
 
-    const btn = w.findAll('.spr-tag').find(b => b.text() === 'zunächst')
+    const groups = w.findAll('.spr-konnekt-group')
+    expect(groups).toHaveLength(KONNEKTOREN.length)
+    groups.forEach((g, i) => {
+      expect(g.find('.spr-lbl').text()).toBe(KONNEKTOREN[i].labelDe)
+      expect(g.find('.spr-konnekt-stellung').text()).toBe(KONNEKTOREN[i].stellungDe)
+      const tags = g.findAll('.spr-tag')
+      expect(tags).toHaveLength(KONNEKTOREN[i].konnektoren.length)
+      tags.forEach((tag, k) => expect(tag.text()).toBe(KONNEKTOREN[i].konnektoren[k].wort))
+    })
+  })
+
+  it('inserts the full frame — not the bare word — when a Konnektor is tapped', async () => {
+    putStash(stashFor())
+    const w = mount(Teil1Prep)
+    await flushPromises()
+
+    const btn = w.findAll('.spr-tag').find(b => b.text() === 'Trotzdem')
     expect(btn).toBeTruthy()
     await btn!.trigger('click')
-    expect((w.find('.spr-notes').element as HTMLTextAreaElement).value).toContain('zunächst')
+    const notes = (w.find('.spr-notes').element as HTMLTextAreaElement).value
+    expect(notes).toContain('Trotzdem bleibt …')
+  })
+
+  it('appends successive frames space-separated', async () => {
+    putStash(stashFor())
+    const w = mount(Teil1Prep)
+    await flushPromises()
+
+    await w.findAll('.spr-tag').find(b => b.text() === 'Zunächst')!.trigger('click')
+    await w.findAll('.spr-tag').find(b => b.text() === 'Außerdem')!.trigger('click')
+    const notes = (w.find('.spr-notes').element as HTMLTextAreaElement).value
+    expect(notes).toBe('Zunächst möchte ich … Außerdem ist …')
+  })
+})
+
+describe('Teil1Prep — keyword hygiene (F11)', () => {
+  it('warns on both rows when two keywords are identical after normalisation', async () => {
+    putStash(stashFor())
+    const w = mount(Teil1Prep)
+    await flushPromises()
+
+    const inputs = w.findAll('.spr-plan-in')
+    await inputs[0].setValue('Vereine')
+    await inputs[1].setValue('Vereine.')  // normalises to the same string
+    await nextTick()
+
+    const warnings = w.findAll('.spr-plan-warn')
+    expect(warnings.length).toBeGreaterThanOrEqual(2)
+    expect(w.text()).toContain('beide Häkchen leuchten zusammen')
+  })
+
+  it('warns when a keyword is a substring of another, either direction, in the spec\'s style', async () => {
+    putStash(stashFor())
+    const w = mount(Teil1Prep)
+    await flushPromises()
+
+    const inputs = w.findAll('.spr-plan-in')
+    await inputs[0].setValue('Sport')
+    await inputs[1].setValue('Sportverein')
+    await nextTick()
+
+    expect(w.text()).toContain('steckt in')
+
+    // The reverse order (longer keyword typed first) must warn identically.
+    await inputs[0].setValue('Sportverein')
+    await inputs[1].setValue('Sport')
+    await nextTick()
+    expect(w.text()).toContain('steckt in')
+  })
+
+  it('warns when a normalised keyword is shorter than 4 characters', async () => {
+    putStash(stashFor())
+    const w = mount(Teil1Prep)
+    await flushPromises()
+
+    await w.findAll('.spr-plan-in')[0].setValue('Job')
+    await nextTick()
+
+    expect(w.find('.spr-plan-warn').exists()).toBe(true)
+    expect(w.text()).toContain('kürzer als vier Zeichen')
+  })
+
+  it('never disables the CTA, however many warnings are showing', async () => {
+    putStash(stashFor())
+    const w = mount(Teil1Prep)
+    await flushPromises()
+
+    const inputs = w.findAll('.spr-plan-in')
+    await inputs[0].setValue('Job')
+    await inputs[1].setValue('Job')
+    await inputs[2].setValue('Sport')
+    await inputs[3].setValue('Sportverein')
+    await nextTick()
+
+    expect(w.findAll('.spr-plan-warn').length).toBeGreaterThan(0)
+    const cta = w.find('.btn.btn-accent.btn-meta')
+    expect(cta.attributes('disabled')).toBeUndefined()
+    await cta.trigger('click')
+    expect(push).toHaveBeenCalledWith({ name: 'sprechen-teil1-run' })
   })
 })
 
@@ -197,6 +294,76 @@ describe('Teil1Prep — Denkzeit countdown', () => {
 
     await cta.trigger('click')
     expect(push).toHaveBeenCalledWith({ name: 'sprechen-teil1-run' })
+  })
+})
+
+describe('Teil1Prep — reload-proofing (F4-prep)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'setTimeout', 'clearTimeout'] })
+  })
+  afterEach(() => { vi.useRealTimers() })
+
+  it('debounces plan and notes into the sessionStorage stash (~500ms) so a fresh mount restores them', async () => {
+    putStash(stashFor())
+    const w = mount(Teil1Prep)
+    await flushPromises()
+
+    await w.findAll('.spr-plan-in')[0].setValue('Sportvereine')
+    await w.find('.spr-notes').setValue('ein Beispiel: Verein XY')
+
+    // Not written synchronously — that is the whole point of debouncing.
+    const mid = JSON.parse(sessionStorage.getItem(TEIL1_STASH_KEY)!) as Teil1RunStash
+    expect(mid.notes).toBe('')
+
+    vi.advanceTimersByTime(500)
+    await nextTick()
+
+    const saved = JSON.parse(sessionStorage.getItem(TEIL1_STASH_KEY)!) as Teil1RunStash
+    expect(saved.plan.find(p => p.key === 'einstieg')!.keyword).toBe('Sportvereine')
+    expect(saved.notes).toBe('ein Beispiel: Verein XY')
+
+    w.unmount()
+    const w2 = mount(Teil1Prep)
+    await flushPromises()
+    expect((w2.findAll('.spr-plan-in')[0].element as HTMLInputElement).value).toBe('Sportvereine')
+    expect((w2.find('.spr-notes').element as HTMLTextAreaElement).value).toBe('ein Beispiel: Verein XY')
+    w2.unmount()
+  })
+
+  it('resets the debounce timer on rapid edits so only the latest value is ever written', async () => {
+    putStash(stashFor())
+    const w = mount(Teil1Prep)
+    await flushPromises()
+
+    await w.find('.spr-notes').setValue('erste Fassung')
+    vi.advanceTimersByTime(300)
+    await w.find('.spr-notes').setValue('zweite Fassung')
+    vi.advanceTimersByTime(300)
+
+    // 600ms since the FIRST edit, but only 300ms since the second — if the
+    // timer were not reset, the first edit's write would have already landed.
+    let saved = JSON.parse(sessionStorage.getItem(TEIL1_STASH_KEY)!) as Teil1RunStash
+    expect(saved.notes).toBe('')
+
+    vi.advanceTimersByTime(300)
+    await nextTick()
+    saved = JSON.parse(sessionStorage.getItem(TEIL1_STASH_KEY)!) as Teil1RunStash
+    expect(saved.notes).toBe('zweite Fassung')
+    w.unmount()
+  })
+
+  it('go() still writes synchronously before navigating, debounce or not', async () => {
+    putStash(stashFor())
+    const w = mount(Teil1Prep)
+    await flushPromises()
+
+    await w.find('.spr-notes').setValue('sofort gespeichert')
+    await w.find('.btn.btn-accent.btn-meta').trigger('click')
+
+    const saved = JSON.parse(sessionStorage.getItem(TEIL1_STASH_KEY)!) as Teil1RunStash
+    expect(saved.notes).toBe('sofort gespeichert')
+    expect(push).toHaveBeenCalledWith({ name: 'sprechen-teil1-run' })
+    w.unmount()
   })
 })
 

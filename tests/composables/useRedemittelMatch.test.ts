@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
-  redemittelNeedle, matchRedemittel, movesUsed, movePerTurn, pickMoveNudge
+  redemittelNeedle, matchRedemittel, movesUsed, movePerTurn, pickMoveNudge, phraseNeedle,
+  type PhraseLike
 } from '../../src/composables/useRedemittelMatch'
 import { SPRECHEN_REDEMITTEL } from '../../src/data/sprechenRedemittel'
 import { SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES } from '../../src/data/sprechenVortragsmittel'
@@ -205,5 +206,35 @@ describe('bank parameterisation', () => {
   it('returns null when every Move of the given bank was used', () => {
     const all = SPRECHEN_VORTRAGSMITTEL.map(r => r.phraseDe).join(' ')
     expect(pickMoveNudge([all], {}, SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES)).toBeNull()
+  })
+})
+
+describe('needle overrides (F5)', () => {
+  it('matches the four placeholder-first Vortragsmittel from natural sentences', () => {
+    const cases: Array<[string, string]> = [
+      ['vm-kontrast-1', 'Einerseits ist das Ehrenamt praktisch, andererseits kostet es Zeit.'],
+      ['vm-kontrast-2', 'Für das Ehrenamt spricht, dass man Verantwortung lernt.'],
+      ['vm-gliederung-2', 'Zuerst beschreibe ich die Lage, danach die Vorteile, und zum Schluss meine Meinung.'],
+      ['vm-beispiel-2', 'Als ich noch Studentin war, habe ich erlebt, dass niemand Zeit hatte.']
+    ]
+    for (const [id, sentence] of cases) {
+      const ids = matchRedemittel([sentence], SPRECHEN_VORTRAGSMITTEL).map(r => r.id)
+      expect(ids, id).toContain(id)
+    }
+  })
+
+  it('keeps every Teil 2 needle byte-identical — overrides only exist in the Vortrag bank', () => {
+    for (const r of SPRECHEN_REDEMITTEL) {
+      expect((r as PhraseLike).needle).toBeUndefined()
+      expect(phraseNeedle(r)).toBe(redemittelNeedle(r.phraseDe))
+    }
+  })
+
+  it('all effective Vortrag needles stay distinct and non-nesting', () => {
+    const needles = SPRECHEN_VORTRAGSMITTEL.map(r => phraseNeedle(r))
+    expect(new Set(needles).size).toBe(needles.length)
+    const overlaps: string[] = []
+    for (const a of needles) for (const b of needles) if (a !== b && b.includes(a)) overlaps.push(`${a} ⊂ ${b}`)
+    expect(overlaps).toEqual([])
   })
 })

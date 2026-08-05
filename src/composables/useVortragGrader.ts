@@ -87,6 +87,46 @@ export class VortragGraderError extends Error {
 
 export const AUFWERTUNG_CAP = 5
 
+// ── Band anchors (F9) ──────────────────────────────────────────────
+//
+// Grader-local by design: the shared `SprechenCriterion` type (rubrics.ts)
+// stays a free-text descriptor for BOTH Teile, and Teil 2 never sees these.
+// Each string is four numeric bands in the descriptor's own register — they
+// give the model concrete score anchors instead of leaving 0-25 to vibes,
+// which is also why the per-Gliederungspunkt deduction rule travels with
+// them rather than living in the shared rubric.
+const TEIL1_BAND_ANCHORS: Record<'erfuellung' | 'kohaerenz' | 'wortschatz' | 'strukturen', string> = {
+  erfuellung:
+    '24–25: alle fünf Punkte tragen, Position klar begründet, Nachfrage ' +
+    'inhaltlich beantwortet. 18–19: alle Punkte vorhanden, einer nur ' +
+    'angetippt, Position erkennbar. 12–13: ein Punkt fehlt oder mehrere ' +
+    'bleiben oberflächlich, Position behauptet statt begründet. 5–6: ' +
+    'mehrere Punkte fehlen, kaum Bezug zum Aufgabenblatt.',
+  kohaerenz:
+    '24–25: durchgehend klar gegliedert, Übergänge sitzen mit passenden ' +
+    'Signalwörtern, wirkt aus einem Guss. 18–19: erkennbare Grobgliederung, ' +
+    'Übergänge stellenweise abrupt oder Signalwörter wiederholen sich. ' +
+    '12–13: Gliederung nur in Ansätzen erkennbar, Punkte wirken eher ' +
+    'aneinandergereiht als verbunden. 5–6: kaum erkennbare Struktur, ' +
+    'Sprünge von Gedanke zu Gedanke ohne Verbindung.',
+  wortschatz:
+    '24–25: präziser, breiter Wortschatz mit treffenden Fachbegriffen, ' +
+    'Vortragsmittel wechseln merklich. 18–19: überwiegend passender ' +
+    'Wortschatz, gelegentlich allgemein oder mit sich wiederholenden ' +
+    'Vortragsmitteln. 12–13: Wortschatz oft allgemein („machen", „gut"), ' +
+    'Vortragsmittel beschränken sich auf ein oder zwei Wendungen. 5–6: ' +
+    'sehr eingeschränkter Wortschatz, kaum thematisches Vokabular, ' +
+    'Bedeutung streckenweise unklar.',
+  strukturen:
+    '24–25: vielfältige, überwiegend korrekte Strukturen (Nebensätze, ' +
+    'Passiv, Konjunktiv II), Fehler sind selten und stören nie das ' +
+    'Verständnis. 18–19: solide Grundstrukturen mit gelegentlichen ' +
+    'Fehlern, das Verständnis bleibt durchgehend klar. 12–13: einfache ' +
+    'Strukturen dominieren, wiederkehrende Fehler erschweren das ' +
+    'Verständnis stellenweise. 5–6: Strukturen bleiben rudimentär, ' +
+    'häufige Fehler beeinträchtigen das Verständnis merklich.'
+}
+
 // ── Schema ───────────────────────────────────────────────────────
 //
 // Same shape as SPRECHEN_GRADE_SCHEMA (useSprechenGrader.ts), with three
@@ -243,6 +283,19 @@ export function validateVortragGrade(
     coverage.push({ key: p.key, covered, note })
   }
 
+  // F9 — consistency check. `erfuellung`'s own descriptor says an omitted or
+  // barely-covered Gliederungspunkt must dock its score ("ein ausgelassener
+  // oder nur angetippter Gliederungspunkt mindert die Punktzahl"), so a grade
+  // claiming most points are missing while still scoring erfuellung as if
+  // nearly all five landed is self-contradictory — "2 von 5 Punkten
+  // behandelt, aber 21/25 auf erfuellung" cannot both be true. Low coverage
+  // together with a LOW erfuellung score is consistent (the grader is just
+  // being appropriately strict about a weak Vortrag) and must NOT be
+  // rejected — only the high-score/low-coverage contradiction is.
+  const coveredCount = coverage.filter(c => c.covered).length
+  const erfuellungScore = criteria.find(c => c.key === 'erfuellung')?.score ?? 0
+  if (coveredCount <= 3 && erfuellungScore >= 20) return null
+
   // Mistakes — phase decides the anchor text: the Rede for 'rede', the
   // Nachfrage answer for 'nachfrage'. Silently drop what cannot be verified.
   // A spoken Vortrag's transcript spelling is the recognizer's, not the
@@ -272,18 +325,20 @@ export function validateVortragGrade(
 
   // Aufwertungen — NOT errors. Optional by design (absent or malformed → []),
   // anchored against the Rede first and the Nachfrage answer second, dropped
-  // when unanchorable, capped at AUFWERTUNG_CAP. Never a reason to fail the
-  // whole grade, and never shaped like a mistake (no `kind`, no error tag).
+  // when unanchorable. Never a reason to fail the whole grade, and never
+  // shaped like a mistake (no `kind`, no error tag).
   const rawAufwertungen = Array.isArray(r.aufwertungen) ? r.aufwertungen : []
-  const aufwertungen: Aufwertung[] = (rawAufwertungen as unknown[])
+  const anchoredAufwertungen = (rawAufwertungen as unknown[])
     .filter((x): x is Record<string, unknown> => !!x && typeof x === 'object')
     .flatMap(a => {
       if (typeof a.quote !== 'string' || a.quote.trim().length === 0) return []
       if (typeof a.better !== 'string') return []
       if (typeof a.whyDe !== 'string' || typeof a.whyEn !== 'string') return []
       let anchored = reAnchor(a.quote, v.rede.textDe)
+      let phase: 'rede' | 'nachfrage' = 'rede'
       if (anchored.spanStart < 0 && v.nachfrage) {
         anchored = reAnchor(a.quote, v.nachfrage.answerDe)
+        phase = 'nachfrage'
       }
       if (anchored.spanStart < 0) return []
       return [{
@@ -292,10 +347,34 @@ export function validateVortragGrade(
         whyDe: a.whyDe,
         whyEn: a.whyEn,
         spanStart: anchored.spanStart,
-        spanEnd: anchored.spanEnd
+        spanEnd: anchored.spanEnd,
+        phase
       }]
     })
-    .slice(0, AUFWERTUNG_CAP)
+
+  // F21 — Aufwertung dosing. An Aufwertung whose span overlaps a mistake's
+  // span IN THE SAME PHASE'S TEXT (spans are coordinates into either the
+  // Rede or the Nachfrage answer, never comparable across the two) is
+  // dropped: "improving" a spot the grader itself already flagged wrong
+  // reads as contradictory, not encouraging. What survives is then capped —
+  // AUFWERTUNG_CAP normally, but only 2 once the Vortrag has more than 6
+  // mistakes, so a rough run isn't buried in "nice, but" notes instead of
+  // fixes.
+  const overlapsAMistake = (a: { spanStart: number; spanEnd: number; phase: 'rede' | 'nachfrage' }) =>
+    mistakes.some(m => m.phase === a.phase && a.spanStart < m.spanEnd && m.spanStart < a.spanEnd)
+
+  const aufwertungCap = mistakes.length > 6 ? 2 : AUFWERTUNG_CAP
+  const aufwertungen: Aufwertung[] = anchoredAufwertungen
+    .filter(a => !overlapsAMistake(a))
+    .slice(0, aufwertungCap)
+    .map(a => ({
+      quote: a.quote,
+      better: a.better,
+      whyDe: a.whyDe,
+      whyEn: a.whyEn,
+      spanStart: a.spanStart,
+      spanEnd: a.spanEnd
+    }))
 
   const notes = (arr: unknown[]): BilingualNote[] =>
     (arr as Array<Record<string, unknown>>).flatMap(n =>
@@ -347,6 +426,12 @@ function spellingCaveatDe(modality: Modality): string {
     : ''
 }
 
+/** m:ss, floor-guarded — same shape as RedezeitState.clock but standalone. */
+function clockFmt(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds))
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+}
+
 /** SPRECHDATEN block — delivery evidence for "kohaerenz" only, spoken runs. */
 function formatVortragSprechdaten(v: RedeRecord, modality: Modality): string {
   const seconds = v.seconds ?? 0
@@ -355,9 +440,18 @@ function formatVortragSprechdaten(v: RedeRecord, modality: Modality): string {
   const minutes = seconds / 60
   const wpm = minutes > 0 ? Math.round(words / minutes) : 0
   const restarts = v.restarts ?? 0
+  // F2 — Gesamtdauer/Pausenzeit only exist once the runner has a wall clock
+  // (mic-open-to-mic-open time), which the mic-paused-but-tab-open case adds
+  // on top of Redezeit. Pausenzeit is thinking time an examiner would not
+  // grant, so it is named as such rather than left to speak for itself.
+  const wallLine = typeof v.wallSeconds === 'number'
+    ? `\nGesamtdauer ${clockFmt(v.wallSeconds)} · Pausenzeit ${clockFmt(Math.max(0, v.wallSeconds - seconds))}. ` +
+      'Pausenzeit ist Denkzeit, die die Prüfung nicht gewähren würde.'
+    : ''
   return (
     'SPRECHDATEN (nur für die Bewertung von "kohaerenz" — siehe Warnung oben):\n' +
-    `Redezeit ${state.clock} · ${wpm} Wörter/Min · ${restarts} lange(n) Pause(n).`
+    `Redezeit ${state.clock} · ${wpm} Wörter/Min · ${restarts} lange(n) Pause(n).` +
+    wallLine
   )
 }
 
@@ -374,7 +468,10 @@ export function buildVortragGraderPrompt(
   for (const c of SPRECHEN_B2_TEIL1.criteria) {
     rubricLines.push(`- key="${c.key}" — ${c.labelDe} (max ${c.maxPoints} Punkte):`)
     rubricLines.push(`    ${sprechenDescriptor(c, v.modality)}`)
+    rubricLines.push(`    Bandbreiten: ${TEIL1_BAND_ANCHORS[c.key]}`)
   }
+  rubricLines.push('')
+  rubricLines.push('Pro nicht behandeltem Gliederungspunkt mindestens 4 Punkte Abzug bei erfuellung.')
   rubricLines.push('')
   rubricLines.push(`Hinweis: ${sprechenNotes(SPRECHEN_B2_TEIL1, v.modality)}`)
 
@@ -402,7 +499,7 @@ export function buildVortragGraderPrompt(
     '"note": "<kurze Begründung auf Deutsch, warum covered so gesetzt wurde>"}. ' +
     '"covered" ist true, wenn der Punkt inhaltlich behandelt wurde, nicht nur ' +
     'angetippt.\n\n' +
-    '"aufwertungen": genau bis zu 5 Stellen im Vortrag, die NICHT falsch sind, ' +
+    '"aufwertungen": höchstens fünf Stellen im Vortrag, die NICHT falsch sind, ' +
     'aber durch eine B2-typischere Formulierung ersetzt werden könnten — mit ' +
     '"quote" (wörtliches Zitat aus dem Vortrag), "better" (die verbesserte ' +
     'Formulierung), "whyDe" und "whyEn" (kurze Begründung, Deutsch und ' +
@@ -519,4 +616,5 @@ export interface Teil1ResultStash {
   startedAt: number
   finishedAt: number
   result: VortragGradeResult
+  downgradedAt?: number        // F13 — mirrors SprechenVortrag.downgradedAt onto the stash
 }

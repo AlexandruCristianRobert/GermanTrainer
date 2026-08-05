@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   useSpeechRecognizer,
   isSpeechRecognitionSupported,
-  countWords
+  countWords,
+  type CommittedSpeech
 } from '../../src/composables/useSpeechRecognizer'
 
 // ── Fake SpeechRecognition ──────────────────────────────────────────
@@ -314,6 +315,102 @@ describe('useSpeechRecognizer — spans', () => {
       { text: 'Ich bin dagegen', confidence: 0.87 },
       { text: 'und fertig', confidence: 0 }
     ])
+  })
+})
+
+describe('useSpeechRecognizer — onFinal callback (F1)', () => {
+  it('fires once per committed final with the accumulated text, spans and restarts', () => {
+    const finals: CommittedSpeech[] = []
+    const r = useSpeechRecognizer('de-DE', c => finals.push(c))
+    r.start()
+    const inst = currentInstance()
+
+    inst.onresult!(makeEvent(0, [finalResult('Ich bin dagegen', 0.9)]))
+    expect(finals).toEqual([
+      { text: 'Ich bin dagegen', spans: [{ text: 'Ich bin dagegen', confidence: 0.9 }], restarts: 0 }
+    ])
+
+    inst.onresult!(makeEvent(1, [
+      finalResult('Ich bin dagegen', 0.9),
+      finalResult('weil es teuer ist', 0.8)
+    ]))
+    expect(finals.length).toBe(2)
+    expect(finals[1]).toEqual({
+      text: 'Ich bin dagegen weil es teuer ist',
+      spans: [
+        { text: 'Ich bin dagegen', confidence: 0.9 },
+        { text: 'weil es teuer ist', confidence: 0.8 }
+      ],
+      restarts: 0
+    })
+  })
+
+  it('fires once per final within a single event that carries two brand-new finals', () => {
+    const finals: CommittedSpeech[] = []
+    const r = useSpeechRecognizer('de-DE', c => finals.push(c))
+    r.start()
+    const inst = currentInstance()
+
+    inst.onresult!(makeEvent(1, [
+      finalResult('Erster Satz', 0.9),
+      finalResult('zweiter Satz', 0.8)
+    ]))
+
+    expect(finals.length).toBe(2)
+    expect(finals[0].text).toBe('Erster Satz')
+    expect(finals[1].text).toBe('Erster Satz zweiter Satz')
+  })
+
+  it('does not fire on interim results', () => {
+    const finals: CommittedSpeech[] = []
+    const r = useSpeechRecognizer('de-DE', c => finals.push(c))
+    r.start()
+    const inst = currentInstance()
+
+    inst.onresult!(makeEvent(0, [interimResult('hallo wie')]))
+    expect(finals).toEqual([])
+  })
+
+  it('reflects the restart count in the accumulated state after a mid-turn onend', () => {
+    const finals: CommittedSpeech[] = []
+    const r = useSpeechRecognizer('de-DE', c => finals.push(c))
+    r.start()
+    const inst = currentInstance()
+
+    inst.onresult!(makeEvent(0, [finalResult('Erster Satz', 0.9)]))
+    inst.onend!() // mid-turn restart
+    inst.onresult!(makeEvent(0, [finalResult('zweiter Satz', 0.8)]))
+
+    expect(finals[finals.length - 1].restarts).toBe(1)
+  })
+
+  it('a throwing onFinal does not kill recognition — the next final still commits', () => {
+    let calls = 0
+    const r = useSpeechRecognizer('de-DE', () => {
+      calls++
+      throw new Error('listener boom')
+    })
+    r.start()
+    const inst = currentInstance()
+
+    expect(() => inst.onresult!(makeEvent(0, [finalResult('Erster Satz', 0.9)]))).not.toThrow()
+    expect(calls).toBe(1)
+
+    inst.onresult!(makeEvent(1, [
+      finalResult('Erster Satz', 0.9),
+      finalResult('zweiter Satz', 0.8)
+    ]))
+    expect(calls).toBe(2)
+    expect(r.liveText.value).toBe('Erster Satz zweiter Satz')
+  })
+
+  it('a recognizer constructed without onFinal behaves exactly as before', () => {
+    const r = useSpeechRecognizer('de-DE')
+    r.start()
+    const inst = currentInstance()
+
+    expect(() => inst.onresult!(makeEvent(0, [finalResult('Hallo Welt', 0.9)]))).not.toThrow()
+    expect(r.liveText.value).toBe('Hallo Welt')
   })
 })
 

@@ -183,9 +183,30 @@ async function generate() {
 }
 
 function removeCustom(id: string) {
+  // If the deleted custom Vortragsthema is currently drawn on one of the two
+  // sheets, that sheet must not go on showing a topic no longer in the pool
+  // — bump the redraw seed so `pair` (which reruns drawThemaPair() against
+  // the now-shrunk pool) picks a replacement.
+  const wasDrawn = pair.value.some(t => t.id === id)
   deleteCustomThema(id)
   poolVersion.value++
   if (pick.value === id) pick.value = null
+  if (wasDrawn) redrawSeed.value++
+}
+
+/**
+ * F15 — Prüfungsmodus preset. Not a fifth switch: it writes the four
+ * existing helps + Vorbereitung 15 Min into the same reactive state the
+ * switches below use, and the existing `watch` persists it via the normal
+ * merge-write. The switches stay individually visible and editable
+ * afterwards — this only sets their starting values.
+ */
+function applyPruefungsmodus() {
+  hintsOn.value = false
+  checklistOn.value = false
+  kiTippOn.value = false
+  hardLimitOn.value = true
+  prepSeconds.value = 900
 }
 
 function resumeActive() { router.push({ name: 'sprechen-teil1-run' }) }
@@ -243,6 +264,13 @@ function start() {
       </div>
     </header>
 
+    <div v-if="!canUseAi" class="alert alert-warning">
+      <span class="alert-label">KI-Zugang nötig</span>
+      Setze einen Gemini-API-Key, oder wähle <em>Local Claude (dev)</em>, in
+      <router-link :to="{ name: 'settings' }">Einstellungen</router-link> —
+      sonst lässt sich kein Vortrag bewerten.
+    </div>
+
     <div v-if="active" class="alert alert-info">
       <span class="alert-label">Vortrag fortsetzen?</span>
       Ein unfertiger {{ active.modality === 'spoken' ? 'gesprochener' : 'getippter' }}
@@ -253,7 +281,7 @@ function start() {
       </div>
     </div>
 
-    <div v-if="!active" class="spr-setup">
+    <div class="spr-setup">
       <div>
         <div class="spr-ab">
           <div v-for="(t, i) in pair" :key="t.id" class="spr-sheet-wrap">
@@ -286,7 +314,7 @@ function start() {
                 <button type="button" class="spr-tag" :class="{ on: fillFor(t.id).example }"
                   @click="toggleFill(t.id, 'example')">eigenes Beispiel?</button>
                 <button type="button" class="spr-tag" :class="{ on: fillFor(t.id).words }"
-                  @click="toggleFill(t.id, 'words')">drei Wörter?</button>
+                  @click="toggleFill(t.id, 'words')">drei Fachwörter?</button>
                 <button type="button" class="spr-tag" :class="{ on: fillFor(t.id).meinung }"
                   @click="toggleFill(t.id, 'meinung')">Meinung?</button>
               </div>
@@ -345,6 +373,13 @@ function start() {
           <p v-else class="spr-card-none">
             Noch kein Aufgabenblatt gewählt. Nimm eines der beiden Themen oben — oder aus der ganzen Liste.
           </p>
+
+          <div class="spr-examx">
+            <button type="button" class="btn btn-quiet" @click="applyPruefungsmodus">Prüfungsmodus</button>
+            <p class="spr-examx-note">
+              Wie in der Prüfung: Aufgabenblatt, deine Notizen, vier Minuten — sonst nichts.
+            </p>
+          </div>
 
           <div class="spr-card-f">
             <div class="spr-fld">
@@ -420,7 +455,7 @@ function start() {
           </div>
         </div>
         <div class="spr-card-go">
-          <button class="btn btn-accent btn-meta" :disabled="!picked" @click="start">
+          <button class="btn btn-accent btn-meta" :disabled="!picked || !canUseAi" @click="start">
             <span class="bm-main">
               {{ prepSeconds > 0 ? 'Vorbereitung' : 'Vortrag halten' }}
               <span aria-hidden="true">→</span>
@@ -457,6 +492,12 @@ function start() {
 
 .spr-fld-note { font-size: 12.5px; color: var(--mute); font-style: italic; line-height: 1.5; }
 .resume-actions { display: flex; gap: 10px; margin-top: 10px; }
+
+.spr-examx {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  margin: 16px 0; padding: 14px; border: 1px dashed var(--hairline); border-radius: 6px;
+}
+.spr-examx-note { margin: 0; font-size: 12.5px; font-style: italic; color: var(--mute); line-height: 1.5; }
 
 .ai-cost-note {
   margin: 8px 0 0;

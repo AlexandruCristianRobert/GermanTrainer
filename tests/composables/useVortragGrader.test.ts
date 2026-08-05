@@ -176,6 +176,59 @@ describe('validateVortragGrade', () => {
   })
 })
 
+describe('band anchors and consistency (F9)', () => {
+  it('embeds four band anchors per criterion and the per-point deduction rule', () => {
+    const { system } = buildVortragGraderPrompt(vortrag())
+    expect(system).toMatch(/24–25|24-25/)
+    expect(system).toMatch(/12–13|12-13/)
+    expect(system).toMatch(/mindestens 4 Punkte Abzug/)
+  })
+  it('rejects a grade whose erfuellung contradicts its own coverage', () => {
+    const p = goodPayload({
+      coverage: GLIEDERUNGSPUNKTE.map((g, i) => ({ key: g.key, covered: i < 3, note: '' }))
+    })
+    ;(p.criteria as any)[0].score = 21
+    expect(validateVortragGrade(p, vortrag())).toBeNull()
+  })
+  it('accepts low coverage when erfuellung is low too', () => {
+    const p = goodPayload({
+      coverage: GLIEDERUNGSPUNKTE.map((g, i) => ({ key: g.key, covered: i < 3, note: '' }))
+    })
+    ;(p.criteria as any)[0].score = 12
+    expect(validateVortragGrade(p, vortrag())).not.toBeNull()
+  })
+})
+
+describe('SPRECHDATEN wall clock (F2)', () => {
+  it('reports Gesamtdauer and Pausenzeit when the wall clock exists', () => {
+    const { user } = buildVortragGraderPrompt(vortrag({
+      modality: 'spoken',
+      rede: { textDe: REDE, seconds: 190, wallSeconds: 350, restarts: 2 }
+    }))
+    expect(user).toContain('Gesamtdauer 5:50')
+    expect(user).toContain('Pausenzeit 2:40')
+  })
+})
+
+describe('Aufwertung dosing (F21)', () => {
+  it('drops an Aufwertung overlapping a mistake span', () => {
+    const p = goodPayload({
+      mistakes: [{ phase: 'rede', quote: 'Ausserdem', suggested: 'Außerdem', kind: 'spelling', reasonDe: 'x', reasonEn: 'y' }],
+      aufwertungen: [{ quote: 'Ausserdem lernt man', better: 'Zudem erwirbt man', whyDe: 'a', whyEn: 'b' }]
+    })
+    const r = validateVortragGrade(p, vortrag())!
+    expect(r.aufwertungen).toEqual([])
+  })
+  it('caps Aufwertungen at 2 when mistakes exceed 6', () => {
+    const mistakes = Array.from({ length: 7 }, (_, i) => ({
+      phase: 'rede', quote: REDE.split(' ')[i], suggested: 'x', kind: 'grammar', reasonDe: 'r', reasonEn: 'r'
+    }))
+    const aufw = Array.from({ length: 5 }, () => ({ quote: 'unverzichtbar', better: 'nicht wegzudenken', whyDe: 'a', whyEn: 'b' }))
+    const r = validateVortragGrade(goodPayload({ mistakes, aufwertungen: aufw }), vortrag())!
+    expect(r.aufwertungen.length).toBeLessThanOrEqual(2)
+  })
+})
+
 describe('gradeVortrag', () => {
   function fakeClient(responses: string[]) {
     let i = 0

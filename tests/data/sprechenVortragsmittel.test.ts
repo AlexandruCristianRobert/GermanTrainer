@@ -4,7 +4,7 @@ import {
   GLIEDERUNGSPUNKTE, PUNKT_MOVES, VORTRAG_TARGET_WORDS, VORTRAG_WPM, vortragClock,
   RETTUNGSLEINEN, KONNEKTOREN
 } from '../../src/data/sprechenVortragsmittel'
-import { redemittelNeedle } from '../../src/composables/useRedemittelMatch'
+import { redemittelNeedle, phraseNeedle } from '../../src/composables/useRedemittelMatch'
 
 describe('SPRECHEN_VORTRAGSMITTEL', () => {
   it('ships 35 phrases with unique ids', () => {
@@ -38,9 +38,13 @@ describe('SPRECHEN_VORTRAGSMITTEL', () => {
     expect(overlaps).toEqual([])
   })
 
-  it('never produces a needle shorter than 12 chars', () => {
+  // F5: overrides are hand-verified against natural realizations, so 10 is
+  // enough when the string is hand-chosen; a needle DERIVED from phraseDe
+  // still has to clear 12 to keep the safety margin the comma bug taught us.
+  it('never produces a needle shorter than 12 chars — 10 for a hand-verified override', () => {
     for (const r of SPRECHEN_VORTRAGSMITTEL) {
-      expect(redemittelNeedle(r.phraseDe).length).toBeGreaterThanOrEqual(12)
+      const min = r.needle ? 10 : 12
+      expect(phraseNeedle(r).length, r.id).toBeGreaterThanOrEqual(min)
     }
   })
 })
@@ -90,12 +94,25 @@ describe('help copy banks', () => {
     expect(RETTUNGSLEINEN.length).toBeGreaterThanOrEqual(3)
     for (const r of RETTUNGSLEINEN) expect(r.trim().length).toBeGreaterThan(10)
   })
+})
 
-  it('ships Konnektoren grouped by the join they make', () => {
+describe('KONNEKTOREN (F10)', () => {
+  it('groups by the Stellung each word forces, with a frame per word', () => {
     expect(KONNEKTOREN.length).toBeGreaterThanOrEqual(4)
     for (const g of KONNEKTOREN) {
-      expect(g.labelDe.trim().length).toBeGreaterThan(3)
-      expect(g.words.length).toBeGreaterThanOrEqual(3)
+      expect(g.stellungDe.trim().length).toBeGreaterThan(5)
+      expect(g.konnektoren.length).toBeGreaterThanOrEqual(3)
+      for (const k of g.konnektoren) {
+        expect(k.frameDe).toContain(k.wort.split(' ')[0])
+        expect(k.frameDe).toContain('…')
+      }
     }
+  })
+
+  it('never offers nämlich as a sentence opener', () => {
+    const all = KONNEKTOREN.flatMap(g => g.konnektoren)
+    const naemlich = all.find(k => k.wort === 'nämlich')
+    expect(naemlich).toBeTruthy()
+    expect(naemlich!.frameDe.startsWith('Nämlich')).toBe(false)
   })
 })

@@ -60,3 +60,23 @@ describe('VORTRAGSTHEMA_GENERATOR_SCHEMA', () => {
     expect(item.required).toEqual(['titleDe', 'taskDe', 'tags'])
   })
 })
+
+describe('no premise-loaded tasks (F20)', () => {
+  const LOADED = [
+    /warum .* so wichtig/i,
+    /warum immer (mehr|weniger)/i,
+    /warum .* noch immer/i,
+    /an Bedeutung verliert/i,
+    /Vor- und Nachteile/,          // pre-empts Gliederungspunkt 3
+    / oder /                        // an either-or belongs in the Teil 2 Topic pool
+  ]
+  it('every taskDe leaves both sides and the Meinung open', () => {
+    for (const t of SPRECHEN_VORTRAGSTHEMEN) {
+      for (const p of LOADED) expect(t.taskDe, `${t.id} loaded: ${p}`).not.toMatch(p)
+    }
+  })
+  it('ids and titles are unchanged — history keys on titleDe', () => {
+    expect(SPRECHEN_VORTRAGSTHEMEN).toHaveLength(60)
+    expect(new Set(SPRECHEN_VORTRAGSTHEMEN.map(t => t.titleDe)).size).toBe(60)
+  })
+})

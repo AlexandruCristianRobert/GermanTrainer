@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach } from 'vitest'
 import { db } from '../../src/db'
 import {
   createVortrag, findActiveVortrag, saveRede, saveNachfrage, markVortragSubmitted,
-  incrementVortragKiTipp, logHelp, abandonVortrag, deleteVortrag
+  incrementVortragKiTipp, logHelp, abandonVortrag, deleteVortrag, markDowngraded
 } from '../../src/composables/useVortrag'
 import type { VortragHelps, VortragThemaRef } from '../../src/data/sprechen'
 
@@ -93,5 +93,27 @@ describe('the Vortrag lifecycle', () => {
     const b = await createVortrag(thema, 'typed', helps, [], '')
     await deleteVortrag(b.id)
     expect(await db.sprechenVortraege.get(b.id)).toBeUndefined()
+  })
+})
+
+describe('downgrade and wall-clock persistence', () => {
+  it('records the mic-denied downgrade without touching modality', async () => {
+    const v = await createVortrag(thema, 'spoken', helps, [], '')
+    await markDowngraded(v.id, 1234)
+    const got = await db.sprechenVortraege.get(v.id)
+    expect(got?.downgradedAt).toBe(1234)
+    expect(got?.modality).toBe('spoken')   // F13: the seconds are real, spelling suppression must stay
+  })
+
+  it('markDowngraded on a missing row is non-fatal', async () => {
+    await expect(markDowngraded('nope', 1)).resolves.toBeUndefined()
+  })
+
+  it('persists firstSpokenAt and wallSeconds with the Rede', async () => {
+    const v = await createVortrag(thema, 'spoken', helps, [], '')
+    await saveRede(v.id, { textDe: 'Hallo', seconds: 10, firstSpokenAt: 111, wallSeconds: 25 })
+    const got = await db.sprechenVortraege.get(v.id)
+    expect(got?.rede.firstSpokenAt).toBe(111)
+    expect(got?.rede.wallSeconds).toBe(25)
   })
 })

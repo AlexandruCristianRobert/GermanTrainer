@@ -28,10 +28,16 @@ export interface Vortragsmittel {
   move: VortragMove
   phraseDe: string
   noteEn: string
+  // F5: literal needle override — see phraseNeedle() in useRedemittelMatch.
+  // Only set on phrases whose "…" placeholder sits inside the derived
+  // needle's first 24 characters, which would otherwise require the
+  // placeholder's filled-in content to be absent from natural speech.
+  needle?: string
 }
 
-const P = (id: string, move: VortragMove, phraseDe: string, noteEn: string): Vortragsmittel =>
-  ({ id, move, phraseDe, noteEn })
+const P = (
+  id: string, move: VortragMove, phraseDe: string, noteEn: string, needle?: string
+): Vortragsmittel => ({ id, move, phraseDe, noteEn, needle })
 
 export const SPRECHEN_VORTRAGSMITTEL: Vortragsmittel[] = [
   P('vm-einstieg-1', 'einstieg', 'Ich möchte heute über das Thema … sprechen.', 'today I would like to speak about …'),
@@ -41,7 +47,12 @@ export const SPRECHEN_VORTRAGSMITTEL: Vortragsmittel[] = [
   P('vm-einstieg-5', 'einstieg', 'Kaum ein Thema wird so kontrovers diskutiert wie …', 'few topics are debated as controversially as …'),
 
   P('vm-gliederung-1', 'gliederung', 'Ich habe meinen Vortrag in drei Teile gegliedert.', 'I have divided my talk into three parts.'),
-  P('vm-gliederung-2', 'gliederung', 'Zuerst …, danach …, und zum Schluss …', 'first …, then …, and finally …'),
+  // F5: the derived needle stops mid-way through "und zum schluss" because
+  // the two earlier placeholders sit inside its first 24 characters; the
+  // override matches on the fixed closing text alone, e.g. "Zuerst
+  // beschreibe ich die Lage, danach die Vorteile, und zum Schluss meine
+  // Meinung."
+  P('vm-gliederung-2', 'gliederung', 'Zuerst …, danach …, und zum Schluss …', 'first …, then …, and finally …', 'und zum schluss'),
   P('vm-gliederung-3', 'gliederung', 'Ich beginne mit einem kurzen Überblick.', 'I will begin with a brief overview.'),
   P('vm-gliederung-4', 'gliederung', 'Anschließend komme ich zu den Vor- und Nachteilen.', 'after that I come to the advantages and disadvantages.'),
   P('vm-gliederung-5', 'gliederung', 'Am Ende fasse ich meine Position kurz zusammen.', 'at the end I will briefly sum up my position.'),
@@ -52,14 +63,25 @@ export const SPRECHEN_VORTRAGSMITTEL: Vortragsmittel[] = [
   P('vm-aspekt-4', 'aspekt', 'In meinem Heimatland sieht die Situation so aus: …', 'in my home country the situation is as follows: …'),
   P('vm-aspekt-5', 'aspekt', 'Besonders auffällig ist dabei, dass …', 'what is particularly striking is that …'),
 
-  P('vm-kontrast-1', 'kontrast', 'Einerseits …, andererseits …', 'on the one hand …, on the other …'),
-  P('vm-kontrast-2', 'kontrast', 'Für … spricht, dass …; dagegen spricht …', 'in favour of … is …; against it …'),
+  // F5: the derived needle would be "einerseits andererseits" — adjacent only
+  // because the placeholder is stripped, so it can never match a natural
+  // sentence like "Einerseits ist das Ehrenamt praktisch, andererseits kostet
+  // es Zeit." The override matches on the fixed word after the gap instead.
+  P('vm-kontrast-1', 'kontrast', 'Einerseits …, andererseits …', 'on the one hand …, on the other …', 'andererseits'),
+  // F5: same gap problem — "spricht, dass" is the fixed text between the two
+  // placeholders, matching "Für das Ehrenamt spricht, dass man Verantwortung
+  // lernt." regardless of what fills the first blank.
+  P('vm-kontrast-2', 'kontrast', 'Für … spricht, dass …; dagegen spricht …', 'in favour of … is …; against it …', 'spricht dass'),
   P('vm-kontrast-3', 'kontrast', 'Der größte Vorteil liegt darin, dass …', 'the biggest advantage lies in the fact that …'),
   P('vm-kontrast-4', 'kontrast', 'Dem steht allerdings der Nachteil gegenüber, dass …', 'set against this, however, is the drawback that …'),
   P('vm-kontrast-5', 'kontrast', 'Man darf dabei aber nicht vergessen, dass …', 'one must not forget, though, that …'),
 
   P('vm-beispiel-1', 'beispiel', 'Ein Beispiel aus meinem eigenen Alltag: …', 'an example from my own daily life: …'),
-  P('vm-beispiel-2', 'beispiel', 'Als ich noch … war, habe ich erlebt, dass …', 'when I was still …, I experienced that …'),
+  // F5: the derived needle reaches across the placeholder into "war", which
+  // is fixed text on the OTHER side of the gap ("noch [blank] war"); the
+  // override matches on the fixed opening alone, e.g. "Als ich noch
+  // Studentin war, habe ich erlebt, dass niemand Zeit hatte."
+  P('vm-beispiel-2', 'beispiel', 'Als ich noch … war, habe ich erlebt, dass …', 'when I was still …, I experienced that …', 'als ich noch'),
   P('vm-beispiel-3', 'beispiel', 'Untersuchungen zeigen, dass …', 'studies show that …'),
   P('vm-beispiel-4', 'beispiel', 'Das lässt sich gut an … erkennen.', 'this can be clearly seen in …'),
   P('vm-beispiel-5', 'beispiel', 'In meinem Bekanntenkreis ist es üblich, dass …', 'among the people I know it is common that …'),
@@ -146,17 +168,65 @@ export const RETTUNGSLEINEN: string[] = [
   'Lassen Sie mich das etwas genauer erklären.'
 ]
 
-/* ── Konnektoren, grouped by the join they make ── */
+/* ── Konnektoren, grouped by the Stellung (word-order rule) each shares —
+      F10: the old grouping was by rhetorical function, which mixed sentence
+      openers (forcing V2) with mid-clause words (leaving normal word order)
+      inside the same group, so a single insertion rule could not serve it. ── */
+
+export interface Konnektor {
+  wort: string
+  frameDe: string   // the "…" is the learner's own continuation
+}
 
 export interface KonnektorGroup {
   labelDe: string
-  words: string[]
+  stellungDe: string   // the Stellung rule every word in this group shares
+  konnektoren: Konnektor[]
 }
 
+// Sentence-initial connectors: fronting them into position 1 pushes the verb
+// to position 2 (the subject follows the verb). Shared by three of the four
+// groups below — only the mid-clause group's Wortstellung differs.
+const SATZANFANG_STELLUNG = 'Konnektor auf Position 1, Verb direkt danach'
+
 export const KONNEKTOREN: KonnektorGroup[] = [
-  { labelDe: 'Weiterführen',      words: ['zunächst', 'anschließend', 'außerdem', 'darüber hinaus', 'schließlich'] },
-  { labelDe: 'Aufzählen',         words: ['erstens', 'zweitens', 'zum einen', 'zum anderen'] },
-  { labelDe: 'Gegenüberstellen',  words: ['einerseits', 'andererseits', 'dagegen', 'im Gegensatz dazu', 'trotzdem'] },
-  { labelDe: 'Belegen',           words: ['zum Beispiel', 'nämlich', 'denn', 'deshalb', 'dadurch'] },
-  { labelDe: 'Abschließen',       words: ['zusammenfassend', 'insgesamt', 'abschließend', 'alles in allem'] }
+  {
+    labelDe: 'Satzanfang — Verb an Position 2',
+    stellungDe: SATZANFANG_STELLUNG,
+    konnektoren: [
+      { wort: 'Zunächst',        frameDe: 'Zunächst möchte ich …' },
+      { wort: 'Anschließend',    frameDe: 'Anschließend komme ich zu …' },
+      { wort: 'Außerdem',        frameDe: 'Außerdem ist …' },
+      { wort: 'Trotzdem',        frameDe: 'Trotzdem bleibt …' },
+      { wort: 'Deshalb',         frameDe: 'Deshalb finde ich …' },
+      { wort: 'Zusammenfassend', frameDe: 'Zusammenfassend lässt sich sagen, dass …' }
+    ]
+  },
+  {
+    labelDe: 'Aufzählen',
+    stellungDe: SATZANFANG_STELLUNG,
+    konnektoren: [
+      { wort: 'Erstens',                     frameDe: 'Erstens ist …' },
+      { wort: 'Zweitens',                    frameDe: 'Zweitens zeigt …' },
+      { wort: 'Zum einen / zum anderen',     frameDe: 'Zum einen … , zum anderen …' }
+    ]
+  },
+  {
+    labelDe: 'Gegenüberstellen',
+    stellungDe: SATZANFANG_STELLUNG,
+    konnektoren: [
+      { wort: 'Einerseits / andererseits', frameDe: 'Einerseits … , andererseits …' },
+      { wort: 'Dagegen',                   frameDe: 'Dagegen spricht …' },
+      { wort: 'Im Gegensatz dazu',         frameDe: 'Im Gegensatz dazu ist …' }
+    ]
+  },
+  {
+    labelDe: 'Im Satz — normale Wortstellung',
+    stellungDe: 'mitten im Satz, Wortstellung bleibt',
+    konnektoren: [
+      { wort: 'denn',         frameDe: '… , denn ich habe …' },
+      { wort: 'nämlich',      frameDe: '… , ich habe nämlich …' },
+      { wort: 'zum Beispiel', frameDe: '… , zum Beispiel …' }
+    ]
+  }
 ]

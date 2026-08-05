@@ -28,12 +28,12 @@ export const SPRECHEN_VORTRAGSTHEMEN: Vortragsthema[] = [
   V('vt-plastikmuell-im-alltag-vermeiden', 'Plastikmüll im Alltag vermeiden', 'Halten Sie einen kurzen Vortrag darüber, wie sich Plastikmüll im eigenen Alltag vermeiden lässt.', ['Umwelt', 'Konsum']),
   V('vt-erneuerbare-energien', 'Erneuerbare Energien', 'Halten Sie einen kurzen Vortrag darüber, welche Rolle erneuerbare Energien für die Zukunft spielen.', ['Umwelt', 'Technologie']),
   V('vt-klimawandel-und-junge-generation', 'Klimawandel und junge Generation', 'Halten Sie einen kurzen Vortrag darüber, wie stark der Klimawandel das Leben junger Menschen schon heute beeinflusst.', ['Umwelt', 'Gesellschaft']),
-  V('vt-gruenflaechen-in-der-stadt', 'Grünflächen in der Stadt', 'Halten Sie einen kurzen Vortrag darüber, warum Grünflächen und Parks für Städte so wichtig sind.', ['Umwelt', 'Gesundheit']),
+  V('vt-gruenflaechen-in-der-stadt', 'Grünflächen in der Stadt', 'Halten Sie einen kurzen Vortrag darüber, wie viel Platz Grünflächen und Parks in einer wachsenden Stadt noch haben sollten.', ['Umwelt', 'Gesundheit']),
 
   // ── Arbeit ──────────────────────────────────────────────────────
   V('vt-homeoffice', 'Arbeiten von zu Hause', 'Halten Sie einen kurzen Vortrag darüber, was das Homeoffice mit der Arbeitswelt gemacht hat.', ['Arbeit', 'Technologie']),
   V('vt-work-life-balance', 'Work-Life-Balance', 'Halten Sie einen kurzen Vortrag darüber, wie wichtig eine gute Work-Life-Balance im Berufsleben ist.', ['Arbeit', 'Gesundheit']),
-  V('vt-selbststaendig-oder-festangestellt', 'Selbstständig oder festangestellt', 'Halten Sie einen kurzen Vortrag darüber, welche Vor- und Nachteile die Selbstständigkeit gegenüber einer Festanstellung hat.', ['Arbeit', 'Gesellschaft']),
+  V('vt-selbststaendig-oder-festangestellt', 'Selbstständig oder festangestellt', 'Halten Sie einen kurzen Vortrag darüber, wie sich das Berufsleben in der Selbstständigkeit von dem in einer Festanstellung unterscheidet.', ['Arbeit', 'Gesellschaft']),
   V('vt-berufswahl-junger-menschen', 'Berufswahl junger Menschen', 'Halten Sie einen kurzen Vortrag darüber, wovon die Berufswahl junger Menschen heute hauptsächlich abhängt.', ['Arbeit', 'Bildung']),
   V('vt-teamarbeit-im-beruf', 'Teamarbeit im Beruf', 'Halten Sie einen kurzen Vortrag darüber, welche Rolle Teamarbeit für den beruflichen Erfolg spielt.', ['Arbeit', 'Gesellschaft']),
   V('vt-gute-fuehrung-im-beruf', 'Gute Führung im Beruf', 'Halten Sie einen kurzen Vortrag darüber, was eine gute Führungskraft im Berufsalltag ausmacht.', ['Arbeit', 'Gesellschaft']),
@@ -51,16 +51,16 @@ export const SPRECHEN_VORTRAGSTHEMEN: Vortragsthema[] = [
   V('vt-fremdsprachen', 'Fremdsprachen lernen', 'Halten Sie einen kurzen Vortrag darüber, welchen Wert Fremdsprachen heute noch haben.', ['Bildung', 'Reisen']),
   V('vt-digitales-lernen', 'Digitales Lernen', 'Halten Sie einen kurzen Vortrag darüber, wie digitale Medien das Lernen an Schulen und Universitäten verändert haben.', ['Bildung', 'Technologie']),
   V('vt-praktische-faehigkeiten-neben-der-theorie', 'Praktische Fähigkeiten neben der Theorie', 'Halten Sie einen kurzen Vortrag darüber, welchen Stellenwert praktische Fähigkeiten neben theoretischem Wissen haben sollten.', ['Bildung', 'Arbeit']),
-  V('vt-lesen-in-der-freizeit', 'Lesen in der Freizeit', 'Halten Sie einen kurzen Vortrag darüber, warum das Lesen von Büchern in der Freizeit an Bedeutung verliert.', ['Bildung', 'Medien']),
+  V('vt-lesen-in-der-freizeit', 'Lesen in der Freizeit', 'Halten Sie einen kurzen Vortrag darüber, wie sich die Lesegewohnheiten der Menschen in den letzten Jahren verändert haben.', ['Bildung', 'Medien']),
   V('vt-bildungschancen-von-kindern', 'Bildungschancen von Kindern', 'Halten Sie einen kurzen Vortrag darüber, wovon der Bildungserfolg von Kindern und Jugendlichen stark abhängt.', ['Bildung', 'Familie']),
 
   // ── Gesundheit ──────────────────────────────────────────────────
   V('vt-gesunde-ernaehrung', 'Gesunde Ernährung', 'Halten Sie einen kurzen Vortrag darüber, wie sich Essgewohnheiten in den letzten Jahrzehnten verändert haben.', ['Gesundheit', 'Konsum']),
   V('vt-freizeit-sport', 'Sport in der Freizeit', 'Halten Sie einen kurzen Vortrag darüber, welchen Stellenwert Sport im Alltag der Menschen hat.', ['Gesundheit', 'Gesellschaft']),
-  V('vt-psychische-gesundheit-ernst-nehmen', 'Psychische Gesundheit ernst nehmen', 'Halten Sie einen kurzen Vortrag darüber, warum psychische Gesundheit noch immer weniger ernst genommen wird als körperliche.', ['Gesundheit', 'Gesellschaft']),
+  V('vt-psychische-gesundheit-ernst-nehmen', 'Psychische Gesundheit ernst nehmen', 'Halten Sie einen kurzen Vortrag darüber, wie ernst psychische Erkrankungen im Vergleich zu körperlichen genommen werden.', ['Gesundheit', 'Gesellschaft']),
   V('vt-schlafmangel-im-alltag', 'Schlafmangel im Alltag', 'Halten Sie einen kurzen Vortrag darüber, wie sich Schlafmangel auf das tägliche Leben auswirkt.', ['Gesundheit', 'Arbeit']),
   V('vt-stress-im-modernen-alltag', 'Stress im modernen Alltag', 'Halten Sie einen kurzen Vortrag darüber, was Stress im modernen Alltag hauptsächlich verursacht.', ['Gesundheit', 'Arbeit']),
-  V('vt-vorsorge-statt-nachsorge', 'Vorsorge statt Nachsorge', 'Halten Sie einen kurzen Vortrag darüber, warum regelmäßige Vorsorgeuntersuchungen so wichtig sind.', ['Gesundheit', 'Gesellschaft']),
+  V('vt-vorsorge-statt-nachsorge', 'Vorsorge statt Nachsorge', 'Halten Sie einen kurzen Vortrag darüber, welchen Nutzen regelmäßige Vorsorgeuntersuchungen im Vergleich zum Aufwand haben.', ['Gesundheit', 'Gesellschaft']),
 
   // ── Medien ──────────────────────────────────────────────────────
   V('vt-social-media', 'Soziale Netzwerke im Alltag', 'Halten Sie einen kurzen Vortrag darüber, wie soziale Netzwerke unseren Alltag verändert haben.', ['Medien', 'Technologie']),
@@ -72,7 +72,7 @@ export const SPRECHEN_VORTRAGSTHEMEN: Vortragsthema[] = [
 
   // ── Gesellschaft ────────────────────────────────────────────────
   V('vt-ehrenamt', 'Ehrenamtliches Engagement', 'Halten Sie einen kurzen Vortrag darüber, welche Rolle freiwillige Arbeit in einer Gesellschaft spielt.', ['Gesellschaft', 'Arbeit']),
-  V('vt-stadt-land', 'Stadt oder Land', 'Halten Sie einen kurzen Vortrag darüber, wo man heute besser lebt — in der Stadt oder auf dem Land.', ['Gesellschaft', 'Umwelt']),
+  V('vt-stadt-land', 'Stadt oder Land', 'Halten Sie einen kurzen Vortrag darüber, wie sich das Leben in der Stadt vom Leben auf dem Land unterscheidet.', ['Gesellschaft', 'Umwelt']),
   V('vt-anonymitaet-in-der-grossstadt', 'Anonymität in der Großstadt', 'Halten Sie einen kurzen Vortrag darüber, wie anonym das Leben in einer Großstadt heute wirklich ist.', ['Gesellschaft', 'Umwelt']),
   V('vt-gleichberechtigung-im-alltag', 'Gleichberechtigung im Alltag', 'Halten Sie einen kurzen Vortrag darüber, wie weit die Gleichberechtigung der Geschlechter im Alltag schon fortgeschritten ist.', ['Gesellschaft', 'Arbeit']),
   V('vt-hoeflichkeit-im-alltag', 'Höflichkeit im Alltag', 'Halten Sie einen kurzen Vortrag darüber, wie sich Höflichkeit und Umgangsformen im Alltag gewandelt haben.', ['Gesellschaft', 'Familie']),
@@ -88,7 +88,7 @@ export const SPRECHEN_VORTRAGSTHEMEN: Vortragsthema[] = [
 
   // ── Konsum ──────────────────────────────────────────────────────
   V('vt-onlineshopping-und-einzelhandel', 'Onlineshopping und Einzelhandel', 'Halten Sie einen kurzen Vortrag darüber, wie Onlineshopping das Einkaufsverhalten der Menschen verändert hat.', ['Konsum', 'Technologie']),
-  V('vt-bewusster-verzicht-auf-konsum', 'Bewusster Verzicht auf Konsum', 'Halten Sie einen kurzen Vortrag darüber, warum immer mehr Menschen bewusst auf Konsum verzichten.', ['Konsum', 'Gesellschaft']),
+  V('vt-bewusster-verzicht-auf-konsum', 'Bewusster Verzicht auf Konsum', 'Halten Sie einen kurzen Vortrag darüber, was Menschen dazu bewegt, bewusst auf Konsum zu verzichten.', ['Konsum', 'Gesellschaft']),
   V('vt-secondhand-und-kleidertausch', 'Secondhand und Kleidertausch', 'Halten Sie einen kurzen Vortrag darüber, welchen Stellenwert gebrauchte Kleidung im eigenen Konsum hat.', ['Konsum', 'Umwelt']),
   V('vt-werbung-und-kaufentscheidungen', 'Werbung und Kaufentscheidungen', 'Halten Sie einen kurzen Vortrag darüber, wie stark Werbung unsere Kaufentscheidungen beeinflusst.', ['Konsum', 'Medien']),
   V('vt-regional-und-saisonal-einkaufen', 'Regional und saisonal einkaufen', 'Halten Sie einen kurzen Vortrag darüber, warum viele Menschen wieder regional und saisonal einkaufen.', ['Konsum', 'Umwelt']),

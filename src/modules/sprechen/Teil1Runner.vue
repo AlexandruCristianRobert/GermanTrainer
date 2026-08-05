@@ -28,6 +28,14 @@
 // before the Rede is considered over, so it can never cost the learner a
 // half-spoken sentence. It has no meaning in a typed Rede and never fires
 // there (useVortragTimer.hardLimitReached() itself returns false off-modality).
+// It fires on the WALL clock (`wall`/`ensureWallClock`), not on spoken
+// seconds: the clock runs whether the mic is open or paused, exactly like an
+// examiner's — see CONTEXT.md → "Rede" and F2 in the help-fixes spec.
+//
+// A mic denial (F13) never mutates `modality` — a spoken Vortrag stays
+// spoken forever, seconds and all; only the input surface (`typedSurface`)
+// falls back to typed, a `downgraded` ref renders a persistent alert instead
+// of only a toast, and the Run/stash both state it.
 //
 // The grade pipeline mirrors Teil2Runner's runGrading() exactly: a
 // `runRecorded` guard wraps the one-time writes (Redemittel yield, archived
@@ -35,13 +43,15 @@
 // double-records; the result stash write, deleteVortrag and the navigate
 // happen every successful call, same as Teil2 (a retry must still be able to
 // leave the screen). Aufwertungen are read into the stash and the meta, but
-// NEVER into appendCorrections — they are not mistakes.
+// NEVER into appendCorrections — they are not mistakes. A `submitted` row
+// resumed from a reload (or a skipped Nachfrage) never auto-fires this
+// pipeline (F14) — it waits for a deliberate "Analyse starten" click.
 
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   TEIL1_STASH_KEY, sentenceAround,
-  type HelpKind, type SprechenVortrag, type Teil1RunStash
+  type HelpKind, type RedeRecord, type SpeechSpan, type SprechenVortrag, type Teil1RunStash
 } from '../../data/sprechen'
 import {
   RETTUNGSLEINEN, SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES,
@@ -53,14 +63,16 @@ import { resolveArgumentBank, type ArgumentBank } from '../../data/sprechenArgum
 import { loadCachedBank } from '../../composables/useSprechenArguments'
 import { SPRECHEN_VORTRAGSTHEMEN } from '../../data/sprechenVortragsthemen'
 import {
-  createVortrag, deleteVortrag, findActiveVortrag, incrementVortragKiTipp, logHelp,
-  markVortragSubmitted, saveNachfrage, saveRede
+  abandonVortrag, createVortrag, deleteVortrag, findActiveVortrag, incrementVortragKiTipp,
+  logHelp, markDowngraded, markVortragSubmitted, saveNachfrage, saveRede
 } from '../../composables/useVortrag'
 import { furthestReachedPunkt, outlinedMoves, planSignals } from '../../composables/useVortragCoverage'
 import { hardLimitReached, redezeit } from '../../composables/useVortragTimer'
 import { generateNachfrage, generateVortragKiTipp } from '../../composables/useVortragPartner'
 import { gradeVortrag, VORTRAG_RESULT_KEY, type Teil1ResultStash } from '../../composables/useVortragGrader'
-import { countWords, useSpeechRecognizer } from '../../composables/useSpeechRecognizer'
+import {
+  countWords, useSpeechRecognizer, type CommittedSpeech, type SpeechTurnResult
+} from '../../composables/useSpeechRecognizer'
 import { useSpeechVoice } from '../../composables/useSpeechVoice'
 import { appendCorrections } from '../../composables/useSprechenArchive'
 import { saveQuizRun, type SprechenErrorTag } from '../../composables/useQuizHistory'
@@ -71,7 +83,10 @@ import { useToast } from '../../composables/useToast'
 const router = useRouter()
 const toast = useToast()
 const { settings, canUseAi, load: loadSettings } = useSettings()
-const recognizer = useSpeechRecognizer('de-DE')
+// `onFinalCommit` is declared further down (function declarations hoist for
+// the whole setup() body) — it only ever RUNS once the recognizer delivers a
+// result, by which point every ref/let below is already initialised (F1).
+const recognizer = useSpeechRecognizer('de-DE', onFinalCommit)
 const voice = useSpeechVoice()
 
 const v = ref<SprechenVortrag | null>(null)
@@ -114,11 +129,43 @@ const gradeFailed = ref(false)
  *  double-record. Mirrors Teil2Runner's runRecorded guard exactly. */
 const runRecorded = ref(false)
 
+/** F12 — set synchronously at `finishRede`'s very first line, before any
+ *  `await`. A double-click (or the hard limit firing while a manual click is
+ *  mid-flight) must issue exactly one `generateNachfrage` call; a boolean
+ *  guarded only after an `await` would let the second synchronous call slip
+ *  through before `phase` ever changes. */
+const finishing = ref(false)
+
+/** F13 — the mic died mid-Rede. `v.modality` is NEVER mutated (the seconds
+ *  already recorded are real and the spelling-suppression a spoken grade
+ *  gets must stay on) — only the INPUT SURFACE falls back to typed. Restored
+ *  from `v.downgradedAt` on a resumed row. */
+const downgraded = ref(false)
+
+/** F2 — wall-clock seconds since the first mic open, ticking once per second
+ *  while the Rede phase is open, mic paused or not — the hard limit models
+ *  an examiner's clock, which runs while the learner thinks. Seeded from
+ *  `v.rede.wallSeconds` at mount so a resumed row keeps counting instead of
+ *  restarting from zero. */
+const wall = ref(0)
+
 const tickNow = ref(0)
 let tickTimer: ReturnType<typeof setInterval> | null = null
 let saveTimer: ReturnType<typeof setTimeout> | null = null
+let nachfrageSaveTimer: ReturnType<typeof setTimeout> | null = null
 let stuckTimer: ReturnType<typeof setTimeout> | null = null
+let wallTimer: ReturnType<typeof setInterval> | null = null
+let wallTicks = 0
 let segmentStartAt = 0
+// Snapshot of `v.rede` taken the instant the CURRENT held-floor segment
+// started. `onFinalCommit` and the teardown flush recompute the merge fresh
+// from this fixed base every time, rather than reading the mutable `v.rede`
+// mid-segment — that field is exactly what they are progressively updating,
+// so reading it as a "base" would double-append the same words (F1).
+let segmentBaseText = ''
+let segmentBaseSeconds = 0
+let segmentBaseRestarts = 0
+let segmentBaseSpans: SpeechSpan[] = []
 
 const targetClock = vortragClock(VORTRAG_TARGET_WORDS)
 // Lifetime Vortragsmittel usage, read ONCE at mount — like Teil2Runner's own
@@ -128,10 +175,16 @@ const lifetime = lifetimeCounts(SPRECHEN_VORTRAGSMITTEL)
 
 const spoken = computed(() => v.value?.modality === 'spoken')
 
+/** F13 — `modality` stays 'spoken' forever once set, even after a mic-denied
+ *  downgrade, so `spoken` alone can no longer answer "which surface is the
+ *  learner typing into right now?". This does: true for a typed Vortrag from
+ *  the start, OR a spoken one that has fallen back after a denial. */
+const typedSurface = computed(() => !spoken.value || downgraded.value)
+
 /** The authoritative Rede text for matching/coverage — committed text only.
  *  A spoken segment's still-open interim never lights a checklist dot or a
  *  Vortragsmittel dot; only what actually got committed does. */
-const liveRedeText = computed(() => spoken.value ? (v.value?.rede.textDe ?? '') : redeDraft.value)
+const liveRedeText = computed(() => typedSurface.value ? redeDraft.value : (v.value?.rede.textDe ?? ''))
 
 const liveSpokenSeconds = computed(() => {
   if (!v.value) return 0
@@ -143,7 +196,7 @@ const liveSpokenSeconds = computed(() => {
 
 const currentWords = computed(() => {
   if (!v.value) return 0
-  if (!spoken.value) return countWords(redeDraft.value)
+  if (typedSurface.value) return countWords(redeDraft.value)
   void tickNow.value
   const live = recognizer.listening.value ? countWords(recognizer.liveText.value) : 0
   return countWords(v.value.rede.textDe) + live
@@ -154,6 +207,20 @@ const redeState = computed(() => redezeit({
   seconds: spoken.value ? liveSpokenSeconds.value : undefined,
   modality: v.value?.modality ?? 'typed'
 }))
+
+/** F2 — m:ss, floor-seconds. A tiny local formatter, same shape as the one
+ *  `useVortragGrader.ts` keeps for its own prompt text — not worth sharing
+ *  for one line. */
+function clockFmt(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds))
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+}
+const wallClock = computed(() => clockFmt(wall.value))
+
+/** F14 — a `submitted` row (resumed after a reload, or after skipping the
+ *  Nachfrage) waits for a deliberate click instead of auto-billing a grade
+ *  call on every visit. */
+const awaitingGradeStart = computed(() => v.value?.status === 'submitted' && !grading.value)
 
 const signals = computed(() => v.value ? planSignals(v.value.plan, liveRedeText.value) : [])
 const furthest = computed(() => furthestReachedPunkt(signals.value))
@@ -195,11 +262,20 @@ watch(moveNudge, val => {
   }
 })
 
-watch(phase, p => { if (p === 'nachfrage') move.value = 'nachfrage' })
+watch(phase, p => {
+  if (p !== 'nachfrage') return
+  move.value = 'nachfrage'
+  // F2 — the wall clock is a Rede-phase-only measure (the exam's timed
+  // portion); leaving the Rede phase stops and persists it for good.
+  stopWallClock()
+  persistWallClock()
+})
 
+// Live word/second display only — NOT the hard limit, which the 1s wall
+// clock (below) now drives regardless of whether the mic is listening (F2).
 watch(() => recognizer.listening.value, listening => {
   if (listening) {
-    if (!tickTimer) tickTimer = setInterval(() => { tickNow.value = Date.now(); checkHardLimit() }, 400)
+    if (!tickTimer) tickTimer = setInterval(() => { tickNow.value = Date.now() }, 400)
   } else if (tickTimer) {
     clearInterval(tickTimer)
     tickTimer = null
@@ -211,7 +287,7 @@ watch(() => recognizer.error.value, err => {
 })
 
 watch(redeDraft, val => {
-  if (!v.value || spoken.value) return
+  if (!v.value || !typedSurface.value) return
   if (saveTimer) clearTimeout(saveTimer)
   saveTimer = setTimeout(() => {
     if (!v.value) return
@@ -219,6 +295,21 @@ watch(redeDraft, val => {
     void saveRede(v.value.id, v.value.rede)
   }, 1000)
   armStuckTimer()
+})
+
+/** F4 — the Nachfrage answer, typed or spoken-then-typed, is debounced into
+ *  Dexie the same way the Rede composer is: no lost answer on a dead tab,
+ *  and no re-billed question call on a reload (the question itself is saved
+ *  the moment it arrives, in `requestNachfrage`). */
+watch(nachfrageAnswer, val => {
+  if (!v.value?.nachfrage) return
+  if (nachfrageSaveTimer) clearTimeout(nachfrageSaveTimer)
+  nachfrageSaveTimer = setTimeout(() => {
+    if (!v.value?.nachfrage) return
+    const rec = { questionDe: v.value.nachfrage.questionDe, answerDe: val }
+    v.value.nachfrage = rec
+    void saveNachfrage(v.value.id, rec)
+  }, 1000)
 })
 
 function armStuckTimer() {
@@ -247,13 +338,15 @@ function triggerStuck() {
   armStuckTimer()
 }
 
+/** F2 — reads the WALL clock, never the spoken-seconds content budget: a real
+ *  examiner interrupts on wall time whether the learner was talking or
+ *  thinking. Driven once a second by `ensureWallClock`'s interval below, so
+ *  it fires exactly the same whether the mic is open or paused. */
 function checkHardLimit() {
   if (!v.value || phase.value !== 'rede') return
   if (v.value.modality !== 'spoken' || !v.value.helps.hardLimit) return
   if (hardLimitHandled.value) return
-  const elapsed = recognizer.listening.value ? (Date.now() - segmentStartAt) / 1000 : 0
-  const seconds = (v.value.rede.seconds ?? 0) + elapsed
-  if (hardLimitReached({ seconds, modality: 'spoken', hardLimit: true })) {
+  if (hardLimitReached({ wallSeconds: wall.value, modality: 'spoken', hardLimit: true })) {
     hardLimitHandled.value = true
     void handleHardLimit()
   }
@@ -261,16 +354,53 @@ function checkHardLimit() {
 
 /** Commit the text first (recognizer.end() flushes pending finals before it
  *  actually stops), THEN treat the Rede as over. Never costs a half-said
- *  sentence. */
+ *  sentence. The hard limit is a system action, not a learner decision — it
+ *  always skips F12's under-150-words confirmation. */
 async function handleHardLimit() {
   hardLimitNotice.value = true
-  await finishRede()
+  await finishRede({ skipConfirm: true })
 }
 
+/** F2 — starts the once-a-second wall-clock tick the moment the Rede phase
+ *  has a `firstSpokenAt` to count from, mic paused or not. Idempotent: safe
+ *  to call on every mic-open and on mount. */
+function ensureWallClock() {
+  if (wallTimer) return
+  if (!v.value || phase.value !== 'rede' || !v.value.rede.firstSpokenAt) return
+  wallTimer = setInterval(() => {
+    wall.value += 1
+    wallTicks++
+    checkHardLimit()
+    if (wallTicks % 5 === 0) persistWallClock()
+  }, 1000)
+}
+
+function stopWallClock() {
+  if (wallTimer) { clearInterval(wallTimer); wallTimer = null }
+}
+
+/** Persisted alongside the Rede every ~5 ticks and on every phase
+ *  transition/unmount — never for a Vortrag the wall clock never started
+ *  (typed, or spoken but the mic was never opened). */
+function persistWallClock() {
+  if (!v.value || !v.value.rede.firstSpokenAt) return
+  v.value.rede = { ...v.value.rede, wallSeconds: wall.value }
+  void saveRede(v.value.id, v.value.rede)
+}
+
+/** F13 — the mic died mid-Rede (or mid-Nachfrage). `v.modality` is NEVER
+ *  touched: the seconds already recorded are real, and the spelling
+ *  suppression a spoken grade gets must stay on since part of the text came
+ *  from the recognizer. Only the input surface (`typedSurface`) falls back
+ *  to typed, and a persistent alert states it — a toast alone can be
+ *  missed, and this changes how the rest of the run behaves. */
 function downgradeToTyped() {
-  if (!v.value || v.value.modality !== 'spoken') return
-  v.value.modality = 'typed'
+  if (!v.value || v.value.modality !== 'spoken' || downgraded.value) return
+  downgraded.value = true
+  const at = Date.now()
+  v.value.downgradedAt = at
   redeDraft.value = v.value.rede.textDe
+  void markDowngraded(v.value.id, at)
   toast.error('Mikrofon nicht verfügbar', {
     description: 'Du kannst den Vortrag ab hier weiter tippen — nichts geht verloren.'
   })
@@ -289,7 +419,7 @@ function selectTab(t: 'wie' | 'was') {
 }
 
 function insertPhrase(phraseDe: string) {
-  if (spoken.value) return
+  if (!typedSurface.value) return
   const stub = phraseDe.split('…')[0].trim()
   if (phase.value === 'nachfrage') {
     const el = nachfrageEl.value
@@ -321,17 +451,20 @@ function nextLifeline() {
   logHelpAsync('rettungsleine')
 }
 
+/** F14 — the counter/log are billed BEFORE the tip is assigned: if
+ *  `incrementVortragKiTipp` throws, `kiTipp.value` is never set, so a failed
+ *  bookkeeping write can never hand back a tip that was never counted. */
 async function fetchKiTipp() {
   if (!v.value || kiBusy.value) return
   kiBusy.value = true
   try {
     const client = resolveAiClient(settings.value)
     const tip = await generateVortragKiTipp(client, model.value, v.value)
-    kiTipp.value = tip
     await incrementVortragKiTipp(v.value.id)
     v.value.kiTippCount += 1
-    kiTippSuggested.value = false
     logHelpAsync('kitipp')
+    kiTipp.value = tip
+    kiTippSuggested.value = false
   } catch (err) {
     toast.error('KI-Tipp fehlgeschlagen', {
       description: err instanceof Error ? err.message : String(err)
@@ -341,34 +474,81 @@ async function fetchKiTipp() {
   }
 }
 
-/** Toggles the mic for whichever phase currently owns the composer. */
+/** F1 — fires on every committed final while the Rede phase owns the mic.
+ *  Recomputes fresh from the FIXED segment-start snapshot (never from the
+ *  mutable `v.rede`, which this very function is progressively updating) so
+ *  repeated finals never double-append. Persists immediately: worst-case
+ *  loss on a dead tab becomes the still-open interim guess, never a whole
+ *  segment. Ignored during the Nachfrage phase — that answer's own debounce
+ *  (F4) owns `nachfrageAnswer` instead. */
+function onFinalCommit(c: CommittedSpeech) {
+  if (phase.value !== 'rede') return
+  const vv = v.value
+  if (!vv) return
+  const elapsed = Math.max(0, (Date.now() - segmentStartAt) / 1000)
+  vv.rede = {
+    ...vv.rede,
+    textDe: segmentBaseText ? `${segmentBaseText} ${c.text}` : c.text,
+    seconds: segmentBaseSeconds + elapsed,
+    restarts: segmentBaseRestarts + c.restarts,
+    spans: [...segmentBaseSpans, ...c.spans]
+  }
+  void saveRede(vv.id, vv.rede)
+}
+
+/** Shared by `endSpokenSegment` and the onUnmounted best-effort flush — both
+ *  turn a `SpeechTurnResult` into the authoritative merged Rede, from the
+ *  same fixed segment-start snapshot `onFinalCommit` already used. */
+function mergeSegmentResult(rede: RedeRecord, result: SpeechTurnResult): RedeRecord {
+  const text = result.text.trim()
+  return {
+    ...rede,
+    textDe: segmentBaseText ? (text.length > 0 ? `${segmentBaseText} ${text}` : segmentBaseText) : text,
+    seconds: segmentBaseSeconds + Math.max(0, (result.endedAt - result.startedAt) / 1000),
+    restarts: segmentBaseRestarts + result.restarts,
+    spans: [...segmentBaseSpans, ...result.spans]
+  }
+}
+
+/** Toggles the mic for whichever phase currently owns the composer. Snapshots
+ *  the pre-segment Rede for `onFinalCommit`/`mergeSegmentResult`, stamps
+ *  `firstSpokenAt` on the very first Rede-phase mic open (F2), and starts the
+ *  wall clock if it is not already running. */
 async function toggleMic() {
   if (ending.value) return
   if (recognizer.listening.value) {
     if (phase.value === 'rede') await endSpokenSegment()
     else await endNachfrageSegment()
   } else {
+    const vv = v.value
     segmentStartAt = Date.now()
+    if (vv) {
+      segmentBaseText = vv.rede.textDe
+      segmentBaseSeconds = vv.rede.seconds ?? 0
+      segmentBaseRestarts = vv.rede.restarts ?? 0
+      segmentBaseSpans = vv.rede.spans ?? []
+      if (phase.value === 'rede' && !vv.rede.firstSpokenAt) {
+        vv.rede = { ...vv.rede, firstSpokenAt: Date.now() }
+        void saveRede(vv.id, vv.rede)
+      }
+    }
+    ensureWallClock()
     recognizer.start()
   }
 }
 
-/** One held-floor stretch of the Rede — appended to what came before,
- *  seconds/restarts/spans accumulated, saved to Dexie immediately. */
+/** One held-floor stretch of the Rede — merged onto the segment-start
+ *  snapshot and saved to Dexie immediately. `onFinalCommit` already kept
+ *  `v.rede` current through the segment; this recomputes once more from the
+ *  authoritative `end()` result (precise elapsed time) rather than trusting
+ *  whatever the last final happened to leave behind. */
 async function endSpokenSegment(): Promise<void> {
   const vv = v.value
   if (!vv || ending.value) return
   ending.value = true
   try {
     const result = await recognizer.end()
-    const text = result.text.trim()
-    const addedSeconds = Math.max(0, (result.endedAt - result.startedAt) / 1000)
-    vv.rede = {
-      textDe: text.length > 0 ? (vv.rede.textDe ? `${vv.rede.textDe} ${text}` : text) : vv.rede.textDe,
-      seconds: (vv.rede.seconds ?? 0) + addedSeconds,
-      restarts: (vv.rede.restarts ?? 0) + result.restarts,
-      spans: [...(vv.rede.spans ?? []), ...result.spans]
-    }
+    vv.rede = mergeSegmentResult(vv.rede, result)
     await saveRede(vv.id, vv.rede)
     // Spoken stuck-detection: the recognizer only restarts on a silence long
     // enough that it decided the utterance was over — two in one held stretch
@@ -397,22 +577,48 @@ async function endNachfrageSegment(): Promise<void> {
 async function commitRede(): Promise<void> {
   if (!v.value) return
   if (saveTimer) { clearTimeout(saveTimer); saveTimer = null }
-  if (!spoken.value) {
+  if (typedSurface.value) {
     v.value.rede = { ...v.value.rede, textDe: redeDraft.value }
   }
   await saveRede(v.value.id, v.value.rede)
 }
 
-/** 'Vortrag beenden' (or the hard limit): commit, move to the Nachfrage. */
-async function finishRede() {
+/**
+ * 'Vortrag beenden' (or the hard limit): commit, move to the Nachfrage.
+ *
+ * F12 — `finishing` latches SYNCHRONOUSLY at the very first line, before any
+ * `await`, so a double-click (or a manual click racing the hard limit) can
+ * never issue two `generateNachfrage` calls: the second synchronous
+ * invocation sees the latch already set and returns immediately, long before
+ * `phase` itself would have changed. Below ~150 words, a confirmation is
+ * required first — mirrors Teil2Runner's early-end warning — UNLESS the
+ * caller is the hard limit itself (`skipConfirm`), which is a system action,
+ * not a learner decision.
+ */
+async function finishRede(opts: { skipConfirm?: boolean } = {}) {
   if (!v.value || phase.value !== 'rede') return
-  stopStuckTimer()
-  if (spoken.value && recognizer.listening.value) await endSpokenSegment()
-  await commitRede()
-  phase.value = 'nachfrage'
-  await requestNachfrage()
+  if (finishing.value) return
+  finishing.value = true
+  try {
+    if (!opts.skipConfirm && currentWords.value < 150) {
+      const warn = 'Mit weniger als 150 Wörtern ist die Bewertung wenig aussagekräftig. Trotzdem beenden?'
+      if (!window.confirm(warn)) return
+    }
+    stopStuckTimer()
+    if (!typedSurface.value && recognizer.listening.value) await endSpokenSegment()
+    await commitRede()
+    stopWallClock()
+    persistWallClock()
+    phase.value = 'nachfrage'
+    await requestNachfrage()
+  } finally {
+    finishing.value = false
+  }
 }
 
+/** F4 — the question is persisted with an empty answer the MOMENT it
+ *  arrives, not only once the learner has typed something: a dead tab right
+ *  after the question renders must not force a re-billed regeneration. */
 async function requestNachfrage() {
   if (!v.value) return
   nachfrageBusy.value = true
@@ -420,7 +626,9 @@ async function requestNachfrage() {
   try {
     const client = resolveAiClient(settings.value)
     const question = await generateNachfrage(client, model.value, v.value)
-    v.value.nachfrage = { questionDe: question, answerDe: '' }
+    const rec = { questionDe: question, answerDe: '' }
+    v.value.nachfrage = rec
+    await saveNachfrage(v.value.id, rec)
   } catch (err) {
     nachfrageAttempts.value += 1
     nachfrageFailed.value = true
@@ -443,6 +651,7 @@ async function submitVortrag() {
   if (!v.value || sending.value || grading.value) return
   sending.value = true
   try {
+    if (nachfrageSaveTimer) { clearTimeout(nachfrageSaveTimer); nachfrageSaveTimer = null }
     if (recognizer.listening.value) await endNachfrageSegment()
     if (v.value.nachfrage) {
       const rec = { questionDe: v.value.nachfrage.questionDe, answerDe: nachfrageAnswer.value.trim() }
@@ -456,6 +665,22 @@ async function submitVortrag() {
   } finally {
     sending.value = false
   }
+}
+
+/** F14 — a quiet exit from either phase (or the grade-failed screen): the
+ *  Vortrag row is deleted and nothing is recorded, exactly like Setup's own
+ *  abandon action. Requires a deliberate confirmation — this discards real
+ *  work. */
+async function confirmAbandon() {
+  if (!v.value) return
+  if (!window.confirm('Vortrag wirklich verwerfen? Der Fortschritt geht verloren.')) return
+  stopStuckTimer()
+  stopWallClock()
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null }
+  if (nachfrageSaveTimer) { clearTimeout(nachfrageSaveTimer); nachfrageSaveTimer = null }
+  recognizer.abort()
+  await abandonVortrag(v.value.id)
+  router.push({ name: 'sprechen-teil1' })
 }
 
 async function runGrading() {
@@ -493,6 +718,8 @@ async function runGrading() {
           sectionsCovered: result.coverage.filter(c => c.covered).length,
           wordCount: countWords(vv.rede.textDe),
           spokenSeconds: vv.modality === 'spoken' ? (vv.rede.seconds ?? 0) : undefined,
+          sprechenWallSeconds: vv.modality === 'spoken' ? (vv.rede.wallSeconds ?? 0) : undefined,
+          sprechenDowngraded: downgraded.value || !!vv.downgradedAt,
           sprechenVortragsmittel: matched,
           kiTippCount: vv.kiTippCount,
           sprechenHelps: vv.helps,
@@ -542,7 +769,8 @@ async function runGrading() {
         .map(r => r.id),
       startedAt: vv.startedAt,
       finishedAt,
-      result
+      result,
+      downgradedAt: vv.downgradedAt
     }
     sessionStorage.setItem(VORTRAG_RESULT_KEY, JSON.stringify(stash))
     await deleteVortrag(vv.id)
@@ -590,24 +818,55 @@ onMounted(async () => {
 
   redeDraft.value = v.value.rede.textDe
   nachfrageAnswer.value = v.value.nachfrage?.answerDe ?? ''
+  downgraded.value = !!v.value.downgradedAt
+  wall.value = v.value.rede.wallSeconds ?? 0
 
-  if (v.value.status === 'submitted') {
-    phase.value = 'nachfrage'
-    await runGrading()
-    return
+  // F4 — restore the Nachfrage phase (and its answer, already assigned
+  // above) without ever re-billing `generateNachfrage`: a question object
+  // means it was already asked, and `submitted` always implies past the Rede
+  // phase even when the Nachfrage itself was skipped.
+  if (v.value.nachfrage || v.value.status === 'submitted') phase.value = 'nachfrage'
+
+  // F14 — a `submitted` row waits for a deliberate "Analyse starten" click
+  // (see `awaitingGradeStart`) instead of auto-firing a paid grade call on
+  // every visit; `loadBank()` still runs on this path so the Was tab is
+  // populated by the time the learner reaches it.
+  if (v.value.status !== 'submitted') {
+    armStuckTimer()
+    ensureWallClock()
   }
-
-  armStuckTimer()
   await loadBank()
 })
 
 onUnmounted(() => {
   stopStuckTimer()
   if (saveTimer) clearTimeout(saveTimer)
+  if (nachfrageSaveTimer) clearTimeout(nachfrageSaveTimer)
   if (tickTimer) clearInterval(tickTimer)
-  recognizer.abort()
+  stopWallClock()
+  persistWallClock()
+  flushRecognizerOnTeardown()
   voice.cancel()
 })
+
+/** F1 — a dead tab (or an unrelated route change) must not silently drop the
+ *  segment the recognizer is mid-way through. `abort()` discards it wholesale;
+ *  ending the turn instead flushes any pending finals through the very same
+ *  merge `endSpokenSegment` uses, so the worst loss is the still-open interim
+ *  guess. Best-effort and fire-and-forget: nothing here can surface an error
+ *  once the learner has already navigated away. */
+function flushRecognizerOnTeardown() {
+  if (recognizer.listening.value && phase.value === 'rede') {
+    void recognizer.end().then(result => {
+      const vv = v.value
+      if (!vv) return
+      vv.rede = mergeSegmentResult(vv.rede, result)
+      void saveRede(vv.id, vv.rede)
+    })
+  } else {
+    recognizer.abort()
+  }
+}
 
 function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
 </script>
@@ -630,8 +889,12 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
         <span class="quiz-counter">{{ currentWords }} Wörter · {{ redeState.clock }}</span>
         <button
           v-if="phase === 'rede'" class="btn btn-quiet" type="button"
-          :disabled="grading || currentWords === 0" @click="finishRede"
+          :disabled="grading || currentWords === 0" @click="finishRede()"
         >Vortrag beenden</button>
+        <button
+          v-if="phase === 'rede' || phase === 'nachfrage'" class="btn btn-ghost run-exit" type="button"
+          :disabled="grading" @click="confirmAbandon()"
+        >Vortrag verwerfen</button>
       </div>
     </header>
 
@@ -665,7 +928,10 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
           </div>
           <div class="spr-timebar-l">
             <span class="spr-num">{{ redeState.words }} Wörter</span>
-            <span class="spr-num">{{ redeState.clock }}</span>
+            <span v-if="spoken" class="spr-num">
+              Redezeit {{ redeState.clock }}<template v-if="v.rede.firstSpokenAt"> · Gesamt {{ wallClock }}</template>
+            </span>
+            <span v-else class="spr-num">{{ redeState.clock }}</span>
           </div>
         </div>
 
@@ -701,6 +967,12 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
           </div>
         </div>
 
+        <div v-if="downgraded" class="alert alert-danger">
+          <span class="alert-label">Mikrofon nicht verfügbar</span>
+          Das Mikrofon ist ausgefallen oder wurde verweigert. Du tippst den Vortrag ab hier zu Ende — nichts ist
+          verloren, die bisher gemessene Redezeit bleibt gültig.
+        </div>
+
         <div v-if="hardLimitNotice" class="alert alert-info">
           <span class="alert-label">Zeit vorbei</span>
           Zeit vorbei — der Vortrag ist beendet. Deine Worte sind gespeichert; jetzt kommt die Nachfrage.
@@ -713,13 +985,16 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
         <div v-else-if="gradeFailed" class="alert alert-danger">
           <span class="alert-label">Analyse fehlgeschlagen</span>
           Der Vortrag ist gespeichert und kann erneut ausgewertet werden.
-          <button class="btn btn-accent" type="button" @click="runGrading">Analyse erneut versuchen</button>
+          <div class="nf-actions">
+            <button class="btn btn-accent" type="button" @click="runGrading">Analyse erneut versuchen</button>
+            <button class="btn btn-ghost" type="button" @click="confirmAbandon()">Vortrag verwerfen</button>
+          </div>
         </div>
 
         <template v-else-if="phase === 'rede'">
           <div class="spr-composer">
             <textarea
-              v-if="!spoken" ref="redeEl" v-model="redeDraft"
+              v-if="typedSurface" ref="redeEl" v-model="redeDraft"
               placeholder="Halte deinen Vortrag — ganze Sätze, wie in der Prüfung."
               class="rede-textarea"
             />
@@ -730,13 +1005,17 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
             </div>
             <div class="spr-composer-f">
               <span class="spr-count">{{ currentWords }} Wörter</span>
-              <div v-if="spoken" class="mic-row">
+              <div v-if="!typedSurface" class="mic-row">
                 <button
                   class="btn mic-btn" :class="recognizer.listening.value ? 'btn-danger' : 'btn-accent'"
                   type="button" :disabled="ending" @click="toggleMic"
                 >{{ recognizer.listening.value ? '■ Pausieren' : (v.rede.textDe ? '● Weitersprechen' : '● Sprechen') }}</button>
                 <span class="mic-hint">
                   <template v-if="ending">Wird verarbeitet…</template>
+                  <template v-else-if="v.helps.hardLimit">
+                    <template v-if="recognizer.listening.value">Knopf pausiert die Aufnahme — die Uhr läuft weiter, wie in der Prüfung.</template>
+                    <template v-else>Knopf startet die Aufnahme — die Uhr läuft weiter, wie in der Prüfung.</template>
+                  </template>
                   <template v-else-if="recognizer.listening.value">Knopf pausiert — du kannst jederzeit weitersprechen.</template>
                   <template v-else>Knopf startet die Aufnahme.</template>
                 </span>
@@ -780,7 +1059,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
                   </div>
                   <ul class="spr-phrases">
                     <li v-for="p in drawerPhrases" :key="p.id" class="spr-phrase">
-                      <button v-if="!spoken" class="spr-phrase-t" :class="{ used: p.used }" type="button" @click="insertPhrase(p.phraseDe)">{{ p.phraseDe }}</button>
+                      <button v-if="typedSurface" class="spr-phrase-t" :class="{ used: p.used }" type="button" @click="insertPhrase(p.phraseDe)">{{ p.phraseDe }}</button>
                       <span v-else class="spr-phrase-t" :class="{ used: p.used }">{{ p.phraseDe }}</span>
                       <button
                         v-if="voice.supported && voice.voices.value.length > 0" class="spr-phrase-hear"
@@ -815,7 +1094,13 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
         </template>
 
         <template v-else-if="phase === 'nachfrage'">
-          <div v-if="nachfrageFailed" class="alert alert-warning">
+          <div v-if="awaitingGradeStart" class="alert alert-info">
+            <span class="alert-label">Bereit zur Auswertung</span>
+            Dein Vortrag und deine Antwort sind gespeichert.
+            <button class="btn btn-accent" type="button" @click="runGrading">Analyse starten</button>
+          </div>
+
+          <div v-else-if="nachfrageFailed" class="alert alert-warning">
             <span class="alert-label">Nachfrage fehlgeschlagen</span>
             Dein Vortrag ist gespeichert — nichts geht verloren.
             <div class="nf-actions">
@@ -826,7 +1111,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
 
           <div v-else-if="v.nachfrage" class="spr-composer">
             <textarea
-              v-if="!spoken" ref="nachfrageEl" v-model="nachfrageAnswer"
+              v-if="typedSurface" ref="nachfrageEl" v-model="nachfrageAnswer"
               placeholder="Deine Antwort — bedanken, Position halten, kurz begründen."
             />
             <div v-else class="rede-text" :class="{ empty: !nachfrageAnswer }">
@@ -836,7 +1121,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
             </div>
             <div class="spr-composer-f">
               <span class="spr-count">{{ countWords(nachfrageAnswer) }} Wörter · zwei bis drei Sätze reichen</span>
-              <div v-if="spoken" class="mic-row">
+              <div v-if="!typedSurface" class="mic-row">
                 <button
                   class="btn mic-btn" :class="recognizer.listening.value ? 'btn-danger' : 'btn-accent'"
                   type="button" :disabled="ending" @click="toggleMic"
@@ -866,7 +1151,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
                 </div>
                 <ul class="spr-phrases">
                   <li v-for="p in drawerPhrases" :key="p.id" class="spr-phrase">
-                    <button v-if="!spoken" class="spr-phrase-t" :class="{ used: p.used }" type="button" @click="insertPhrase(p.phraseDe)">{{ p.phraseDe }}</button>
+                    <button v-if="typedSurface" class="spr-phrase-t" :class="{ used: p.used }" type="button" @click="insertPhrase(p.phraseDe)">{{ p.phraseDe }}</button>
                     <span v-else class="spr-phrase-t" :class="{ used: p.used }">{{ p.phraseDe }}</span>
                     <span class="spr-phrase-en">{{ p.used ? 'schon benutzt' : p.noteEn }}</span>
                   </li>

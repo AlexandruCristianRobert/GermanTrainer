@@ -86,6 +86,15 @@ export async function logHelp(id: string, kind: HelpKind, at = Date.now()): Prom
   }
 }
 
+/** F13 — the mic died mid-Rede and the input surface fell back to typing.
+ *  Recorded as data so the grader, the result page and the Run all state it.
+ *  Non-fatal: a failed write must not interrupt the Rede. */
+export async function markDowngraded(id: string, at = Date.now()): Promise<void> {
+  try {
+    await db.sprechenVortraege.update(id, { downgradedAt: at })
+  } catch { /* descriptive only */ }
+}
+
 /** Abandon = the learner walked away. The row is deleted, nothing recorded. */
 export async function abandonVortrag(id: string): Promise<void> {
   await db.sprechenVortraege.delete(id)

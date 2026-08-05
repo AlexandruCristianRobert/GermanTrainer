@@ -93,10 +93,26 @@ export interface SpeechRecognizer {
   abort: () => void
 }
 
+/**
+ * Snapshot handed to `onFinal` after each committed final — the accumulated
+ * state of the CURRENT turn, not just the delta. `text`/`spans` mirror what
+ * `end()` would resolve with if the turn ended right now.
+ */
+export interface CommittedSpeech {
+  text: string
+  spans: SpeechSpan[]
+  restarts: number
+}
+
 /** How long to wait for the engine to flush pending finals after stop(). */
 const FLUSH_TIMEOUT_MS = 1200
 
-export function useSpeechRecognizer(lang = 'de-DE'): SpeechRecognizer {
+/**
+ * `onFinal` is optional and purely additive: existing callers that pass only
+ * `lang` are unaffected. It lets a caller (the Teil 1 Runner) persist Rede
+ * progress incrementally instead of only at `end()` (F1).
+ */
+export function useSpeechRecognizer(lang = 'de-DE', onFinal?: (c: CommittedSpeech) => void): SpeechRecognizer {
   const Ctor = speechRecognitionCtor()
   const listening = ref(false)
   const liveText = ref('')
@@ -138,6 +154,15 @@ export function useSpeechRecognizer(lang = 'de-DE'): SpeechRecognizer {
             if (text.length > 0) {
               buffer = buffer.length > 0 ? `${buffer} ${text}` : text
               spans.push({ text, confidence: typeof alt.confidence === 'number' ? alt.confidence : 0 })
+              // `onFinal` is host-provided (runner) code we don't control. A
+              // throw in there must never kill recognition — the engine must
+              // keep listening and later finals must still commit — so this
+              // is deliberately swallowed rather than left to propagate.
+              try {
+                onFinal?.({ text: buffer, spans: [...spans], restarts })
+              } catch {
+                /* listener's problem, not ours */
+              }
             }
             finalized = i + 1
           }

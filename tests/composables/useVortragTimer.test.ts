@@ -38,15 +38,25 @@ describe('redezeit', () => {
 
 describe('hardLimitReached', () => {
   it('is false unless the switch is on', () => {
-    expect(hardLimitReached({ seconds: 999, modality: 'spoken', hardLimit: false })).toBe(false)
+    expect(hardLimitReached({ wallSeconds: 999, modality: 'spoken', hardLimit: false })).toBe(false)
   })
 
   it('fires at 4:00 in a spoken Rede', () => {
-    expect(hardLimitReached({ seconds: 239, modality: 'spoken', hardLimit: true })).toBe(false)
-    expect(hardLimitReached({ seconds: 240, modality: 'spoken', hardLimit: true })).toBe(true)
+    expect(hardLimitReached({ wallSeconds: 239, modality: 'spoken', hardLimit: true })).toBe(false)
+    expect(hardLimitReached({ wallSeconds: 240, modality: 'spoken', hardLimit: true })).toBe(true)
   })
 
   it('never fires in a typed Rede — the switch does not exist there', () => {
-    expect(hardLimitReached({ seconds: 9999, modality: 'typed', hardLimit: true })).toBe(false)
+    expect(hardLimitReached({ wallSeconds: 9999, modality: 'typed', hardLimit: true })).toBe(false)
+  })
+
+  it('fires on wall seconds — pausing the mic no longer pauses the exam', () => {
+    expect(hardLimitReached({ wallSeconds: 239, modality: 'spoken', hardLimit: true })).toBe(false)
+    expect(hardLimitReached({ wallSeconds: 240, modality: 'spoken', hardLimit: true })).toBe(true)
+  })
+
+  it('still returns false off-switch and off-modality', () => {
+    expect(hardLimitReached({ wallSeconds: 999, modality: 'spoken', hardLimit: false })).toBe(false)
+    expect(hardLimitReached({ wallSeconds: 999, modality: 'typed', hardLimit: true })).toBe(false)
   })
 })
