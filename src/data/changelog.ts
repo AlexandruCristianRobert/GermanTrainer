@@ -19,6 +19,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.17.03', date: '2026-08-05', kind: 'module',
+    title: 'Übersetzung · EN→DE wird zum Bedeutungsfeld',
+    notes: [
+      '<strong>One meaning at a time, not a sheet of blanks.</strong> The reverse direction now deals a single English meaning per screen and asks for <em>any</em> German verb that carries it — dashed slots show how many the collection holds. Enter grades on the spot and draws the next field; no more filling ten rows before you learn anything.',
+      '<strong>The last field reports back in the corner.</strong> A small card shows what just happened: green or red, every verb that would have counted, the one you named highlighted. Name a real verb that belongs to a different meaning and the card tells you what it actually means — „aufstehen" heißt <em>get up</em>, not what was asked.',
+      '<strong>The field is the unit, in play and in the score.</strong> A Serie counter tracks your run, „Aufdecken &amp; weiter" reveals a field you don\'t know and moves on. The Auswertung counts fields hit, and every missed meaning is listed with all of its verbs — the ones worth collecting now.',
+      '<strong>The classic sheet is still there.</strong> DE→EN keeps its Übungsblatt, unchanged. At setup the Richtung now leads the page: <em>EN → DE · Bedeutungsfeld</em> or <em>DE → EN · Blatt</em>.'
+    ]
+  },
+  {
     version: '1.17.02', date: '2026-08-05', kind: 'fix',
     title: 'Übersetzung · a shared meaning accepts every verb that carries it',
     notes: [
