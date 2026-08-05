@@ -63,6 +63,20 @@ export function checkGermanTranslation(input: string, german: string): boolean {
   })
 }
 
+export function checkGermanTranslationWithSynonyms(input: string, verb: Verb, pool: Verb[]): boolean {
+  // EN→DE prompts show only the English, so the learner cannot know which
+  // of e.g. "erzielen"/"leisten" a shared "achieve" came from. Any pool verb
+  // sharing at least one English alternative with the prompted verb is an
+  // acceptable German answer.
+  if (checkGermanTranslation(input, verb.german)) return true
+  const prompted = new Set(verb.english.split('/').map(normalizeTranslation).filter(s => s.length > 0))
+  return pool.some(v =>
+    v.german !== verb.german
+    && v.english.split('/').some(alt => prompted.has(normalizeTranslation(alt)))
+    && checkGermanTranslation(input, v.german)
+  )
+}
+
 export function useTranslationQuiz(verbs: Verb[]) {
   const questions = ref<TranslationQuestion[]>(
     verbs.map(v => ({ verb: v, userAnswer: null, isCorrect: null }))
