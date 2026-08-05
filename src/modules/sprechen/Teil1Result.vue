@@ -12,7 +12,7 @@ import {
 import { reAnchor } from '../../composables/useSprechenGrader'
 import { SPRECHEN_B2_TEIL1, sprechenDescriptor, sprechenNotes } from '../../data/rubrics'
 import {
-  GLIEDERUNGSPUNKTE, SPRECHEN_VORTRAGSMITTEL, type GliederungKey
+  GLIEDERUNGSPUNKTE, SPRECHEN_VORTRAGSMITTEL, KONNEKTOREN, VORTRAG_WPM, type GliederungKey
 } from '../../data/sprechenVortragsmittel'
 import { planSignals } from '../../composables/useVortragCoverage'
 import { redezeit } from '../../composables/useVortragTimer'
@@ -78,6 +78,40 @@ const redezeitState = computed(() => redezeit({
   modality: modality.value
 }))
 
+// ── SPRECHDATEN (F19) — the delivery evidence "kohaerenz" is partly graded
+//    on, shown here so the learner sees what the grader saw. Spoken stashes
+//    with a measured Redezeit only — a typed stash never had a clock, and
+//    renders none of this. Every division guarded. ──
+
+function clock(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds))
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+}
+
+interface Sprechdaten {
+  redezeitClock: string
+  gesamtdauerClock: string | null
+  pausenzeitClock: string | null
+  wpm: number
+  restarts: number
+}
+
+const sprechdaten = computed<Sprechdaten | null>(() => {
+  const rede = data.value?.rede
+  if (!rede || modality.value !== 'spoken' || typeof rede.seconds !== 'number') return null
+  const seconds = rede.seconds
+  const minutes = seconds / 60
+  const wpm = minutes > 0 ? Math.round(countWords(rede.textDe) / minutes) : 0
+  const wallSeconds = rede.wallSeconds
+  return {
+    redezeitClock: clock(seconds),
+    gesamtdauerClock: typeof wallSeconds === 'number' ? clock(wallSeconds) : null,
+    pausenzeitClock: typeof wallSeconds === 'number' ? clock(Math.max(0, wallSeconds - seconds)) : null,
+    wpm,
+    restarts: rede.restarts ?? 0
+  }
+})
+
 // ── Gliederung coverage — the grader's judgement beside the rail's own
 //    keyword signal (ADR-0014). Deliberately NO word bar and NO per-point
 //    word count: we do not have per-point word measurements and must not
@@ -120,6 +154,41 @@ const coverageRows = computed<CoverageRow[]>(() => {
 //    re-derived here (they are exactly `stash.vortragsmittel`). ──
 
 const yieldIds = computed(() => data.value?.vortragsmittel ?? [])
+
+// ── Konnektoren-Ausbeute (F16) — local counting of the F10 Konnektoren data
+//    against the Rede text, grouped by Stellung, cold groups named. Same
+//    normalize semantics as useVortragCoverage's, so "said" agrees everywhere
+//    on the page. A `wort` with alternatives ("Zum einen / zum anderen") hits
+//    if either alternative was said. ──
+
+function normalizeKonnektor(s: string): string {
+  return s.replace(/[.,;:!?…]/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
+}
+
+interface KonnektorRow { wort: string; hit: boolean }
+interface KonnektorGroupRow { labelDe: string; hit: number; total: number; konnektoren: KonnektorRow[] }
+
+const konnektorenYield = computed<KonnektorGroupRow[]>(() => {
+  const hay = normalizeKonnektor(data.value?.rede.textDe ?? '')
+  return KONNEKTOREN.map(g => {
+    const konnektoren = g.konnektoren.map(k => {
+      const forms = k.wort.split('/').map(f => normalizeKonnektor(f)).filter(f => f.length > 0)
+      const hit = hay.length > 0 && forms.some(f => hay.includes(f))
+      return { wort: k.wort, hit }
+    })
+    return {
+      labelDe: g.labelDe,
+      hit: konnektoren.filter(k => k.hit).length,
+      total: konnektoren.length,
+      konnektoren
+    }
+  })
+})
+
+const konnektorenTotals = computed(() => ({
+  hit: konnektorenYield.value.reduce((s, g) => s + g.hit, 0),
+  total: konnektorenYield.value.reduce((s, g) => s + g.total, 0)
+}))
 
 // ── Marked Rede + Nachfrage, mistake detail card ────────────────────
 
@@ -184,9 +253,23 @@ const HELP_KIND_LABEL: Record<HelpKind, string> = {
   rettungsleine: 'Rettungsleine',
   nudge: 'Move-Hinweis',
   kitipp: 'KI-Tipp',
-  vorsprechen: 'Phrase vorgesprochen'
+  vorsprechen: 'Phrase vorgesprochen',
+  stuck: 'Stockung erkannt'      // F6 — genuine stuck-detection, never conflated with Rettungsleine
 }
-const HELP_KINDS: HelpKind[] = ['drawer', 'phrase', 'rettungsleine', 'nudge', 'kitipp', 'vorsprechen']
+const HELP_KINDS: HelpKind[] = ['drawer', 'phrase', 'rettungsleine', 'nudge', 'kitipp', 'vorsprechen', 'stuck']
+
+// kiTippCount and the four help switches, as set for this run (F19) —
+// descriptive, same posture as the Hilfe-Protokoll below.
+const helpSwitchLabels = computed(() => {
+  const h = data.value?.helps
+  if (!h) return []
+  return [
+    `Hilfen ${h.hints ? 'an' : 'aus'}`,
+    `Checkliste ${h.checklist ? 'an' : 'aus'}`,
+    `KI-Tipp ${h.kiTipp ? 'an' : 'aus'}`,
+    `Zeitlimit ${h.hardLimit ? 'hart' : 'weich'}`
+  ]
+})
 
 const helpTotals = computed(() => {
   const counts = new Map<HelpKind, number>()
@@ -196,17 +279,23 @@ const helpTotals = computed(() => {
     .filter(row => row.n > 0)
 })
 
+// F6 — bounded to the Rede's own span: `Math.ceil` of the Rede's own
+// startedAt→finishedAt duration in minutes. A stray helpLog entry outside
+// that span (e.g. a resumed row logged long after) is dropped, not shown
+// as a bucket of its own.
 const helpByMinute = computed(() => {
   const log = data.value?.helpLog ?? []
-  if (log.length === 0) return []
-  const start = data.value!.startedAt
+  if (!data.value || log.length === 0) return []
+  const { startedAt, finishedAt } = data.value
+  const totalMinutes = Math.max(0, Math.ceil((finishedAt - startedAt) / 60000))
+  if (totalMinutes === 0) return []
   const buckets = new Map<number, number>()
   for (const h of log) {
-    const minute = Math.max(0, Math.floor((h.at - start) / 60000))
+    const minute = Math.floor((h.at - startedAt) / 60000)
+    if (minute < 0 || minute >= totalMinutes) continue
     buckets.set(minute, (buckets.get(minute) ?? 0) + 1)
   }
-  const maxMinute = Math.max(...buckets.keys())
-  return Array.from({ length: maxMinute + 1 }, (_, m) => ({ minute: m, n: buckets.get(m) ?? 0 }))
+  return Array.from({ length: totalMinutes }, (_, m) => ({ minute: m, n: buckets.get(m) ?? 0 }))
 })
 
 // ── Navigation ───────────────────────────────────────────────────────
@@ -258,6 +347,10 @@ function openDrill() { router.push({ name: 'sprechen-drill' }) }
           <template v-if="modality === 'typed'">
             Die Redezeit wurde aus der Wortzahl geschätzt, nicht gemessen.
           </template>
+          <template v-else-if="data.downgradedAt">
+            Das Mikrofon ist mitten im Vortrag ausgefallen — von da an wurde
+            getippt, die gemessene Redezeit bleibt trotzdem echt, nicht geschätzt.
+          </template>
         </p>
       </div>
       <div class="spr-vgrid">
@@ -272,6 +365,21 @@ function openDrill() { router.push({ name: 'sprechen-drill' }) }
         </div>
       </div>
     </div>
+
+    <section v-if="sprechdaten" class="spr-block">
+      <div class="spr-block-h"><h2 class="spr-block-t">SPRECHDATEN</h2></div>
+      <div class="chip-row spr-counts">
+        <span class="chip">Redezeit (gesprochen) · {{ sprechdaten.redezeitClock }}</span>
+        <span v-if="sprechdaten.gesamtdauerClock" class="chip">Gesamtdauer · {{ sprechdaten.gesamtdauerClock }}</span>
+        <span v-if="sprechdaten.pausenzeitClock" class="chip">Pausenzeit · {{ sprechdaten.pausenzeitClock }}</span>
+        <span class="chip">{{ sprechdaten.wpm }} Wörter/Min · Ziel {{ VORTRAG_WPM }}</span>
+        <span class="chip">{{ sprechdaten.restarts }} lange {{ sprechdaten.restarts === 1 ? 'Pause' : 'Pausen' }}</span>
+      </div>
+      <p class="spr-auf-note">
+        Das ist die Grundlage, auf der „Kohärenz" bewertet wurde — Pausenzeit ist
+        Denkzeit, die die Prüfung nicht gewähren würde.
+      </p>
+    </section>
 
     <section class="spr-block">
       <div class="spr-block-h">
@@ -294,6 +402,25 @@ function openDrill() { router.push({ name: 'sprechen-drill' }) }
         <span class="spr-block-n">{{ yieldIds.length }} von {{ SPRECHEN_VORTRAGSMITTEL.length }} · lokal gezählt</span>
       </div>
       <SprVortragYield :used-ids="yieldIds" note="In diesem Vortrag nicht vorgekommen." />
+    </section>
+
+    <section class="spr-block">
+      <div class="spr-block-h">
+        <h2 class="spr-block-t">Konnektoren-Ausbeute</h2>
+        <span class="spr-block-n">{{ konnektorenTotals.hit }} von {{ konnektorenTotals.total }} · lokal gezählt</span>
+      </div>
+      <div class="spr-knt">
+        <div v-for="g in konnektorenYield" :key="g.labelDe" class="spr-knt-group">
+          <div class="spr-knt-h">
+            <span class="spr-knt-t">{{ g.labelDe }}</span>
+            <span class="spr-knt-n spr-num">{{ g.hit }}/{{ g.total }}</span>
+          </div>
+          <div class="spr-knt-words">
+            <span v-for="k in g.konnektoren" :key="k.wort" class="spr-knt-w" :class="{ on: k.hit }">{{ k.wort }}</span>
+          </div>
+          <p v-if="g.hit === 0" class="spr-knt-cold">„‚{{ g.labelDe }}' — nie benutzt.</p>
+        </div>
+      </div>
     </section>
 
     <section class="spr-block">
@@ -373,6 +500,10 @@ function openDrill() { router.push({ name: 'sprechen-drill' }) }
         <span class="spr-block-n">{{ data.helpLog.length }} Einträge</span>
       </div>
       <div class="chip-row spr-counts">
+        <span class="chip">{{ data.kiTippCount }} KI-Tipp{{ data.kiTippCount === 1 ? '' : 's' }} verwendet</span>
+        <span v-for="label in helpSwitchLabels" :key="label" class="chip">{{ label }}</span>
+      </div>
+      <div class="chip-row spr-counts">
         <span v-for="row in helpTotals" :key="row.kind" class="chip">{{ row.label }} · {{ row.n }}×</span>
         <span v-if="helpTotals.length === 0" class="chip">Keine Hilfe verwendet</span>
       </div>
@@ -441,6 +572,20 @@ function openDrill() { router.push({ name: 'sprechen-drill' }) }
 }
 .spr-auf-quote { color: var(--clay); }
 .spr-auf-better { color: var(--success); font-family: var(--font-display); font-size: 17px; }
+
+/* Konnektoren-Ausbeute (F16) — its own classes, not the Vortragsmittel-Yield's
+   `.spr-yield`/`.spr-ymove`, so the two blocks' element counts never conflate
+   in a test, and because the words themselves (not abstract ticks) are what
+   must show as dimmed/lit here. */
+.spr-knt { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 22px 30px; margin-top: 20px; }
+.spr-knt-group { min-width: 0; }
+.spr-knt-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--hairline); padding-bottom: 6px; }
+.spr-knt-t { font-family: var(--font-display); font-size: 15.5px; font-weight: 500; letter-spacing: -0.01em; }
+.spr-knt-n { font-family: var(--font-mono); font-size: 10.5px; color: var(--mute); }
+.spr-knt-words { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.spr-knt-w { font-size: 12.5px; padding: 3px 8px; color: var(--mute); background: var(--paper-deep); }
+.spr-knt-w.on { color: var(--ink); background: var(--accent); }
+.spr-knt-cold { font-size: 12.5px; font-style: italic; color: var(--mute); margin: 9px 0 0; line-height: 1.5; }
 
 .spr-helpmin { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 16px; }
 .spr-helpmin-b { display: flex; flex-direction: column; gap: 2px; min-width: 44px; }

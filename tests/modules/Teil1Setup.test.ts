@@ -73,7 +73,7 @@ import Teil1Setup from '../../src/modules/sprechen/Teil1Setup.vue'
 import { findActiveVortrag, abandonVortrag } from '../../src/composables/useVortrag'
 import { isSpeechRecognitionSupported } from '../../src/composables/useSpeechRecognizer'
 import { useSettings } from '../../src/composables/useSettings'
-import { drawThemaPair } from '../../src/composables/useVortragsthemen'
+import { drawThemaPair, allThemen, deleteCustomThema } from '../../src/composables/useVortragsthemen'
 import { TEIL1_STASH_KEY, type Teil1RunStash } from '../../src/data/sprechen'
 
 beforeEach(() => {
@@ -127,6 +127,92 @@ describe('Teil1Setup — Füllbarkeits-Check', () => {
     expect(stored.fillChecks).toBeUndefined()
     expect(JSON.stringify(stored)).not.toContain('eigenes Beispiel')
   })
+
+  it('reads „drei Fachwörter?" on the middle chip', async () => {
+    const w = mount(Teil1Setup)
+    await flushPromises()
+    const fill = w.findAll('.spr-sheet-fill')[0]
+    const chips = fill.findAll('.spr-tag')
+    expect(chips[1].text()).toBe('drei Fachwörter?')
+  })
+})
+
+describe('Teil1Setup — Prüfungsmodus preset', () => {
+  it('shows the exam line and is a button, not a fifth switch', async () => {
+    const w = mount(Teil1Setup)
+    await flushPromises()
+    expect(w.text()).toContain(
+      'Wie in der Prüfung: Aufgabenblatt, deine Notizen, vier Minuten — sonst nichts.'
+    )
+    const examBtn = w.findAll('button').find(b => b.text() === 'Prüfungsmodus')
+    expect(examBtn).toBeTruthy()
+  })
+
+  it('sets Hilfen/Checkliste/KI-Tipp aus, Vorbereitung 15 Min, and Zeitlimit hart', async () => {
+    const w = mount(Teil1Setup)
+    await flushPromises()
+
+    const examBtn = w.findAll('button').find(b => b.text() === 'Prüfungsmodus')!
+    await examBtn.trigger('click')
+
+    const fieldByLabel = (label: string) =>
+      w.findAll('.spr-fld').find(f => f.find('.spr-fld-l').text().includes(label))!
+
+    expect(fieldByLabel('Hilfen').find('button.active').text()).toBe('Aus')
+    expect(fieldByLabel('Live-Checkliste').find('button.active').text()).toBe('Aus')
+    expect(fieldByLabel('KI-Tipp').find('button.active').text()).toBe('Aus')
+    expect(fieldByLabel('Vorbereitungszeit').find('button.active').text()).toBe('15 Min')
+
+    // Zeitlimit only renders for spoken — switch modality to see hardLimit took.
+    const spoken = w.findAll('.spr-fld')[0].findAll('button')[1]
+    await spoken.trigger('click')
+    expect(fieldByLabel('Zeitlimit').find('button.active').text()).toBe('Hart')
+  })
+
+  it('persists the preset via the existing merge-write to localStorage', async () => {
+    const w = mount(Teil1Setup)
+    await flushPromises()
+    const examBtn = w.findAll('button').find(b => b.text() === 'Prüfungsmodus')!
+    await examBtn.trigger('click')
+
+    const raw = localStorage.getItem('sprechenTeil1Setup')
+    const stored = raw ? JSON.parse(raw) : {}
+    expect(stored.hintsOn).toBe(false)
+    expect(stored.checklistOn).toBe(false)
+    expect(stored.kiTippOn).toBe(false)
+    expect(stored.hardLimit).toBe(true)
+    expect(stored.prepSeconds).toBe(900)
+  })
+
+  it('leaves the four switches individually visible and editable after the preset', async () => {
+    const w = mount(Teil1Setup)
+    await flushPromises()
+    const examBtn = w.findAll('button').find(b => b.text() === 'Prüfungsmodus')!
+    await examBtn.trigger('click')
+
+    const fieldByLabel = (label: string) =>
+      w.findAll('.spr-fld').find(f => f.find('.spr-fld-l').text().includes(label))!
+
+    const hilfenAn = fieldByLabel('Hilfen').findAll('button').find(b => b.text() === 'An')!
+    await hilfenAn.trigger('click')
+    expect(fieldByLabel('Hilfen').find('button.active').text()).toBe('An')
+  })
+
+  it('never resurrects the Zeitlimit field for a typed run', async () => {
+    const w = mount(Teil1Setup)
+    await flushPromises()
+    const examBtn = w.findAll('button').find(b => b.text() === 'Prüfungsmodus')!
+    await examBtn.trigger('click')
+    const labels = w.findAll('.spr-fld-l').map(n => n.text())
+    expect(labels.some(l => l.includes('Zeitlimit'))).toBe(false)
+
+    await w.findAll('.spr-sheet')[0].trigger('click')
+    await w.find('.spr-card-go .btn').trigger('click')
+    const raw = sessionStorage.getItem(TEIL1_STASH_KEY)
+    const stash = JSON.parse(raw!) as Teil1RunStash
+    expect(stash.modality).toBe('typed')
+    expect(stash.helps.hardLimit).toBe(false)
+  })
 })
 
 describe('Teil1Setup — Prüfungskarte', () => {
@@ -172,6 +258,40 @@ describe('Teil1Setup — Prüfungskarte', () => {
   })
 })
 
+describe('Teil1Setup — F3 canUseAi gate', () => {
+  it('shows a persistent alert and disables the CTA even with a sheet picked', async () => {
+    const vue = await import('vue')
+    vi.mocked(useSettings).mockReturnValueOnce({
+      settings: vue.ref({
+        id: 'singleton', geminiApiKey: '', model: 'gemini-test',
+        aiProvider: 'gemini', localClaudeModel: 'sonnet', localClaudeEffort: 'low'
+      }),
+      hasApiKey: vue.computed(() => false),
+      canUseAi: vue.computed(() => false),
+      load: async () => {},
+      save: async () => {}
+    } as ReturnType<typeof useSettings>)
+    const w = mount(Teil1Setup)
+    await flushPromises()
+
+    const alert = w.find('.alert-warning')
+    expect(alert.exists()).toBe(true)
+    expect(alert.text()).toMatch(/Gemini|Local Claude/)
+
+    await w.findAll('.spr-sheet')[0].trigger('click')
+    expect(w.find('.spr-card-go .btn').attributes('disabled')).toBeDefined()
+  })
+
+  it('does not show the alert and leaves the CTA gated only by picking a sheet when canUseAi is true', async () => {
+    const w = mount(Teil1Setup)
+    await flushPromises()
+    expect(w.find('.alert-warning').exists()).toBe(false)
+    expect(w.find('.spr-card-go .btn').attributes('disabled')).toBeDefined()
+    await w.findAll('.spr-sheet')[0].trigger('click')
+    expect(w.find('.spr-card-go .btn').attributes('disabled')).toBeUndefined()
+  })
+})
+
 describe('Teil1Setup — control bar', () => {
   it('"Andere zwei Themen ziehen" redraws and clears the selection', async () => {
     const w = mount(Teil1Setup)
@@ -204,6 +324,40 @@ describe('Teil1Setup — control bar', () => {
     await listBtn.trigger('click')
     const doneRow = w.findAll('.spr-tlist .spr-titem').find(r => r.text().includes('Erledigtes Thema'))!
     expect(doneRow.find('.spr-flag.done').text()).toContain('gehalten')
+  })
+
+  it('redraws the pair when the deleted custom Vortragsthema is currently drawn on a sheet', async () => {
+    vi.mocked(drawThemaPair).mockReturnValueOnce([THEME_CUSTOM, THEME_B])
+    vi.mocked(allThemen).mockReturnValueOnce([THEME_A, THEME_B, THEME_DONE, THEME_CUSTOM])
+    const w = mount(Teil1Setup)
+    await flushPromises()
+    expect(w.findAll('.spr-sheet-t')[0].text()).toBe('Generiertes Thema')
+
+    const listBtn = w.findAll('.spr-ab-ctl button').find(b => b.text().includes('Alle') && b.text().includes('Themen'))!
+    await listBtn.trigger('click')
+    const callsBefore = vi.mocked(drawThemaPair).mock.calls.length
+
+    const row = w.findAll('.spr-tlist-row').find(r => r.text().includes('Generiertes Thema'))!
+    await row.find('button.btn-quiet').trigger('click')
+
+    expect(deleteCustomThema).toHaveBeenCalledWith('vt-custom-1')
+    expect(vi.mocked(drawThemaPair).mock.calls.length).toBeGreaterThan(callsBefore)
+  })
+
+  it('does not redraw when the deleted custom Vortragsthema is not currently drawn', async () => {
+    vi.mocked(allThemen).mockReturnValueOnce([THEME_A, THEME_B, THEME_DONE, THEME_CUSTOM])
+    const w = mount(Teil1Setup)
+    await flushPromises()
+
+    const listBtn = w.findAll('.spr-ab-ctl button').find(b => b.text().includes('Alle') && b.text().includes('Themen'))!
+    await listBtn.trigger('click')
+    const callsBefore = vi.mocked(drawThemaPair).mock.calls.length
+
+    const row = w.findAll('.spr-tlist-row').find(r => r.text().includes('Generiertes Thema'))!
+    await row.find('button.btn-quiet').trigger('click')
+
+    expect(deleteCustomThema).toHaveBeenCalledWith('vt-custom-1')
+    expect(vi.mocked(drawThemaPair).mock.calls.length).toBe(callsBefore)
   })
 })
 
@@ -244,7 +398,7 @@ describe('Teil1Setup — start()', () => {
 })
 
 describe('Teil1Setup — resume banner', () => {
-  it('renders the resume banner for an active Vortrag, and Verwerfen calls abandonVortrag', async () => {
+  it('renders above the content as an alert, with the sheets staying visible behind it', async () => {
     const active: SprechenVortrag = {
       id: 'v1',
       thema: { id: 'vt-a', titleDe: 'Thema A Titel', taskDe: THEME_A.taskDe, source: 'seed' },
@@ -264,7 +418,11 @@ describe('Teil1Setup — resume banner', () => {
 
     expect(w.find('.alert-info').exists()).toBe(true)
     expect(w.text()).toContain('Thema A Titel')
-    expect(w.find('.spr-sheet').exists()).toBe(false)
+    // The banner moved above the content as an alert (F22) — it no longer
+    // replaces the page, so the sheets stay visible behind it.
+    expect(w.find('.spr-sheet').exists()).toBe(true)
+    const html = w.html()
+    expect(html.indexOf('alert-info')).toBeLessThan(html.indexOf('spr-setup'))
 
     const verwerfen = w.findAll('button').find(b => b.text().includes('Verwerfen'))!
     await verwerfen.trigger('click')

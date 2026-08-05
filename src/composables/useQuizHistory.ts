@@ -275,6 +275,8 @@ export interface QuizHistoryMeta {
   sprechenVortragsmittel?: string[]
   sprechenHelps?: { hints: boolean; checklist: boolean; kiTipp: boolean; hardLimit: boolean }
   sprechenAufwertungen?: Array<{ quote: string; better: string; whyDe: string; whyEn: string }>
+  sprechenWallSeconds?: number   // F2 — wall-clock duration of the Rede, mic paused or not
+  sprechenDowngraded?: boolean   // F13 — the run fell back from spoken to typed mid-Rede
 }
 
 export interface QuizHistoryEntry {

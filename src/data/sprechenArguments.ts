@@ -72,7 +72,7 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'der Raubbau', en: 'overexploitation (of nature)' }
     ],
     phrases: [
-      { de: 'eine entscheidende Rolle spielen', en: 'to play a decisive role' },
+      { de: 'sich für den Klimaschutz einsetzen', en: 'to commit oneself to climate protection' },
       { de: 'auf fossile Brennstoffe verzichten', en: 'to do without fossil fuels' },
       { de: 'Maßnahmen gegen den Klimawandel ergreifen', en: 'to take measures against climate change' },
       { de: 'Rücksicht nehmen auf …', en: 'to show consideration for …' },
@@ -100,7 +100,7 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
     ],
     phrases: [
       { de: 'auf einen sicheren Arbeitsplatz angewiesen sein', en: 'to depend on having a secure job' },
-      { de: 'Überstunden in Kauf nehmen', en: 'to accept overtime as a trade-off' },
+      { de: 'eine Stelle antreten', en: 'to take up a new job' },
       { de: 'flexible Arbeitszeiten zur Verfügung stellen', en: 'to provide flexible working hours' },
       { de: 'sich an neue Bedingungen anpassen', en: 'to adapt to new conditions' },
       { de: 'unter Zeitdruck stehen', en: 'to be under time pressure' }
@@ -126,7 +126,7 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'die Vernetzung', en: 'interconnectedness' }
     ],
     phrases: [
-      { de: 'auf Technik angewiesen sein', en: 'to be dependent on technology' },
+      { de: 'sich mit einem neuen System vertraut machen', en: 'to familiarize oneself with a new system' },
       { de: 'zum Einsatz kommen', en: 'to be put to use' },
       { de: 'mit der Entwicklung Schritt halten', en: 'to keep pace with developments' },
       { de: 'Risiken in Kauf nehmen', en: 'to accept risks as a trade-off' },
@@ -153,10 +153,10 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'die Lernfreude', en: 'joy of learning' }
     ],
     phrases: [
-      { de: 'eine wichtige Rolle spielen', en: 'to play an important role' },
+      { de: 'sich für ein Fach begeistern', en: 'to become enthusiastic about a subject' },
       { de: 'Wert legen auf …', en: 'to place value on …' },
       { de: 'Mittel zur Verfügung stellen', en: 'to provide funding' },
-      { de: 'auf individuelle Förderung angewiesen sein', en: 'to depend on individual support' },
+      { de: 'aus eigenen Fehlern lernen', en: "to learn from one's own mistakes" },
       { de: 'sich auf den Unterricht vorbereiten', en: 'to prepare for class' }
     ]
   },
@@ -183,7 +183,7 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'eine zentrale Rolle spielen', en: 'to play a central role' },
       { de: 'auf ärztliche Hilfe angewiesen sein', en: 'to depend on medical help' },
       { de: 'Vorsorgeuntersuchungen in Anspruch nehmen', en: 'to make use of preventive checkups' },
-      { de: 'Risiken in Kauf nehmen', en: 'to accept risks as a trade-off' },
+      { de: 'einer Krankheit vorbeugen', en: 'to prevent an illness' },
       { de: 'sich fit halten', en: 'to keep fit' }
     ]
   },
@@ -208,10 +208,10 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
     ],
     phrases: [
       { de: 'eine zunehmende Rolle spielen', en: 'to play a growing role' },
-      { de: 'auf verlässliche Quellen angewiesen sein', en: 'to depend on reliable sources' },
+      { de: 'eine Nachricht verbreiten', en: 'to spread a piece of news' },
       { de: 'die Aufmerksamkeit auf sich ziehen', en: 'to attract attention' },
       { de: 'zur Meinungsbildung beitragen', en: 'to contribute to opinion-forming' },
-      { de: 'Informationen zur Verfügung stellen', en: 'to provide information' }
+      { de: 'einer Quelle vertrauen', en: 'to trust a source' }
     ]
   },
   Gesellschaft: {
@@ -235,9 +235,9 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
     ],
     phrases: [
       { de: 'eine zentrale Rolle spielen', en: 'to play a central role' },
-      { de: 'auf gegenseitige Hilfe angewiesen sein', en: 'to depend on mutual help' },
-      { de: 'Kompromisse in Kauf nehmen', en: 'to accept compromises' },
-      { de: 'Unterstützung zur Verfügung stellen', en: 'to provide support' },
+      { de: 'zum gesellschaftlichen Zusammenhalt beitragen', en: 'to contribute to social cohesion' },
+      { de: 'sich mit dem sozialen Wandel auseinandersetzen', en: 'to engage with social change' },
+      { de: 'Toleranz gegenüber Andersdenkenden zeigen', en: 'to show tolerance towards those who think differently' },
       { de: 'sich engagieren für …', en: 'to get involved in …' }
     ]
   },
@@ -261,7 +261,7 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'der Pauschalurlaub', en: 'package holiday' }
     ],
     phrases: [
-      { de: 'eine große Rolle spielen', en: 'to play a major role' },
+      { de: 'sich in einem fremden Land zurechtfinden', en: "to find one's way in a foreign country" },
       { de: 'auf öffentliche Verkehrsmittel angewiesen sein', en: 'to depend on public transport' },
       { de: 'Umwege in Kauf nehmen', en: 'to accept detours as a trade-off' },
       { de: 'genügend Zeit zur Verfügung haben', en: 'to have enough time available' },
@@ -288,8 +288,8 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'der Konsumrausch', en: 'buying frenzy' }
     ],
     phrases: [
-      { de: 'eine entscheidende Rolle spielen', en: 'to play a decisive role' },
-      { de: 'auf günstige Angebote angewiesen sein', en: 'to depend on affordable deals' },
+      { de: 'sich zum Kauf verleiten lassen', en: 'to let oneself be tempted into buying' },
+      { de: 'auf unnötigen Konsum verzichten', en: 'to forgo unnecessary consumption' },
       { de: 'höhere Preise in Kauf nehmen', en: 'to accept higher prices as a trade-off' },
       { de: 'auf Qualität achten', en: 'to pay attention to quality' },
       { de: 'sich für ein Produkt entscheiden', en: 'to decide on a product' }
@@ -315,7 +315,7 @@ export const TAG_ARGUMENT_BANKS: Record<TopicTag, ArgumentBank> = {
       { de: 'die Geschwisterbeziehung', en: 'sibling relationship' }
     ],
     phrases: [
-      { de: 'eine zentrale Rolle spielen', en: 'to play a central role' },
+      { de: 'für die Familie sorgen', en: 'to care for one\'s family' },
       { de: 'auf gegenseitige Unterstützung angewiesen sein', en: 'to depend on mutual support' },
       { de: 'Kompromisse in Kauf nehmen', en: 'to accept compromises' },
       { de: 'Betreuungsplätze zur Verfügung stellen', en: 'to provide childcare places' },

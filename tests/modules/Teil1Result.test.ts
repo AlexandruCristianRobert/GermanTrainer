@@ -5,7 +5,7 @@ vi.mock('vue-router', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 import Teil1Result from '../../src/modules/sprechen/Teil1Result.vue'
 import { VORTRAG_RESULT_KEY } from '../../src/composables/useVortragGrader'
 import { SPRECHEN_B2_TEIL1 } from '../../src/data/rubrics'
-import { GLIEDERUNGSPUNKTE } from '../../src/data/sprechenVortragsmittel'
+import { GLIEDERUNGSPUNKTE, KONNEKTOREN, VORTRAG_WPM } from '../../src/data/sprechenVortragsmittel'
 
 // A Rede whose vocabulary deliberately touches some of the fixture's plan
 // keywords ('Ehrenamt', 'Freistellung') and not others ('Verein', 'Wichtig'),
@@ -225,5 +225,135 @@ describe('Teil1Result', () => {
     const w = await mountLoaded()
     expect(w.findAll('.spr-yield .spr-ymove')).toHaveLength(7)
     expect(w.findAll('.spr-yield .spr-tick.on')).toHaveLength(2)
+  })
+
+  describe('SPRECHDATEN (F19)', () => {
+    // 45 words, spaced so countWords() sees exactly 45 — chosen so the
+    // computed wpm (45) is distinct from both VORTRAG_WPM (90) and the
+    // Redezeit/Gesamtdauer/Pausenzeit clocks below, so each assertion
+    // pins down a different piece of arithmetic.
+    const REDE_45 = Array.from({ length: 45 }, () => 'Wort').join(' ')
+
+    it('renders Redezeit, Gesamtdauer, Pausenzeit, Wörter/Min and lange Pausen for a spoken stash', async () => {
+      stash({}, {
+        modality: 'spoken',
+        rede: { textDe: REDE_45, seconds: 60, wallSeconds: 90, restarts: 2 }
+      })
+      const w = await mountLoaded()
+      expect(w.text()).toContain('SPRECHDATEN')
+      expect(w.text()).toContain('Redezeit (gesprochen) · 1:00')
+      expect(w.text()).toContain('Gesamtdauer · 1:30')
+      expect(w.text()).toContain('Pausenzeit · 0:30')
+      expect(w.text()).toContain('45 Wörter/Min')
+      expect(w.text()).toContain(`Ziel ${VORTRAG_WPM}`)
+      expect(w.text()).toContain('2 lange Pausen')
+    })
+
+    it('renders none of it for a typed stash', async () => {
+      stash()
+      const w = await mountLoaded()
+      expect(w.text()).not.toContain('SPRECHDATEN')
+      expect(w.text()).not.toContain('Redezeit (gesprochen)')
+    })
+
+    it('guards the wpm division when spoken seconds is zero', async () => {
+      stash({}, { modality: 'spoken', rede: { textDe: REDE_45, seconds: 0 } })
+      const w = await mountLoaded()
+      expect(w.text()).toContain('0 Wörter/Min')
+    })
+  })
+
+  describe('kiTippCount and the four help switches (F19)', () => {
+    it('renders the KI-Tipp count and every switch as set', async () => {
+      stash({}, { kiTippCount: 1, helps: { hints: true, checklist: false, kiTipp: true, hardLimit: false } })
+      const w = await mountLoaded()
+      expect(w.text()).toContain('1 KI-Tipp')
+      expect(w.text()).toContain('Hilfen an')
+      expect(w.text()).toContain('Checkliste aus')
+      expect(w.text()).toContain('KI-Tipp an')
+      expect(w.text()).toContain('Zeitlimit weich')
+    })
+
+    it('renders the hard-limit switch as hart when set', async () => {
+      stash({}, { helps: { hints: false, checklist: true, kiTipp: false, hardLimit: true } })
+      const w = await mountLoaded()
+      expect(w.text()).toContain('Hilfen aus')
+      expect(w.text()).toContain('Zeitlimit hart')
+    })
+  })
+
+  describe('downgrade note (F13 display)', () => {
+    it('renders the one-sentence downgrade note for a downgraded stash, mic-continued-typed, seconds real', async () => {
+      stash({}, { modality: 'spoken', rede: { textDe: REDE, seconds: 120 }, downgradedAt: 5000 })
+      const w = await mountLoaded()
+      expect(w.text()).toContain('Mikrofon')
+      expect(w.text()).not.toContain('aus der Wortzahl geschätzt')
+    })
+
+    it('omits the downgrade note when the stash carries no downgradedAt', async () => {
+      stash({}, { modality: 'spoken', rede: { textDe: REDE, seconds: 120 } })
+      const w = await mountLoaded()
+      expect(w.text()).not.toContain('Mikrofon')
+    })
+  })
+
+  describe('Konnektoren-Ausbeute (F16)', () => {
+    it('lists each Stellung group with its distinct hit/total and names a cold group', async () => {
+      // 'Zunächst' and 'Trotzdem' hit the Satzanfang group, 'Erstens' hits
+      // Aufzählen; Gegenüberstellen and the mid-clause group stay untouched.
+      stash({}, {
+        rede: {
+          textDe: 'Zunächst spreche ich über das Ehrenamt. Trotzdem bleibt die ' +
+            'Freistellung schwierig. Erstens ist die Zeit knapp.'
+        }
+      })
+      const w = await mountLoaded()
+      const satzanfang = KONNEKTOREN.find(g => g.labelDe === 'Satzanfang — Verb an Position 2')!
+      const aufzaehlen = KONNEKTOREN.find(g => g.labelDe === 'Aufzählen')!
+      const gegenueber = KONNEKTOREN.find(g => g.labelDe === 'Gegenüberstellen')!
+      expect(w.text()).toContain('Konnektoren-Ausbeute')
+      expect(w.text()).toContain(`2/${satzanfang.konnektoren.length}`)
+      expect(w.text()).toContain(`1/${aufzaehlen.konnektoren.length}`)
+      expect(w.text()).toContain(`„‚${gegenueber.labelDe}' — nie benutzt.`)
+    })
+
+    it('names every group cold when the Rede uses no Konnektoren at all', async () => {
+      stash()
+      const w = await mountLoaded()
+      for (const g of KONNEKTOREN) {
+        expect(w.text(), g.labelDe).toContain(`„‚${g.labelDe}' — nie benutzt.`)
+      }
+    })
+  })
+
+  describe("Hilfe-Protokoll — 'stuck' kind and bounded timeline (F6)", () => {
+    it("labels a 'stuck' entry Stockung erkannt, distinct from Rettungsleine", async () => {
+      stash({}, {
+        helpLog: [
+          { at: 500, kind: 'stuck' },
+          { at: 1500, kind: 'stuck' },
+          { at: 2000, kind: 'rettungsleine' }
+        ]
+      })
+      const w = await mountLoaded()
+      expect(w.text()).toContain('Stockung erkannt · 2×')
+      expect(w.text()).toContain('Rettungsleine · 1×')
+    })
+
+    it("bounds the minute timeline to the Rede's own span, dropping a stray entry hours later", async () => {
+      stash({}, {
+        startedAt: 0,
+        finishedAt: 180000, // 3 minutes
+        helpLog: [
+          { at: 1000, kind: 'drawer' },
+          { at: 20000, kind: 'drawer' },
+          { at: 36000000, kind: 'drawer' } // hours later — outside the Rede's own span
+        ]
+      })
+      const w = await mountLoaded()
+      const buckets = w.findAll('.spr-helpmin-b')
+      expect(buckets.length).toBeLessThanOrEqual(4)
+      expect(buckets).toHaveLength(3)
+    })
   })
 })

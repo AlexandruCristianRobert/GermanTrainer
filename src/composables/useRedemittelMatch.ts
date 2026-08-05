@@ -37,6 +37,18 @@ export interface PhraseLike {
   id: string
   move: string
   phraseDe: string
+  // F5: literal override for phrases whose derived needle would span a
+  // placeholder gap (see phraseNeedle). Absent for every Teil 2 Redemittel.
+  needle?: string
+}
+
+/**
+ * The needle actually used to match `p`: its explicit override when the
+ * phrase has one, else the derived `redemittelNeedle`. `redemittelNeedle`
+ * itself never changes — every Teil 2 Redemittel needle stays byte-identical.
+ */
+export function phraseNeedle(p: PhraseLike): string {
+  return p.needle ?? redemittelNeedle(p.phraseDe)
 }
 
 /**
@@ -50,7 +62,7 @@ export function matchRedemittel<T extends PhraseLike = Redemittel>(
 ): T[] {
   const hay = learnerTexts.map(normalize).join(TURN_SEP)
   if (hay.length === 0) return []
-  return bank.filter(r => hay.includes(redemittelNeedle(r.phraseDe)))
+  return bank.filter(r => hay.includes(phraseNeedle(r)))
 }
 
 export function movesUsed<M extends string>(

@@ -18,7 +18,7 @@
 // Word targets and clocks always come from GLIEDERUNGSPUNKTE / vortragClock —
 // never a hardcoded number (Global Constraints).
 
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { TEIL1_STASH_KEY, type Teil1RunStash, type VortragPlanEntry } from '../../data/sprechen'
 import {
@@ -46,12 +46,52 @@ const left = ref(0)
 const running = ref(true)
 const regenerating = ref(false)
 let tick: number | undefined
+let stashDebounce: number | undefined
 
 const modalityWord = computed(() => stash.value?.modality === 'typed' ? 'getippt' : 'gesprochen')
 
 const filledCount = computed(() => plan.value.filter(p => p.keyword.trim().length > 0).length)
 
 const targetClock = computed(() => vortragClock(VORTRAG_TARGET_WORDS))
+
+// F11: keyword hygiene. Same normalisation as useVortragCoverage's matcher
+// (punctuation stripped, whitespace collapsed, case-folded) so a warning here
+// and the runner's own "said" check can never disagree about two keywords
+// being "the same". Advisory only — never disables the CTA.
+function normalizeKeyword(s: string): string {
+  return s.replace(/[.,;:!?…]/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
+}
+
+const keywordWarnings = computed<Partial<Record<GliederungKey, string>>>(() => {
+  const out: Partial<Record<GliederungKey, string>> = {}
+  const entries = plan.value
+    .map(p => ({ key: p.key, raw: p.keyword.trim(), norm: normalizeKeyword(p.keyword) }))
+    .filter(e => e.norm.length > 0)
+
+  for (const e of entries) {
+    if (e.norm.length < 4) {
+      out[e.key] = `„${e.raw}" ist kürzer als vier Zeichen — kaum von einem Zufallstreffer im Vortrag zu unterscheiden.`
+    }
+  }
+
+  for (let i = 0; i < entries.length; i++) {
+    for (let j = i + 1; j < entries.length; j++) {
+      const a = entries[i]
+      const b = entries[j]
+      if (a.norm === b.norm) {
+        const msg = `„${a.raw}" und „${b.raw}" sind gleich — beide Häkchen leuchten zusammen.`
+        if (out[a.key] === undefined) out[a.key] = msg
+        if (out[b.key] === undefined) out[b.key] = msg
+      } else if (a.norm.includes(b.norm) || b.norm.includes(a.norm)) {
+        const [short, long] = a.norm.length < b.norm.length ? [a, b] : [b, a]
+        const msg = `„${short.raw}" steckt in „${long.raw}" — beide Häkchen leuchten zusammen.`
+        if (out[a.key] === undefined) out[a.key] = msg
+        if (out[b.key] === undefined) out[b.key] = msg
+      }
+    }
+  }
+  return out
+})
 
 const clock = computed(() => {
   const m = Math.floor(left.value / 60)
@@ -93,8 +133,11 @@ function setKeyword(key: GliederungKey, value: string) {
   else plan.value = [...plan.value, { key, keyword: value }]
 }
 
-function appendKonnektor(word: string) {
-  notes.value = notes.value.length > 0 ? `${notes.value} ${word}` : word
+// F10: inserts the full syntactic frame (e.g. "Trotzdem bleibt …"), not the
+// bare word — a bare Konnektor invites exactly the word-order mistake the
+// same run's grader would then mark.
+function appendKonnektor(frameDe: string) {
+  notes.value = notes.value.length > 0 ? `${notes.value} ${frameDe}` : frameDe
 }
 
 onMounted(async () => {
@@ -126,14 +169,33 @@ onMounted(async () => {
   }, 1000)
 })
 
-onUnmounted(() => { if (tick !== undefined) window.clearInterval(tick) })
+onUnmounted(() => {
+  if (tick !== undefined) window.clearInterval(tick)
+  if (stashDebounce !== undefined) window.clearTimeout(stashDebounce)
+})
+
+function writeStash() {
+  if (!stash.value) return
+  const next: Teil1RunStash = { ...stash.value, plan: plan.value, notes: notes.value }
+  sessionStorage.setItem(TEIL1_STASH_KEY, JSON.stringify(next))
+}
+
+// F4-prep: the whole point of prep being a route (not a modal) is that it
+// survives a reload — so it must actually persist as the learner types, not
+// only at the CTA. Debounced (~500 ms) so five keystrokes don't mean five
+// writes; `go()` below still writes synchronously before navigating.
+watch([plan, notes], () => {
+  if (!stash.value) return
+  if (stashDebounce !== undefined) window.clearTimeout(stashDebounce)
+  stashDebounce = window.setTimeout(writeStash, 500)
+}, { deep: true })
 
 // Expiry of the countdown never forces the start — the CTA below carries no
 // :disabled tied to `left`, and a finished plan is never required either.
 function go() {
   if (!stash.value) return
-  const next: Teil1RunStash = { ...stash.value, plan: plan.value, notes: notes.value }
-  sessionStorage.setItem(TEIL1_STASH_KEY, JSON.stringify(next))
+  if (stashDebounce !== undefined) { window.clearTimeout(stashDebounce); stashDebounce = undefined }
+  writeStash()
   router.push({ name: 'sprechen-teil1-run' })
 }
 
@@ -251,9 +313,11 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
               <li>Wann hattest du damit zu tun?</li>
               <li>Was hast du gemacht?</li>
               <li>Was kam dabei heraus?</li>
+              <li>Und was zeigt das Beispiel?</li>
             </ul>
           </aside>
         </div>
+        <p v-if="keywordWarnings[point.key]" class="spr-plan-warn">{{ keywordWarnings[point.key] }}</p>
       </template>
     </div>
 
@@ -263,14 +327,15 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
     </div>
     <div v-for="group in KONNEKTOREN" :key="group.labelDe" class="spr-konnekt-group">
       <div class="spr-lbl">{{ group.labelDe }}</div>
+      <div class="spr-konnekt-stellung">{{ group.stellungDe }}</div>
       <div class="spr-tagrow">
         <button
-          v-for="word in group.words"
-          :key="word"
+          v-for="k in group.konnektoren"
+          :key="k.wort"
           class="spr-tag"
           type="button"
-          @click="appendKonnektor(word)"
-        >{{ word }}</button>
+          @click="appendKonnektor(k.frameDe)"
+        >{{ k.wort }}</button>
       </div>
     </div>
 
@@ -345,8 +410,8 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
       <div>
         <div class="spr-lbl" style="margin-bottom: 10px">Vor dem Start</div>
         <p class="spr-tip">
-          Der Vortrag wird nach Gliederung bewertet, nicht nach Umfang. Fünf halbe Punkte
-          zählen weniger als vier ganze — plane lieber ein Beispiel weniger und sprich es zu Ende.
+          Alle fünf Punkte gehören hinein — ein ausgelassener Punkt kostet mehr als ein knapper.
+          Wenn die Zeit drängt, kürze bei Vor- und Nachteilen, aber lass keinen Punkt weg.
         </p>
       </div>
     </div>
@@ -377,6 +442,15 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
 
 .spr-konnekt-group { margin-top: 16px; }
 .spr-konnekt-group:first-of-type { margin-top: 0; }
+.spr-konnekt-stellung { font-size: 11.5px; color: var(--mute); margin-top: 3px; }
+
+.spr-plan-warn {
+  margin: -8px 0 12px;
+  padding-left: 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--clay);
+}
 
 .spr-erfahrung-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; align-items: start; }
 .spr-ausgrabung { padding: 14px 16px; margin-top: 15px; background: var(--paper-deep); border-left: 2px solid var(--accent); }

@@ -176,7 +176,7 @@ export interface VortragHelps {
 }
 
 /** What the Hilfe-Protokoll counts. Descriptive only, never scored. */
-export type HelpKind = 'drawer' | 'phrase' | 'rettungsleine' | 'nudge' | 'kitipp' | 'vorsprechen'
+export type HelpKind = 'drawer' | 'phrase' | 'rettungsleine' | 'nudge' | 'kitipp' | 'vorsprechen' | 'stuck'
 
 export interface HelpLogEntry {
   at: number           // ms epoch
@@ -191,9 +191,11 @@ export interface VortragPlanEntry {
 
 export interface RedeRecord {
   textDe: string
-  seconds?: number     // spoken only — real elapsed
-  restarts?: number    // spoken only — long-pause proxy
-  spans?: SpeechSpan[] // spoken only
+  seconds?: number        // spoken only — real elapsed
+  restarts?: number       // spoken only — long-pause proxy
+  spans?: SpeechSpan[]    // spoken only
+  firstSpokenAt?: number  // ms epoch of the first mic open (F2)
+  wallSeconds?: number    // wall time since firstSpokenAt while the runner was open (F2) — closed-tab time excluded
 }
 
 export interface NachfrageRecord {
@@ -215,6 +217,7 @@ export interface SprechenVortrag {
   status: VortragStatus          // no graded/abandoned states — those rows are deleted
   startedAt: number
   endedAt?: number                // set when submitted
+  downgradedAt?: number           // F13 — mic denied mid-Rede; modality deliberately stays 'spoken'
 }
 
 export const TEIL1_STASH_KEY = 'gt:lastSprechenTeil1'

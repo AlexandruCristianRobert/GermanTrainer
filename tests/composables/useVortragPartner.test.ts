@@ -87,17 +87,54 @@ describe('generateNachfrage', () => {
 })
 
 describe('buildVortragKiTippPrompt', () => {
-  it('names the points still missing and asks for a direction, not a sentence', () => {
+  it('names all five Gliederungspunkte for the model to judge, and forbids a sentence', () => {
     const p = buildVortragKiTippPrompt(v)
-    expect(p).toContain('Eigene Erfahrung')     // planned nothing, said nothing
+    expect(p).toContain('Eigene Erfahrung')     // one of the five labels, always listed
     expect(p).toContain('Vor- und Nachteile')
     expect(p).toMatch(/KEINEN fertigen Satz/i)
     expect(p).toContain('tippDe')
   })
 
-  it('does not leak the Vortragsplan keywords as text to speak', () => {
+  it('mentions the Vortragsplan keywords only as a hint, never as text to speak', () => {
     const p = buildVortragKiTippPrompt(v)
     expect(p).toMatch(/Stichwort|geplant/i)
+  })
+})
+
+describe('buildVortragKiTippPrompt (F7)', () => {
+  it('asks the model to judge coverage itself and labels the keyword signal unreliable', () => {
+    const p = buildVortragKiTippPrompt(v)
+    expect(p).toMatch(/beurteile selbst/i)
+    expect(p).toMatch(/unzuverlässig/i)
+    expect(p).not.toMatch(/Noch nicht angesprochene Gliederungspunkte:/)
+  })
+
+  it('carries the Redezeit state so the tip can be pacing advice', () => {
+    const p = buildVortragKiTippPrompt({ ...v, rede: { ...v.rede, seconds: 190, wallSeconds: 230 } })
+    expect(p).toMatch(/Redezeit|Gesamt/)
+    expect(p).toContain('3:10')
+  })
+
+  it('still forbids a ready-made sentence', () => {
+    expect(buildVortragKiTippPrompt(v)).toMatch(/KEINEN fertigen Satz/i)
+  })
+})
+
+describe('Nachfrage rotation and validation (F18)', () => {
+  it('rotates the question type deterministically per Vortrag', () => {
+    const a = buildNachfragePrompt({ ...v, startedAt: 0 })
+    const b = buildNachfragePrompt({ ...v, startedAt: 1 })
+    const c = buildNachfragePrompt({ ...v, startedAt: 2 })
+    const d = buildNachfragePrompt({ ...v, startedAt: 3 })
+    expect(new Set([a, b, c, d]).size).toBe(4)
+    expect(buildNachfragePrompt({ ...v, startedAt: 4 })).toBe(a)
+  })
+
+  it('rejects yes/no-shaped openers', () => {
+    expect(validateNachfrage({ questionDe: 'Sind Sie sicher, dass das stimmt?' })).toBeNull()
+    expect(validateNachfrage({ questionDe: 'Gibt es dafür Beispiele in Ihrem Land?' })).toBeNull()
+    expect(validateNachfrage({ questionDe: 'Wer soll diese Ausfallzeit denn bezahlen?' })).not.toBeNull()
+    expect(validateNachfrage({ questionDe: 'Wie würde das in Ihrem Heimatland funktionieren?' })).not.toBeNull()
   })
 })
 

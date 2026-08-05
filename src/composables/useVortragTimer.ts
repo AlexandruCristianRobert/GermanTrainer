@@ -49,16 +49,19 @@ export function redezeit(input: {
 }
 
 /**
- * The hard limit models an examiner interrupting, which only happens in real
- * time. It therefore exists in the spoken Modality ONLY — a word cap on a typed
- * Rede has no exam analogue and would punish thoroughness.
+ * The hard limit models an examiner's clock, which runs while you think: a
+ * real examiner interrupts on wall time, not on however much of it the
+ * learner actually spent talking. So this reads `wallSeconds` — time since
+ * the Rede began, mic paused or not — never `redezeit()`'s spoken-time
+ * content budget. It therefore exists in the spoken Modality ONLY — a word
+ * cap on a typed Rede has no exam analogue and would punish thoroughness.
  */
 export function hardLimitReached(input: {
-  seconds: number
+  wallSeconds: number
   modality: Modality
   hardLimit: boolean
 }): boolean {
   if (!input.hardLimit) return false
   if (input.modality !== 'spoken') return false
-  return input.seconds >= VORTRAG_TARGET_SECONDS
+  return input.wallSeconds >= VORTRAG_TARGET_SECONDS
 }
