@@ -4,6 +4,7 @@ import {
   useConjugationQuiz,
   checkTranslation,
   checkGermanTranslation,
+  checkGermanTranslationWithSynonyms,
   checkConjugation
 } from '../../src/composables/useVerbQuiz'
 import type { Verb } from '../../src/data/verbs'
@@ -159,6 +160,70 @@ describe('checkGermanTranslation — EN→DE grading', () => {
     expect(checkGermanTranslation('stehen', 'aufstehen')).toBe(false)
     expect(checkGermanTranslation('', 'aufstehen')).toBe(false)
     expect(checkGermanTranslation('   ', 'aufstehen')).toBe(false)
+  })
+})
+
+describe('checkGermanTranslationWithSynonyms — verbs sharing an English meaning', () => {
+  function mkVerb(german: string, english: string): Verb {
+    return {
+      german, english,
+      level: 'B2.1', type: 'regular', case: 'accusative', auxiliary: 'haben',
+      praesens: ['', '', '', '', '', ''],
+      praeteritumStem: '', partizip2: ''
+    }
+  }
+
+  const erzielen = mkVerb('erzielen', 'achieve / attain')
+  const leisten = mkVerb('leisten', 'achieve / accomplish')
+  const gehen = mkVerb('gehen', 'go')
+  const pool = [erzielen, leisten, gehen]
+
+  it('accepts the prompted verb itself', () => {
+    expect(checkGermanTranslationWithSynonyms('erzielen', erzielen, pool)).toBe(true)
+  })
+
+  it('accepts a pool verb that shares an English alternative with the prompt', () => {
+    expect(checkGermanTranslationWithSynonyms('leisten', erzielen, pool)).toBe(true)
+    expect(checkGermanTranslationWithSynonyms('erzielen', leisten, pool)).toBe(true)
+  })
+
+  it('rejects a pool verb with no shared meaning', () => {
+    expect(checkGermanTranslationWithSynonyms('gehen', erzielen, pool)).toBe(false)
+  })
+
+  it('rejects a verb that is not in the pool at all', () => {
+    expect(checkGermanTranslationWithSynonyms('schaffen', erzielen, pool)).toBe(false)
+  })
+
+  it('normalizes case, whitespace and edge punctuation on the synonym path', () => {
+    expect(checkGermanTranslationWithSynonyms('  Leisten. ', erzielen, pool)).toBe(true)
+  })
+
+  it('ignores a leading "to " when comparing English alternatives', () => {
+    const a = mkVerb('erzielen', 'to achieve / attain')
+    const b = mkVerb('leisten', 'achieve / accomplish')
+    expect(checkGermanTranslationWithSynonyms('leisten', a, [a, b])).toBe(true)
+  })
+
+  it('applies the "sich" leniency to synonym verbs too', () => {
+    const freuen = mkVerb('sich freuen', 'be happy / rejoice')
+    const gluecklichSein = mkVerb('glücklich sein', 'be happy')
+    expect(checkGermanTranslationWithSynonyms('freuen', gluecklichSein, [freuen, gluecklichSein])).toBe(true)
+  })
+
+  it('rejects empty input', () => {
+    expect(checkGermanTranslationWithSynonyms('', erzielen, pool)).toBe(false)
+  })
+
+  it('real dataset: erzielen and leisten accept each other via shared "achieve"', async () => {
+    const { VERBS } = await import('../../src/data/verbs')
+    const realErzielen = VERBS.find(v => v.german === 'erzielen')
+    const realLeisten = VERBS.find(v => v.german === 'leisten')
+    expect(realErzielen).toBeDefined()
+    expect(realLeisten).toBeDefined()
+    expect(checkGermanTranslationWithSynonyms('leisten', realErzielen!, VERBS)).toBe(true)
+    expect(checkGermanTranslationWithSynonyms('erzielen', realLeisten!, VERBS)).toBe(true)
+    expect(checkGermanTranslationWithSynonyms('gehen', realErzielen!, VERBS)).toBe(false)
   })
 })
 

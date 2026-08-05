@@ -1,7 +1,7 @@
 {
   "name": "german-trainer",
   "private": true,
-  "version": "1.17.01",
+  "version": "1.17.02",
   "type": "module",
   "scripts": {
     "dev": "vite",

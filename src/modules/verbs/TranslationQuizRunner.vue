@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVerbs } from '../../composables/useVerbs'
 import { shuffle } from '../../data/pool'
-import { checkTranslation, checkGermanTranslation, type TranslationDirection } from '../../composables/useVerbQuiz'
+import { checkTranslation, checkGermanTranslationWithSynonyms, type TranslationDirection } from '../../composables/useVerbQuiz'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { VERB_LEVELS, VERB_TYPES, VERB_CASES, type Verb, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
 import { getVerbTip } from '../../data/verb-tips'
@@ -25,7 +25,7 @@ function caseTagClass(c: string): string {
 
 const route = useRoute()
 const router = useRouter()
-const { sample } = useVerbs()
+const { sample, all } = useVerbs()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -151,7 +151,9 @@ function submitAll() {
     verb,
     input: answers.value[i],
     correct: direction.value === 'en-de'
-      ? checkGermanTranslation(answers.value[i], verb.german)
+      // Grade against the full verb list, not the deck: a synonym is a
+      // correct translation whether or not it was sampled this round.
+      ? checkGermanTranslationWithSynonyms(answers.value[i], verb, all())
       : checkTranslation(answers.value[i], verb.english)
   }))
   const finishedAt = Date.now()
@@ -202,7 +204,7 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
             <em class="hint-aside">Double-click a verb — or press Shift+R while typing — for an English hint that nudges you toward the meaning.</em>
           </p>
           <p v-else class="section-subtitle">
-            Type the German infinitive for each meaning. For reflexive verbs "sich" is optional. Press Enter to jump to the next line.
+            Type the German infinitive for each meaning. For reflexive verbs "sich" is optional, and where several verbs share a meaning any of them counts. Press Enter to jump to the next line.
           </p>
         </div>
         <button class="btn btn-quiet" type="button" @click="endQuiz">End quiz</button>
