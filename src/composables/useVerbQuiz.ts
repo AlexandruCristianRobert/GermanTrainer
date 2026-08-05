@@ -63,7 +63,7 @@ export function checkGermanTranslation(input: string, german: string): boolean {
   })
 }
 
-export function checkGermanTranslationWithSynonyms(input: string, verb: Verb, pool: Verb[]): boolean {
+export function checkGermanTranslationWithSynonyms(input: string, verb: Verb, pool: readonly Verb[]): boolean {
   // EN→DE prompts show only the English, so the learner cannot know which
   // of e.g. "erzielen"/"leisten" a shared "achieve" came from. Any pool verb
   // sharing at least one English alternative with the prompted verb is an
