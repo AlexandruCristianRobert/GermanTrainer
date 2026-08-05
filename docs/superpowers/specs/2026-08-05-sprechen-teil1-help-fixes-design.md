@@ -49,10 +49,13 @@ exploit. Fix:
 Teil 2's pattern: a persistent alert and the CTA disabled without a provider. A keyless
 learner must not be able to deliver a Vortrag that can never be graded.
 
-**F4 — The Nachfrage phase is persisted.** `saveNachfrage(id, { questionDe, answerDe: '' })`
-the moment the question arrives; the answer debounced into the same record; on mount, an
-`in_progress` row with a `nachfrage` restores `phase = 'nachfrage'` and the typed answer.
-No lost answers, no re-billed question calls on reload.
+**F4 — The Nachfrage phase and the prep screen are persisted.** `saveNachfrage(id,
+{ questionDe, answerDe: '' })` the moment the question arrives; the answer debounced into the
+same record; on mount, an `in_progress` row with a `nachfrage` restores `phase = 'nachfrage'`
+and the typed answer. No lost answers, no re-billed question calls on reload. And prep —
+which the Teil 1 spec made a route precisely so it would survive a reload — actually does:
+`plan` and `notes` are debounced into the sessionStorage stash as they are typed, so F5 no
+longer blanks five keywords and the notes.
 
 **F5 — The four unmatchable Vortragsmittel get explicit needles.** `redemittelNeedle` strips
 `…` and slices 24 chars, so `vm-kontrast-1` ("Einerseits …, andererseits …") produces the
