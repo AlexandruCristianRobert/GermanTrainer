@@ -54,7 +54,8 @@ export function weightedScore(wrong: number, seen: number): number {
   return seen > 0 ? (wrong / seen) * Math.log(seen) : 0
 }
 
-const REMEDIAL_TYPES = new Set(['prep-sentence', 'prep-remedial'])
+// packed runs (sentence-packed) pool their preposition/noun evidence here per ADR-0015
+const REMEDIAL_TYPES = new Set(['prep-sentence', 'prep-remedial', 'sentence-packed'])
 
 function emptyTagCounts(): Record<PrepErrorTag, number> {
   return { preposition: 0, case: 0, noun: 0, typo: 0 }

@@ -11,9 +11,11 @@ export interface DacWeakPoints {
   tagCounts: Record<DacErrorTag, number>
 }
 
-// Both AI drills feed this same weak-point computation: dac-sentence (T14/T15,
-// EN→DE only) and dac-answer (T17) — each reads its own meta key below.
-const DAC_HISTORY_TYPES = new Set(['dac-sentence', 'dac-answer'])
+// Three run types feed this same weak-point computation: dac-sentence
+// (T14/T15, EN→DE only), dac-answer (T17), and sentence-packed (packed runs
+// pool their da-compound evidence here per ADR-0015) — each reads its own
+// meta key below (itemsFor).
+const DAC_HISTORY_TYPES = new Set(['dac-sentence', 'dac-answer', 'sentence-packed'])
 // A miss blames the collocation/preposition unless it was purely the noun's
 // fault. 'word-order' (T17: verb-second violated, or the compound/reflexive/
 // object misplaced) is a grammar fault on the collocation's construction, same

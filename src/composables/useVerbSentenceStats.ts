@@ -11,7 +11,8 @@ export interface VerbWeakPoints {
   tagCounts: Record<VerbErrorTag, number>
 }
 
-const VERB_REMEDIAL_TYPES = new Set(['verb-sentence', 'verb-remedial'])
+// packed runs (sentence-packed) pool their verb/noun evidence here per ADR-0015
+const VERB_REMEDIAL_TYPES = new Set(['verb-sentence', 'verb-remedial', 'sentence-packed'])
 // A miss blames the verb unless it was purely a noun's fault.
 const VERB_FAULT_TAGS: VerbErrorTag[] = ['conjugation', 'case', 'word-order', 'typo']
 
