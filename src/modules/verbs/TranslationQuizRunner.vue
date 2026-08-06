@@ -8,6 +8,7 @@ import { saveQuizRun } from '../../composables/useQuizHistory'
 import { VERB_LEVELS, VERB_TYPES, VERB_CASES, type Verb, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
 import { getVerbTip } from '../../data/verb-tips'
 import BedeutungsfeldRunner from './BedeutungsfeldRunner.vue'
+import PraeziseRunner from './PraeziseRunner.vue'
 
 function typeTagClass(t: string): string {
   if (t === 'irregular') return 'tag-clay'
@@ -45,6 +46,8 @@ function resolveDirection(): TranslationDirection {
 const loading = ref(true)
 const error = ref<string | null>(null)
 const direction = ref<TranslationDirection>(resolveDirection())
+// direction resolution stays; retry rounds have no variant → Bedeutungsfeld, by design
+const praezise = computed(() => route.query.retry !== '1' && route.query.variant === 'praezise')
 const deck = ref<Verb[]>([])
 const answers = ref<string[]>([])
 const startedAt = ref<number>(0)
@@ -193,7 +196,8 @@ function endQuiz() { router.push({ name: 'verbs-translation' }) }
 </script>
 
 <template>
-  <BedeutungsfeldRunner v-if="direction === 'en-de'" />
+  <PraeziseRunner v-if="direction === 'en-de' && praezise" />
+  <BedeutungsfeldRunner v-else-if="direction === 'en-de'" />
 
   <div v-else-if="loading" class="page loading-state"><div class="micro-mark">Loading…</div></div>
 

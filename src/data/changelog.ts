@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.18.01'
+export const APP_VERSION = '1.18.02'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.18.02', date: '2026-08-06', kind: 'polish',
+    title: 'Übersetzen · die Präzise-Variante',
+    notes: [
+      '<strong>EN → DE kennt jetzt zwei Varianten.</strong> Das <em>Bedeutungsfeld</em> bleibt großzügig: eine Bedeutung, jedes ihrer Verben zählt. Neu ist <em>Präzise</em>: die Bedeutung kommt mit ihrer Situation — <em>accept (an offer, an invitation)</em> verlangt <em>annehmen</em>, und <em>akzeptieren</em> wäre falsch. Umschaltbar in der Einrichtung unter „Variante".',
+      '<strong>Falsche Geschwister werden erklärt.</strong> Wer bei <em>accept (a fact …)</em> „annehmen" tippt, erfährt sofort, zu welcher Situation das getippte Verb wirklich gehört — genau der Moment, in dem der Unterschied hängen bleibt.',
+      '<strong>Echte Zwillinge bleiben zusammen.</strong> Wo keine Situation zwei Verben trennt (<em>anfangen/beginnen</em>), zählt jedes von beiden — niemand wird für ein richtiges Verb bestraft. Ein Verb mit mehreren Lesarten bringt jede als eigene Karte mit — das Deck kann also etwas größer sein als die gewählte Verbenzahl.'
+    ]
+  },
   {
     version: '1.18.01', date: '2026-08-06', kind: 'polish',
     title: 'Der Satz · jeder Hinweis verrät etwas',

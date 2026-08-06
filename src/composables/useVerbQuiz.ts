@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import type { Verb, VerbTense } from '../data/verbs'
 import { conjugate } from './conjugate'
+import { VERB_SENSES, buildMeaningMembers, englishAlternativesOf, senseLookup, type MeaningSenses } from '../data/verb-senses'
 
 // ───── Translation mode ─────────────────────────────────────────────
 
@@ -28,7 +29,7 @@ function stripEdgePunctuation(s: string): string {
   return s.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '')
 }
 
-function normalizeTranslation(s: string): string {
+export function normalizeTranslation(s: string): string {
   let n = stripEdgePunctuation(stripParens(s).trim().replace(/\s+/g, ' ').toLowerCase())
   if (n.startsWith('to ')) n = n.slice(3).trim()
   return n
@@ -105,6 +106,110 @@ export function buildMeaningFields(pool: readonly Verb[], allVerbs: readonly Ver
     fields.push({ prompt: v.english, members })
   }
   return fields
+}
+
+// ───── EN→DE Präzise (sense cards) ──────────────────────────────────
+
+export interface SenseCard {
+  /** English prompt — the meaning, or the joined unambiguous alternatives on a plain card. */
+  meaning: string
+  /** Situation cue (no parens) — null on a plain card or lenient fallback. */
+  cue: string | null
+  /** Acceptable verbs, resolved to records; every one counts. */
+  verbs: Verb[]
+}
+
+/**
+ * One card per sense each sampled verb carries, plus one plain card for a
+ * verb's unambiguous alternatives. A sense appears at most once per deck.
+ *
+ * Authored sense entries are the source of truth: if a meaning has an entry
+ * in the senses parameter, that entry's cards are emitted regardless of how
+ * many verbs in the collection carry the meaning (the dataset guard ensures
+ * shipped entries are genuinely ambiguous). Only meanings WITHOUT an authored
+ * entry fall back to collection-wide ambiguity: a lone carrier joins the
+ * verb's plain card; multiple carriers degrade to one lenient card.
+ */
+export function buildSenseDeck(
+  sampled: readonly Verb[],
+  allVerbs: readonly Verb[],
+  senses: readonly MeaningSenses[] = VERB_SENSES
+): SenseCard[] {
+  const members = buildMeaningMembers(allVerbs)
+  const byGerman = new Map(allVerbs.map(v => [v.german, v]))
+  const lookup = senseLookup(senses)
+  const cards: SenseCard[] = []
+  const seenSense = new Set<string>()
+  for (const v of sampled) {
+    const plainAlts: string[] = []
+    for (const alt of englishAlternativesOf(v.english)) {
+      const entry = lookup.get(alt)
+      if (entry) {
+        // Has sense entry, use it
+        for (const s of entry.senses) {
+          if (!s.verbs.includes(v.german)) continue
+          const key = `${alt}|${s.cue}`
+          if (seenSense.has(key)) continue
+          seenSense.add(key)
+          cards.push({
+            meaning: alt,
+            cue: s.cue,
+            verbs: s.verbs.map(g => byGerman.get(g)).filter((x): x is Verb => !!x)
+          })
+        }
+      } else {
+        // No sense entry, use verb data
+        const carriers = members.get(alt) ?? [v.german]
+        if (carriers.length < 2) {
+          plainAlts.push(alt)
+        } else {
+          // Ambiguous with no entry, create lenient card
+          if (seenSense.has(alt)) continue
+          seenSense.add(alt)
+          cards.push({
+            meaning: alt,
+            cue: null,
+            verbs: carriers.map(g => byGerman.get(g)).filter((x): x is Verb => !!x)
+          })
+        }
+      }
+    }
+    if (plainAlts.length > 0) {
+      cards.push({ meaning: plainAlts.join(' / '), cue: null, verbs: [v] })
+    }
+  }
+  return cards
+}
+
+/** The matching verb when the input names any acceptable verb of the card. */
+export function checkSenseAnswer(input: string, card: SenseCard): Verb | null {
+  return card.verbs.find(v => checkGermanTranslation(input, v.german)) ?? null
+}
+
+export type SenseMiss =
+  | { kind: 'sibling'; verb: Verb; cue: string }
+  | { kind: 'other'; verb: Verb }
+  | { kind: 'unknown' }
+
+/**
+ * Why a Präzise answer missed: a sibling verb from another sense of the same
+ * meaning (the teaching payoff — named with that sense's cue), some other
+ * known verb, or a word the pool doesn't know.
+ */
+export function explainSenseMiss(
+  input: string,
+  card: SenseCard,
+  allVerbs: readonly Verb[],
+  senses: readonly MeaningSenses[] = VERB_SENSES
+): SenseMiss {
+  const typed = allVerbs.find(v => checkGermanTranslation(input, v.german))
+  if (!typed) return { kind: 'unknown' }
+  if (card.cue !== null) {
+    const entry = senseLookup(senses).get(card.meaning)
+    const sibling = entry?.senses.find(s => s.cue !== card.cue && s.verbs.includes(typed.german))
+    if (sibling) return { kind: 'sibling', verb: typed, cue: sibling.cue }
+  }
+  return { kind: 'other', verb: typed }
 }
 
 export function useTranslationQuiz(verbs: Verb[]) {

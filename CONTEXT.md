@@ -82,6 +82,22 @@ _Avoid_: practice mode, review quiz, custom quiz
 A label naming one frequency-ordered batch of the verb pool (`A1`, `A2`, `B1`, `B2.1`, `B2.2`). Verbs are admitted by corpus frequency — each level is "the next most frequent verbs not yet in the pool", named for the CEFR stage it roughly serves, not an official CEFR classification; `B2.1` and `B2.2` are the first and second batches of the advanced pool.
 _Avoid_: CEFR level (the learner-assessment scale is separate), difficulty, tier
 
+**Verb translation**:
+The word-level verb drill: one card, one prompt, no sentence. `DE→EN` ("Blatt") shows the German infinitive and asks for the English; `EN→DE` comes in two variants — [Bedeutungsfeld] and [Präzise] — chosen at setup as the **Variante**. A run records as one history type whichever direction and Variante it used. Distinct from the [Verb sentence quiz], which drills verbs inside AI-generated sentences.
+_Avoid_: translation quiz (ambiguous across drills), vocabulary quiz
+
+**Bedeutungsfeld**:
+The lenient `EN→DE` variant of [Verb translation]: one card shows one bare English meaning, and *any* pool verb carrying that meaning is accepted — naming one member of the meaning's field wins the card.
+_Avoid_: level 1, meaning-field mode, synonym quiz
+
+**Präzise**:
+The exacting `EN→DE` variant of [Verb translation]: one card per [Sense] — the English meaning arrives narrowed by a situation, and only a verb fitting *that* situation counts; [Bedeutungsfeld] siblings belonging to a different sense are rejected. Draws from the whole filtered pool: a meaning only one pool verb carries is a plain exact card (no situation cue needed), so Präzise covers the same vocabulary as [Bedeutungsfeld], just strictly. A sampled verb is drilled in *every* sense it carries — so a deck may hold more cards than sampled verbs — and a sense appears at most once per deck, however many of its verbs were sampled. A miss answered with a sibling from another sense of the same meaning is named as such on the reveal, cue and all — the teaching payoff, in the spirit of the [Core-idea explanation]. Deliberately not called a "level": [Verb level] means the frequency batches.
+_Avoid_: level 2, exact mode, strict mode
+
+**Sense** (de Lesart):
+One situation-specific reading of an English meaning — the unit a [Präzise] card drills: a *situation cue* (a short parenthetical English narrowing, e.g. *accept (a fact, grudgingly)*) plus the set of verbs that fit that situation **equally** — usually exactly one, occasionally more (*anfangen/beginnen* both fit "begin (doing something)"), every one graded correct. The verb analogue of the interchangeable [Prepositional collocation]: where no situation can split two verbs, they share one sense rather than being forced apart by an artificial cue.
+_Avoid_: situation (that is the cue, not the unit), meaning (the un-narrowed prompt), translation, variant
+
 **Verb sentence quiz**:
 An AI-generated EN→DE translation drill for verbs, the verb counterpart of the preposition sentence quiz. The learner picks a verb pool (level + type + governed case) and a noun theme; the app samples verbs, the AI writes an English+German sentence pair per item using 1–2 [Drilled verb]s and 1–2 [Assigned theme noun]s, the learner types or speaks the German (see [Modality]), and the AI grades it. Either [Modality] can play the reference sentence aloud on demand once a card is graded — that is output, not input, so it is not part of the Modality distinction. Distinct from the older word-level **Verb translation** (infinitive ↔ English) and **Verb conjugation** drills, which it does not replace.
 _Avoid_: verb translation (means the word-level drill), sentence builder
