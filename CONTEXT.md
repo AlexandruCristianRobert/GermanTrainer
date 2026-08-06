@@ -15,7 +15,7 @@ How a typed answer is judged: `AI` (meaning-aware verdict plus a coaching tip) o
 _Avoid_: checking, scoring method
 
 **Word hint**:
-A highlighted word in the *source* sentence of a translation prompt that reveals its target-language vocabulary on demand (hover, tap, or keyboard focus). A scaffold, not the answer — it reveals the dictionary form, leaving any inflection to the learner. EN→DE only. Scope depends on the drill: the preposition sentence quiz hints the preposition and the assigned theme nouns only (German built from stored data); the [Verb sentence quiz] hints every drilled verb and *every* noun (assigned and incidental), and the German for incidental words is supplied by the AI, not stored data.
+A highlighted word in the *source* sentence of a translation prompt that reveals its target-language vocabulary on demand (hover, tap, or keyboard focus). A scaffold, not the answer — it reveals the dictionary form, leaving any inflection to the learner. EN→DE only. Scope depends on the drill: the preposition sentence quiz hints the preposition and the assigned theme nouns only (German built from stored data); the [Verb sentence quiz] hints every drilled verb and *every* noun (assigned and incidental), and the German for incidental words is supplied by the AI, not stored data; the [Sentence quiz] highlights every drilled item of every category (both parts of a two-part [Connector] included) but reveals German only for verbs and nouns — for a preposition, [Da-compound], or [Connector] the dictionary form would be the graded answer itself, so those spans mark without revealing.
 _Avoid_: tooltip, popover, reveal, clue
 
 ### Prepositions
@@ -69,7 +69,7 @@ A classification the grader assigns to a wrong sentence-translation answer, nami
 _Avoid_: error type, mistake category, error reason
 
 **Weak point**:
-A preposition, assigned theme noun, or [Drilled verb] the learner fails disproportionately often, surfaced from recorded sentence-translation attempts. The basis for suggesting targeted remedial practice.
+A preposition, assigned theme noun, [Drilled verb], [Prepositional collocation], [Adverb pair], or [Connector] the learner fails disproportionately often, surfaced from recorded sentence-translation attempts. Evidence pools across drills: a verb missed in the [Sentence quiz] and one missed in the [Verb sentence quiz] count toward the same weak point. The basis for suggesting targeted remedial practice.
 _Avoid_: weakness, problem area, trouble word
 
 **Remedial drill**:
@@ -141,6 +141,22 @@ _Avoid_: perspective error, compound error (the da-compounds tag)
 **Scene diagram**:
 A schematic picture shown with a Direction Words drill card that fixes where the speaker stands and which way the motion goes — the information the perspective rule needs and the sentence alone may not give. Drawn from a small set of reusable scene archetypes (stairs, doorway, window, street, hill, room); its one-line text description doubles as the accessible fallback.
 _Avoid_: illustration, image, picture hint
+
+### Sentence
+
+**Sentence quiz**:
+The Sentence module's mixed drill: the learner sets a per-card count for each drilled category — [Drilled verb]s (filtered by level, type, and [Verb case government]), [Assigned theme noun]s, prepositions, [Da-compound]s, and [Connector]s — and how many [Packed card]s to generate; each card samples fresh words from the chosen pools and the AI writes a sentence pair containing them all. Translated EN→DE or DE→EN ([Direction]), typed or spoken ([Modality]), always AI-graded ([Grading mode] is not offered). EN→DE answers are graded per drilled item with the union of the single-category drills' error tags plus `connector`, and feed the same [Weak point]s those drills feed; DE→EN is judged on meaning alone and feeds nothing. Unqualified "sentence quiz" means this drill; the single-category drills keep their qualified names ([Verb sentence quiz], preposition sentence quiz). Direction Words are deliberately not a category here.
+_Avoid_: mixed quiz, combined test, sentence translation (ambiguous across the five sentence drills)
+
+**Packed card**:
+One generated unit of the [Sentence quiz]: a sentence pair containing *every* item the card's category counts call for — normally 1–2 sentences, stretching to a short text of 3–4 when no natural 1–2-sentence packing exists. The stretch is the generator's call, never the learner's. Budgeted: at most 8 drilled items per card (each category 0–3, connectors 0–2), with a warning above 6 that cards will stretch — dense cards trade naturalness for coverage, which is why the budget exists.
+_Avoid_: question, sentence (a card may be several), passage (that is only the stretched form)
+
+### Connectors
+
+**Connector** (Konnektor):
+A clause-joining word the [Sentence quiz] can be asked to weave into a [Packed card] — *aber*, *sondern*, *jedoch*, *deshalb*, *obwohl*, and kin. Grouped along two axes: by **meaning family** (adversative, causal, concessive, …), which is how the learner filters them, and by **grammatical behavior** — position-0 coordinating conjunction (*aber, sondern, denn, oder, und*: no effect on word order), inverting conjunctive adverb (*jedoch, trotzdem, dennoch, deshalb, allerdings*: verb comes straight after), or verb-final subordinator (*obwohl, weil, während*). The behavior axis is part of what grading judges: using *jedoch* with *aber*'s word order is a word-order error, and mixing the two behaviors is the drill's deliberate trap. A connector may be **two-part** (correlative) — *sowohl … als auch*, *nicht nur … sondern auch*, *entweder … oder*, *zwar … aber* — one connector with two placements, both of which must land correctly.
+_Avoid_: adversative (one meaning family, not the category), conjunction (one grammatical behavior, not the category), linking word, transition word
 
 ### Sprechen
 

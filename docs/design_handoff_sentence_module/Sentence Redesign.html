@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Satz · Zwei Entwürfe — German Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+<link rel="stylesheet" href="styles.css?v=25" />
+<link rel="stylesheet" href="styles-modules.css?v=1" />
+<link rel="stylesheet" href="styles-sentence-redesign.css?v=1" />
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#5C7A52"/><text x="50" y="62" font-family="Georgia,serif" font-size="34" fill="#f4efe6" text-anchor="middle" font-style="italic">Sz</text></svg></template>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="sn-data.js"></script>
+<script type="text/babel" src="sn-shared.jsx"></script>
+<script type="text/babel" src="sentence-a.jsx"></script>
+<script type="text/babel" src="sentence-b.jsx"></script>
+<script type="text/babel">
+const SN_DEMO_TOGGLES = [
+  { id: 'aiMissing', label: 'KI-Schlüssel fehlt' },
+  { id: 'offline', label: 'Offline-Bewertung' },
+  { id: 'noMic', label: 'Kein Mikrofon' },
+  { id: 'shortfall', label: 'Generierungs-Engpass' },
+];
+function SnShell() {
+  const [v, setV] = React.useState(() => { try { return localStorage.getItem('sn:variant') || 'a'; } catch (e) { return 'a'; } });
+  const [runKey, setRunKey] = React.useState(0);
+  const [demo, setDemo] = React.useState({ aiMissing: false, offline: false, noMic: false, shortfall: false });
+  const pick = x => { setV(x); setRunKey(runKey + 1); try { localStorage.setItem('sn:variant', x); } catch (e) {} };
+  const tglDemo = id => setDemo({ ...demo, [id]: !demo[id] });
+  return (
+    <div className="sn-page">
+      <header className="section-header" style={{ marginBottom: 0 }}>
+        <div>
+          <div className="breadcrumb">Kapitel XII · Sätze · Redesign-Studie</div>
+          <h1 className="section-title">Der gepackte Satz<em>.</em></h1>
+          <p className="section-subtitle">
+            Ein Drill, alle Kategorien: pro Karte schreibt die KI einen Satz, der jede bestellte
+            Zutat enthält — Verben, Nomen, Präpositionen, da-Komposita, Konnektoren. Zwei Entwürfe
+            für Einrichtung, Runde und Auswertung; beide voll durchspielbar.
+          </p>
+        </div>
+        <button className="btn btn-quiet" onClick={() => setRunKey(runKey + 1)}>Neu starten</button>
+      </header>
+
+      <div className="sn-switch" data-screen-label="Variantenwahl">
+        <div className="segmented">
+          <button className={v === 'a' ? 'active' : ''} onClick={() => pick('a')}>A · Das Register</button>
+          <button className={v === 'b' ? 'active' : ''} onClick={() => pick('b')}>B · Der Setzkasten</button>
+        </div>
+        <span className="sn-switch-d">
+          {v === 'a'
+            ? 'Eine redaktionelle Spalte: Kategorien als Registerzeilen mit 0-1-2-3, das Budget als stilles, klebendes Band. Im Runner bleibt die Suchliste anonym — Hinweise als Unterstreichungen.'
+            : 'Der Karten-Bauplan als Blaupause oben: Lettern füllen acht Fächer. Steppern statt Segmenten, ein Filter-Tray, Konnektor-Wörter mit Grammatik-Marke. Im Runner eine benannte Suchliste am Rand — Hinweise als Farbflächen.'}
+        </span>
+      </div>
+
+      <div className="sn-stage" data-screen-label={v === 'a' ? 'Version A Das Register' : 'Version B Der Setzkasten'}>
+        {v === 'a' ? <SentenceA key={'a' + runKey} demo={demo} /> : <SentenceB key={'b' + runKey} demo={demo} />}
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('app')).render(<SnShell />);
+</script>
+</body>
+</html>
