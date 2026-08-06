@@ -154,6 +154,8 @@ export interface QuizHistoryMeta {
   roles?: string[]   // Fixed prepositions drill: collocation word types (verb/adjective/noun)
   tenses?: string[]
   verbDirection?: 'de-en' | 'en-de'
+  /** Verb translation EN→DE Variante; absent on DE→EN and on runs before it existed (= bedeutungsfeld). */
+  variant?: 'bedeutungsfeld' | 'praezise'
   prepLevels?: string[]
   prepCases?: string[]
 
