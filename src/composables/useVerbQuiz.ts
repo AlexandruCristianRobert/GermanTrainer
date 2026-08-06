@@ -122,9 +122,13 @@ export interface SenseCard {
 /**
  * One card per sense each sampled verb carries, plus one plain card for a
  * verb's unambiguous alternatives. A sense appears at most once per deck.
- * Ambiguity is judged against the whole collection, like meaningField.
- * An ambiguous meaning without an authored entry (the guard test forbids it,
- * but stay robust) degrades to one lenient Bedeutungsfeld-style card.
+ *
+ * Authored sense entries are the source of truth: if a meaning has an entry
+ * in the senses parameter, that entry's cards are emitted regardless of how
+ * many verbs in the collection carry the meaning (the dataset guard ensures
+ * shipped entries are genuinely ambiguous). Only meanings WITHOUT an authored
+ * entry fall back to collection-wide ambiguity: a lone carrier joins the
+ * verb's plain card; multiple carriers degrade to one lenient card.
  */
 export function buildSenseDeck(
   sampled: readonly Verb[],
