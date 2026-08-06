@@ -683,3 +683,36 @@ export function buildPackedMetaItems(
   }
   return meta
 }
+
+// ───────────────────────── Result surface (Task 9) ─────────────────────
+
+export interface CardOutcome {
+  card: GeneratedPackedCard
+  answer: string
+  verdict: PackedVerdict
+  items: PackedItemResult[] | null   // null on DE→EN (meaning-only)
+  tip?: string
+  offline: boolean
+}
+
+export interface PackedAggregate {
+  cat: Record<PackedCategory, { ok: number; n: number }>
+  tags: Partial<Record<PackedTag, number>>
+}
+
+export function aggregateOutcomes(history: readonly CardOutcome[]): PackedAggregate {
+  const cat = Object.fromEntries(PACKED_CATS.map(c => [c, { ok: 0, n: 0 }])) as PackedAggregate['cat']
+  const tags: PackedAggregate['tags'] = {}
+  for (const h of history) {
+    if (!h.items) continue
+    const byKey = new Map(h.card.items.map(i => [i.key, i]))
+    for (const r of h.items) {
+      const it = byKey.get(r.key)
+      if (!it) continue
+      cat[it.cat].n++
+      if (r.correct) cat[it.cat].ok++
+      else if (r.tags) for (const t of r.tags) tags[t] = (tags[t] ?? 0) + 1
+    }
+  }
+  return { cat, tags }
+}
