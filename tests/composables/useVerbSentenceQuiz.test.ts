@@ -6,9 +6,9 @@ import type { NounRef } from '../../src/composables/useSentenceQuiz'
 import type { Verb } from '../../src/data/verbs'
 
 const VERBS_FIX: VerbRef[] = [
-  { german: 'gehen', english: 'go', level: 'A1' },
-  { german: 'machen', english: 'make / do', level: 'A1' },
-  { german: 'verstehen', english: 'understand', level: 'A2' }
+  { german: 'gehen', english: 'go', level: 'A1', case: 'none' },
+  { german: 'machen', english: 'make / do', level: 'A1', case: 'accusative' },
+  { german: 'verstehen', english: 'understand', level: 'A2', case: 'accusative' }
 ]
 const NOUNS_FIX: NounRef[] = [
   { german: 'Tisch', article: 'der', english: 'table' },
@@ -21,9 +21,9 @@ function seqRng(values: number[]): () => number {
 }
 
 describe('verbToRef', () => {
-  test('projects a Verb to the lean ref', () => {
-    const v = { german: 'gehen', english: 'go', level: 'A1' } as Verb
-    expect(verbToRef(v)).toEqual({ german: 'gehen', english: 'go', level: 'A1' })
+  test('projects a Verb to the lean ref, including its case', () => {
+    const v = { german: 'gehen', english: 'go', level: 'A1', case: 'none' } as Verb
+    expect(verbToRef(v)).toEqual({ german: 'gehen', english: 'go', level: 'A1', case: 'none' })
   })
 })
 
@@ -57,6 +57,39 @@ describe('buildVerbSpecs', () => {
     const specs = buildVerbSpecs([], NOUNS_FIX, 2, 1, 1, seqRng([0]))
     expect(specs).toHaveLength(2)
     expect(specs[0].verbs).toEqual([])
+  })
+  test('no tenses param → specs carry no tense field (today’s behaviour)', () => {
+    const specs = buildVerbSpecs(VERBS_FIX, NOUNS_FIX, 3, 1, 1, seqRng([0]))
+    for (const s of specs) expect(s.tense).toBeUndefined()
+  })
+  test('tenses cycle evenly: 4 specs × 2 tenses → each tense exactly twice', () => {
+    const specs = buildVerbSpecs(VERBS_FIX, NOUNS_FIX, 4, 1, 1, seqRng([0]), ['praesens', 'perfekt'])
+    const counts = new Map<string, number>()
+    for (const s of specs) {
+      expect(['praesens', 'perfekt']).toContain(s.tense)
+      counts.set(s.tense!, (counts.get(s.tense!) ?? 0) + 1)
+    }
+    expect(counts.get('praesens')).toBe(2)
+    expect(counts.get('perfekt')).toBe(2)
+  })
+  test('passive tense specs draw only accusative-capable verbs', () => {
+    const specs = buildVerbSpecs(VERBS_FIX, NOUNS_FIX, 6, 1, 1, seqRng([0, 0.3, 0.7]), ['passivPraesens'])
+    for (const s of specs) {
+      expect(s.tense).toBe('passivPraesens')
+      for (const v of s.verbs) {
+        expect(v.case === 'accusative' || v.case === 'dative+accusative').toBe(true)
+      }
+    }
+  })
+  test('passive tenses are dropped when the pool has no accusative verbs', () => {
+    const noAcc: VerbRef[] = [{ german: 'gehen', english: 'go', level: 'A1', case: 'none' }]
+    const specs = buildVerbSpecs(noAcc, NOUNS_FIX, 3, 1, 1, seqRng([0]), ['praesens', 'passivPraesens'])
+    for (const s of specs) expect(s.tense).toBe('praesens')
+  })
+  test('only passive selected + no accusative verbs → specs carry no tense (natural fallback)', () => {
+    const noAcc: VerbRef[] = [{ german: 'gehen', english: 'go', level: 'A1', case: 'none' }]
+    const specs = buildVerbSpecs(noAcc, NOUNS_FIX, 2, 1, 1, seqRng([0]), ['passivPraesens'])
+    for (const s of specs) expect(s.tense).toBeUndefined()
   })
 })
 

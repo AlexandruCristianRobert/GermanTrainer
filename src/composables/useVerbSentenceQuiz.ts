@@ -8,8 +8,8 @@
 // (ADR-0003). The learner reads the English and types the German.
 
 import { shuffle } from '../data/pool'
-import { VERB_LEVELS, verbLevelToCefr } from '../data/verbs'
-import type { Verb, VerbLevel } from '../data/verbs'
+import { VERB_LEVELS, verbLevelToCefr, PASSIVE_TENSE_SET } from '../data/verbs'
+import type { Verb, VerbLevel, VerbCase, VerbTense } from '../data/verbs'
 import type { NounRef, HintInput } from './useSentenceQuiz'
 import type { AiClient } from './useClaude'
 import type { VerbErrorTag, VerbDrillItem } from './useQuizHistory'
@@ -21,6 +21,9 @@ export interface VerbRef {
   german: string   // infinitive / dictionary form
   english: string  // gloss, e.g. "go" or "make / do"
   level: VerbLevel
+  /** Object case — passive-eligibility check in buildVerbSpecs. Optional:
+   *  stashed specs from before this field existed lack it. */
+  case?: VerbCase
 }
 
 export type WordsPer = 1 | 2 | 'mix'
@@ -33,6 +36,8 @@ export interface VerbSentenceSpec {
   index: number
   verbs: VerbRef[]
   nouns: NounRef[]
+  /** Required German form for the sentence; absent → the model varies naturally. */
+  tense?: VerbTense
 }
 
 /** A noun/verb the AI introduced for naturalness, with its German to reveal. */
@@ -66,7 +71,7 @@ export interface VerbSentenceVerdict {
 
 /** Project a stored Verb to the lean ref the prompt needs. */
 export function verbToRef(v: Verb): VerbRef {
-  return { german: v.german, english: v.english, level: v.level }
+  return { german: v.german, english: v.english, level: v.level, case: v.case }
 }
 
 /** A refilling shuffled bag: draws spread the pool before any repeat. */
@@ -96,6 +101,8 @@ function drawUnique<T>(next: () => T | null, k: number, key: (t: T) => string): 
 /**
  * Build `count` specs, each with `verbsPer` distinct drilled verbs and
  * `nounsPer` distinct theme nouns drawn from refilling bags (good spread).
+ * When `tenses` is given, each spec is also assigned a tense from its own
+ * refilling bag (even spread); passive specs draw accusative-capable verbs.
  */
 export function buildVerbSpecs(
   verbPool: readonly VerbRef[],
@@ -103,19 +110,30 @@ export function buildVerbSpecs(
   count: number,
   verbsPer: WordsPer,
   nounsPer: WordsPer,
-  rng: () => number = Math.random
+  rng: () => number = Math.random,
+  tenses?: readonly VerbTense[]
 ): VerbSentenceSpec[] {
+  // Passive needs a passivizable (accusative-capable) verb. The setup screen
+  // gates this too; this is the backstop for direct callers.
+  const accusativePool = verbPool.filter(v => v.case === 'accusative' || v.case === 'dative+accusative')
+  const usableTenses = (tenses ?? []).filter(t => !PASSIVE_TENSE_SET.has(t) || accusativePool.length > 0)
+  const nextTense = usableTenses.length > 0 ? makeBag(usableTenses, rng) : null
   const nextVerb = makeBag(verbPool, rng)
+  const nextAccVerb = makeBag(accusativePool, rng)
   const nextNoun = makeBag(nounPool, rng)
   const specs: VerbSentenceSpec[] = []
   for (let index = 0; index < count; index++) {
     const kv = verbsPer === 'mix' ? (rng() < 0.5 ? 1 : 2) : verbsPer
     const kn = nounsPer === 'mix' ? (rng() < 0.5 ? 1 : 2) : nounsPer
-    specs.push({
+    const tense = nextTense ? nextTense() : null
+    const passive = tense !== null && PASSIVE_TENSE_SET.has(tense)
+    const spec: VerbSentenceSpec = {
       index,
-      verbs: drawUnique(nextVerb, kv, v => v.german),
+      verbs: drawUnique(passive ? nextAccVerb : nextVerb, kv, v => v.german),
       nouns: drawUnique(nextNoun, kn, n => n.german)
-    })
+    }
+    if (tense !== null) spec.tense = tense
+    specs.push(spec)
   }
   return specs
 }
