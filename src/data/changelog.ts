@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.17.03'
+export const APP_VERSION = '1.18.00'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,17 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.18.00', date: '2026-08-06', kind: 'module',
+    title: 'Der Satz · fünf Kategorien, eine Karte',
+    notes: [
+      '<strong>Kapitel XII: der gepackte Satz.</strong> Du bestellst pro Karte, was drin sein muss — bis zu drei Verben, drei Nomen, drei Präpositionen, drei da-Komposita und zwei Konnektoren, höchstens acht Zutaten insgesamt — und die KI schreibt <em>einen</em> Satz, der alles enthält. Normalerweise ein bis zwei Sätze; wer die Karte vollpackt, bekommt einen Kurztext von drei bis vier. Jede Karte zieht frische Wörter.',
+      '<strong>Konnektoren sind ab jetzt Prüfungsstoff.</strong> Eine neue Sammlung von fast vierzig Wörtern in sechs Bedeutungsfamilien — Gegensatz, Grund &amp; Folge, Einräumung, Zeit, Wahl, Hinzufügung — jedes mit seiner Wortstellungsregel: <em>aber</em> lässt alles stehen, <em>jedoch</em> erzwingt Inversion, <em>obwohl</em> schickt das Verb ans Ende. Zweiteilige Paare wie <em>sowohl … als auch</em> und <em>je … desto</em> zählen als ein Item mit zwei Fundstellen — und <em>je … desto</em> verlangt an jeder Stelle eine andere Wortstellung.',
+      '<strong>„Verb + Dativ" gezielt üben.</strong> Der Verb-Filter kennt die Rektion: nur Dativ-Verben anwählen, und jede Karte fragt genau das ab. Nach der Bewertung trägt jedes Verb sein Kasus-Schild — <em>warten + Akk</em> — damit hängen bleibt, was das Verb von seinem Objekt will.',
+      '<strong>Bewertet wird jede Zutat einzeln.</strong> Die KI prüft Item für Item und vergibt Fehler-Tags von <code>conjugation</code> bis <code>connector</code>; die Karte gilt nur dann als richtig, wenn <em>alles</em> saß — „Teils richtig" wandert mit in die Übungsrunde, die wie überall nichts in den Verlauf schreibt. Wort-Hinweise markieren jede bestellte Zutat, verraten aber nur bei Verben und Nomen das Deutsche: bei Präposition, da-Kompositum und Konnektor <em>wäre</em> die Antwort der Hinweis.',
+      '<strong>Die Schwachstellen fließen zusammen.</strong> Ein Verb, das im gepackten Satz danebengeht, zählt zu denselben Verb-Schwachstellen wie im Satz-Drill des Verb-Moduls — Präpositionen und Kollokationen genauso. Konnektoren bekommen ihre eigene Liste im Verlauf. DE → EN gibt es auch, bewusst leichter: nur Bedeutungs-Bewertung, ohne Tags und ohne Hinweise. Gesprochen statt getippt geht wie beim Verb-Satz — Leertaste nimmt auf, die ganze Übersetzung am Stück.'
+    ]
+  },
   {
     version: '1.17.03', date: '2026-08-05', kind: 'module',
     title: 'Übersetzung · EN→DE wird zum Bedeutungsfeld',
