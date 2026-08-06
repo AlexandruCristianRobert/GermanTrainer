@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.18.00'
+export const APP_VERSION = '1.18.01'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.18.01', date: '2026-08-06', kind: 'polish',
+    title: 'Der Satz · jeder Hinweis verrät etwas',
+    notes: [
+      '<strong>Alle Hinweise zeigen jetzt ihr Deutsch.</strong> Im gepackten Satz verrät jede markierte Zutat auf Antippen, was gefragt ist: das Verb mit seiner Rektion (<em>warten + Akk</em>), die Präposition mit ihrem Kasus (<em>seit + Dat</em>), das da-Kompositum als fertiges Wort (<em>darauf</em>), der Konnektor mit seiner Wortstellungsregel (<em>aber — Wortstellung bleibt</em>; Paare zeigen die volle Form <em>sowohl … als auch</em>). Wer bei Präposition, da-Kompositum oder Konnektor nachschaut, schaut bewusst in die Antwort — der Hinweis-Schalter in der Einrichtung schaltet weiterhin alles zusammen ab.',
+      '<strong>Jedes Nomen trägt sein Genus.</strong> Auch die Nomen, die die KI nur für den natürlichen Satz dazuerfindet, sind jetzt markiert — dezenter unterstrichen als die bestellten — und verraten Artikel + Nomen (<em>der Bahnhof</em>), damit das Genus nebenbei hängen bleibt.',
+      '<strong>Hinweis-Fenster bleiben im Bild.</strong> Am Bildschirmrand konnte das kleine Fenster bisher aus dem sichtbaren Bereich ragen; jetzt schiebt es sich selbst zurück — gerade auf dem Handy wichtig.'
+    ]
+  },
   {
     version: '1.18.00', date: '2026-08-06', kind: 'module',
     title: 'Der Satz · fünf Kategorien, eine Karte',
