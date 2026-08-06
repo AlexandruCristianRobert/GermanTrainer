@@ -57,6 +57,9 @@ onMounted(() => {
   } else {
     sampledVerbs.value = sampled
     deck.value = shuffle(buildSenseDeck(sampled, all()))
+    if (deck.value.length === 0) {
+      error.value = 'No verbs match the selected filters.'
+    }
   }
   startedAt.value = Date.now()
   loading.value = false
@@ -230,7 +233,7 @@ function goVerbs() { router.push({ name: 'verbs' }) }
         <span v-if="current.cue" class="pz-cue">({{ current.cue }})</span>
       </div>
       <p class="vq-sub">{{ current.verbs.length === 1
-        ? 'Genau ein Verb passt zu dieser Situation.'
+        ? (current.cue === null ? 'Genau ein Verb passt.' : 'Genau ein Verb passt zu dieser Situation.')
         : current.verbs.length + ' Verben passen gleichermaßen — jedes zählt.' }}</p>
 
       <div class="vq-slots">

@@ -886,7 +886,7 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     meaning: 'meet',
     senses: [
       { cue: 'running into a friend in town', verbs: ['treffen'] },
-      { cue: 'two people meeting up by arrangement', verbs: ['sich treffen'] }
+      { cue: 'two people meeting up by arrangement', verbs: ['sich treffen', 'treffen'] }
     ]
   },
   {

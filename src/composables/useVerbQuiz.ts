@@ -29,7 +29,7 @@ function stripEdgePunctuation(s: string): string {
   return s.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '')
 }
 
-function normalizeTranslation(s: string): string {
+export function normalizeTranslation(s: string): string {
   let n = stripEdgePunctuation(stripParens(s).trim().replace(/\s+/g, ' ').toLowerCase())
   if (n.startsWith('to ')) n = n.slice(3).trim()
   return n

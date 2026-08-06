@@ -39,7 +39,7 @@ describe('PraeziseRunner', () => {
     const run = vi.mocked(saveQuizRun).mock.calls[0][0]
     expect(run.type).toBe('verb-translation')
     expect(run.meta).toMatchObject({ verbDirection: 'en-de', variant: 'praezise' })
-    expect(run.count).toBeGreaterThanOrEqual(5) // one card per sense: deck ≥ sampled verbs
+    expect(run.count).toBeGreaterThanOrEqual(1) // sense dedup can legally shrink the deck below sampled count
     expect(run.correct).toBe(0)
   })
 })

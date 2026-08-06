@@ -220,7 +220,7 @@ function back() { router.push({ name: 'verbs' }) }
         Answers ignore case &amp; whitespace. A leading "to" is optional. Slash-separated alternatives are all accepted — e.g. "to go / to walk" matches either.
       </template>
       <template v-else-if="variant === 'praezise'">
-        Die Bedeutung kommt mit ihrer Situation — nur das Verb, das genau dazu passt, zählt; seine Geschwister aus anderen Situationen nicht. Passen mehrere Verben gleichermaßen, zählt jedes. Ein Verb mit mehreren Lesarten bringt mehrere Karten mit — das Deck kann also etwas größer sein als die gewählte Verbenzahl.
+        Die Bedeutung kommt mit ihrer Situation — nur das Verb, das genau dazu passt, zählt; seine Geschwister aus anderen Situationen nicht. Passen mehrere Verben gleichermaßen, zählt jedes. Ein Verb mit mehreren Lesarten bringt mehrere Karten mit — das Deck kann also etwas größer sein als die gewählte Verbenzahl. Bei reflexiven Verben ist „sich" optional.
       </template>
       <template v-else>
         Gezeigt wird die Bedeutung — jedes deutsche Verb, das sie trägt, zählt. Bei reflexiven Verben ist „sich" optional. Wer mehr Verben desselben Feldes kennt, sammelt sie als Bonus.
