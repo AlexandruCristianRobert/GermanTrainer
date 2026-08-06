@@ -124,9 +124,23 @@ export function rektShort(c: VerbCase): string | null {
   }
 }
 
+/** Short governed-case label for a preposition ('seit + Dat'). */
+export function prepCaseShort(c: PrepCase): string {
+  switch (c) {
+    case 'accusative': return 'Akk'
+    case 'dative': return 'Dat'
+    case 'genitive': return 'Gen'
+    case 'two-way': return 'Wechsel'
+    default: return c
+  }
+}
+
 // ─────────────────────── Generation (prompt + validation) ───────────────────────
 
 export interface PackedSpan { key: string; en: string }
+/** An [Incidental noun] the AI introduced, with its German (article + noun)
+ *  so its gender can be hinted — mirrors the verb quiz's extraWords. */
+export interface PackedExtraNoun { en: string; de: string }
 export interface GeneratedPackedCard extends PackedCardSpec {
   english: string
   german: string
@@ -134,6 +148,8 @@ export interface GeneratedPackedCard extends PackedCardSpec {
   sents: number
   /** One span per item; a two-part connector carries TWO spans with one key. */
   spans: PackedSpan[]
+  /** Every non-drilled noun in the passage, hintable with its gender. */
+  extraNouns?: PackedExtraNoun[]
 }
 
 export const PACKED_ANGLE_POOL = [
@@ -156,10 +172,15 @@ export const PACKED_GEN_SYSTEM =
   'the word order that part forces. ' +
   'Return ONLY one JSON object of exactly this shape (no prose, no markdown fences): ' +
   '{"items":[{"index":<number>,"english":"...","german":"...","sentenceCount":<1-4>,' +
-  '"spans":[{"key":"v1","en":"..."}]}]} — exactly one entry per requested index. ' +
+  '"spans":[{"key":"v1","en":"..."}],"extraNouns":[{"en":"...","de":"..."}]}]} — exactly one ' +
+  'entry per requested index. ' +
   '"spans" = one entry per ingredient key, where "en" is the exact English word(s) expressing ' +
   'that ingredient, copied verbatim from YOUR English translation (an exact substring of it); ' +
-  'a TWO-PART connector gets TWO span entries with the same key, one per part.'
+  'a TWO-PART connector gets TWO span entries with the same key, one per part. ' +
+  '"extraNouns" = EVERY OTHER noun in your English translation that is NOT already covered by ' +
+  'a span entry, each with "en" = the exact noun as it appears in your English translation ' +
+  '(the noun head, without its article — an exact substring) and "de" = its German article + ' +
+  'nominative singular (e.g. "die Katze"); use [] when there are none.'
 
 export const PACKED_GEN_SCHEMA = {
   type: 'object',
@@ -180,9 +201,17 @@ export const PACKED_GEN_SCHEMA = {
               properties: { key: { type: 'string' }, en: { type: 'string' } },
               required: ['key', 'en']
             }
+          },
+          extraNouns: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { en: { type: 'string' }, de: { type: 'string' } },
+              required: ['en', 'de']
+            }
           }
         },
-        required: ['index', 'english', 'german', 'sentenceCount', 'spans']
+        required: ['index', 'english', 'german', 'sentenceCount', 'spans', 'extraNouns']
       }
     }
   },
@@ -237,7 +266,7 @@ export function buildPackedGeneratePrompt(
     blocks.join('\n') +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.` +
-    `\nAlso return sentenceCount and spans (one per ingredient key; two-part connectors get two entries with the same key), each "en" an exact substring of your English translation.`
+    `\nAlso return sentenceCount, spans (one per ingredient key; two-part connectors get two entries with the same key) and extraNouns (every other noun in the English with its German article + nominative singular), each "en" an exact substring of your English translation.`
   )
 }
 
@@ -279,7 +308,20 @@ export function validatePackedCard(raw: unknown, spec: PackedCardSpec): Generate
         .filter(s => s.en.length > 0 && validKeys.has(s.key))
     : []
 
-  return { ...spec, english, german, sents, spans }
+  // Extra nouns are a bonus, never a rejection reason. Drop any that repeat a
+  // drilled noun — the drilled span already reveals its article.
+  const drilledNouns = new Set(
+    spec.items.filter(i => i.cat === 'noun' && i.noun).map(i => normalizeGerman(i.noun!.german))
+  )
+  const extraNouns: PackedExtraNoun[] = Array.isArray(e.extraNouns)
+    ? e.extraNouns
+        .filter((n): n is Record<string, unknown> => !!n && typeof n === 'object')
+        .map(n => ({ en: typeof n.en === 'string' ? n.en.trim() : '', de: typeof n.de === 'string' ? n.de.trim() : '' }))
+        .filter(n => n.en.length > 0 && n.de.length > 0)
+        .filter(n => !drilledNouns.has(normalizeGerman(n.de.replace(/^(der|die|das)\s+/i, ''))))
+    : []
+
+  return { ...spec, english, german, sents, spans, extraNouns }
 }
 
 function makeSeed(rng: () => number): string {
@@ -340,14 +382,32 @@ export async function generatePackedBatch(
 
 // ─────────────────────────── Hint segments ────────────────────────────
 //
-// Hybrid reveal (CONTEXT.md → "Word hint"): every drilled item is highlighted
-// in its category color, but only verbs and nouns carry a German reveal — for
-// a preposition, da-compound, or connector the dictionary form would BE the
-// graded answer.
+// Full reveal (CONTEXT.md → "Word hint"): every drilled item is highlighted
+// in its category color and carries a German reveal — verbs with their
+// governed case, nouns with their article, prepositions with their case, the
+// da-compound word itself, connectors with the word order they force. Every
+// AI-supplied incidental noun gets a subtler span revealing article + noun.
 
 export interface PackedSegment {
   text: string
-  item?: { key: string; cat: PackedCategory; reveal?: string }
+  item?: { key: string; cat: PackedCategory; reveal?: string; extra?: boolean }
+}
+
+/** The German reveal for one drilled item's hint span. */
+export function packedReveal(it: PackedItemSpec): string | undefined {
+  if (it.cat === 'verb' && it.verb) {
+    const rekt = rektShort(it.verb.case)
+    return rekt ? `${it.verb.german} + ${rekt}` : it.verb.german
+  }
+  if (it.cat === 'noun' && it.noun) return `${it.noun.article} ${it.noun.german}`
+  if (it.cat === 'prep' && it.prep) return `${it.prep.german} + ${prepCaseShort(it.prep.case)}`
+  if (it.cat === 'dac' && it.colloc) return daCompoundFor(it.colloc.preposition)
+  if (it.cat === 'conn' && it.conn) {
+    if (isPair(it.conn)) return it.conn.display
+    const p = it.conn.parts[0]
+    return `${p.text} — ${CONN_BEHAVIOR_LABEL[p.behavior]}`
+  }
+  return undefined
 }
 
 function escapeRegExp(s: string): string {
@@ -356,31 +416,44 @@ function escapeRegExp(s: string): string {
 
 export function buildPackedSegments(english: string, card: GeneratedPackedCard): PackedSegment[] {
   const byKey = new Map(card.items.map(i => [i.key, i]))
-  interface Range { start: number; end: number; key: string; cat: PackedCategory; reveal?: string }
+  interface Range { start: number; end: number; key: string; cat: PackedCategory; reveal?: string; extra?: boolean }
   const found: Range[] = []
   const used: Array<[number, number]> = []
+
+  /** First match of `surface` that does not overlap an already-claimed range —
+   *  a pair's second part with an identical surface must land on a fresh
+   *  occurrence, and an extra noun never steals a drilled span's range. */
+  function claim(surface: string): [number, number] | null {
+    let re: RegExp
+    try { re = new RegExp(`\\b${escapeRegExp(surface)}\\b`, 'gi') } catch { return null }
+    let m: RegExpExecArray | null
+    while ((m = re.exec(english)) !== null) {
+      const start = m.index, end = m.index + m[0].length
+      if (used.some(([s2, e2]) => start < e2 && end > s2)) continue
+      used.push([start, end])
+      return [start, end]
+    }
+    return null
+  }
 
   for (const span of card.spans) {
     const it = byKey.get(span.key)
     if (!it) continue
     const surface = span.en.trim()
     if (!surface) continue
-    let re: RegExp
-    try { re = new RegExp(`\\b${escapeRegExp(surface)}\\b`, 'gi') } catch { continue }
-    // First match that does not overlap an already-claimed range — a pair's
-    // second part with an identical surface must land on a fresh occurrence.
-    let m: RegExpExecArray | null
-    let placed = false
-    while (!placed && (m = re.exec(english)) !== null) {
-      const start = m.index, end = m.index + m[0].length
-      if (used.some(([s2, e2]) => start < e2 && end > s2)) continue
-      used.push([start, end])
-      const reveal = it.cat === 'verb' && it.verb ? it.verb.german
-        : it.cat === 'noun' && it.noun ? `${it.noun.article} ${it.noun.german}`
-        : undefined
-      found.push({ start, end, key: it.key, cat: it.cat, reveal })
-      placed = true
-    }
+    const range = claim(surface)
+    if (!range) continue
+    found.push({ start: range[0], end: range[1], key: it.key, cat: it.cat, reveal: packedReveal(it) })
+  }
+
+  // Extra nouns claim only what the drilled spans left free.
+  let xi = 0
+  for (const n of card.extraNouns ?? []) {
+    const surface = n.en.trim()
+    if (!surface) continue
+    const range = claim(surface)
+    if (!range) continue
+    found.push({ start: range[0], end: range[1], key: `x${++xi}`, cat: 'noun', reveal: n.de, extra: true })
   }
 
   found.sort((a, b) => a.start - b.start)
@@ -390,7 +463,9 @@ export function buildPackedSegments(english: string, card: GeneratedPackedCard):
   let cursor = 0
   for (const r of found) {
     if (r.start > cursor) segments.push({ text: english.slice(cursor, r.start) })
-    segments.push({ text: english.slice(r.start, r.end), item: { key: r.key, cat: r.cat, reveal: r.reveal } })
+    const item: PackedSegment['item'] = { key: r.key, cat: r.cat, reveal: r.reveal }
+    if (r.extra) item.extra = true
+    segments.push({ text: english.slice(r.start, r.end), item })
     cursor = r.end
   }
   if (cursor < english.length) segments.push({ text: english.slice(cursor) })

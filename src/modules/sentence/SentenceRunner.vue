@@ -16,7 +16,7 @@ import { checkSentence, type Direction } from '../../composables/useSentenceQuiz
 import {
   generatePackedBatch, gradePackedAnswer, gradePackedMeaning, localCheckPackedCard,
   verdictOf, buildPackedSegments, buildPackedMetaItems, aggregateOutcomes, rektShort,
-  daCompoundFor, PACKED_CATS,
+  prepCaseShort, daCompoundFor, PACKED_CATS,
   type PackedCardSpec, type PackedItemSpec, type PackedCategory, type PackedCounts,
   type GeneratedPackedCard, type PackedVerdict, type CardOutcome
 } from '../../composables/usePackedSentenceQuiz'
@@ -135,9 +135,10 @@ function manifestParts(card: GeneratedPackedCard): string[] {
 }
 const manifestPartsList = computed(() => current.value ? manifestParts(current.value) : [])
 
-// Hybrid reveal (CONTEXT.md → "Word hint"): verb + noun spans carry a German
-// popover; prep/dac/connector spans highlight only. DE→EN shows the plain
-// German source with no spans at all — there is nothing to hint at.
+// Full reveal (CONTEXT.md → "Word hint"): every span carries a German popover
+// — drilled items with case/word-order info, incidental nouns with their
+// article. DE→EN shows the plain German source with no spans at all — there
+// is nothing to hint at.
 const segments = computed(() => {
   const c = current.value
   if (!c) return []
@@ -157,20 +158,37 @@ function toggleRevealed(key: string) {
   revealedKeys.value = next
 }
 
+/** Keeps a span's popover inside the viewport (body clips overflow-x): when
+ *  its natural centered position pokes past an edge, shift it back via
+ *  --pop-dx. Measured while still invisible — visibility:hidden keeps layout. */
+function clampPop(e: Event) {
+  const host = e.currentTarget as HTMLElement | null
+  const pop = host?.querySelector<HTMLElement>('.sn-pop')
+  if (!pop) return
+  pop.style.removeProperty('--pop-dx')
+  const r = pop.getBoundingClientRect()
+  if (r.width === 0) return
+  const inset = 8
+  let dx = 0
+  if (r.left < inset) dx = inset - r.left
+  else if (r.right > window.innerWidth - inset) dx = window.innerWidth - inset - r.right
+  if (dx !== 0) pop.style.setProperty('--pop-dx', `${dx}px`)
+}
+
+function litSpan(key: string, e: Event) {
+  lit.value = key
+  clampPop(e)
+}
+
+function revealSpan(key: string, e: Event) {
+  toggleRevealed(key)
+  clampPop(e)
+}
+
 function pipClass(i: number): string {
   const o = outcomes.value.get(i)
   if (o) return o.verdict === 'ok' ? 'done' : o.verdict === 'part' ? 'part' : 'wrong'
   return i === index.value ? 'current' : ''
-}
-
-function rektCaseLabel(c: string): string {
-  switch (c) {
-    case 'accusative': return 'Akk'
-    case 'dative': return 'Dat'
-    case 'genitive': return 'Gen'
-    case 'two-way': return 'Wechsel'
-    default: return c
-  }
 }
 
 /** German solution text for one item — verb infinitive, noun with article,
@@ -179,7 +197,7 @@ function rektCaseLabel(c: string): string {
 function itemSolution(it: PackedItemSpec): string {
   if (it.cat === 'verb' && it.verb) return it.verb.german
   if (it.cat === 'noun' && it.noun) return `${it.noun.article} ${it.noun.german}`
-  if (it.cat === 'prep' && it.prep) return `${it.prep.german} + ${rektCaseLabel(it.prep.case)}`
+  if (it.cat === 'prep' && it.prep) return `${it.prep.german} + ${prepCaseShort(it.prep.case)}`
   if (it.cat === 'dac' && it.colloc) return daCompoundFor(it.colloc.preposition)
   if (it.cat === 'conn' && it.conn) {
     if (isPair(it.conn)) return it.conn.display
@@ -572,12 +590,13 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
               v-if="seg.item"
               class="sn-i"
               :data-cat="seg.item.cat"
-              :class="{ lit: lit === seg.item.key, 'has-pop': !!seg.item.reveal, revealed: revealedKeys.has(seg.item.key) }"
+              :class="{ lit: lit === seg.item.key, 'has-pop': !!seg.item.reveal, revealed: revealedKeys.has(seg.item.key), extra: !!seg.item.extra }"
               :tabindex="seg.item.reveal ? 0 : undefined"
-              @mouseenter="lit = seg.item.key"
-              @click="seg.item.reveal && toggleRevealed(seg.item.key)"
-              @keydown.enter.prevent="seg.item.reveal && toggleRevealed(seg.item.key)"
-              @keydown.space.prevent="seg.item.reveal && toggleRevealed(seg.item.key)"
+              @mouseenter="litSpan(seg.item.key, $event)"
+              @focusin="clampPop($event)"
+              @click="seg.item.reveal && revealSpan(seg.item.key, $event)"
+              @keydown.enter.prevent="seg.item.reveal && revealSpan(seg.item.key, $event)"
+              @keydown.space.prevent="seg.item.reveal && revealSpan(seg.item.key, $event)"
             >{{ seg.text }}<sup v-if="isPairKey(seg.item.key)" class="sn-pairmark">¹</sup><span v-if="seg.item.reveal" class="sn-pop">{{ seg.item.reveal }}</span></span>
             <template v-else>{{ seg.text }}</template>
           </template>

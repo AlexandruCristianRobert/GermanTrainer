@@ -18,6 +18,8 @@
 .sn-i[data-cat="prep"]{border-bottom-color:var(--ochre)}
 .sn-i[data-cat="dac"]{border-bottom-color:var(--clay)}
 .sn-i[data-cat="conn"]{border-bottom-style:solid;border-bottom-color:var(--ink-soft)}
+/* Incidental nouns: same cobalt language as drilled nouns, half the weight. */
+.sn-i.extra{border-bottom-width:1px}
 .sn-i.lit[data-cat="verb"]{background:var(--sage-tint)}
 .sn-i.lit[data-cat="noun"]{background:var(--cobalt-tint)}
 .sn-i.lit[data-cat="prep"]{background:var(--ochre-tint)}
@@ -176,9 +178,9 @@
   .sna-cell{width:18px;height:26px}
 }
 
-/* Hybrid word-hint reveal (CONTEXT.md → "Word hint"): verb + noun spans carry
-   a German popover; prep/dac/connector spans highlight only. */
+/* Full word-hint reveal (CONTEXT.md → "Word hint"): every span carries a
+   German popover — drilled items and incidental nouns alike. */
 .sn-i.has-pop{cursor:help}
-.sn-pop{position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(-6px);max-width:min(80vw,260px);white-space:normal;text-align:center;font-family:var(--font-mono);font-size:13px;line-height:1.2;padding:4px 8px;border-radius:4px;background:var(--paper-card);color:var(--ink);border:1px solid var(--rule);box-shadow:0 4px 12px rgba(0,0,0,.18);pointer-events:none;opacity:0;visibility:hidden;transition:opacity 120ms ease;z-index:2}
+.sn-pop{position:absolute;bottom:100%;left:50%;transform:translateX(calc(-50% + var(--pop-dx,0px))) translateY(-6px);max-width:min(80vw,260px);white-space:normal;text-align:center;font-family:var(--font-mono);font-size:13px;line-height:1.2;padding:4px 8px;border-radius:4px;background:var(--paper-card);color:var(--ink);border:1px solid var(--rule);box-shadow:0 4px 12px rgba(0,0,0,.18);pointer-events:none;opacity:0;visibility:hidden;transition:opacity 120ms ease;z-index:2}
 .sn-i{position:relative}
 .sn-i.has-pop:hover .sn-pop,.sn-i.has-pop:focus-visible .sn-pop,.sn-i.revealed .sn-pop{opacity:1;visibility:visible}

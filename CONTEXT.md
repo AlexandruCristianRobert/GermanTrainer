@@ -15,7 +15,7 @@ How a typed answer is judged: `AI` (meaning-aware verdict plus a coaching tip) o
 _Avoid_: checking, scoring method
 
 **Word hint**:
-A highlighted word in the *source* sentence of a translation prompt that reveals its target-language vocabulary on demand (hover, tap, or keyboard focus). A scaffold, not the answer — it reveals the dictionary form, leaving any inflection to the learner. EN→DE only. Scope depends on the drill: the preposition sentence quiz hints the preposition and the assigned theme nouns only (German built from stored data); the [Verb sentence quiz] hints every drilled verb and *every* noun (assigned and incidental), and the German for incidental words is supplied by the AI, not stored data; the [Sentence quiz] highlights every drilled item of every category (both parts of a two-part [Connector] included) but reveals German only for verbs and nouns — for a preposition, [Da-compound], or [Connector] the dictionary form would be the graded answer itself, so those spans mark without revealing.
+A highlighted word in the *source* sentence of a translation prompt that reveals its target-language vocabulary on demand (hover, tap, or keyboard focus). A scaffold — it reveals the dictionary form, leaving any inflection to the learner. EN→DE only. Scope depends on the drill: the preposition sentence quiz hints the preposition and the assigned theme nouns only (German built from stored data); the [Verb sentence quiz] hints every drilled verb and *every* noun (assigned and incidental), and the German for incidental words is supplied by the AI, not stored data; the [Sentence quiz] highlights every drilled item of every category (both parts of a two-part [Connector] included) plus every [Incidental noun], and *every* span reveals German: verbs and prepositions with their governed case (*warten + Akk*, *seit + Dat*), nouns with their article, the [Da-compound] word itself, a [Connector] with the word order it forces (pairs show the full *sowohl … als auch* form), incidental nouns with AI-supplied article + noun on a visually subtler span. For a preposition, da-compound, or connector the reveal *is* the graded word — peeking there is the learner's deliberate choice, and the setup's hint toggle turns all spans off together.
 _Avoid_: tooltip, popover, reveal, clue
 
 ### Prepositions
@@ -61,7 +61,7 @@ A noun the drill deliberately selects from the learner's chosen noun theme and b
 _Avoid_: target noun, chosen noun
 
 **Incidental noun**:
-A noun the AI introduces to make a generated sentence natural (e.g. the subject "the cat"). Not selected by the drill and not tested. Never hinted in the preposition quiz; hinted in the [Verb sentence quiz], where every noun is highlighted and its German is AI-supplied.
+A noun the AI introduces to make a generated sentence natural (e.g. the subject "the cat"). Not selected by the drill and not tested. Never hinted in the preposition quiz; hinted in the [Verb sentence quiz] and the [Sentence quiz], where every noun is highlighted and its German (article + noun, so the gender shows) is AI-supplied.
 _Avoid_: extra noun, filler noun
 
 **Error tag**:

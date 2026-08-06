@@ -166,6 +166,25 @@ describe('validatePackedCard', () => {
     const v = validatePackedCard(raw, SPEC)!
     expect(v.spans).toEqual([{ key: 'v1', en: 'waiting' }])
   })
+  test('defaults extraNouns to [] when absent', () => {
+    expect(validatePackedCard(GOOD_RAW, SPEC)!.extraNouns).toEqual([])
+  })
+  test('keeps well-formed extraNouns, filters malformed entries', () => {
+    const raw = {
+      ...GOOD_RAW,
+      extraNouns: [
+        { en: 'colleague', de: 'der Kollege' },
+        { en: '', de: 'die Wohnung' },
+        { en: 'thing' },
+        'junk'
+      ]
+    }
+    expect(validatePackedCard(raw, SPEC)!.extraNouns).toEqual([{ en: 'colleague', de: 'der Kollege' }])
+  })
+  test('drops extraNouns that duplicate a drilled noun', () => {
+    const raw = { ...GOOD_RAW, extraNouns: [{ en: 'report', de: 'der Bericht' }, { en: 'colleague', de: 'der Kollege' }] }
+    expect(validatePackedCard(raw, SPEC)!.extraNouns).toEqual([{ en: 'colleague', de: 'der Kollege' }])
+  })
 })
 
 describe('buildPackedGeneratePrompt', () => {
@@ -179,22 +198,38 @@ describe('buildPackedGeneratePrompt', () => {
     expect(p).toContain('[k1]')
     expect(p).toContain('aber')
   })
+  test('asks for extraNouns alongside the spans', () => {
+    const p = buildPackedGeneratePrompt([SPEC], 'B1/B2', { angles: ['set it at the office'], seed: 'abc' })
+    expect(p).toContain('extraNouns')
+  })
 })
 
 describe('buildPackedSegments', () => {
   const card: GeneratedPackedCard = { ...SPEC, ...GOOD_RAW, sents: 1, spans: GOOD_RAW.spans }
-  test('locates spans, keys them, reveals German only for verb + noun (hybrid)', () => {
+  test('locates spans, keys them, and reveals German for every category', () => {
     const segs = buildPackedSegments(card.english, card)
     const items = segs.filter(s => s.item)
     expect(items.map(s => s.item!.key)).toEqual(['v1', 'n1', 'p1', 'k1', 'd1'])
     const byKey = new Map(items.map(s => [s.item!.key, s]))
-    expect(byKey.get('v1')!.item!.reveal).toBe('warten')
+    expect(byKey.get('v1')!.item!.reveal).toBe('warten + Akk')
     expect(byKey.get('n1')!.item!.reveal).toBe('der Bericht')
-    expect(byKey.get('p1')!.item!.reveal).toBeUndefined()
-    expect(byKey.get('d1')!.item!.reveal).toBeUndefined()
-    expect(byKey.get('k1')!.item!.reveal).toBeUndefined()
+    expect(byKey.get('p1')!.item!.reveal).toBe('seit + Dat')
+    expect(byKey.get('d1')!.item!.reveal).toBe('darauf')
+    expect(byKey.get('k1')!.item!.reveal).toBe('aber — Wortstellung bleibt')
   })
-  test('two-part connector yields two spans sharing one key', () => {
+  test('a verb without a governed case reveals the bare infinitive', () => {
+    const spec: PackedCardSpec = {
+      index: 2,
+      items: [{ key: 'v1', cat: 'verb', verb: { german: 'gehen', english: 'go', level: 'A1', case: 'none' } }]
+    }
+    const goneCard: GeneratedPackedCard = {
+      ...spec, english: 'We are going home.', german: 'Wir gehen nach Hause.',
+      sents: 1, spans: [{ key: 'v1', en: 'going' }]
+    }
+    const segs = buildPackedSegments(goneCard.english, goneCard)
+    expect(segs.find(s => s.item?.key === 'v1')!.item!.reveal).toBe('gehen')
+  })
+  test('two-part connector yields two spans sharing one key, both revealing the display form', () => {
     const pairSpec: PackedCardSpec = { index: 1, items: [{ key: 'k1', cat: 'conn', conn: CONN_PAIR }] }
     const pairCard: GeneratedPackedCard = {
       ...pairSpec,
@@ -204,10 +239,32 @@ describe('buildPackedSegments', () => {
       spans: [{ key: 'k1', en: 'Both' }, { key: 'k1', en: 'and' }]
     }
     const segs = buildPackedSegments(pairCard.english, pairCard)
-    expect(segs.filter(s => s.item?.key === 'k1')).toHaveLength(2)
+    const parts = segs.filter(s => s.item?.key === 'k1')
+    expect(parts).toHaveLength(2)
+    expect(parts.map(s => s.item!.reveal)).toEqual(['sowohl … als auch', 'sowohl … als auch'])
   })
-  test('segments concatenate back to the source string', () => {
-    const segs = buildPackedSegments(card.english, card)
+  test('extra nouns become subtle noun spans revealing article + noun', () => {
+    const withExtras: GeneratedPackedCard = {
+      ...card,
+      extraNouns: [{ en: 'colleague', de: 'der Kollege' }, { en: 'Monday', de: 'der Montag' }]
+    }
+    const segs = buildPackedSegments(withExtras.english, withExtras)
+    const extras = segs.filter(s => s.item?.extra)
+    expect(extras.map(s => [s.item!.key, s.text, s.item!.reveal])).toEqual([
+      ['x1', 'colleague', 'der Kollege'],
+      ['x2', 'Monday', 'der Montag']
+    ])
+    expect(extras.every(s => s.item!.cat === 'noun')).toBe(true)
+  })
+  test('drilled spans win overlaps — an extra noun on a claimed range is dropped', () => {
+    const withClash: GeneratedPackedCard = { ...card, extraNouns: [{ en: 'report', de: 'der Bericht' }] }
+    const segs = buildPackedSegments(withClash.english, withClash)
+    expect(segs.filter(s => s.item?.extra)).toHaveLength(0)
+    expect(segs.filter(s => s.item?.key === 'n1')).toHaveLength(1)
+  })
+  test('segments concatenate back to the source string, extras included', () => {
+    const withExtras: GeneratedPackedCard = { ...card, extraNouns: [{ en: 'colleague', de: 'der Kollege' }] }
+    const segs = buildPackedSegments(withExtras.english, withExtras)
     expect(segs.map(s => s.text).join('')).toBe(card.english)
   })
 })
