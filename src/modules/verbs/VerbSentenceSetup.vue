@@ -6,7 +6,11 @@ import { useNouns } from '../../composables/useNouns'
 import { useSettings } from '../../composables/useSettings'
 import { useToast } from '../../composables/useToast'
 import { isSpeechRecognitionSupported } from '../../composables/useSpeechRecognizer'
-import { VERB_LEVELS, VERB_TYPES, VERB_CASES, migrateVerbLevels, type VerbLevel, type VerbType, type VerbCase } from '../../data/verbs'
+import {
+  VERB_LEVELS, VERB_TYPES, VERB_CASES,
+  VERB_TENSES, TENSE_LABELS, TENSE_LEVEL, PASSIVE_TENSE_SET, migrateVerbLevels, verbLevelToCefr,
+  type VerbLevel, type VerbType, type VerbCase, type VerbTense, type TenseCEFR
+} from '../../data/verbs'
 import { NOUN_GROUPS, type NounGroup } from '../../db/types'
 import { nounToRef } from '../../composables/useSentenceQuiz'
 import { verbToRef, buildVerbSpecs, levelLabel, type WordsPer } from '../../composables/useVerbSentenceQuiz'
@@ -41,10 +45,51 @@ const nounCounts = ref<Record<NounGroup, number>>(
   Object.fromEntries(NOUN_GROUPS.map(g => [g, 0])) as Record<NounGroup, number>
 )
 
+const CEFR_ORDER: TenseCEFR[] = ['A1', 'A2', 'B1', 'B2', 'C1']
+
+/** Default Zeitformen for a level selection: every form at or below the
+ *  highest selected CEFR band (B1 cap when no level is selected, matching
+ *  levelLabel's 'A2–B1' fallback band). */
+function defaultTensesFor(lvls: readonly VerbLevel[]): VerbTense[] {
+  const cap = lvls.length === 0
+    ? CEFR_ORDER.indexOf('B1')
+    : Math.max(...lvls.map(l => CEFR_ORDER.indexOf(verbLevelToCefr(l) as TenseCEFR)))
+  return VERB_TENSES.filter(t => CEFR_ORDER.indexOf(TENSE_LEVEL[t]) <= cap)
+}
+
+/** null until the learner first touches a tense chip / All / None — until
+ *  then the selection FOLLOWS the level choice; after that it is pinned and
+ *  persisted (spec: "level-following default"). */
+const customTenses = ref<VerbTense[] | null>(null)
+const selectedTenses = computed<VerbTense[]>(() => customTenses.value ?? defaultTensesFor(levels.value))
+
+const filteredVerbs = computed(() => filter({ levels: levels.value, types: types.value, cases: cases.value }))
+const passiveSupported = computed(() =>
+  filteredVerbs.value.some(v => v.case === 'accusative' || v.case === 'dative+accusative')
+)
+/** What actually starts the run: passive forms drop out when unsupported. */
+const effectiveTenses = computed<VerbTense[]>(() =>
+  passiveSupported.value ? selectedTenses.value : selectedTenses.value.filter(t => !PASSIVE_TENSE_SET.has(t))
+)
+
+const tensesByLevel = computed(() => {
+  const g: Record<TenseCEFR, VerbTense[]> = { A1: [], A2: [], B1: [], B2: [], C1: [] }
+  for (const t of VERB_TENSES) g[TENSE_LEVEL[t]].push(t)
+  return g
+})
+function tenseDisabled(t: VerbTense): boolean {
+  return PASSIVE_TENSE_SET.has(t) && !passiveSupported.value
+}
+function toggleTense(t: VerbTense) {
+  if (tenseDisabled(t)) return
+  const base = selectedTenses.value
+  customTenses.value = base.includes(t) ? base.filter(x => x !== t) : [...base, t]
+}
+
 interface Stored {
   levels?: VerbLevel[]; types?: VerbType[]; cases?: VerbCase[]; groups?: NounGroup[]
   verbsPer?: WordsPer; nounsPer?: WordsPer; modality?: 'typed' | 'spoken'; wordHints?: boolean
-  count?: CountPreset; customCount?: number
+  count?: CountPreset; customCount?: number; tenses?: VerbTense[]
 }
 function loadStored(): Stored | null {
   try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) as Stored : null } catch { return null }
@@ -54,7 +99,8 @@ function saveStored(): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       levels: [...levels.value], types: [...types.value], cases: [...cases.value], groups: [...groups.value],
       verbsPer: verbsPer.value, nounsPer: nounsPer.value, modality: modality.value, wordHints: wordHints.value,
-      count: count.value, customCount: customCount.value
+      count: count.value, customCount: customCount.value,
+      ...(customTenses.value !== null ? { tenses: [...customTenses.value] } : {})
     } satisfies Stored))
   } catch { /* ignore */ }
 }
@@ -74,6 +120,7 @@ onMounted(async () => {
     if (typeof s.wordHints === 'boolean') wordHints.value = s.wordHints
     if (s.count !== undefined) count.value = s.count
     if (typeof s.customCount === 'number' && s.customCount > 0) customCount.value = s.customCount
+    if (Array.isArray(s.tenses)) customTenses.value = s.tenses.filter((t): t is VerbTense => (VERB_TENSES as readonly string[]).includes(t))
   }
   if (groups.value.length === 0) groups.value = NOUN_GROUPS.filter(g => (nounCounts.value[g] ?? 0) > 0)
 
@@ -86,7 +133,7 @@ onMounted(async () => {
     })
   }
 })
-watch([levels, types, cases, groups, verbsPer, nounsPer, modality, wordHints, count, customCount], saveStored, { deep: true })
+watch([levels, types, cases, groups, verbsPer, nounsPer, modality, wordHints, count, customCount, customTenses], saveStored, { deep: true })
 
 function selectModality(m: 'typed' | 'spoken') {
   // The segment is also :disabled in the template; this guard is defense in
@@ -95,11 +142,11 @@ function selectModality(m: 'typed' | 'spoken') {
   modality.value = m
 }
 
-const availableVerbs = computed(() => filter({ levels: levels.value, types: types.value, cases: cases.value }).length)
+const availableVerbs = computed(() => filteredVerbs.value.length)
 const effective = computed(() => count.value === 'custom' ? Math.max(1, customCount.value) : count.value)
 const selectedNounTotal = computed(() => groups.value.reduce((sum, g) => sum + (nounCounts.value[g] ?? 0), 0))
 const canStart = computed(() =>
-  canUseAi.value && availableVerbs.value > 0 && selectedNounTotal.value > 0 && levels.value.length > 0 && types.value.length > 0 && cases.value.length > 0
+  canUseAi.value && availableVerbs.value > 0 && selectedNounTotal.value > 0 && levels.value.length > 0 && types.value.length > 0 && cases.value.length > 0 && effectiveTenses.value.length > 0
 )
 
 function toggle<T>(set: T[], v: T): T[] {
@@ -116,9 +163,9 @@ async function start() {
   }
   if (!canStart.value) return
   const n = effective.value
-  const verbPool = filter({ levels: levels.value, types: types.value, cases: cases.value }).map(verbToRef)
+  const verbPool = filteredVerbs.value.map(verbToRef)
   const nounPool = (await sampleByGroups(groups.value, 100000)).map(nounToRef)
-  const specs = buildVerbSpecs(verbPool, nounPool, n, verbsPer.value, nounsPer.value)
+  const specs = buildVerbSpecs(verbPool, nounPool, n, verbsPer.value, nounsPer.value, Math.random, effectiveTenses.value)
   // Belt-and-suspenders: the segment can't be selected without a mic and we
   // fall back on mount, but never let a stale ref value start an
   // unsupported spoken run.
@@ -129,7 +176,7 @@ async function start() {
     level: levelLabel(levels.value),
     modality: effectiveModality,
     wordHints: wordHints.value,
-    meta: { levels: levels.value, types: types.value, cases: cases.value, groups: groups.value, verbsPer: verbsPer.value, nounsPer: nounsPer.value }
+    meta: { levels: levels.value, types: types.value, cases: cases.value, groups: groups.value, verbsPer: verbsPer.value, nounsPer: nounsPer.value, tenses: effectiveTenses.value }
   }))
   router.push({ name: 'verbs-sentence-run' })
 }
@@ -191,6 +238,35 @@ function back() { router.push({ name: 'verbs' }) }
       </div>
       <div class="chip-row">
         <button v-for="c in VERB_CASES" :key="c" class="chip" :class="{ selected: cases.includes(c) }" @click="cases = toggle(cases, c)">{{ c }}</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <div class="field-label">Zeitformen · {{ selectedTenses.length }} of {{ VERB_TENSES.length }}</div>
+        <div class="field-actions">
+          <button class="btn btn-quiet" type="button" @click="customTenses = [...VERB_TENSES]">All</button>
+          <button class="btn btn-quiet" type="button" @click="customTenses = []">None</button>
+        </div>
+      </div>
+      <div v-if="!passiveSupported" class="alert alert-info passive-hint">
+        <span class="alert-label">Info</span>
+        Passive tenses are disabled — your verb filter has no transitive (accusative) verbs.
+      </div>
+      <div v-for="lv in CEFR_ORDER" :key="lv" class="tense-group">
+        <div class="tense-group-label">{{ lv }}</div>
+        <div class="chip-row">
+          <button
+            v-for="t in tensesByLevel[lv]" :key="t"
+            class="chip tense-chip"
+            :class="{ selected: selectedTenses.includes(t) }"
+            :disabled="tenseDisabled(t)"
+            @click="toggleTense(t)"
+          >
+            <span>{{ TENSE_LABELS[t] }}</span>
+            <span class="chip-count">{{ TENSE_LEVEL[t] }}</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -273,6 +349,7 @@ function back() { router.push({ name: 'verbs' }) }
 
     <div v-if="availableVerbs === 0" class="alert alert-warning"><span class="alert-label">Warning</span>No verbs match the selected filters.</div>
     <div v-else-if="selectedNounTotal === 0" class="alert alert-warning"><span class="alert-label">Warning</span>Select at least one theme group that has nouns.</div>
+    <div v-else-if="effectiveTenses.length === 0" class="alert alert-warning"><span class="alert-label">Warning</span>Pick at least one Zeitform.</div>
 
     <div class="alert alert-info">
       <span class="alert-label">How this drill works</span>
@@ -298,6 +375,13 @@ function back() { router.push({ name: 'verbs' }) }
 .count-avail { margin-left: auto; }
 .grading-hint { margin: 8px 0 0; }
 .chip-count { margin-left: 6px; font-family: var(--font-mono); font-size: 11px; opacity: 0.6; }
+.passive-hint { margin-top: 0; margin-bottom: 16px; }
+.tense-group { margin-bottom: 12px; }
+.tense-group-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mute); margin-bottom: 6px; }
+.tense-chip { gap: 8px; }
+/* margin-left: 0 cancels this file's local .chip-count spacing so the divider
+   sits evenly, matching ConjugationQuizSetup's tense chips. */
+.tense-chip .chip-count { border-left: 1px solid var(--hairline); padding-left: 6px; margin-left: 0; }
 .setup-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; gap: 16px; }
 @media (max-width: 720px) { .setup-actions { flex-direction: column-reverse; align-items: stretch; } .setup-actions .btn { justify-content: center; } }
 </style>
