@@ -100,6 +100,14 @@ const modules: ModuleCard[] = [
     title: 'Settings',
     desc: 'Set your Gemini API key and choose a model. Required for AI-driven modules.',
     meta: 'Local · stored in your browser'
+  },
+  {
+    numeral: 'XII',
+    route: 'sentence',
+    de: 'Sätze',
+    title: 'Sentence',
+    desc: 'The packed card: verbs, nouns, prepositions, da-compounds and connectors in one AI-written sentence — you pick how many of each.',
+    meta: 'AI-generated · budget of 8 items per card'
   }
 ]
 
@@ -117,7 +125,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/XI</div>
+        <div class="breadcrumb">Frontispiece · I/XII</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,

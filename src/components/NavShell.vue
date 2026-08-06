@@ -26,6 +26,7 @@ const items: NavItem[] = [
   { route: 'directionwords', label: 'Direction Words', de: 'hin & her' },
   { route: 'sprechen', label: 'Sprechen', de: 'Diskussion' },
   { route: 'declension', label: 'Declension', de: 'Deklination' },
+  { route: 'sentence', label: 'Sentence', de: 'Sätze' },
   { route: 'history', label: 'History', de: 'Verlauf' },
   { route: 'settings', label: 'Settings', de: 'Einstellungen' }
 ]
