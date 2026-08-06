@@ -357,3 +357,61 @@ describe('buildVerbDrillItem', () => {
     expect(buildVerbDrillItem(s, false, ['conjugation']).tags).toEqual(['conjugation'])
   })
 })
+
+import {
+  TENSE_PROMPT_HINTS, TENSE_IMPLYING_ANGLES, VERB_ANGLE_POOL_TENSE_NEUTRAL, verbGenSystem
+} from '../../src/composables/useVerbSentenceQuiz'
+import { VERB_TENSES } from '../../src/data/verbs'
+
+describe('tensed generation prompts', () => {
+  const tensedSpecs = [
+    { index: 0, verbs: [{ german: 'kaufen', english: 'buy', level: 'A1' as const, case: 'accusative' as const }], nouns: [], tense: 'passivPraesens' as const },
+    { index: 1, verbs: [{ german: 'gehen', english: 'go', level: 'A1' as const, case: 'none' as const }], nouns: [], tense: 'perfekt' as const }
+  ]
+
+  test('every VerbTense has a prompt hint naming its German label', () => {
+    for (const t of VERB_TENSES) {
+      expect(TENSE_PROMPT_HINTS[t]).toBeTruthy()
+    }
+    expect(TENSE_PROMPT_HINTS.perfekt).toContain('Perfekt')
+    expect(TENSE_PROMPT_HINTS.passivPraesens).toContain('Passiv')
+  })
+  test('spec lines carry their Zeitform; batch demands exact-form compliance', () => {
+    const p = buildVerbGeneratePrompt(tensedSpecs, 'A1–A2', { angles: ['set it in a kitchen'], seed: 's1' })
+    expect(p).toContain(`Zeitform: ${TENSE_PROMPT_HINTS.passivPraesens}`)
+    expect(p).toContain(`Zeitform: ${TENSE_PROMPT_HINTS.perfekt}`)
+    expect(p).toContain('exactly that form')
+  })
+  test('untensed specs produce a prompt without any Zeitform text (byte-compatible)', () => {
+    const specs = [{ index: 0, verbs: [{ german: 'gehen', english: 'go', level: 'A1' as const }], nouns: [] }]
+    const p = buildVerbGeneratePrompt(specs, 'A1–A2', { angles: ['set it in a kitchen'], seed: 's1' })
+    expect(p).not.toContain('Zeitform')
+  })
+  test('system prompt: natural variation only when untensed', () => {
+    expect(verbGenSystem(false)).toContain('Vary the tense naturally')
+    expect(verbGenSystem(true)).not.toContain('Vary the tense naturally')
+    expect(verbGenSystem(true)).toContain('Zeitform')
+  })
+  test('tense-implying angles are excluded from the neutral pool', () => {
+    for (const a of TENSE_IMPLYING_ANGLES) {
+      expect(VERB_ANGLE_POOL).toContain(a)
+      expect(VERB_ANGLE_POOL_TENSE_NEUTRAL).not.toContain(a)
+    }
+    expect(VERB_ANGLE_POOL_TENSE_NEUTRAL.length).toBeGreaterThanOrEqual(10)
+  })
+})
+
+describe('tensed grading prompt', () => {
+  const base = {
+    model: 'm', english: 'The cake was bought.', german: 'Der Kuchen wurde gekauft.',
+    verbsGerman: ['kaufen'], nounsGerman: ['Kuchen'], userAnswer: 'Der Kuchen wurde gekauft.'
+  }
+  test('TARGET TENSE line + wrong-tense rule appear only when a tense is given', () => {
+    const with_ = buildVerbGradePrompt({ ...base, tense: 'passivPraeteritum' })
+    expect(with_.user).toContain('TARGET TENSE (required German form): Passiv Präteritum')
+    expect(with_.system).toContain('MUST use that tense/form')
+    const without = buildVerbGradePrompt(base)
+    expect(without.user).not.toContain('TARGET TENSE')
+    expect(without.system).not.toContain('MUST use that tense/form')
+  })
+})
