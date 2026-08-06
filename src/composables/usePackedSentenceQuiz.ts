@@ -10,6 +10,10 @@ import type { PrepCase } from '../data/prepositions'
 import { prepUsed, normalizeGerman, type NounRef } from './useSentenceQuiz'
 import { CONN_BEHAVIOR_LABEL, isPair, type Connector } from '../data/connectors'
 import type { AiClient } from './useClaude'
+import type {
+  VerbErrorTag, PrepErrorTag, DacErrorTag, ConnErrorTag,
+  VerbDrillItem, PrepDrillItem, DacDrillItem, ConnectorDrillItem
+} from './useQuizHistory'
 
 export type PackedCategory = 'verb' | 'noun' | 'prep' | 'dac' | 'conn'
 export const PACKED_CATS: readonly PackedCategory[] = ['verb', 'noun', 'prep', 'dac', 'conn']
@@ -391,4 +395,291 @@ export function buildPackedSegments(english: string, card: GeneratedPackedCard):
   }
   if (cursor < english.length) segments.push({ text: english.slice(cursor) })
   return segments
+}
+
+// ─────────────────────────── Grading ────────────────────────────
+
+export type PackedTag = 'conjugation' | 'case' | 'word-order' | 'noun' | 'preposition' | 'compound' | 'connector' | 'typo'
+const PACKED_TAGS: readonly PackedTag[] = ['conjugation', 'case', 'word-order', 'noun', 'preposition', 'compound', 'connector', 'typo']
+
+export interface PackedItemResult { key: string; correct: boolean; tags?: PackedTag[] }
+export interface PackedGrade { items: PackedItemResult[]; tip?: string }
+export type PackedVerdict = 'ok' | 'part' | 'no'
+
+/** ok = every item right · part = at least half · no = below half. */
+export function verdictOf(items: readonly PackedItemResult[]): PackedVerdict {
+  if (items.length === 0) return 'no'
+  const ok = items.filter(i => i.correct).length
+  if (ok === items.length) return 'ok'
+  return ok >= Math.ceil(items.length / 2) ? 'part' : 'no'
+}
+
+const PACKED_GRADE_SCHEMA = {
+  type: 'object',
+  properties: {
+    items: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          key: { type: 'string' },
+          correct: { type: 'boolean' },
+          tags: { type: 'array', items: { type: 'string', enum: [...PACKED_TAGS] } }
+        },
+        required: ['key', 'correct']
+      }
+    },
+    tip: { type: 'string' }
+  },
+  required: ['items']
+}
+
+const PACKED_GRADE_COMMON =
+  'You are a German teacher grading one packed translation exercise. The learner was shown the ' +
+  'ENGLISH passage and produced a GERMAN translation that must contain several required ' +
+  'ingredients, each identified by a key. Judge EVERY ingredient separately. Respond ONLY as ' +
+  'JSON {"items":[{"key":"<key>","correct":<boolean>,"tags":["<tag>"]}],"tip":"<string>"} — no ' +
+  'prose, no markdown fences, exactly one entry per listed key. An ingredient is correct when ' +
+  'it appears, correctly formed and correctly placed, in an overall grammatical rendering — ' +
+  'accept natural alternative phrasings; do not require an exact match to the reference. ' +
+  'When an ingredient is wrong, set "tags" to every applicable value from exactly: ' +
+  '"conjugation" (right verb, wrong form), "case" (wrong governed case — article or ending), ' +
+  '"word-order" (verb-second/verb-final/inversion or separable-prefix placement wrong, incl. ' +
+  'the word order a connector forces), "noun" (wrong noun — word, gender, or form), ' +
+  '"preposition" (wrong or missing preposition word), "compound" (malformed or missing ' +
+  'da-compound, or preposition+pronoun used for a thing), "connector" (wrong or missing ' +
+  'connector word or part)'
+
+const PACKED_GRADE_SYSTEM_TYPED =
+  PACKED_GRADE_COMMON +
+  ', "typo" (a spelling slip elsewhere). Set "tip" to ONE short English sentence pinpointing ' +
+  'the most important mistake when anything is wrong; when everything is correct it may be empty.'
+
+const PACKED_GRADE_SYSTEM_SPOKEN =
+  PACKED_GRADE_COMMON +
+  '. The learner SPOKE the German and a browser speech recognizer transcribed it — judge only ' +
+  'the words as transcribed and ignore capitalisation and punctuation entirely; the transcript ' +
+  'has neither reliably. NEVER return "typo" — the spelling in the transcript is the speech ' +
+  "recognizer's, not the learner's. Set \"tip\" to ONE short English sentence pinpointing the " +
+  'most important mistake when anything is wrong; when everything is correct it may be empty.'
+
+export function buildPackedGradePrompt(
+  card: GeneratedPackedCard, userAnswer: string, spoken: boolean
+): { system: string; user: string } {
+  const system = spoken ? PACKED_GRADE_SYSTEM_SPOKEN : PACKED_GRADE_SYSTEM_TYPED
+  const answerLabel = spoken ? "LEARNER'S SPOKEN GERMAN ANSWER (transcript):" : "LEARNER'S GERMAN ANSWER:"
+  const user =
+    `ENGLISH (source shown to the learner): ${card.english}\n` +
+    `GERMAN (reference translation): ${card.german}\n` +
+    `INGREDIENTS TO VERIFY (one JSON entry per key):\n${card.items.map(itemLine).join('\n')}\n` +
+    `${answerLabel} ${userAnswer}`
+  return { system, user }
+}
+
+export function parsePackedGrade(raw: unknown, spec: PackedCardSpec): PackedGrade | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  if (!Array.isArray(r.items)) return null
+  const validKeys = new Set(spec.items.map(i => i.key))
+  const byKey = new Map<string, PackedItemResult>()
+  for (const it of r.items) {
+    if (!it || typeof it !== 'object') continue
+    const e = it as Record<string, unknown>
+    if (typeof e.key !== 'string' || !validKeys.has(e.key) || typeof e.correct !== 'boolean') continue
+    const result: PackedItemResult = { key: e.key, correct: e.correct }
+    if (Array.isArray(e.tags)) {
+      const tags = e.tags.filter((t): t is PackedTag => typeof t === 'string' && (PACKED_TAGS as readonly string[]).includes(t))
+      if (tags.length > 0) result.tags = tags
+    }
+    if (!byKey.has(e.key)) byKey.set(e.key, result)
+  }
+  // Every spec key must be graded — a silent gap would mis-score the card.
+  if (byKey.size !== validKeys.size) return null
+  const items = spec.items.map(i => byKey.get(i.key)!)
+  const grade: PackedGrade = { items }
+  if (typeof r.tip === 'string') {
+    const tip = r.tip.trim()
+    if (tip.length > 0) grade.tip = tip
+  }
+  return grade
+}
+
+export async function gradePackedAnswer(
+  client: AiClient,
+  opts: { model: string; card: GeneratedPackedCard; userAnswer: string; spoken?: boolean }
+): Promise<PackedGrade> {
+  const { system, user } = buildPackedGradePrompt(opts.card, opts.userAnswer, !!opts.spoken)
+  const maxRetries = 1
+  let attempts = 0
+  let lastError = 'no attempts'
+  while (attempts <= maxRetries) {
+    attempts++
+    try {
+      const response = await client.models.generateContent({
+        model: opts.model,
+        contents: user,
+        config: { systemInstruction: system, responseMimeType: 'application/json', responseSchema: PACKED_GRADE_SCHEMA, temperature: 0 }
+      })
+      let parsed: unknown
+      try { parsed = JSON.parse(response.text ?? '') } catch { lastError = 'malformed JSON'; continue }
+      const grade = parsePackedGrade(parsed, opts.card)
+      if (grade === null) { lastError = 'validation failed'; continue }
+      if (opts.spoken) {
+        // Deterministic guarantee (mirrors gradeVerbAnswer): 'typo' never
+        // reaches history from a spoken run, even if the model ignores the prompt.
+        for (const item of grade.items) {
+          if (!item.tags) continue
+          const tags = item.tags.filter(t => t !== 'typo')
+          if (tags.length > 0) item.tags = tags; else delete item.tags
+        }
+      }
+      return grade
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : String(err)
+      continue
+    }
+  }
+  throw new Error(`gradePackedAnswer exhausted ${attempts} attempts. Last error: ${lastError}`)
+}
+
+/**
+ * Offline fallback ("lokale Prüfung per Wortabgleich"): per-item word-presence
+ * checks against the learner's answer. Degraded by design — no tags, verbs
+ * check by stem, umlaut plurals may miss.
+ */
+export function localCheckPackedCard(userAnswer: string, card: GeneratedPackedCard): PackedItemResult[] {
+  const norm = normalizeGerman(userAnswer)
+  const hay = ' ' + norm + ' '
+  return card.items.map(it => {
+    let correct = false
+    if (it.cat === 'prep' && it.prep) correct = prepUsed(userAnswer, it.prep.german)
+    else if (it.cat === 'dac' && it.colloc) correct = hay.includes(' ' + daCompoundFor(it.colloc.preposition) + ' ')
+    else if (it.cat === 'conn' && it.conn) correct = connUsed(userAnswer, it.conn)
+    else if (it.cat === 'noun' && it.noun) correct = norm.includes(normalizeGerman(it.noun.german))
+    else if (it.cat === 'verb' && it.verb) {
+      const inf = normalizeGerman(it.verb.german)
+      const stem = inf.replace(/e?n$/, '')
+      correct = stem.length >= 3 ? norm.includes(stem) : norm.includes(inf)
+    }
+    return { key: it.key, correct }
+  })
+}
+
+const PACKED_MEANING_SCHEMA = {
+  type: 'object',
+  properties: { correct: { type: 'boolean' }, tip: { type: 'string' } },
+  required: ['correct']
+}
+
+const PACKED_MEANING_SYSTEM =
+  'You are a German teacher grading one translation exercise. The learner was shown the GERMAN ' +
+  'passage and typed an ENGLISH translation. Judge whether the English correctly conveys the ' +
+  'meaning of the German — accept paraphrases and synonyms; meaning matters, not an exact match ' +
+  'to the reference. Respond ONLY as JSON {"correct": <boolean>, "tip": "<string>"} — no prose, ' +
+  'no markdown fences. When "correct" is false, set "tip" to ONE short English sentence ' +
+  'pinpointing the drift; otherwise it may be empty.'
+
+export async function gradePackedMeaning(
+  client: AiClient,
+  opts: { model: string; card: GeneratedPackedCard; userAnswer: string }
+): Promise<{ correct: boolean; tip?: string }> {
+  const user =
+    `GERMAN (source shown to the learner): ${opts.card.german}\n` +
+    `ENGLISH (reference translation): ${opts.card.english}\n` +
+    `LEARNER'S ENGLISH ANSWER: ${opts.userAnswer}`
+  const maxRetries = 1
+  let attempts = 0
+  let lastError = 'no attempts'
+  while (attempts <= maxRetries) {
+    attempts++
+    try {
+      const response = await client.models.generateContent({
+        model: opts.model,
+        contents: user,
+        config: { systemInstruction: PACKED_MEANING_SYSTEM, responseMimeType: 'application/json', responseSchema: PACKED_MEANING_SCHEMA, temperature: 0 }
+      })
+      let parsed: unknown
+      try { parsed = JSON.parse(response.text ?? '') } catch { lastError = 'malformed JSON'; continue }
+      if (!parsed || typeof parsed !== 'object' || typeof (parsed as { correct?: unknown }).correct !== 'boolean') {
+        lastError = 'validation failed'; continue
+      }
+      const r = parsed as { correct: boolean; tip?: unknown }
+      const out: { correct: boolean; tip?: string } = { correct: r.correct }
+      if (typeof r.tip === 'string' && r.tip.trim().length > 0) out.tip = r.tip.trim()
+      return out
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : String(err)
+      continue
+    }
+  }
+  throw new Error(`gradePackedMeaning exhausted ${attempts} attempts. Last error: ${lastError}`)
+}
+
+// ───────────────────────── History meta builders ──────────────────────
+
+const VERB_TAGS: readonly VerbErrorTag[] = ['conjugation', 'case', 'word-order', 'noun', 'typo']
+const PREP_TAGS: readonly PrepErrorTag[] = ['preposition', 'case', 'noun', 'typo']
+const DAC_TAGS: readonly DacErrorTag[] = ['preposition', 'compound', 'case', 'noun', 'typo', 'word-order']
+const CONN_TAGS: readonly ConnErrorTag[] = ['connector', 'word-order', 'typo']
+
+function pick<T extends PackedTag>(tags: readonly PackedTag[] | undefined, allowed: readonly T[]): T[] | undefined {
+  if (!tags) return undefined
+  const out = tags.filter((t): t is T => (allowed as readonly string[]).includes(t))
+  return out.length > 0 ? out : undefined
+}
+
+export interface PackedMetaItems {
+  verbSentenceItems: VerbDrillItem[]
+  sentenceItems: PrepDrillItem[]
+  dacSentenceItems: DacDrillItem[]
+  packedConnItems: ConnectorDrillItem[]
+}
+
+/**
+ * Split per-item results into the per-category shapes the existing weak-point
+ * scorers read (ADR-0015 pooling). Nouns ride as noun-only VerbDrillItems
+ * (verbKeys: []) so computeVerbWeakPoints counts them without inventing a
+ * verb; every nounKeys elsewhere stays [] to avoid double counting.
+ */
+export function buildPackedMetaItems(
+  cards: readonly GeneratedPackedCard[],
+  results: ReadonlyMap<number, readonly PackedItemResult[]>
+): PackedMetaItems {
+  const meta: PackedMetaItems = { verbSentenceItems: [], sentenceItems: [], dacSentenceItems: [], packedConnItems: [] }
+  for (const card of cards) {
+    const rs = results.get(card.index)
+    if (!rs) continue
+    const byKey = new Map(rs.map(r => [r.key, r]))
+    for (const it of card.items) {
+      const r = byKey.get(it.key)
+      if (!r) continue
+      if (it.cat === 'verb' && it.verb) {
+        const item: VerbDrillItem = { verbKeys: [it.verb.german], nounKeys: [], correct: r.correct }
+        const tags = pick(r.tags, VERB_TAGS)
+        if (tags) item.tags = tags
+        meta.verbSentenceItems.push(item)
+      } else if (it.cat === 'noun' && it.noun) {
+        const item: VerbDrillItem = { verbKeys: [], nounKeys: [it.noun.german], correct: r.correct }
+        const tags = pick(r.tags, VERB_TAGS)
+        if (tags) item.tags = tags
+        meta.verbSentenceItems.push(item)
+      } else if (it.cat === 'prep' && it.prep) {
+        const item: PrepDrillItem = { prepId: it.prep.id, prepGerman: it.prep.german, nounKeys: [], correct: r.correct }
+        const tags = pick(r.tags, PREP_TAGS)
+        if (tags) item.tags = tags
+        meta.sentenceItems.push(item)
+      } else if (it.cat === 'dac' && it.colloc) {
+        const item: DacDrillItem = { collocId: it.colloc.id, collocWord: it.colloc.word, prepGerman: it.colloc.preposition, nounKeys: [], correct: r.correct }
+        const tags = pick(r.tags, DAC_TAGS)
+        if (tags) item.tags = tags
+        meta.dacSentenceItems.push(item)
+      } else if (it.cat === 'conn' && it.conn) {
+        const item: ConnectorDrillItem = { connId: it.conn.id, connWord: it.conn.display, correct: r.correct }
+        const tags = pick(r.tags, CONN_TAGS)
+        if (tags) item.tags = tags
+        meta.packedConnItems.push(item)
+      }
+    }
+  }
+  return meta
 }

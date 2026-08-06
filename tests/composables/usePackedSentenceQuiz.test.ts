@@ -2,7 +2,8 @@ import { describe, test, expect } from 'vitest'
 import {
   PACKED_MAX, PACKED_BUDGET, packedTotal, buildPackedSpecs, daCompoundFor, rektShort,
   validatePackedCard, buildPackedGeneratePrompt, buildPackedSegments, connUsed,
-  type PackedPools, type PackedCounts, type PackedCardSpec, type GeneratedPackedCard
+  verdictOf, parsePackedGrade, localCheckPackedCard, buildPackedMetaItems, buildPackedGradePrompt,
+  type PackedPools, type PackedCounts, type PackedCardSpec, type GeneratedPackedCard, type PackedItemResult
 } from '../../src/composables/usePackedSentenceQuiz'
 import { CONNECTORS } from '../../src/data/connectors'
 import type { NounRef } from '../../src/composables/useSentenceQuiz'
@@ -208,5 +209,93 @@ describe('buildPackedSegments', () => {
   test('segments concatenate back to the source string', () => {
     const segs = buildPackedSegments(card.english, card)
     expect(segs.map(s => s.text).join('')).toBe(card.english)
+  })
+})
+
+const CARD: GeneratedPackedCard = { ...SPEC, ...GOOD_RAW, sents: 1, spans: GOOD_RAW.spans }
+
+describe('verdictOf', () => {
+  const r = (oks: boolean[]) => oks.map((ok, i) => ({ key: `x${i}`, correct: ok }))
+  test('ok when all correct, part at >= half, no below half', () => {
+    expect(verdictOf(r([true, true, true]))).toBe('ok')
+    expect(verdictOf(r([true, true, false]))).toBe('part')   // 2/3 >= ceil(3/2)=2
+    expect(verdictOf(r([true, false, false]))).toBe('no')
+    expect(verdictOf(r([true, false, false, false]))).toBe('no')
+    expect(verdictOf(r([true, true, false, false]))).toBe('part')
+  })
+})
+
+describe('parsePackedGrade', () => {
+  const goodItems = SPEC.items.map(i => ({ key: i.key, correct: true }))
+  test('accepts a full per-item grade and filters unknown tags/keys', () => {
+    const g = parsePackedGrade({
+      items: [...goodItems.slice(0, 4), { key: 'k1', correct: false, tags: ['connector', 'word-order', 'nonsense'] }, { key: 'zz', correct: true }],
+      tip: ' Watch the inversion. '
+    }, SPEC)!
+    expect(g.items).toHaveLength(5)
+    expect(g.items.find(i => i.key === 'k1')!.tags).toEqual(['connector', 'word-order'])
+    expect(g.tip).toBe('Watch the inversion.')
+  })
+  test('rejects when an item key is missing (forces a retry, never a silent gap)', () => {
+    expect(parsePackedGrade({ items: goodItems.slice(1) }, SPEC)).toBeNull()
+  })
+  test('rejects non-objects', () => {
+    expect(parsePackedGrade('nope', SPEC)).toBeNull()
+  })
+})
+
+describe('localCheckPackedCard', () => {
+  test('checks each item by word presence against the reference machinery', () => {
+    const results = localCheckPackedCard(
+      'Mein Kollege wartet seit Montag auf den Bericht, aber ich warte auch schon lange darauf.', CARD
+    )
+    expect(results.every(r => r.correct)).toBe(true)
+  })
+  test('flags the missing connector and da-compound', () => {
+    const results = localCheckPackedCard('Mein Kollege wartet seit Montag auf den Bericht.', CARD)
+    const byKey = new Map(results.map(r => [r.key, r]))
+    expect(byKey.get('k1')!.correct).toBe(false)
+    expect(byKey.get('d1')!.correct).toBe(false)
+    expect(byKey.get('p1')!.correct).toBe(true)
+  })
+  test('accepts an inflected noun (stem containment)', () => {
+    const results = localCheckPackedCard('Wir warten seit Tagen auf die Berichte, aber ich arbeite daran.', CARD)
+    expect(results.find(r => r.key === 'n1')!.correct).toBe(true)
+  })
+})
+
+describe('buildPackedGradePrompt', () => {
+  test('spoken variant forbids typo and mentions the transcript', () => {
+    const { system } = buildPackedGradePrompt(CARD, 'egal', true)
+    expect(system).toContain('NEVER')
+    expect(system.toLowerCase()).toContain('transcri')
+    const typed = buildPackedGradePrompt(CARD, 'egal', false)
+    expect(typed.system).toContain('"typo"')
+  })
+})
+
+describe('buildPackedMetaItems', () => {
+  test('splits per-item results into the per-category history shapes (all-or-nothing stays per item)', () => {
+    const results = new Map<number, PackedItemResult[]>([[0, [
+      { key: 'v1', correct: false, tags: ['conjugation', 'connector'] },
+      { key: 'n1', correct: false, tags: ['noun'] },
+      { key: 'p1', correct: true },
+      { key: 'd1', correct: false, tags: ['compound', 'case'] },
+      { key: 'k1', correct: false, tags: ['connector', 'word-order'] }
+    ]]])
+    const meta = buildPackedMetaItems([CARD], results)
+    expect(meta.verbSentenceItems).toEqual([
+      { verbKeys: ['warten'], nounKeys: [], correct: false, tags: ['conjugation'] },   // 'connector' filtered out
+      { verbKeys: [], nounKeys: ['Bericht'], correct: false, tags: ['noun'] }          // the noun rides as a noun-only item
+    ])
+    expect(meta.sentenceItems).toEqual([
+      { prepId: 'seit', prepGerman: 'seit', nounKeys: [], correct: true }
+    ])
+    expect(meta.dacSentenceItems).toEqual([
+      { collocId: 'warten-auf', collocWord: 'warten', prepGerman: 'auf', nounKeys: [], correct: false, tags: ['compound', 'case'] }
+    ])
+    expect(meta.packedConnItems).toEqual([
+      { connId: 'aber', connWord: 'aber', correct: false, tags: ['connector', 'word-order'] }
+    ])
   })
 })
