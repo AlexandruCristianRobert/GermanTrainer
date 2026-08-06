@@ -1,0 +1,1 @@
+import{C as l}from"./collocations-d-7dbAnK.js";import{c as t}from"./pool-Cxbj_MKy.js";const e=t(l,{levels:o=>o.level,roles:o=>o.role,preps:o=>o.preposition});function s(o={}){return e.filter(o)}function n(o,r={}){return e.sample(o,r)}function c(){return{all:l,filter:s,sample:n}}export{s as f,c as u};
