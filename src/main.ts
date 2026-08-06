@@ -14,6 +14,7 @@ import '@fontsource/jetbrains-mono/500.css'
 import './styles/tokens.css'
 import './styles/modules.css'
 import './styles/sprechen.css'
+import './styles/sentence.css'
 
 // Apply theme synchronously to avoid a flash of incorrect mode (FOUC).
 // Reads the same storage key as src/composables/useTheme.ts.
