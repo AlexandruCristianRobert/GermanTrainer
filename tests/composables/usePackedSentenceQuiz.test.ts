@@ -1,7 +1,8 @@
 import { describe, test, expect } from 'vitest'
 import {
   PACKED_MAX, PACKED_BUDGET, packedTotal, buildPackedSpecs, daCompoundFor, rektShort,
-  type PackedPools, type PackedCounts
+  validatePackedCard, buildPackedGeneratePrompt, buildPackedSegments, connUsed,
+  type PackedPools, type PackedCounts, type PackedCardSpec, type GeneratedPackedCard
 } from '../../src/composables/usePackedSentenceQuiz'
 import { CONNECTORS } from '../../src/data/connectors'
 import type { NounRef } from '../../src/composables/useSentenceQuiz'
@@ -95,5 +96,117 @@ describe('rektShort', () => {
     expect(rektShort('reflexive')).toBe('refl')
     expect(rektShort('none')).toBeNull()
     expect(rektShort('varies')).toBeNull()
+  })
+})
+
+const CONN_ABER = CONNECTORS.find(c => c.id === 'aber')!
+const CONN_PAIR = CONNECTORS.find(c => c.id === 'sowohl-als-auch')!
+
+const SPEC: PackedCardSpec = {
+  index: 0,
+  items: [
+    { key: 'v1', cat: 'verb', verb: { german: 'warten', english: 'wait', level: 'B1', case: 'accusative' } },
+    { key: 'n1', cat: 'noun', noun: { german: 'Bericht', article: 'der', english: 'report' } },
+    { key: 'p1', cat: 'prep', prep: { id: 'seit', german: 'seit', english: 'since', case: 'dative' } },
+    { key: 'd1', cat: 'dac', colloc: { id: 'warten-auf', word: 'warten', english: 'to wait for', preposition: 'auf', case: 'accusative' } },
+    { key: 'k1', cat: 'conn', conn: CONN_ABER }
+  ]
+}
+const GOOD_RAW = {
+  index: 0,
+  english: 'My colleague has been waiting for the report since Monday, but I am still working on it.',
+  german: 'Mein Kollege wartet seit Montag auf den Bericht, aber ich warte auch schon lange darauf.',
+  sentenceCount: 1,
+  spans: [
+    { key: 'v1', en: 'waiting' }, { key: 'n1', en: 'report' }, { key: 'p1', en: 'since' },
+    { key: 'd1', en: 'on it' }, { key: 'k1', en: 'but' }
+  ]
+}
+
+describe('connUsed', () => {
+  test('single word, word-bounded', () => {
+    expect(connUsed('Ich bleibe, aber du gehst.', CONN_ABER)).toBe(true)
+    expect(connUsed('Das ist aberwitzig.', CONN_ABER)).toBe(false)
+  })
+  test('two-part requires both parts', () => {
+    expect(connUsed('Sowohl die Miete als auch die Kosten steigen.', CONN_PAIR)).toBe(true)
+    expect(connUsed('Sowohl die Miete steigt.', CONN_PAIR)).toBe(false)
+  })
+})
+
+describe('validatePackedCard', () => {
+  test('accepts a good card', () => {
+    const v = validatePackedCard(GOOD_RAW, SPEC)!
+    expect(v).not.toBeNull()
+    expect(v.sents).toBe(1)
+    expect(v.spans).toHaveLength(5)
+    expect(v.german).toContain('darauf')
+  })
+  test('rejects when the connector is missing from the German', () => {
+    const raw = { ...GOOD_RAW, german: 'Mein Kollege wartet seit Montag auf den Bericht und ich arbeite noch daran.' }
+    expect(validatePackedCard(raw, SPEC)).toBeNull()
+  })
+  test('rejects when the preposition is missing', () => {
+    const raw = { ...GOOD_RAW, german: 'Mein Kollege wartet auf den Bericht, aber ich arbeite noch daran.' }
+    expect(validatePackedCard(raw, SPEC)).toBeNull()
+  })
+  test('rejects when the da-compound is missing', () => {
+    const raw = { ...GOOD_RAW, german: 'Mein Kollege wartet seit Montag auf den Bericht, aber ich arbeite noch.' }
+    expect(validatePackedCard(raw, SPEC)).toBeNull()
+  })
+  test('derives sents from the German when sentenceCount is absent, clamped 1..4', () => {
+    const raw = { ...GOOD_RAW, sentenceCount: undefined }
+    expect(validatePackedCard(raw, SPEC)!.sents).toBe(1)
+    const raw9 = { ...GOOD_RAW, sentenceCount: 9 }
+    expect(validatePackedCard(raw9, SPEC)!.sents).toBe(4)
+  })
+  test('keeps only well-formed spans, tolerates missing ones', () => {
+    const raw = { ...GOOD_RAW, spans: [{ key: 'v1', en: 'waiting' }, { key: 'zz', en: 5 }] }
+    const v = validatePackedCard(raw, SPEC)!
+    expect(v.spans).toEqual([{ key: 'v1', en: 'waiting' }])
+  })
+})
+
+describe('buildPackedGeneratePrompt', () => {
+  test('lists every item with its key, Rektion, da-compound and behavior', () => {
+    const p = buildPackedGeneratePrompt([SPEC], 'B1/B2', { angles: ['set it at the office'], seed: 'abc' })
+    expect(p).toContain('[v1]')
+    expect(p).toContain('warten')
+    expect(p).toContain('[p1]')
+    expect(p).toContain('Dativ')
+    expect(p).toContain('darauf')      // the required da-compound is named outright
+    expect(p).toContain('[k1]')
+    expect(p).toContain('aber')
+  })
+})
+
+describe('buildPackedSegments', () => {
+  const card: GeneratedPackedCard = { ...SPEC, ...GOOD_RAW, sents: 1, spans: GOOD_RAW.spans }
+  test('locates spans, keys them, reveals German only for verb + noun (hybrid)', () => {
+    const segs = buildPackedSegments(card.english, card)
+    const items = segs.filter(s => s.item)
+    expect(items.map(s => s.item!.key)).toEqual(['v1', 'n1', 'p1', 'k1', 'd1'])
+    const byKey = new Map(items.map(s => [s.item!.key, s]))
+    expect(byKey.get('v1')!.item!.reveal).toBe('warten')
+    expect(byKey.get('n1')!.item!.reveal).toBe('der Bericht')
+    expect(byKey.get('p1')!.item!.reveal).toBeUndefined()
+    expect(byKey.get('d1')!.item!.reveal).toBeUndefined()
+    expect(byKey.get('k1')!.item!.reveal).toBeUndefined()
+  })
+  test('two-part connector yields two spans sharing one key', () => {
+    const pairSpec: PackedCardSpec = { index: 1, items: [{ key: 'k1', cat: 'conn', conn: CONN_PAIR }] }
+    const pairCard: GeneratedPackedCard = {
+      ...pairSpec,
+      english: 'Both the rent and the costs are rising.',
+      german: 'Sowohl die Miete als auch die Kosten steigen.',
+      sents: 1,
+      spans: [{ key: 'k1', en: 'Both' }, { key: 'k1', en: 'and' }]
+    }
+    const segs = buildPackedSegments(pairCard.english, pairCard)
+    expect(segs.filter(s => s.item?.key === 'k1')).toHaveLength(2)
+  })
+  test('segments concatenate back to the source string', () => {
+    const segs = buildPackedSegments(card.english, card)
+    expect(segs.map(s => s.text).join('')).toBe(card.english)
   })
 })
