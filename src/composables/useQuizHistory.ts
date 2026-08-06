@@ -179,7 +179,7 @@ export interface QuizHistoryMeta {
   verbSentenceHints?: boolean
   verbSentenceItems?: VerbDrillItem[]
   verbSentenceModality?: 'typed' | 'spoken'  // absent means typed (runs before this field existed)
-  /** Zeitform assigned per spec, when the run used tense selection (absent = untensed, incl. remedial). */
+  /** The Zeitform selection this run drew from (the per-spec assignment is not recorded). */
   verbSentenceTenses?: VerbTense[]
 
   // Da-compound sentence-translation (AI) — T14 EN→DE / T15 DE→EN, AI-graded

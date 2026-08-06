@@ -61,6 +61,11 @@ describe('VerbSentenceRunner tenses', () => {
     const w = await mountRunner({ specs: [SPEC], level: 'A1', meta: { levels: ['A1'], types: [], cases: [], groups: [], verbsPer: 1, nounsPer: 1, tenses: ['passivPraeteritum'] } })
     expect(w.find('.tense-badge').exists()).toBe(true)
     expect(w.find('.tense-badge').text()).toBe('Passiv Präteritum')
+    // Pin the generation wiring itself: the tensed system prompt and the
+    // per-item Zeitform line must both reach the mocked client.
+    const genCall = generateContentMock.mock.calls[0][0]
+    expect(String(genCall.config.systemInstruction)).toContain('required Zeitform')
+    expect(String(genCall.contents)).toContain('Zeitform:')
   })
 
   it('shows no badge for an untensed spec (remedial/legacy stash)', async () => {

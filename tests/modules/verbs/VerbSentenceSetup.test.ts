@@ -28,7 +28,9 @@ beforeEach(() => {
 })
 
 function chip(wrapper: ReturnType<typeof mount>, label: string) {
-  return wrapper.findAll('button.tense-chip').find(b => b.text().includes(label))!
+  // Match the label span exactly — substring matching would let 'Präsens' hit
+  // 'Passiv Präsens' too, passing only by DOM-order luck.
+  return wrapper.findAll('button.tense-chip').find(b => b.find('span').text() === label)!
 }
 
 describe('VerbSentenceSetup Zeitformen', () => {
@@ -76,6 +78,28 @@ describe('VerbSentenceSetup Zeitformen', () => {
     }
     expect(wrapper.text()).toContain('Passive tenses are disabled')
     expect(chip(wrapper, 'Passiv Präsens').attributes('disabled')).toBeDefined()
+  })
+
+  test('a pinned passive chip renders unselected while unsupported, and reselects once accusative returns', async () => {
+    const wrapper = mount(VerbSentenceSetup)
+    await flushPromises()
+    // Deselect every case except 'none' → no accusative-capable verbs remain.
+    for (const c of ['accusative', 'dative', 'dative+accusative', 'genitive', 'reflexive', 'varies']) {
+      const b = wrapper.findAll('.chip').find(x => x.text() === c)!
+      await b.trigger('click')
+    }
+    expect(chip(wrapper, 'Passiv Präsens').classes()).not.toContain('selected')
+    // Pin the selection via a non-passive (enabled) chip — the level-derived
+    // default still carries 'passivPraesens' into the pin even though it's
+    // currently disabled and can't be clicked directly.
+    await chip(wrapper, 'Präsens').trigger('click')
+    await chip(wrapper, 'Präsens').trigger('click') // toggle back on: pin now equals the default set
+    expect(chip(wrapper, 'Passiv Präsens').classes()).not.toContain('selected')
+    // Re-enable accusative → passive support returns; the pinned selection
+    // (never dropped) should render selected again.
+    const accusative = wrapper.findAll('.chip').find(x => x.text() === 'accusative')!
+    await accusative.trigger('click')
+    expect(chip(wrapper, 'Passiv Präsens').classes()).toContain('selected')
   })
 
   test('None empties the selection and disables Start', async () => {

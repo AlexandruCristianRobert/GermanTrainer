@@ -53,7 +53,7 @@ const CEFR_ORDER: TenseCEFR[] = ['A1', 'A2', 'B1', 'B2', 'C1']
 function defaultTensesFor(lvls: readonly VerbLevel[]): VerbTense[] {
   const cap = lvls.length === 0
     ? CEFR_ORDER.indexOf('B1')
-    : Math.max(...lvls.map(l => CEFR_ORDER.indexOf(verbLevelToCefr(l) as TenseCEFR)))
+    : Math.max(0, Math.max(...lvls.map(l => CEFR_ORDER.indexOf(verbLevelToCefr(l) as TenseCEFR))))
   return VERB_TENSES.filter(t => CEFR_ORDER.indexOf(TENSE_LEVEL[t]) <= cap)
 }
 
@@ -243,7 +243,7 @@ function back() { router.push({ name: 'verbs' }) }
 
     <div class="field">
       <div class="field-row">
-        <div class="field-label">Zeitformen · {{ selectedTenses.length }} of {{ VERB_TENSES.length }}</div>
+        <div class="field-label">Zeitformen · {{ effectiveTenses.length }} of {{ VERB_TENSES.length }}</div>
         <div class="field-actions">
           <button class="btn btn-quiet" type="button" @click="customTenses = [...VERB_TENSES]">All</button>
           <button class="btn btn-quiet" type="button" @click="customTenses = []">None</button>
@@ -259,7 +259,7 @@ function back() { router.push({ name: 'verbs' }) }
           <button
             v-for="t in tensesByLevel[lv]" :key="t"
             class="chip tense-chip"
-            :class="{ selected: selectedTenses.includes(t) }"
+            :class="{ selected: effectiveTenses.includes(t) }"
             :disabled="tenseDisabled(t)"
             @click="toggleTense(t)"
           >
