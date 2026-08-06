@@ -97,7 +97,8 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'simulator-c1':       { label: 'Goethe C1 — mock exam',          de: 'Goethe C1 · Prüfungssimulation', module: 'Schreiben' },
   'sprechen-teil1':     { label: 'Sprechen — Teil 1 Vortrag',       de: 'Sprechen · Teil 1 Vortrag',    module: 'Sprechen' },
   'sprechen-teil2':     { label: 'Sprechen — Teil 2 discussion',    de: 'Sprechen · Teil 2 Diskussion', module: 'Sprechen' },
-  'sprechen-drill':     { label: 'Sprechen — Korrekturdrill',       de: 'Sprechen · Korrekturdrill',    module: 'Sprechen' }
+  'sprechen-drill':     { label: 'Sprechen — Korrekturdrill',       de: 'Sprechen · Korrekturdrill',    module: 'Sprechen' },
+  'sentence-packed':    { label: 'Sentence · packed (AI)',          de: 'Satz · Gepackt (KI)',          module: 'Sentence' }
 }
 
 const typeOrder: QuizHistoryType[] = [

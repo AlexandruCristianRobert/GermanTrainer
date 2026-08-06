@@ -145,7 +145,8 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
     'Sprechen Korrekturdrill — re-practice of the learner\'s OWN previously marked ' +
     'mistakes, replayed from the error archive. A high score means earlier corrections ' +
     'were revised successfully; it is NOT evidence of fresh B2 command, because every ' +
-    'item was already a known weak spot.'
+    'item was already a known weak spot.',
+  'sentence-packed': 'Sentence · packed (AI)'
 }
 
 function fmtPct(n: number): string {

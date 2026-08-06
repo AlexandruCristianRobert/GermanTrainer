@@ -60,6 +60,7 @@ export type QuizHistoryType =
   | 'sprechen-teil1'
   | 'sprechen-teil2'
   | 'sprechen-drill'
+  | 'sentence-packed'
 
 export type PrepErrorTag = 'preposition' | 'case' | 'noun' | 'typo'
 
@@ -128,6 +129,17 @@ export interface DwDrillItem {
   nounKeys?: string[]    // german surfaces of the theme nouns involved
   correct: boolean
   tags?: DwErrorTag[]    // why wrong; absent when correct
+}
+
+/** A connector error category the packed-sentence grader may assign. */
+export type ConnErrorTag = 'connector' | 'word-order' | 'typo'
+
+/** One recorded connector result in a sentence-packed run (EN→DE only). */
+export interface ConnectorDrillItem {
+  connId?: string      // stable connector id ('zwar-aber') for weak-point keying
+  connWord?: string    // display form, denormalized ('zwar … aber')
+  correct: boolean
+  tags?: ConnErrorTag[]
 }
 
 export interface QuizHistoryMeta {
@@ -277,6 +289,19 @@ export interface QuizHistoryMeta {
   sprechenAufwertungen?: Array<{ quote: string; better: string; whyDe: string; whyEn: string }>
   sprechenWallSeconds?: number   // F2 — wall-clock duration of the Rede, mic paused or not
   sprechenDowngraded?: boolean   // F13 — the run fell back from spoken to typed mid-Rede
+
+  // Sentence module — packed cards (sentence-packed). Per-item records for
+  // verbs/nouns reuse verbSentenceItems, preps reuse sentenceItems, and
+  // da-compounds reuse dacSentenceItems (nounKeys: [] on all of them), so the
+  // existing weak-point scorers pool packed evidence (ADR-0015). Connectors
+  // are new and get their own item list.
+  packedCounts?: { verb: number; noun: number; prep: number; dac: number; conn: number }
+  packedDirection?: 'en-de' | 'de-en'
+  packedModality?: 'typed' | 'spoken'
+  packedHints?: boolean
+  packedItemsOk?: number      // items hit across the run (for the result header)
+  packedItemsTotal?: number
+  packedConnItems?: ConnectorDrillItem[]
 }
 
 export interface QuizHistoryEntry {

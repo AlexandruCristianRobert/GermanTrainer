@@ -56,7 +56,8 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'simulator-c1': 'Goethe C1 · Mock exam',
   'sprechen-teil1': 'Sprechen · Teil 1 Vortrag',
   'sprechen-teil2': 'Sprechen · Teil 2 discussion',
-  'sprechen-drill': 'Sprechen · Korrekturdrill'
+  'sprechen-drill': 'Sprechen · Korrekturdrill',
+  'sentence-packed': 'Sentence · packed (AI)'
 }
 
 export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
@@ -115,7 +116,8 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'simulator-c1': 'Goethe C1 · Prüfungssimulation',
   'sprechen-teil1': 'Sprechen · Teil 1 Vortrag',
   'sprechen-teil2': 'Sprechen · Teil 2 Diskussion',
-  'sprechen-drill': 'Sprechen · Korrekturdrill'
+  'sprechen-drill': 'Sprechen · Korrekturdrill',
+  'sentence-packed': 'Satz · Gepackt (KI)'
 }
 
 export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
@@ -162,6 +164,7 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'dw-idiom',
   'prep-sentence',
   'prep-remedial',
+  'sentence-packed',
   'decl-table',
   'decl-article',
   'decl-adjective',

@@ -142,7 +142,8 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'simulator-c1': 0,
     'sprechen-teil1': 0,
     'sprechen-teil2': 0,
-    'sprechen-drill': 0
+    'sprechen-drill': 0,
+    'sentence-packed': 0
   }
 }
 
@@ -203,7 +204,8 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'simulator-c1': emptyBucket(),
     'sprechen-teil1': emptyBucket(),
     'sprechen-teil2': emptyBucket(),
-    'sprechen-drill': emptyBucket()
+    'sprechen-drill': emptyBucket(),
+    'sentence-packed': emptyBucket()
   }
 }
 
