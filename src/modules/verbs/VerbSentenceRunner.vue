@@ -25,6 +25,7 @@ import {
 import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun, type QuizHistoryType } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
+import { TENSE_LABELS, type VerbTense } from '../../data/verbs'
 import { resolveAiClient } from '../../composables/localClaude'
 import { useSpeechRecognizer } from '../../composables/useSpeechRecognizer'
 import { useSpeechVoice } from '../../composables/useSpeechVoice'
@@ -48,7 +49,7 @@ interface Stash {
   level?: string
   wordHints?: boolean
   modality?: 'typed' | 'spoken'
-  meta?: { levels: string[]; types: string[]; cases: string[]; groups: string[]; verbsPer: 1 | 2 | 'mix'; nounsPer: 1 | 2 | 'mix' }
+  meta?: { levels: string[]; types: string[]; cases: string[]; groups: string[]; verbsPer: 1 | 2 | 'mix'; nounsPer: 1 | 2 | 'mix'; tenses?: VerbTense[] }
 }
 
 const error = ref<string | null>(null)
@@ -206,7 +207,8 @@ async function submit() {
       english: s.english, german: s.german,
       verbsGerman: s.verbs.map(v => v.german), nounsGerman: s.nouns.map(n => n.german),
       userAnswer: userInput.value,
-      spoken: spoken.value
+      spoken: spoken.value,
+      tense: s.tense
     })
     verdict = { index: i, correct: grade.correct, correction: s.german, tip: grade.tip, tags: grade.tags }
   } catch {
@@ -240,7 +242,8 @@ function finishQuiz() {
       verbSentenceCases: metaInfo.value?.cases, verbSentenceGroups: metaInfo.value?.groups,
       verbsPerSentence: metaInfo.value?.verbsPer, verbSentenceNounsPer: metaInfo.value?.nounsPer,
       verbSentenceHints: wordHints.value, verbSentenceItems: items,
-      verbSentenceModality: spoken.value ? 'spoken' : 'typed'
+      verbSentenceModality: spoken.value ? 'spoken' : 'typed',
+      verbSentenceTenses: metaInfo.value?.tenses
     }
   })
 }
@@ -440,6 +443,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 
       <template v-else-if="current">
         <div class="prompt-card">
+          <div v-if="current.tense" class="tense-badge">{{ TENSE_LABELS[current.tense] }}</div>
           <div v-if="!wordHints" class="en-sentence">{{ current.english }}</div>
           <div v-else class="en-sentence">
             <template v-for="(seg, i) in currentSegments" :key="i"><span
@@ -506,6 +510,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 .quiz-counter { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mute); }
 .sentence-progress { margin-bottom: 36px; }
 .prompt-card { text-align: center; }
+.tense-badge { display: inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); border: 1px solid currentColor; border-radius: 3px; padding: 2px 8px; margin-bottom: 12px; }
 .en-sentence { font-family: var(--font-display); font-weight: 500; font-size: 30px; line-height: 1.3; letter-spacing: -0.005em; color: var(--ink); }
 .en-hint { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); margin-top: 14px; }
 .hint { position: relative; cursor: help; text-decoration: underline dotted; text-underline-offset: 4px; border-radius: 2px; padding: 0 1px; transition: background-color 120ms ease; outline: none; }

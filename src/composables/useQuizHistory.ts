@@ -2,6 +2,7 @@
 // Schema matches the design handoff (history.jsx).
 
 import { bumpDrillTotals } from './useDrillMastery'
+import type { VerbTense } from '../data/verbs'
 
 export type QuizHistoryType =
   | 'noun-gender'
@@ -178,6 +179,8 @@ export interface QuizHistoryMeta {
   verbSentenceHints?: boolean
   verbSentenceItems?: VerbDrillItem[]
   verbSentenceModality?: 'typed' | 'spoken'  // absent means typed (runs before this field existed)
+  /** The Zeitform selection this run drew from (the per-spec assignment is not recorded). */
+  verbSentenceTenses?: VerbTense[]
 
   // Da-compound sentence-translation (AI) — T14 EN→DE / T15 DE→EN, AI-graded
   dacSentenceLevels?: string[]

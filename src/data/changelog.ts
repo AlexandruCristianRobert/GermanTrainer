@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.18.02'
+export const APP_VERSION = '1.18.03'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.18.03', date: '2026-08-06', kind: 'polish',
+    title: 'Satzübersetzung · Zeitformen nach Wahl',
+    notes: [
+      '<strong>Du bestimmst die Zeitformen.</strong> Die KI-Satzübersetzung kennt jetzt ein Zeitformen-Feld — alle fünfzehn Formen von Präsens bis Passiv Konjunktiv II, nach Niveau gruppiert. Jeder Satz bekommt eine deiner Formen fest zugeteilt, gleichmäßig durchgemischt statt dem Zufall der KI überlassen. Voreingestellt sind die Formen deines Levels; sobald du selbst wählst, bleibt deine Auswahl gespeichert.',
+      '<strong>Die Karte sagt, was verlangt ist.</strong> Ein kleines Schild über dem englischen Satz nennt die geforderte Form — wichtig, wo das Englische sie nicht verrät: war das Perfekt oder Präteritum? Und die Bewertung kennt sie auch — ein richtiger Satz in der falschen Form zählt nicht.',
+      '<strong>Passiv nur, wo es geht.</strong> Passiv-Formen landen nur auf Sätzen mit einem transitiven Verb; hat dein Filter keins, sind sie sauber abgeschaltet. Die Schwachstellen-Runde bleibt, wie sie war — dort variiert die KI die Zeit weiterhin natürlich.'
+    ]
+  },
   {
     version: '1.18.02', date: '2026-08-06', kind: 'polish',
     title: 'Übersetzen · die Präzise-Variante',

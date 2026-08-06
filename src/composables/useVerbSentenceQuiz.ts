@@ -8,8 +8,8 @@
 // (ADR-0003). The learner reads the English and types the German.
 
 import { shuffle } from '../data/pool'
-import { VERB_LEVELS, verbLevelToCefr } from '../data/verbs'
-import type { Verb, VerbLevel } from '../data/verbs'
+import { VERB_LEVELS, verbLevelToCefr, PASSIVE_TENSE_SET, TENSE_LABELS } from '../data/verbs'
+import type { Verb, VerbLevel, VerbCase, VerbTense } from '../data/verbs'
 import type { NounRef, HintInput } from './useSentenceQuiz'
 import type { AiClient } from './useClaude'
 import type { VerbErrorTag, VerbDrillItem } from './useQuizHistory'
@@ -21,6 +21,9 @@ export interface VerbRef {
   german: string   // infinitive / dictionary form
   english: string  // gloss, e.g. "go" or "make / do"
   level: VerbLevel
+  /** Object case — passive-eligibility check in buildVerbSpecs. Optional:
+   *  stashed specs from before this field existed lack it. */
+  case?: VerbCase
 }
 
 export type WordsPer = 1 | 2 | 'mix'
@@ -33,6 +36,8 @@ export interface VerbSentenceSpec {
   index: number
   verbs: VerbRef[]
   nouns: NounRef[]
+  /** Required German form for the sentence; absent → the model varies naturally. */
+  tense?: VerbTense
 }
 
 /** A noun/verb the AI introduced for naturalness, with its German to reveal. */
@@ -66,7 +71,7 @@ export interface VerbSentenceVerdict {
 
 /** Project a stored Verb to the lean ref the prompt needs. */
 export function verbToRef(v: Verb): VerbRef {
-  return { german: v.german, english: v.english, level: v.level }
+  return { german: v.german, english: v.english, level: v.level, case: v.case }
 }
 
 /** A refilling shuffled bag: draws spread the pool before any repeat. */
@@ -96,6 +101,8 @@ function drawUnique<T>(next: () => T | null, k: number, key: (t: T) => string): 
 /**
  * Build `count` specs, each with `verbsPer` distinct drilled verbs and
  * `nounsPer` distinct theme nouns drawn from refilling bags (good spread).
+ * When `tenses` is given, each spec is also assigned a tense from its own
+ * refilling bag (even spread); passive specs draw accusative-capable verbs.
  */
 export function buildVerbSpecs(
   verbPool: readonly VerbRef[],
@@ -103,19 +110,30 @@ export function buildVerbSpecs(
   count: number,
   verbsPer: WordsPer,
   nounsPer: WordsPer,
-  rng: () => number = Math.random
+  rng: () => number = Math.random,
+  tenses?: readonly VerbTense[]
 ): VerbSentenceSpec[] {
+  // Passive needs a passivizable (accusative-capable) verb. The setup screen
+  // gates this too; this is the backstop for direct callers.
+  const accusativePool = verbPool.filter(v => v.case === 'accusative' || v.case === 'dative+accusative')
+  const usableTenses = (tenses ?? []).filter(t => !PASSIVE_TENSE_SET.has(t) || accusativePool.length > 0)
+  const nextTense = usableTenses.length > 0 ? makeBag(usableTenses, rng) : null
   const nextVerb = makeBag(verbPool, rng)
+  const nextAccVerb = makeBag(accusativePool, rng)
   const nextNoun = makeBag(nounPool, rng)
   const specs: VerbSentenceSpec[] = []
   for (let index = 0; index < count; index++) {
     const kv = verbsPer === 'mix' ? (rng() < 0.5 ? 1 : 2) : verbsPer
     const kn = nounsPer === 'mix' ? (rng() < 0.5 ? 1 : 2) : nounsPer
-    specs.push({
+    const tense = nextTense ? nextTense() : null
+    const passive = tense !== null && PASSIVE_TENSE_SET.has(tense)
+    const spec: VerbSentenceSpec = {
       index,
-      verbs: drawUnique(nextVerb, kv, v => v.german),
+      verbs: drawUnique(passive ? nextAccVerb : nextVerb, kv, v => v.german),
       nouns: drawUnique(nextNoun, kn, n => n.german)
-    })
+    }
+    if (tense !== null) spec.tense = tense
+    specs.push(spec)
   }
   return specs
 }
@@ -142,6 +160,37 @@ export const VERB_ANGLE_POOL = [
   'frame it as something overheard'
 ] as const
 
+/** German name + short construction gloss the generator gets for a required form. */
+export const TENSE_PROMPT_HINTS: Record<VerbTense, string> = {
+  praesens: 'Präsens (present tense)',
+  imperativ: 'Imperativ (a command in the du-form, e.g. "Öffne die Tür!")',
+  perfekt: 'Perfekt (conversational past: haben/sein + Partizip II)',
+  praeteritum: 'Präteritum (simple past)',
+  plusquamperfekt: 'Plusquamperfekt (past perfect: hatte/war + Partizip II)',
+  futur1: 'Futur I (werden + Infinitiv)',
+  konjunktiv2: 'Konjunktiv II (hypothetical or polite: würde/wäre/hätte …)',
+  konjunktiv1: 'Konjunktiv I (reported speech — frame the sentence as indirect speech, e.g. "Er sagt, er gehe …")',
+  futur2: 'Futur II (werden + Partizip II + haben/sein)',
+  passivPraesens: 'Passiv Präsens / Vorgangspassiv (wird + Partizip II)',
+  passivPraeteritum: 'Passiv Präteritum (wurde + Partizip II)',
+  passivPerfekt: 'Passiv Perfekt (ist + Partizip II + worden)',
+  passivPlusquamperfekt: 'Passiv Plusquamperfekt (war + Partizip II + worden)',
+  passivFutur1: 'Passiv Futur I (wird + Partizip II + werden)',
+  passivKonjunktiv2: 'Passiv Konjunktiv II (würde + Partizip II + werden)'
+}
+
+/** Angles that push toward a particular tense/form — excluded when every
+ *  sentence already has an assigned Zeitform, so the two instructions can
+ *  never fight. */
+export const TENSE_IMPLYING_ANGLES: readonly string[] = [
+  'put it in the Perfekt (past)',
+  'use a future intention (morgen / nächste Woche)',
+  'frame it as advice or a suggestion',
+  'use a polite request (Sie)'
+]
+export const VERB_ANGLE_POOL_TENSE_NEUTRAL: string[] =
+  VERB_ANGLE_POOL.filter(a => !TENSE_IMPLYING_ANGLES.includes(a))
+
 /** Compact CEFR label for the chosen verb levels — batch labels (B2.1/B2.2)
  *  collapse to their CEFR band so the AI prompt and run records stay in
  *  standard CEFR terms (ADR-0009). */
@@ -152,13 +201,25 @@ export function levelLabel(levels: readonly VerbLevel[]): string {
   return [...new Set(present.map(verbLevelToCefr))].join('/')
 }
 
-export const VERB_GEN_SYSTEM =
+const VERB_GEN_SYSTEM_HEAD =
   'You are a German teacher writing translation exercises. For each item you are given ' +
   'one or two German verbs (dictionary form, with an English gloss) and zero or more nouns. ' +
   'Write ONE natural, everyday German sentence that uses the given verb(s) correctly ' +
   'conjugated and naturally incorporates the given noun(s), then give a faithful, natural ' +
-  'English translation. Vary the tense naturally for the requested CEFR level (present-heavy ' +
-  'for A1, mixing in Perfekt/Präteritum for A2+). Keep sentences concise (6–14 words). ' +
+  'English translation. '
+
+/** No Zeitform assigned: let the model pick a level-appropriate tense. */
+const VERB_GEN_TENSE_NATURAL =
+  'Vary the tense naturally for the requested CEFR level (present-heavy ' +
+  'for A1, mixing in Perfekt/Präteritum for A2+). '
+
+/** Every item carries a Zeitform: demand exactly that form instead. */
+const VERB_GEN_TENSE_ASSIGNED =
+  'Each item names its required Zeitform (German tense/form) — the German sentence MUST use ' +
+  'exactly that form for the given verb(s). '
+
+const VERB_GEN_SYSTEM_TAIL =
+  'Keep sentences concise (6–14 words). ' +
   'Return JSON {"items":[{"index":<number>,"english":"...","german":"...","verbSpansEn":[...],' +
   '"nounSpansEn":[...],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}]}]} with exactly ' +
   'one entry per requested index. ' +
@@ -171,6 +232,12 @@ export const VERB_GEN_SYSTEM =
   'exact English surface, "de" = its German dictionary form (the infinitive for a verb; the ' +
   'article + nominative singular for a noun, e.g. "die Katze"), and "kind". ' +
   'All "en" surfaces MUST be exact substrings of your English sentence so they can be located.'
+
+export function verbGenSystem(tensed: boolean): string {
+  return VERB_GEN_SYSTEM_HEAD + (tensed ? VERB_GEN_TENSE_ASSIGNED : VERB_GEN_TENSE_NATURAL) + VERB_GEN_SYSTEM_TAIL
+}
+/** Untensed system prompt — byte-identical to the pre-feature constant. */
+export const VERB_GEN_SYSTEM = verbGenSystem(false)
 
 export const VERB_GEN_SCHEMA = {
   type: 'object',
@@ -219,12 +286,15 @@ export function buildVerbGeneratePrompt(
     const nouns = s.nouns.length
       ? s.nouns.map(n => `${n.article} ${n.german} (${n.english})`).join(' + ')
       : '(any fitting noun)'
-    return `#${s.index} — verb(s): ${verbs}; build around noun(s): ${nouns}`
+    const tense = s.tense ? `; Zeitform: ${TENSE_PROMPT_HINTS[s.tense]}` : ''
+    return `#${s.index} — verb(s): ${verbs}; build around noun(s): ${nouns}${tense}`
   })
+  const tensed = specs.some(s => s.tense !== undefined)
   return (
     `Target CEFR level: ${level}.\n` +
     `Write one German sentence and its English translation for each of the following ${specs.length} item(s):\n` +
     lines.join('\n') +
+    (tensed ? '\nEvery item above names its required Zeitform — write the GERMAN sentence in exactly that form.' : '') +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.` +
     `\nAlso return verbSpansEn, nounSpansEn (one per listed noun, in order), and extraWords (every other noun/verb), each surface an exact substring of your English sentence.`
@@ -308,11 +378,15 @@ export async function generateVerbSentenceBatch(
   const accepted = new Map<number, GeneratedVerbSentence>()
   let rejected = 0
   let attempts = 0
+  // Assigned Zeitformen and tense-implying angles would fight, so a tensed
+  // batch draws only from the tense-neutral angles.
+  const tensed = opts.specs.some(s => s.tense !== undefined)
+  const anglePool: string[] = tensed ? VERB_ANGLE_POOL_TENSE_NEUTRAL : [...VERB_ANGLE_POOL]
 
   while (accepted.size < opts.specs.length && attempts <= maxRetries) {
     attempts++
     const remaining = opts.specs.filter(s => !accepted.has(s.index))
-    const angles = shuffle([...VERB_ANGLE_POOL], Math.max(3, Math.min(6, remaining.length)), rng)
+    const angles = shuffle(anglePool, Math.max(3, Math.min(6, remaining.length)), rng)
     const prompt = buildVerbGeneratePrompt(remaining, level, { angles, seed: makeSeed(rng) })
 
     let text = ''
@@ -321,7 +395,7 @@ export async function generateVerbSentenceBatch(
         model: opts.model,
         contents: prompt,
         config: {
-          systemInstruction: VERB_GEN_SYSTEM,
+          systemInstruction: verbGenSystem(tensed),
           responseMimeType: 'application/json',
           responseSchema: VERB_GEN_SCHEMA,
           temperature: 0.95,
@@ -388,6 +462,8 @@ export interface GradeVerbOptions {
   userAnswer: string
   /** The learner spoke the answer and a browser speech recognizer transcribed it. */
   spoken?: boolean
+  /** Required German form for this sentence; absent → any correct tense passes. */
+  tense?: VerbTense
 }
 
 export interface VerbAnswerGrade {
@@ -442,18 +518,28 @@ const VERB_GRADE_SYSTEM_SPOKEN =
   'word, gender, or form). NEVER return "typo" — the spelling in the transcript is the speech ' +
   "recognizer's, not the learner's. When \"correct\" is true, \"tip\" may be empty and \"errorTags\" omitted."
 
+// Appended to either grading system prompt when the exercise assigned a
+// Zeitform: the drill is the form, so a right-meaning wrong-form answer fails.
+const VERB_GRADE_TENSE_RULE =
+  ' A TARGET TENSE is specified for this exercise: the German answer MUST use that tense/form. ' +
+  'An otherwise correct translation in a different tense or form is NOT correct — set "correct" ' +
+  'false and include "conjugation" in errorTags.'
+
 export function buildVerbGradePrompt(opts: GradeVerbOptions): { system: string; user: string } {
-  const system = opts.spoken ? VERB_GRADE_SYSTEM_SPOKEN : VERB_GRADE_SYSTEM_TYPED
+  const system = (opts.spoken ? VERB_GRADE_SYSTEM_SPOKEN : VERB_GRADE_SYSTEM_TYPED)
+    + (opts.tense ? VERB_GRADE_TENSE_RULE : '')
   const verbs = opts.verbsGerman.length ? opts.verbsGerman.join(', ') : '(any fitting verb)'
   const nouns = opts.nounsGerman.length ? opts.nounsGerman.join(', ') : '(none)'
   const answerLabel = opts.spoken
     ? "LEARNER'S SPOKEN GERMAN ANSWER (transcript):"
     : "LEARNER'S GERMAN ANSWER:"
+  const tenseLine = opts.tense ? `TARGET TENSE (required German form): ${TENSE_LABELS[opts.tense]}\n` : ''
   const user =
     `ENGLISH (source shown to the learner): ${opts.english}\n` +
     `GERMAN (reference translation): ${opts.german}\n` +
     `TARGET VERB(S): ${verbs}\n` +
     `THEME NOUN(S): ${nouns}\n` +
+    tenseLine +
     `${answerLabel} ${opts.userAnswer}`
   return { system, user }
 }
