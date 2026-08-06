@@ -17,6 +17,8 @@ const direction = ref<TranslationDirection>('en-de')
 type CountPreset = 10 | 15 | 20 | 'all' | 'custom'
 const count = ref<CountPreset>(10)
 const customCount = ref(15)
+type Variant = 'bedeutungsfeld' | 'praezise'
+const variant = ref<Variant>('bedeutungsfeld')
 
 interface Stored {
   levels?: VerbLevel[]
@@ -25,6 +27,7 @@ interface Stored {
   direction?: TranslationDirection
   count?: CountPreset
   customCount?: number
+  variant?: Variant
 }
 
 function loadStored(): Stored | null {
@@ -44,7 +47,8 @@ function saveStored(): void {
       cases: [...cases.value],
       direction: direction.value,
       count: count.value,
-      customCount: customCount.value
+      customCount: customCount.value,
+      variant: variant.value
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   } catch { /* ignore */ }
@@ -59,9 +63,10 @@ onMounted(() => {
   if (s.direction === 'de-en' || s.direction === 'en-de') direction.value = s.direction
   if (s.count !== undefined) count.value = s.count
   if (typeof s.customCount === 'number' && s.customCount > 0) customCount.value = s.customCount
+  if (s.variant === 'praezise' || s.variant === 'bedeutungsfeld') variant.value = s.variant
 })
 
-watch([levels, types, cases, direction, count, customCount], saveStored, { deep: true })
+watch([levels, types, cases, direction, count, customCount, variant], saveStored, { deep: true })
 
 const available = computed(() => filter({ levels: levels.value, types: types.value, cases: cases.value }).length)
 const effective = computed(() => {
@@ -85,7 +90,8 @@ function start() {
       levels: levels.value.join(','),
       types: types.value.join(','),
       cases: cases.value.join(','),
-      direction: direction.value
+      direction: direction.value,
+      variant: variant.value
     }
   })
 }
@@ -109,10 +115,21 @@ function back() { router.push({ name: 'verbs' }) }
       <div class="field-label">Richtung</div>
       <div class="direction-row">
         <div class="segmented">
-          <button :class="{ active: direction === 'en-de' }" @click="direction = 'en-de'">EN → DE · Bedeutungsfeld</button>
+          <button :class="{ active: direction === 'en-de' }" @click="direction = 'en-de'">EN → DE</button>
           <button :class="{ active: direction === 'de-en' }" @click="direction = 'de-en'">DE → EN · Blatt</button>
         </div>
-        <span class="micro-mark">{{ direction === 'en-de' ? 'eine Bedeutung, alle ihre Verben' : 'das klassische Übungsblatt' }}</span>
+        <span class="micro-mark">{{ direction === 'en-de' ? 'Bedeutung → Verb' : 'das klassische Übungsblatt' }}</span>
+      </div>
+    </div>
+
+    <div v-if="direction === 'en-de'" class="field">
+      <div class="field-label">Variante</div>
+      <div class="direction-row">
+        <div class="segmented">
+          <button :class="{ active: variant === 'bedeutungsfeld' }" @click="variant = 'bedeutungsfeld'">Bedeutungsfeld</button>
+          <button :class="{ active: variant === 'praezise' }" @click="variant = 'praezise'">Präzise</button>
+        </div>
+        <span class="micro-mark">{{ variant === 'praezise' ? 'die Situation verlangt ihr genaues Verb' : 'eine Bedeutung, alle ihre Verben' }}</span>
       </div>
     </div>
 
@@ -202,6 +219,9 @@ function back() { router.push({ name: 'verbs' }) }
       <template v-if="direction === 'de-en'">
         Answers ignore case &amp; whitespace. A leading "to" is optional. Slash-separated alternatives are all accepted — e.g. "to go / to walk" matches either.
       </template>
+      <template v-else-if="variant === 'praezise'">
+        Die Bedeutung kommt mit ihrer Situation — nur das Verb, das genau dazu passt, zählt; seine Geschwister aus anderen Situationen nicht. Passen mehrere Verben gleichermaßen, zählt jedes. Ein Verb mit mehreren Lesarten bringt mehrere Karten mit — das Deck kann also etwas größer sein als die gewählte Verbenzahl.
+      </template>
       <template v-else>
         Gezeigt wird die Bedeutung — jedes deutsche Verb, das sie trägt, zählt. Bei reflexiven Verben ist „sich" optional. Wer mehr Verben desselben Feldes kennt, sammelt sie als Bonus.
       </template>
@@ -216,7 +236,7 @@ function back() { router.push({ name: 'verbs' }) }
         @click="start"
       >
         <span class="bm-main">Start quiz <span aria-hidden="true">→</span></span>
-        <span class="bm-sub">{{ effective }} {{ direction === 'en-de' ? 'Bedeutungsfelder' : 'verbs' }}</span>
+        <span class="bm-sub">{{ effective }} {{ direction === 'de-en' ? 'verbs' : variant === 'praezise' ? 'Verben · Präzise' : 'Bedeutungsfelder' }}</span>
       </button>
     </div>
   </div>
