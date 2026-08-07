@@ -336,10 +336,17 @@ watch(nachfrageAnswer, val => {
 
 /** F6 — refuses to schedule once `stuckCount` has hit its cap of 2, so the
  *  timer is genuinely "never re-armed past that" no matter which caller asks
- *  (a keystroke, a tab switch, a phrase tap, `triggerStuck`'s own re-arm…). */
+ *  (a keystroke, a tab switch, a phrase tap, `triggerStuck`'s own re-arm…).
+ *
+ *  Gated on `typedSurface`, NOT `spoken`: a live-mic run gets its stuck signal
+ *  from the recognizer's restarts instead (see `endSpokenSegment`), but a run
+ *  that fell back to typing after a mic denial has neither a mic to restart
+ *  nor — under the old `spoken` gate — this timer, so it had no stuck
+ *  detection at all. `modality` stays 'spoken' forever after a downgrade (F13),
+ *  which is exactly why `spoken` is the wrong question to ask here. */
 function armStuckTimer() {
   if (!v.value?.helps.hints) return
-  if (spoken.value || phase.value !== 'rede') return
+  if (!typedSurface.value || phase.value !== 'rede') return
   if (stuckCount.value >= 2) return
   if (stuckTimer) clearTimeout(stuckTimer)
   stuckTimer = setTimeout(() => triggerStuck(), 20000)
@@ -436,6 +443,14 @@ function downgradeToTyped() {
   v.value.downgradedAt = at
   redeDraft.value = v.value.rede.textDe
   void markDowngraded(v.value.id, at)
+  // The surface just became typed, so the typed stuck timer has to be armed
+  // HERE — nothing else will. `onMounted`'s arm already bailed back when this
+  // was still a live-mic run, and the `redeDraft` watcher that normally arms
+  // on a keystroke does not fire on the assignment above: it writes the same
+  // value `onMounted` already seeded, so a mic denied before any final was
+  // committed is a no-op write. Without this call only a learner who types
+  // would ever be nudged — precisely the learner who is not stuck.
+  armStuckTimer()
   toast.error('Mikrofon nicht verfügbar', {
     description: 'Du kannst den Vortrag ab hier weiter tippen — nichts geht verloren.'
   })
@@ -960,7 +975,9 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
         <h1 class="run-thesis">Vortrag<em>.</em></h1>
       </div>
       <div class="run-meta">
-        <span v-if="v.helps.checklist" class="quiz-counter">{{ currentWords }} Wörter · {{ redeState.clock }}</span>
+        <span v-if="v.helps.checklist" class="quiz-counter">
+          {{ currentWords }} Wörter · <template v-if="!spoken">≈ </template>{{ redeState.clock }}
+        </span>
         <button
           v-if="phase === 'rede'" class="btn btn-quiet" type="button"
           :disabled="grading || currentWords === 0" @click="finishRede()"
@@ -996,7 +1013,7 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
         </div>
 
         <div v-if="v.helps.checklist" class="spr-rail-sec">
-          <div class="spr-lbl">Redezeit · Ziel {{ targetClock }}</div>
+          <div class="spr-lbl">Redezeit<template v-if="!spoken"> (geschätzt)</template> · Ziel {{ targetClock }}</div>
           <div class="spr-timebar">
             <span :style="{ width: `${Math.min(100, redeState.pct * 100)}%` }" :class="redeState.band === 'under' ? '' : redeState.band" />
           </div>
@@ -1005,7 +1022,13 @@ function backToSetup() { router.push({ name: 'sprechen-teil1' }) }
             <span v-if="spoken" class="spr-num">
               Redezeit {{ redeState.clock }}<template v-if="v.rede.firstSpokenAt"> · Gesamt {{ wallClock }}</template>
             </span>
-            <span v-else class="spr-num">{{ redeState.clock }}</span>
+            <!-- Short enough to sit beside the word count in a 262px rail
+                 without wrapping; the full sentence lives in the title, the
+                 same way the Vortragsmittel dots carry theirs. -->
+            <span
+              v-else class="spr-num"
+              title="Aus der Wortzahl geschätzt, nicht gemessen — eine getippte Rede hat keine Uhr."
+            >≈ {{ redeState.clock }} geschätzt</span>
           </div>
         </div>
 

@@ -154,3 +154,39 @@ files / 2791 tests.
 Low. Change 2 is one condition; 3 and 4 are template strings; 5 is a comment.
 The only behavioural change beyond the bug fix is the downgraded-run help
 logging noted in §2.
+
+## Known limitation, deliberately not fixed here
+
+**A downgraded run's Redezeit freezes.** Found by adversarial review of this
+work; pre-existing, not introduced by it.
+
+`redeState` (`Teil1Runner.vue`) passes `seconds` whenever
+`modality === 'spoken'`, and F13 keeps `modality` spoken forever after a mic
+denial. So once downgraded:
+
+- the clock is pinned to the spoken seconds already recorded and never moves
+  again, however much the learner then types;
+- `redeState.pct` is `seconds / 240`, so the Redezeit bar sits frozen — at 0%
+  if the mic died before any segment committed;
+- §3's typed estimate marking does not apply, because it keys on `spoken`,
+  so the stale measurement is presented as the live one with no caveat.
+
+That is a stronger version of the very complaint §3 fixes, and §2's new
+comment argues at length that `spoken` is the wrong question to ask about a
+typing learner — yet §3 asks it. The two halves of this change disagree.
+
+Not fixed here because it is not a flag flip: it needs a decision about how a
+*mixed* run should measure itself, and all the options cost something.
+
+1. **Switch to the word estimate once downgraded.** Consistent with §3, but
+   the real spoken seconds — which F13 insists are real and must survive —
+   disappear from the live view.
+2. **Show both** (`Redezeit 1:20 gesprochen · ≈ 2:10 getippt`). Honest and
+   complete; needs a two-part budget model and does not fit the 262px rail.
+3. **Leave it.** Zero cost, but the runner keeps showing a frozen number as
+   if it were live.
+
+Recommendation: option 2, as its own change, with the grader and
+`Teil1Result` taught the same two-part shape — they have the identical
+`modality === 'spoken'` assumption baked in. Worth doing only if the mic-denial
+path turns out to be common; it is currently rare.

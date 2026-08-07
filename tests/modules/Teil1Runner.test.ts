@@ -10,7 +10,7 @@ import { appendCorrections } from '../../src/composables/useSprechenArchive'
 import { saveQuizRun } from '../../src/composables/useQuizHistory'
 import { loadCachedBank } from '../../src/composables/useSprechenArguments'
 import { useToast } from '../../src/composables/useToast'
-import { GLIEDERUNGSPUNKTE, VORTRAG_MOVE_LABEL } from '../../src/data/sprechenVortragsmittel'
+import { GLIEDERUNGSPUNKTE, VORTRAG_MOVE_LABEL, vortragClock } from '../../src/data/sprechenVortragsmittel'
 import type { SprechenVortrag } from '../../src/data/sprechen'
 
 // ── Fake SpeechRecognition ──────────────────────────────────────────
@@ -811,6 +811,78 @@ describe('Teil1Runner mic-denied downgrade (F13)', () => {
     expect(record.meta.sprechenDowngraded).toBe(true)
     expect(record.meta.spokenSeconds).toBeDefined()
   })
+
+  // A downgraded run is a TYPED run from the learner's point of view, so the
+  // 20s typed stuck timer must arm. It could not before: armStuckTimer gated
+  // on `spoken`, which F13 deliberately leaves true forever, while the spoken
+  // restart trigger needs a live mic it no longer has — so the run ended up
+  // with no stuck detection from either path.
+  it('arms the typed stuck timer after the mic is denied', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      const w = await mountSpokenReady()
+      await w.find('.mic-btn').trigger('click')
+      const inst = currentSrInstance()
+      inst.onerror!({ error: 'not-allowed' })
+      await flushPromises()
+      expect(w.find('.rede-textarea').exists()).toBe(true)
+
+      vi.mocked(logHelp).mockClear()
+      await w.find('.rede-textarea').setValue('Ich tippe jetzt weiter, weil das Mikrofon weg ist')
+      vi.advanceTimersByTime(20000)
+      await flushPromises()
+
+      expect(vi.mocked(logHelp)).toHaveBeenCalledWith('v1', 'stuck', expect.any(Number))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  // The learner who NEVER types is the one actually stuck — and flipping
+  // armStuckTimer's guard alone did not reach them. Nothing re-arms after the
+  // denial: onMounted's arm already bailed while `downgraded` was false, and
+  // `downgradeToTyped`'s `redeDraft = rede.textDe` is a no-op assignment when
+  // the mic died before committing anything, so the watcher never fires.
+  // Only a learner who types got help — i.e. the one who isn't stuck.
+  it('arms after a mic denial even when the learner never types', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      const w = await mountSpokenReady()
+      await w.find('.mic-btn').trigger('click')
+      currentSrInstance().onerror!({ error: 'not-allowed' })
+      await flushPromises()
+
+      vi.mocked(logHelp).mockClear()
+      vi.advanceTimersByTime(20000)
+      await flushPromises()
+
+      expect(vi.mocked(logHelp)).toHaveBeenCalledWith('v1', 'stuck', expect.any(Number))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  // Requirement (b), previously unpinned: a live-mic spoken run must NOT arm
+  // the typed timer — it gets its stuck signal from the recognizer's restarts
+  // instead. An inverted guard is caught by the typed tests; a DELETED guard
+  // was not caught by anything until this.
+  it('never arms the typed stuck timer while the mic is live', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      const w = await mountSpokenReady()
+      await w.find('.mic-btn').trigger('click')
+      await flushPromises()
+
+      vi.mocked(logHelp).mockClear()
+      vi.advanceTimersByTime(120000)
+      await flushPromises()
+
+      const stuckCalls = vi.mocked(logHelp).mock.calls.filter(c => c[1] === 'stuck')
+      expect(stuckCalls).toHaveLength(0)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })
 
 describe('Teil1Runner exits and resume gating (F14)', () => {
@@ -1091,5 +1163,43 @@ describe('Teil1Runner Move nudge quantization (F22)', () => {
     )
     await flushPromises()
     expect(w.find('.spr-nudge-t').text()).toBe(VORTRAG_MOVE_LABEL.gliederung.de.toLowerCase())
+  })
+})
+
+// The typed clock is vortragClock(words) — a function of the word count at
+// 90 wpm, not of elapsed time. Spoken puts real measurements in the same slot
+// with the same formatting, so typed must mark itself as estimated or the two
+// are indistinguishable. Teil1Result already uses this vocabulary.
+describe('Teil1Runner marks the typed Redezeit as estimated (D)', () => {
+  // Asserted as EXACT strings, not `toContain('≈')`: the point of D is where
+  // the marker sits relative to the number, and a loose contains-check would
+  // pass on `≈ 8 Wörter · 0:05` — which marks the wrong quantity. The clock
+  // comes from vortragClock so the expectation cannot drift from the source.
+  it('labels the typed rail and header as an estimate', async () => {
+    const w = await mountReady()
+    await w.find('.rede-textarea').setValue('Ein Vortrag über das Ehrenamt in unserer Gesellschaft.')
+    await flushPromises()
+
+    const clock = vortragClock(8)
+    expect(w.find('.quiz-counter').text()).toBe(`8 Wörter · ≈ ${clock}`)
+    expect(w.find('.spr-timebar-l').text()).toBe(`8 Wörter≈ ${clock} geschätzt`)
+    expect(w.findAll('.spr-lbl').some(n => n.text().includes('Redezeit (geschätzt)'))).toBe(true)
+    // The rail is terse by necessity; the full claim must still be reachable.
+    expect(w.find('.spr-timebar-l .spr-num[title]').attributes('title'))
+      .toBe('Aus der Wortzahl geschätzt, nicht gemessen — eine getippte Rede hat keine Uhr.')
+  })
+
+  it('never calls a spoken Redezeit an estimate', async () => {
+    const w = await mountSpokenReady()
+    await flushPromises()
+
+    const rail = w.find('.spr-timebar-l').text()
+    expect(rail).not.toContain('geschätzt')
+    expect(rail).toContain('Redezeit')
+    expect(w.findAll('.spr-lbl').some(n => n.text().includes('Redezeit (geschätzt)'))).toBe(false)
+    // Byte-identical to the pre-change spoken header — the one string the
+    // plan's global constraints pin, and the one `.text()` would otherwise
+    // let drift because it trims.
+    expect(w.find('.quiz-counter').text()).toBe('0 Wörter · 0:00')
   })
 })
