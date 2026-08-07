@@ -16,7 +16,7 @@ import {
   TEIL1_STASH_KEY, PREP_SECONDS,
   type Modality, type SprechenVortrag, type Teil1RunStash, type VortragHelps
 } from '../../data/sprechen'
-import { GLIEDERUNGSPUNKTE } from '../../data/sprechenVortragsmittel'
+import { GLIEDERUNGSPUNKTE, VORTRAG_TARGET_WORDS } from '../../data/sprechenVortragsmittel'
 import type { Vortragsthema } from '../../data/sprechenVortragsthemen'
 import {
   drawThemaPair, allThemen, doneThemaTitles,
@@ -376,8 +376,16 @@ function start() {
 
           <div class="spr-examx">
             <button type="button" class="btn btn-quiet" @click="applyPruefungsmodus">Prüfungsmodus</button>
-            <p class="spr-examx-note">
+            <!-- The four minutes only exist for a spoken run: the Zeitlimit
+                 field is spoken-only and start() forces hardLimit false when
+                 typed, so claiming them here would be a promise the preset
+                 cannot keep. Typed names its real budget instead. -->
+            <p v-if="modality === 'spoken'" class="spr-examx-note">
               Wie in der Prüfung: Aufgabenblatt, deine Notizen, vier Minuten — sonst nichts.
+            </p>
+            <p v-else class="spr-examx-note">
+              Wie in der Prüfung: Aufgabenblatt, deine Notizen — sonst nichts.
+              Das Zeitlimit gibt es nur gesprochen; getippt zählt der Umfang: {{ VORTRAG_TARGET_WORDS }} Wörter.
             </p>
           </div>
 

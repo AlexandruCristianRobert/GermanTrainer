@@ -75,6 +75,7 @@ import { isSpeechRecognitionSupported } from '../../src/composables/useSpeechRec
 import { useSettings } from '../../src/composables/useSettings'
 import { drawThemaPair, allThemen, deleteCustomThema } from '../../src/composables/useVortragsthemen'
 import { TEIL1_STASH_KEY, type Teil1RunStash } from '../../src/data/sprechen'
+import { VORTRAG_TARGET_WORDS } from '../../src/data/sprechenVortragsmittel'
 
 beforeEach(() => {
   localStorage.clear()
@@ -138,14 +139,30 @@ describe('Teil1Setup — Füllbarkeits-Check', () => {
 })
 
 describe('Teil1Setup — Prüfungsmodus preset', () => {
-  it('shows the exam line and is a button, not a fifth switch', async () => {
+  // The default modality is typed, where the Zeitlimit control is hidden and
+  // start() forces hardLimit false — so the note must not promise four
+  // minutes it cannot deliver. It names the Umfang budget instead.
+  it('shows a typed-honest exam line and is a button, not a fifth switch', async () => {
     const w = mount(Teil1Setup)
     await flushPromises()
-    expect(w.text()).toContain(
-      'Wie in der Prüfung: Aufgabenblatt, deine Notizen, vier Minuten — sonst nichts.'
-    )
+    const note = w.find('.spr-examx-note').text()
+    expect(note).toContain('Wie in der Prüfung: Aufgabenblatt, deine Notizen — sonst nichts.')
+    expect(note).toContain('Das Zeitlimit gibt es nur gesprochen')
+    expect(note).toContain(`${VORTRAG_TARGET_WORDS} Wörter`)
+    expect(note).not.toContain('vier Minuten')
     const examBtn = w.findAll('button').find(b => b.text() === 'Prüfungsmodus')
     expect(examBtn).toBeTruthy()
+  })
+
+  it('keeps the four-minute exam line for a spoken run', async () => {
+    const w = mount(Teil1Setup)
+    await flushPromises()
+    await w.findAll('.spr-fld')[0].findAll('button')[1].trigger('click')
+    const note = w.find('.spr-examx-note').text()
+    expect(note).toContain(
+      'Wie in der Prüfung: Aufgabenblatt, deine Notizen, vier Minuten — sonst nichts.'
+    )
+    expect(note).not.toContain('Das Zeitlimit gibt es nur gesprochen')
   })
 
   it('sets Hilfen/Checkliste/KI-Tipp aus, Vorbereitung 15 Min, and Zeitlimit hart', async () => {
