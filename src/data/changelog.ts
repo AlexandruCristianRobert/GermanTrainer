@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.18.03'
+export const APP_VERSION = '1.18.04'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.18.04', date: '2026-08-07', kind: 'fix',
+    title: 'Sprechen Teil 1 · der getippte Vortrag lässt sich abgeben',
+    notes: [
+      '<strong>„Vortrag beenden" tat getippt gar nichts.</strong> Wer Teil 1 getippt geübt hat, kam nie über die Rede hinaus: der Knopf reagierte nicht, ohne Hinweis, ohne Fehlermeldung, ohne Weg nach vorn — der getippte Vortrag war damit von Anfang an nicht abgebbar. Der Fehler saß tief in der Speicherung und ist behoben. Falls dort je wieder etwas schiefgeht, sagt der Knopf es jetzt, statt stumm zu bleiben. Angefangene Vorträge von vorher sind leider leer geblieben — fang für diese Themen neu an.',
+      '<strong>Die getippte Redezeit heißt jetzt „geschätzt".</strong> Getippt gibt es keine Uhr: die angezeigte Zeit wird aus deiner Wortzahl gerechnet, mit 90 Wörtern pro Minute. Bisher stand sie da wie eine echte Messung. Jetzt steht ein <em>≈</em> davor und „geschätzt" daneben — gesprochen bleibt es die gemessene Zeit, wie gehabt.',
+      '<strong>Prüfungsmodus verspricht keine vier Minuten mehr, wo es keine gibt.</strong> Das Zeitlimit ist eine Sache des gesprochenen Vortrags; getippt zählt der Umfang — 360 Wörter. Der Hinweis unter dem Knopf sagt jetzt, was für deine Modalität wirklich gilt, statt in beiden Fällen „vier Minuten" zu behaupten.',
+      '<strong>Nach einem Mikrofon-Ausfall hilft der Trainer weiter mit.</strong> Verweigert der Browser das Mikrofon, tippst du den Vortrag zu Ende — nur meldete sich die Stuck-Erkennung dann nie wieder, gerade wenn du ratlos vor dem leeren Feld saßt. Jetzt schon.'
+    ]
+  },
   {
     version: '1.18.03', date: '2026-08-06', kind: 'polish',
     title: 'Satzübersetzung · Zeitformen nach Wahl',
