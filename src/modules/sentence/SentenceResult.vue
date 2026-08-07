@@ -6,10 +6,11 @@
 // scoped styles here.
 import { computed, ref } from 'vue'
 import {
-  aggregateOutcomes, rektShort, daCompoundFor, PACKED_CATS,
+  aggregateOutcomes, rektShort, dacSolution, PACKED_CATS,
   type CardOutcome, type PackedCategory, type PackedVerdict,
-  type GeneratedPackedCard, type PackedItemSpec, type PackedItemResult
+  type GeneratedPackedCard, type PackedItemSpec, type PackedItemResult, type PackedHintBadge
 } from '../../composables/usePackedSentenceQuiz'
+import { CONN_PLACEMENT, isPair } from '../../data/connectors'
 
 const props = defineProps<{ history: CardOutcome[]; direction: 'en-de' | 'de-en' }>()
 const emit = defineEmits<{ (e: 'restart'): void; (e: 'practice', cards: GeneratedPackedCard[]): void }>()
@@ -66,13 +67,27 @@ function itemSolution(it: PackedItemSpec): string {
   if (it.cat === 'verb' && it.verb) return it.verb.german
   if (it.cat === 'noun' && it.noun) return `${it.noun.article} ${it.noun.german}`
   if (it.cat === 'prep' && it.prep) return it.prep.german
-  if (it.cat === 'dac' && it.colloc) return daCompoundFor(it.colloc.preposition)
+  if (it.cat === 'dac' && it.colloc) return dacSolution(it.colloc)
   if (it.cat === 'conn' && it.conn) return it.conn.display
   return ''
 }
 
 function itemRekt(it: PackedItemSpec): string | null {
   return it.cat === 'verb' && it.verb ? rektShort(it.verb.case) : null
+}
+
+/** Clause + position badges for a connector item; a pair names each part,
+ *  since its two halves can place differently (zwar HZ I/III … aber HZ 0). */
+function connBadges(it: PackedItemSpec): PackedHintBadge[] {
+  if (it.cat !== 'conn' || !it.conn) return []
+  const named = isPair(it.conn)
+  return it.conn.parts.flatMap(p => {
+    const pl = CONN_PLACEMENT[p.behavior]
+    return [
+      { text: named ? `${p.text}: ${pl.clause}` : pl.clause, tone: pl.clause === 'NZ' ? 'nz' : 'hz' } as PackedHintBadge,
+      { text: `Pos. ${pl.position}`, tone: 'pos' } as PackedHintBadge
+    ]
+  })
 }
 
 function practice(): void {
@@ -133,6 +148,7 @@ function practice(): void {
                 <span class="r-sol">{{ itemSolution(it) }}</span>
                 <span class="r-meta">
                   <span v-if="itemRekt(it)" class="sn-rekt">{{ itemRekt(it) }}</span>
+                  <span v-for="b in connBadges(it)" :key="b.text" class="sn-badge" :class="b.tone">{{ b.text }}</span>
                   <span v-if="itemTags(h, it.key).length" class="sn-tags">
                     <span v-for="t in itemTags(h, it.key)" :key="t" class="sn-tag">{{ t }}</span>
                   </span>

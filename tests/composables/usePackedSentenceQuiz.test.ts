@@ -211,11 +211,23 @@ describe('buildPackedSegments', () => {
     const items = segs.filter(s => s.item)
     expect(items.map(s => s.item!.key)).toEqual(['v1', 'n1', 'p1', 'k1', 'd1'])
     const byKey = new Map(items.map(s => [s.item!.key, s]))
-    expect(byKey.get('v1')!.item!.reveal).toBe('warten + Akk')
-    expect(byKey.get('n1')!.item!.reveal).toBe('der Bericht')
-    expect(byKey.get('p1')!.item!.reveal).toBe('seit + Dat')
-    expect(byKey.get('d1')!.item!.reveal).toBe('darauf')
-    expect(byKey.get('k1')!.item!.reveal).toBe('aber — Wortstellung bleibt')
+    expect(byKey.get('v1')!.item!.hint).toEqual([{ text: 'warten + Akk' }])
+    expect(byKey.get('n1')!.item!.hint).toEqual([{ text: 'der Bericht' }])
+    expect(byKey.get('p1')!.item!.hint).toEqual([{ text: 'seit + Dat' }])
+  })
+  test('a da-compound reveals the collocation it stands for, not just the compound', () => {
+    const segs = buildPackedSegments(card.english, card)
+    const hint = segs.find(s => s.item?.key === 'd1')!.item!.hint!
+    expect(hint).toEqual([{ text: 'darauf', note: 'warten auf + Akk' }])
+  })
+  test('a connector reveals its clause and position as badges', () => {
+    const segs = buildPackedSegments(card.english, card)
+    const hint = segs.find(s => s.item?.key === 'k1')!.item!.hint!
+    expect(hint).toEqual([{
+      text: 'aber',
+      badges: [{ text: 'HZ', tone: 'hz' }, { text: 'Pos. 0', tone: 'pos' }],
+      note: 'Wortstellung bleibt'
+    }])
   })
   test('a verb without a governed case reveals the bare infinitive', () => {
     const spec: PackedCardSpec = {
@@ -227,9 +239,9 @@ describe('buildPackedSegments', () => {
       sents: 1, spans: [{ key: 'v1', en: 'going' }]
     }
     const segs = buildPackedSegments(goneCard.english, goneCard)
-    expect(segs.find(s => s.item?.key === 'v1')!.item!.reveal).toBe('gehen')
+    expect(segs.find(s => s.item?.key === 'v1')!.item!.hint).toEqual([{ text: 'gehen' }])
   })
-  test('two-part connector yields two spans sharing one key, both revealing the display form', () => {
+  test('two-part connector yields two spans sharing one key, both revealing every part', () => {
     const pairSpec: PackedCardSpec = { index: 1, items: [{ key: 'k1', cat: 'conn', conn: CONN_PAIR }] }
     const pairCard: GeneratedPackedCard = {
       ...pairSpec,
@@ -241,7 +253,12 @@ describe('buildPackedSegments', () => {
     const segs = buildPackedSegments(pairCard.english, pairCard)
     const parts = segs.filter(s => s.item?.key === 'k1')
     expect(parts).toHaveLength(2)
-    expect(parts.map(s => s.item!.reveal)).toEqual(['sowohl … als auch', 'sowohl … als auch'])
+    // Both spans carry one line per part, so the learner sees what the other
+    // half of the pair does while standing on either one.
+    for (const p of parts) {
+      expect(p.item!.hint!.map(l => l.text)).toEqual(CONN_PAIR.parts.map(x => x.text))
+      expect(p.item!.hint!.every(l => l.badges?.length === 2)).toBe(true)
+    }
   })
   test('extra nouns become subtle noun spans revealing article + noun', () => {
     const withExtras: GeneratedPackedCard = {
@@ -250,9 +267,9 @@ describe('buildPackedSegments', () => {
     }
     const segs = buildPackedSegments(withExtras.english, withExtras)
     const extras = segs.filter(s => s.item?.extra)
-    expect(extras.map(s => [s.item!.key, s.text, s.item!.reveal])).toEqual([
-      ['x1', 'colleague', 'der Kollege'],
-      ['x2', 'Monday', 'der Montag']
+    expect(extras.map(s => [s.item!.key, s.text, s.item!.hint])).toEqual([
+      ['x1', 'colleague', [{ text: 'der Kollege' }]],
+      ['x2', 'Monday', [{ text: 'der Montag' }]]
     ])
     expect(extras.every(s => s.item!.cat === 'noun')).toBe(true)
   })

@@ -8,7 +8,10 @@ import { shuffle } from '../data/pool'
 import type { Verb, VerbLevel, VerbCase } from '../data/verbs'
 import type { PrepCase } from '../data/prepositions'
 import { prepUsed, normalizeGerman, type NounRef } from './useSentenceQuiz'
-import { CONN_BEHAVIOR_LABEL, isPair, type Connector } from '../data/connectors'
+import {
+  CONN_PLACEMENT, CONN_PLACEMENT_EN, isPair,
+  type Connector, type ConnectorPart
+} from '../data/connectors'
 import type { AiClient } from './useClaude'
 import type {
   VerbErrorTag, PrepErrorTag, DacErrorTag, ConnErrorTag,
@@ -248,10 +251,10 @@ function itemLine(it: PackedItemSpec): string {
   if (it.cat === 'conn' && it.conn) {
     if (isPair(it.conn)) {
       const [a, b] = it.conn.parts
-      return `  [${it.key}] two-part connector "${it.conn.display}" (${it.conn.english}) — "${a.text}": ${CONN_BEHAVIOR_LABEL[a.behavior]}; "${b.text}": ${CONN_BEHAVIOR_LABEL[b.behavior]}. BOTH parts must appear (two span entries, same key).`
+      return `  [${it.key}] two-part connector "${it.conn.display}" (${it.conn.english}) — "${a.text}": ${CONN_PLACEMENT_EN[a.behavior]}; "${b.text}": ${CONN_PLACEMENT_EN[b.behavior]}. BOTH parts must appear (two span entries, same key).`
     }
     const p = it.conn.parts[0]
-    return `  [${it.key}] connector "${p.text}" (${it.conn.english}) — ${CONN_BEHAVIOR_LABEL[p.behavior]}`
+    return `  [${it.key}] connector "${p.text}" (${it.conn.english}) — ${CONN_PLACEMENT_EN[p.behavior]}`
   }
   return `  [${it.key}] (unknown)`
 }
@@ -385,28 +388,61 @@ export async function generatePackedBatch(
 // Full reveal (CONTEXT.md → "Word hint"): every drilled item is highlighted
 // in its category color and carries a German reveal — verbs with their
 // governed case, nouns with their article, prepositions with their case, the
-// da-compound word itself, connectors with the word order they force. Every
-// AI-supplied incidental noun gets a subtler span revealing article + noun.
+// da-compound plus the collocation it stands for, connectors with the clause
+// they build and the position they take. Every AI-supplied incidental noun
+// gets a subtler span revealing article + noun.
+
+/** A colour-coded chip inside a hint: a connector part's clause (HZ green,
+ *  NZ blue) or the position it occupies. */
+export interface PackedHintBadge { text: string; tone: 'hz' | 'nz' | 'pos' }
+
+/** One line of a hint: the German word, optional badges, and an optional
+ *  muted note — the collocation behind a da-compound, the word order a
+ *  connector forces. A two-part connector reveals one line per part. */
+export interface PackedHintLine { text: string; badges?: PackedHintBadge[]; note?: string }
 
 export interface PackedSegment {
   text: string
-  item?: { key: string; cat: PackedCategory; reveal?: string; extra?: boolean }
+  item?: { key: string; cat: PackedCategory; hint?: PackedHintLine[]; extra?: boolean }
+}
+
+/** The collocation a da-compound stands for — 'warten auf + Akk'. The compound
+ *  alone never says which verb, noun or adjective governs it. */
+export function dacSource(c: PackedCollocRef): string {
+  return `${c.word} ${c.preposition} + ${prepCaseShort(c.case)}`
+}
+
+/** Da-compound with its collocation, for the graded item list — 'darauf · warten auf + Akk'. */
+export function dacSolution(c: PackedCollocRef): string {
+  return `${daCompoundFor(c.preposition)} · ${dacSource(c)}`
+}
+
+/** One connector part as a hint line: the word, an HZ/NZ badge, a position
+ *  badge, and what it does to the word order. */
+export function connHintLine(p: ConnectorPart): PackedHintLine {
+  const pl = CONN_PLACEMENT[p.behavior]
+  return {
+    text: p.text,
+    badges: [
+      { text: pl.clause, tone: pl.clause === 'NZ' ? 'nz' : 'hz' },
+      { text: `Pos. ${pl.position}`, tone: 'pos' }
+    ],
+    note: pl.note
+  }
 }
 
 /** The German reveal for one drilled item's hint span. */
-export function packedReveal(it: PackedItemSpec): string | undefined {
+export function packedHint(it: PackedItemSpec): PackedHintLine[] | undefined {
   if (it.cat === 'verb' && it.verb) {
     const rekt = rektShort(it.verb.case)
-    return rekt ? `${it.verb.german} + ${rekt}` : it.verb.german
+    return [{ text: rekt ? `${it.verb.german} + ${rekt}` : it.verb.german }]
   }
-  if (it.cat === 'noun' && it.noun) return `${it.noun.article} ${it.noun.german}`
-  if (it.cat === 'prep' && it.prep) return `${it.prep.german} + ${prepCaseShort(it.prep.case)}`
-  if (it.cat === 'dac' && it.colloc) return daCompoundFor(it.colloc.preposition)
-  if (it.cat === 'conn' && it.conn) {
-    if (isPair(it.conn)) return it.conn.display
-    const p = it.conn.parts[0]
-    return `${p.text} — ${CONN_BEHAVIOR_LABEL[p.behavior]}`
+  if (it.cat === 'noun' && it.noun) return [{ text: `${it.noun.article} ${it.noun.german}` }]
+  if (it.cat === 'prep' && it.prep) return [{ text: `${it.prep.german} + ${prepCaseShort(it.prep.case)}` }]
+  if (it.cat === 'dac' && it.colloc) {
+    return [{ text: daCompoundFor(it.colloc.preposition), note: dacSource(it.colloc) }]
   }
+  if (it.cat === 'conn' && it.conn) return it.conn.parts.map(connHintLine)
   return undefined
 }
 
@@ -416,7 +452,7 @@ function escapeRegExp(s: string): string {
 
 export function buildPackedSegments(english: string, card: GeneratedPackedCard): PackedSegment[] {
   const byKey = new Map(card.items.map(i => [i.key, i]))
-  interface Range { start: number; end: number; key: string; cat: PackedCategory; reveal?: string; extra?: boolean }
+  interface Range { start: number; end: number; key: string; cat: PackedCategory; hint?: PackedHintLine[]; extra?: boolean }
   const found: Range[] = []
   const used: Array<[number, number]> = []
 
@@ -443,7 +479,7 @@ export function buildPackedSegments(english: string, card: GeneratedPackedCard):
     if (!surface) continue
     const range = claim(surface)
     if (!range) continue
-    found.push({ start: range[0], end: range[1], key: it.key, cat: it.cat, reveal: packedReveal(it) })
+    found.push({ start: range[0], end: range[1], key: it.key, cat: it.cat, hint: packedHint(it) })
   }
 
   // Extra nouns claim only what the drilled spans left free.
@@ -453,7 +489,7 @@ export function buildPackedSegments(english: string, card: GeneratedPackedCard):
     if (!surface) continue
     const range = claim(surface)
     if (!range) continue
-    found.push({ start: range[0], end: range[1], key: `x${++xi}`, cat: 'noun', reveal: n.de, extra: true })
+    found.push({ start: range[0], end: range[1], key: `x${++xi}`, cat: 'noun', hint: [{ text: n.de }], extra: true })
   }
 
   found.sort((a, b) => a.start - b.start)
@@ -463,7 +499,7 @@ export function buildPackedSegments(english: string, card: GeneratedPackedCard):
   let cursor = 0
   for (const r of found) {
     if (r.start > cursor) segments.push({ text: english.slice(cursor, r.start) })
-    const item: PackedSegment['item'] = { key: r.key, cat: r.cat, reveal: r.reveal }
+    const item: PackedSegment['item'] = { key: r.key, cat: r.cat, hint: r.hint }
     if (r.extra) item.extra = true
     segments.push({ text: english.slice(r.start, r.end), item })
     cursor = r.end

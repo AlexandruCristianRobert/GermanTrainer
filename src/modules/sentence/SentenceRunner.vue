@@ -11,14 +11,14 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
-import { CONN_BEHAVIOR_LABEL, isPair } from '../../data/connectors'
+import { CONN_PLACEMENT, isPair } from '../../data/connectors'
 import { checkSentence, type Direction } from '../../composables/useSentenceQuiz'
 import {
   generatePackedBatch, gradePackedAnswer, gradePackedMeaning, localCheckPackedCard,
   verdictOf, buildPackedSegments, buildPackedMetaItems, aggregateOutcomes, rektShort,
-  prepCaseShort, daCompoundFor, PACKED_CATS,
+  prepCaseShort, dacSolution, PACKED_CATS,
   type PackedCardSpec, type PackedItemSpec, type PackedCategory, type PackedCounts,
-  type GeneratedPackedCard, type PackedVerdict, type CardOutcome
+  type GeneratedPackedCard, type PackedVerdict, type CardOutcome, type PackedHintBadge
 } from '../../composables/usePackedSentenceQuiz'
 import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun } from '../../composables/useQuizHistory'
@@ -192,19 +192,30 @@ function pipClass(i: number): string {
 }
 
 /** German solution text for one item — verb infinitive, noun with article,
- *  preposition + governed case, the da-compound, or the connector (single:
- *  word + behavior label; pair: the full "… " display form). */
+ *  preposition + governed case, the da-compound with the collocation it comes
+ *  from, or the connector ("… " display form for a pair). What a connector
+ *  does to the clause rides along as badges, not here. */
 function itemSolution(it: PackedItemSpec): string {
   if (it.cat === 'verb' && it.verb) return it.verb.german
   if (it.cat === 'noun' && it.noun) return `${it.noun.article} ${it.noun.german}`
   if (it.cat === 'prep' && it.prep) return `${it.prep.german} + ${prepCaseShort(it.prep.case)}`
-  if (it.cat === 'dac' && it.colloc) return daCompoundFor(it.colloc.preposition)
-  if (it.cat === 'conn' && it.conn) {
-    if (isPair(it.conn)) return it.conn.display
-    const p = it.conn.parts[0]
-    return `${p.text} — ${CONN_BEHAVIOR_LABEL[p.behavior]}`
-  }
+  if (it.cat === 'dac' && it.colloc) return dacSolution(it.colloc)
+  if (it.cat === 'conn' && it.conn) return it.conn.display
   return ''
+}
+
+/** Clause + position badges for a connector item in the graded list; a pair
+ *  names each part, since its two halves can place differently. */
+function connBadges(it: PackedItemSpec): PackedHintBadge[] {
+  if (it.cat !== 'conn' || !it.conn) return []
+  const named = isPair(it.conn)
+  return it.conn.parts.flatMap(p => {
+    const pl = CONN_PLACEMENT[p.behavior]
+    return [
+      { text: named ? `${p.text}: ${pl.clause}` : pl.clause, tone: pl.clause === 'NZ' ? 'nz' : 'hz' } as PackedHintBadge,
+      { text: `Pos. ${pl.position}`, tone: 'pos' } as PackedHintBadge
+    ]
+  })
 }
 
 function rektBadge(it: PackedItemSpec): string | null {
@@ -590,14 +601,14 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
               v-if="seg.item"
               class="sn-i"
               :data-cat="seg.item.cat"
-              :class="{ lit: lit === seg.item.key, 'has-pop': !!seg.item.reveal, revealed: revealedKeys.has(seg.item.key), extra: !!seg.item.extra }"
-              :tabindex="seg.item.reveal ? 0 : undefined"
+              :class="{ lit: lit === seg.item.key, 'has-pop': !!seg.item.hint, revealed: revealedKeys.has(seg.item.key), extra: !!seg.item.extra }"
+              :tabindex="seg.item.hint ? 0 : undefined"
               @mouseenter="litSpan(seg.item.key, $event)"
               @focusin="clampPop($event)"
-              @click="seg.item.reveal && revealSpan(seg.item.key, $event)"
-              @keydown.enter.prevent="seg.item.reveal && revealSpan(seg.item.key, $event)"
-              @keydown.space.prevent="seg.item.reveal && revealSpan(seg.item.key, $event)"
-            >{{ seg.text }}<sup v-if="isPairKey(seg.item.key)" class="sn-pairmark">¹</sup><span v-if="seg.item.reveal" class="sn-pop">{{ seg.item.reveal }}</span></span>
+              @click="seg.item.hint && revealSpan(seg.item.key, $event)"
+              @keydown.enter.prevent="seg.item.hint && revealSpan(seg.item.key, $event)"
+              @keydown.space.prevent="seg.item.hint && revealSpan(seg.item.key, $event)"
+            >{{ seg.text }}<sup v-if="isPairKey(seg.item.key)" class="sn-pairmark">¹</sup><span v-if="seg.item.hint" class="sn-pop"><span v-for="(l, li) in seg.item.hint" :key="li" class="sn-pop-l"><span class="sn-pop-w">{{ l.text }}</span><span v-if="l.badges" class="sn-pop-b"><span v-for="b in l.badges" :key="b.text" class="sn-badge" :class="b.tone">{{ b.text }}</span></span><span v-if="l.note" class="sn-pop-n">{{ l.note }}</span></span></span></span>
             <template v-else>{{ seg.text }}</template>
           </template>
         </div>
@@ -658,6 +669,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
               <span class="r-sol">{{ itemSolution(it) }}</span>
               <span class="r-meta">
                 <span v-if="rektBadge(it)" class="sn-rekt">{{ rektBadge(it) }}</span>
+                <span v-for="b in connBadges(it)" :key="b.text" class="sn-badge" :class="b.tone">{{ b.text }}</span>
                 <span v-if="!itemOk(it.key) && itemTags(it.key).length" class="sn-tags">
                   <span v-for="t in itemTags(it.key)" :key="t" class="sn-tag">{{ t }}</span>
                 </span>

@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.18.03'
+export const APP_VERSION = '1.18.04'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.18.04', date: '2026-08-07', kind: 'polish',
+    title: 'Satz · Hinweise sagen mehr',
+    notes: [
+      '<strong>Da-Komposita nennen ihr Wort.</strong> Der Hinweis über einem da-Kompositum zeigte bisher nur <em>darauf</em> — und verschwieg, welches Verb, Nomen oder Adjektiv die Präposition überhaupt verlangt. Jetzt steht die Kollokation darunter: <em>darauf</em> · <em>warten auf + Akk</em>. Auch in der Auswertung.',
+      '<strong>Konnektoren zeigen Satzart und Position.</strong> Zwei Schilder am Hinweis: <em>HZ</em> in Grün für den Hauptsatz, <em>NZ</em> in Blau für den Nebensatz — dazu die Position im Satz. <em>aber</em> steht auf Pos. 0, <em>obwohl</em> baut einen NZ, <em>zwar</em> und <em>deshalb</em> stehen auf Pos. I oder III. Zweiteilige Konnektoren zeigen beide Hälften einzeln, denn <em>zwar … aber</em> stellt jede anders.',
+      '<strong>Die Bewertung akzeptiert jetzt beides.</strong> Wer <em>deshalb</em> ins Mittelfeld setzt („Er ist deshalb müde"), schreibt korrektes Deutsch — die KI-Bewertung weiß das nun und zählt es nicht mehr als Wortstellungsfehler.'
+    ]
+  },
   {
     version: '1.18.03', date: '2026-08-06', kind: 'polish',
     title: 'Satzübersetzung · Zeitformen nach Wahl',

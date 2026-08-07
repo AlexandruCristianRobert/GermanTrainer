@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import {
-  CONNECTORS, CONN_FAMILIES, CONN_BEHAVIOR_LABEL,
+  CONNECTORS, CONN_FAMILIES, CONN_BEHAVIOR_LABEL, CONN_PLACEMENT, CONN_PLACEMENT_EN,
   connectorsForFamilies, isPair
 } from '../../src/data/connectors'
 
@@ -61,5 +61,24 @@ describe('connector bank', () => {
     expect(CONN_BEHAVIOR_LABEL['0']).toBe('Wortstellung bleibt')
     expect(CONN_BEHAVIOR_LABEL.inv).toBe('Inversion')
     expect(CONN_BEHAVIOR_LABEL.end).toBe('Verb ans Ende')
+  })
+  test('placement: only a subjunctor builds a Nebensatz; adverbs take I or III', () => {
+    expect(CONN_PLACEMENT['0']).toMatchObject({ clause: 'HZ', position: '0' })
+    expect(CONN_PLACEMENT.inv).toMatchObject({ clause: 'HZ', position: 'I / III' })
+    expect(CONN_PLACEMENT.end).toMatchObject({ clause: 'NZ', position: '0' })
+  })
+  test('placement of the connectors the learner is most likely to confuse', () => {
+    const byId = new Map(CONNECTORS.map(c => [c.id, c]))
+    const place = (id: string, part = 0) => CONN_PLACEMENT[byId.get(id)!.parts[part].behavior]
+    expect(place('aber')).toMatchObject({ clause: 'HZ', position: '0' })
+    expect(place('zwar-aber', 0)).toMatchObject({ clause: 'HZ', position: 'I / III' }) // zwar
+    expect(place('zwar-aber', 1)).toMatchObject({ clause: 'HZ', position: '0' })       // aber
+    expect(place('obwohl')).toMatchObject({ clause: 'NZ', position: '0' })
+    expect(place('trotzdem')).toMatchObject({ clause: 'HZ', position: 'I / III' })
+  })
+  test('the English gloss the AI grades against admits the Mittelfeld for adverbs', () => {
+    expect(CONN_PLACEMENT_EN.inv).toContain('position I or III')
+    expect(CONN_PLACEMENT_EN.end).toContain('Nebensatz')
+    expect(CONN_PLACEMENT_EN['0']).toContain('position 0')
   })
 })
