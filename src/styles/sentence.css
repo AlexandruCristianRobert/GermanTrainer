@@ -41,6 +41,11 @@
 .sn-tags{display:inline-flex;gap:4px;flex-wrap:wrap}
 .sn-tag{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--clay);background:var(--clay-tint);padding:2px 6px 1px;border-radius:2px;white-space:nowrap}
 .sn-rekt{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--ochre);border:1px solid var(--ochre-tint);background:var(--ochre-tint);padding:2px 7px 1px;border-radius:2px;white-space:nowrap}
+/* Connector placement chips: HZ green, NZ blue, position neutral. */
+.sn-badge{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;padding:2px 6px 1px;border-radius:2px;white-space:nowrap;border:1px solid transparent}
+.sn-badge.hz{color:var(--sage);background:var(--sage-tint);border-color:var(--sage-tint)}
+.sn-badge.nz{color:var(--cobalt);background:var(--cobalt-tint);border-color:var(--cobalt-tint)}
+.sn-badge.pos{color:var(--ink-soft);background:var(--paper-deep);border-color:var(--hairline)}
 .sn-off{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ochre);border:1px dashed var(--ochre);padding:3px 8px 2px;border-radius:2px}
 .sn-verdict{font-family:var(--font-display);font-size:21px;font-weight:500;letter-spacing:-.01em}
 .sn-verdict.v-ok{color:var(--success)}
@@ -181,6 +186,16 @@
 /* Full word-hint reveal (CONTEXT.md → "Word hint"): every span carries a
    German popover — drilled items and incidental nouns alike. */
 .sn-i.has-pop{cursor:help}
-.sn-pop{position:absolute;bottom:100%;left:50%;transform:translateX(calc(-50% + var(--pop-dx,0px))) translateY(-6px);max-width:min(80vw,260px);white-space:normal;text-align:center;font-family:var(--font-mono);font-size:13px;line-height:1.2;padding:4px 8px;border-radius:4px;background:var(--paper-card);color:var(--ink);border:1px solid var(--rule);box-shadow:0 4px 12px rgba(0,0,0,.18);pointer-events:none;opacity:0;visibility:hidden;transition:opacity 120ms ease;z-index:2}
+/* width:max-content — without it the popover shrink-to-fits its span's width
+   (a 3-letter span squeezed the reveal into a one-word-per-line column). */
+.sn-pop{position:absolute;bottom:100%;left:50%;transform:translateX(calc(-50% + var(--pop-dx,0px))) translateY(-6px);width:max-content;max-width:min(80vw,260px);white-space:normal;text-align:center;font-family:var(--font-mono);font-size:13px;line-height:1.2;padding:4px 8px;border-radius:4px;background:var(--paper-card);color:var(--ink);border:1px solid var(--rule);box-shadow:0 4px 12px rgba(0,0,0,.18);pointer-events:none;opacity:0;visibility:hidden;transition:opacity 120ms ease;z-index:2}
 .sn-i{position:relative}
 .sn-i.has-pop:hover .sn-pop,.sn-i.has-pop:focus-visible .sn-pop,.sn-i.revealed .sn-pop{opacity:1;visibility:visible}
+/* One line per revealed word — a two-part connector reveals both parts, each
+   with its own clause + position chips and word-order note. */
+.sn-pop-l{display:block}
+.sn-pop-l+.sn-pop-l{margin-top:5px;padding-top:5px;border-top:1px solid var(--hairline)}
+.sn-pop-w{display:block}
+.sn-pop-b{display:flex;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:3px}
+.sn-pop-n{display:block;margin-top:2px;font-size:11px;line-height:1.3;color:var(--mute)}
+.sn-pop .sn-badge{font-size:9px;letter-spacing:.06em}

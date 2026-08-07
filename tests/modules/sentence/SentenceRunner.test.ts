@@ -81,7 +81,12 @@ describe('SentenceRunner', () => {
     expect(pops.every(p => p.exists())).toBe(true)
     const texts = spans.map(s => s.find('.sn-pop').text())
     expect(texts).toContain('warten + Akk')
-    expect(texts).toContain('aber — Wortstellung bleibt')
+    // the connector reveals its clause + position as badges, then the word order
+    const conn = spans.find(s => s.attributes('data-cat') === 'conn')!
+    expect(conn.find('.sn-pop-w').text()).toBe('aber')
+    expect(conn.findAll('.sn-badge').map(b => b.text())).toEqual(['HZ', 'Pos. 0'])
+    expect(conn.find('.sn-badge').classes()).toContain('hz')
+    expect(conn.find('.sn-pop-n').text()).toBe('Wortstellung bleibt')
     // the incidental noun is a subtle extra span revealing article + noun (gender)
     const extra = spans.filter(s => s.classes().includes('extra'))
     expect(extra).toHaveLength(1)

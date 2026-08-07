@@ -47,6 +47,33 @@ export const CONN_BEHAVIOR_LABEL: Record<ConnBehavior, string> = {
   end: 'Verb ans Ende'
 }
 
+/** The clause a connector part builds: Hauptsatz or Nebensatz — the two-letter
+ *  shorthand is what the hint badges show (HZ green, NZ blue). */
+export type ConnClause = 'HZ' | 'NZ'
+
+/** Where a behavior puts the connector and what it does to the clause.
+ *  `position` uses the Feldermodell shorthand the learner reads on the badge:
+ *  0 = outside the fields (Konjunktor *aber*, Subjunktor *weil* alike),
+ *  I = Vorfeld, III = Mittelfeld. A Verbindungsadverb (*deshalb*, *zwar*) may
+ *  take either I or III — only position I forces the inversion. */
+export interface ConnPlacement { clause: ConnClause; position: string; note: string }
+
+export const CONN_PLACEMENT: Record<ConnBehavior, ConnPlacement> = {
+  '0': { clause: 'HZ', position: '0', note: CONN_BEHAVIOR_LABEL['0'] },
+  inv: { clause: 'HZ', position: 'I / III', note: 'in Pos. I: Inversion' },
+  end: { clause: 'NZ', position: '0', note: CONN_BEHAVIOR_LABEL.end }
+}
+
+/** English gloss of a placement for the generator and grader prompts — keeps
+ *  what the AI accepts in step with what the hint badges promise (a
+ *  Verbindungsadverb in the Mittelfeld is correct too, and must not be graded
+ *  as a word-order error). */
+export const CONN_PLACEMENT_EN: Record<ConnBehavior, string> = {
+  '0': 'main clause, position 0 — word order unchanged, the finite verb stays second in its own clause',
+  inv: 'main clause, position I or III — in position I the finite verb follows it immediately (inversion); the Mittelfeld (position III, after the finite verb) is equally correct',
+  end: 'introduces a Nebensatz, position 0 — the finite verb goes to the end of that clause'
+}
+
 const w = (id: string, english: string, family: ConnFamilyId, behavior: ConnBehavior): Connector =>
   ({ id, display: id, english, family, parts: [{ text: id, behavior }] })
 const pair = (
