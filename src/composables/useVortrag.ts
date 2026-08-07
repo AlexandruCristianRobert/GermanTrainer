@@ -6,11 +6,45 @@
 // `in_progress` → `submitted` → the row is DELETED once the Run is recorded.
 // There is no `graded` and no `abandoned` status — those rows do not exist.
 
+import { toRaw } from 'vue'
 import { db } from '../db'
 import type {
   HelpKind, Modality, NachfrageRecord, RedeRecord, SprechenVortrag,
   VortragHelps, VortragPlanEntry, VortragThemaRef
 } from '../data/sprechen'
+
+/**
+ * Deep-unwrap Vue reactivity before anything crosses into IndexedDB.
+ *
+ * The runner holds the whole Vortrag in a `ref`, so `v.value.rede` reads back
+ * as a reactive PROXY, not the plain object that was assigned to it. IndexedDB
+ * stores values with the structured clone algorithm, and that algorithm throws
+ * DataCloneError on any object carrying internal slots other than [[Prototype]]
+ * / [[Extensible]] — which every Proxy does. So handing `v.value.rede` to
+ * Dexie rejects with "#<Object> could not be cloned", and because `commitRede`
+ * awaits that write inside `finishRede`, the whole "Vortrag beenden" click
+ * died before it could switch phases: the button did nothing, silently.
+ *
+ * `toRaw` alone is not enough — it is shallow, and the runner builds
+ * `rede.spans` by spreading a reactive array (`[...vv.rede.spans, …]`), which
+ * yields per-ELEMENT proxies inside an otherwise plain array. Hence the
+ * recursion.
+ *
+ * This lives at the persistence boundary on purpose: every write below is
+ * normalised here, so no caller can reintroduce the bug by passing reactive
+ * state. Teil 2 never hit this only because `appendTurn` re-reads its row from
+ * Dexie before writing it back.
+ */
+function plain<T>(value: T): T {
+  const raw = toRaw(value)
+  if (Array.isArray(raw)) return raw.map(plain) as unknown as T
+  if (raw !== null && typeof raw === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, val] of Object.entries(raw as Record<string, unknown>)) out[k] = plain(val)
+    return out as T
+  }
+  return raw
+}
 
 export async function createVortrag(
   thema: VortragThemaRef,
@@ -21,12 +55,12 @@ export async function createVortrag(
 ): Promise<SprechenVortrag> {
   const row: SprechenVortrag = {
     id: crypto.randomUUID(),
-    thema,
+    thema: plain(thema),
     modality,
     // A hard limit models an examiner interrupting, which only exists in real
     // time — defence in depth against a stale typed stash carrying it true.
-    helps: { ...helps, hardLimit: modality === 'spoken' && helps.hardLimit },
-    plan,
+    helps: plain({ ...helps, hardLimit: modality === 'spoken' && helps.hardLimit }),
+    plan: plain(plan),
     notes,
     rede: { textDe: '' },
     kiTippCount: 0,
@@ -51,11 +85,11 @@ export async function findActiveVortrag(modality?: Modality): Promise<SprechenVo
 }
 
 export async function saveRede(id: string, rede: RedeRecord): Promise<void> {
-  await db.sprechenVortraege.update(id, { rede })
+  await db.sprechenVortraege.update(id, { rede: plain(rede) })
 }
 
 export async function saveNachfrage(id: string, nachfrage: NachfrageRecord): Promise<void> {
-  await db.sprechenVortraege.update(id, { nachfrage })
+  await db.sprechenVortraege.update(id, { nachfrage: plain(nachfrage) })
 }
 
 export async function markVortragSubmitted(id: string): Promise<void> {

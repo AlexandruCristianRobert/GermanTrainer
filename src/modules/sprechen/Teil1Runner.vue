@@ -656,6 +656,14 @@ async function commitRede(): Promise<void> {
  * required first — mirrors Teil2Runner's early-end warning — UNLESS the
  * caller is the hard limit itself (`skipConfirm`), which is a system action,
  * not a learner decision.
+ *
+ * Everything before `phase` flips is wrapped so a throw can never leave the
+ * click looking like a no-op. This is not hypothetical: `commitRede`'s Dexie
+ * write used to reject on every run (a Vue proxy is not structured-cloneable —
+ * see useVortrag's `plain()`), which killed the handler mid-flight and left
+ * the learner tapping a dead "Vortrag beenden" with no error anywhere on
+ * screen. The root cause is fixed; this makes the next one visible instead of
+ * silent.
  */
 async function finishRede(opts: { skipConfirm?: boolean } = {}) {
   if (!v.value || phase.value !== 'rede') return
@@ -673,6 +681,10 @@ async function finishRede(opts: { skipConfirm?: boolean } = {}) {
     persistWallClock()
     phase.value = 'nachfrage'
     await requestNachfrage()
+  } catch (err) {
+    toast.error('Vortrag konnte nicht beendet werden', {
+      description: err instanceof Error ? err.message : String(err)
+    })
   } finally {
     finishing.value = false
   }

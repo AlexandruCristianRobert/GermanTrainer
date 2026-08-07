@@ -9,6 +9,7 @@ import { gradeVortrag, type VortragGradeResult } from '../../src/composables/use
 import { appendCorrections } from '../../src/composables/useSprechenArchive'
 import { saveQuizRun } from '../../src/composables/useQuizHistory'
 import { loadCachedBank } from '../../src/composables/useSprechenArguments'
+import { useToast } from '../../src/composables/useToast'
 import { GLIEDERUNGSPUNKTE, VORTRAG_MOVE_LABEL } from '../../src/data/sprechenVortragsmittel'
 import type { SprechenVortrag } from '../../src/data/sprechen'
 
@@ -750,6 +751,25 @@ describe('Teil1Runner finishRede latch and confirmation (F12)', () => {
     await flushPromises()
     expect(vi.mocked(generateNachfrage)).not.toHaveBeenCalled()
     expect(w.find('.rede-textarea').exists()).toBe(true)
+  })
+
+  // A failing commit used to reject straight out of the click handler, so the
+  // learner tapped "Vortrag beenden" and NOTHING happened — no phase change,
+  // no error, nowhere to look. The specific cause (a Vue proxy reaching
+  // IndexedDB) is fixed in useVortrag; this pins the guard that keeps any
+  // future failure here visible rather than silent.
+  it('surfaces an error instead of dying silently when the Rede commit fails', async () => {
+    useToast().clear()
+    vi.mocked(saveRede).mockRejectedValueOnce(new Error('DataCloneError: could not be cloned'))
+    const w = await mountReady()
+    await w.find('.rede-textarea').setValue('Ein kurzer Vortrag zum Testen des Fehlerpfads.')
+    await w.find('.run-meta .btn-quiet').trigger('click')
+    await flushPromises()
+
+    expect(useToast().items.value.some(t => t.title === 'Vortrag konnte nicht beendet werden')).toBe(true)
+    // Still on the Rede screen, and the phase never half-advanced.
+    expect(w.find('.rede-textarea').exists()).toBe(true)
+    expect(vi.mocked(generateNachfrage)).not.toHaveBeenCalled()
   })
 })
 
