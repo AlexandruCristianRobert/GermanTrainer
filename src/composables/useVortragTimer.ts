@@ -53,8 +53,15 @@ export function redezeit(input: {
  * real examiner interrupts on wall time, not on however much of it the
  * learner actually spent talking. So this reads `wallSeconds` — time since
  * the Rede began, mic paused or not — never `redezeit()`'s spoken-time
- * content budget. It therefore exists in the spoken Modality ONLY — a word
- * cap on a typed Rede has no exam analogue and would punish thoroughness.
+ * content budget.
+ *
+ * It exists in the spoken Modality ONLY. Not because a typed Rede has no
+ * clock — this one would tick perfectly well against a typed run — but
+ * because the threshold is calibrated to speech. VORTRAG_TARGET_SECONDS is
+ * the four minutes an examiner grants a SPEAKER; applying it to typing would
+ * cut learners off for typing speed rather than for German, which is not the
+ * skill under test. A typed Rede is therefore bounded by content
+ * (VORTRAG_TARGET_WORDS) and nothing else.
  */
 export function hardLimitReached(input: {
   wallSeconds: number
