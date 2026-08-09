@@ -22,6 +22,7 @@ import {
   buildVerbHintInputs, gradeVerbAnswer, buildVerbDrillItem, generateVerbSentenceBatch,
   type GeneratedVerbSentence, type VerbSentenceSpec, type VerbSentenceVerdict
 } from '../../composables/useVerbSentenceQuiz'
+import { buildTenseRecipe } from '../../composables/tenseRecipe'
 import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun, type QuizHistoryType } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
@@ -113,6 +114,37 @@ const micTranscript = computed(() => {
 const revealed = ref<Set<number>>(new Set())
 function toggleReveal(i: number) {
   const next = new Set(revealed.value); next.has(i) ? next.delete(i) : next.add(i); revealed.value = next
+}
+
+// Tense badge, two states. Hover reveals while the pointer is on it; click or
+// Alt+R pins it, so touch devices and typists both have a way in. Both reset
+// per card (like `revealed` above) — a hint asked for on card 3 must not
+// pre-answer card 4.
+const recipePinned = ref(false)
+const recipeHover = ref(false)
+const showRecipe = computed(() => recipePinned.value || recipeHover.value)
+
+const currentRecipe = computed(() => {
+  const s = current.value
+  if (!s?.tense) return null
+  return buildTenseRecipe(s.tense, s.verbs.map(v => v.german))
+})
+
+const badgeText = computed(() => {
+  const t = current.value?.tense
+  if (!t) return ''
+  const r = currentRecipe.value
+  if (!showRecipe.value || !r) return TENSE_LABELS[t]
+  return r.example ? `${r.formula} · ${r.example}` : r.formula
+})
+
+const badgeTitle = computed(() =>
+  showRecipe.value ? 'Zeitform zeigen (Alt+R)' : 'Bildung zeigen (Alt+R)'
+)
+
+function toggleRecipe() {
+  if (!current.value?.tense) return
+  recipePinned.value = !recipePinned.value
 }
 
 const currentSegments = computed<HintSegment[]>(() => {
@@ -257,6 +289,8 @@ function tryAdvance() {
     phase.value = 'input'
     awaitingNext.value = false
     revealed.value = new Set()
+    recipePinned.value = false
+    recipeHover.value = false
     nextTick(() => { if (!spoken.value) inputRef.value?.focus() })
   } else if (generationDone.value) {
     finishQuiz()
@@ -309,10 +343,25 @@ function hearReference() {
  *  keys at the window makes the mapping independent of what happens to hold
  *  focus. */
 function onKey(e: KeyboardEvent) {
+  // Alt+R is handled ahead of everything else, including the input guard
+  // below: the whole point is to flip the badge without leaving the answer
+  // field. Alt (not Shift) because answers are German — Shift+R would swallow
+  // the capital R in "Regen". Matched on e.code so non-QWERTY layouts, where
+  // Alt+key yields a different e.key, still reach the same physical R.
+  if (e.altKey && !e.ctrlKey && !e.metaKey && e.code === 'KeyR') {
+    if (!current.value?.tense) return
+    e.preventDefault()
+    toggleRecipe()
+    return
+  }
   if (e.code !== 'Space' && e.code !== 'Enter') return
   if (e.repeat) return
   const el = e.target as HTMLElement | null
   if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return
+  // A focused tense badge keeps its native Space/Enter activation instead of
+  // recording or advancing — returning without preventDefault lets the button
+  // toggle itself.
+  if (el instanceof Element && el.closest('.tense-badge')) return
   if (ending.value) return
   if (e.code === 'Space' && spoken.value && (phase.value === 'input' || recognizer.listening.value)) {
     e.preventDefault()
@@ -373,6 +422,8 @@ function retryWrong() {
   generationDone.value = true
   index.value = 0; userInput.value = ''; phase.value = 'input'; finished.value = false
   revealed.value = new Set()
+  recipePinned.value = false
+  recipeHover.value = false
   startedAt.value = Date.now(); historySaved.value = false
   nextTick(() => { if (!spoken.value) inputRef.value?.focus() })
 }
@@ -443,7 +494,18 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 
       <template v-else-if="current">
         <div class="prompt-card">
-          <div v-if="current.tense" class="tense-badge">{{ TENSE_LABELS[current.tense] }}</div>
+          <button
+            v-if="current.tense"
+            type="button"
+            class="tense-badge"
+            :class="{ flipped: showRecipe }"
+            :aria-pressed="recipePinned"
+            :title="badgeTitle"
+            aria-live="polite"
+            @click="toggleRecipe"
+            @mouseenter="recipeHover = true"
+            @mouseleave="recipeHover = false"
+          >{{ badgeText }}</button>
           <div v-if="!wordHints" class="en-sentence">{{ current.english }}</div>
           <div v-else class="en-sentence">
             <template v-for="(seg, i) in currentSegments" :key="i"><span
@@ -457,7 +519,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
               @keydown.space.prevent="toggleReveal(i)"
             >{{ seg.text }}<span class="hint-pop">{{ seg.hint.reveal }}</span></span><template v-else>{{ seg.text }}</template></template>
           </div>
-          <div class="en-hint">Translate into German.</div>
+          <div class="en-hint">Translate into German.<template v-if="current.tense"> · Alt+R: Bildung</template></div>
         </div>
 
         <div v-if="spoken" class="mic-wrap">
@@ -510,7 +572,8 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 .quiz-counter { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mute); }
 .sentence-progress { margin-bottom: 36px; }
 .prompt-card { text-align: center; }
-.tense-badge { display: inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); border: 1px solid currentColor; border-radius: 3px; padding: 2px 8px; margin-bottom: 12px; }
+.tense-badge { display: inline-block; max-width: 100%; font-family: var(--font-mono); font-size: 11px; line-height: 1.5; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); background: transparent; border: 1px solid currentColor; border-radius: 3px; padding: 2px 8px; margin-bottom: 12px; cursor: pointer; transition: background-color 120ms ease; }
+.tense-badge:hover, .tense-badge:focus-visible, .tense-badge.flipped { background-color: var(--accent-tint); }
 .en-sentence { font-family: var(--font-display); font-weight: 500; font-size: 30px; line-height: 1.3; letter-spacing: -0.005em; color: var(--ink); }
 .en-hint { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); margin-top: 14px; }
 .hint { position: relative; cursor: help; text-decoration: underline dotted; text-underline-offset: 4px; border-radius: 2px; padding: 0 1px; transition: background-color 120ms ease; outline: none; }

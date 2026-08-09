@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.18.05'
+export const APP_VERSION = '1.18.06'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.18.06', date: '2026-08-09', kind: 'polish',
+    title: 'Satz (KI) · die Zeitform zeigt ihre Bildung',
+    notes: [
+      '<strong>Das grüne Zeitform-Schild klappt um.</strong> Über dem englischen Satz stand bisher nur der Name der geforderten Form — <em>Passiv Präsens</em>, mehr nicht. Wer im Moment nicht mehr wusste, wie diese Form gebaut wird, kam ohne Umweg über das Cheatsheet nicht weiter. Mit der Maus darüber, ein Klick oder <em>Alt+R</em> dreht das Schild um: <em>wird + Partizip II</em>. Nochmal, und der Name steht wieder da.',
+      '<strong>Mit dem Verb deines Satzes, nicht mit irgendeinem.</strong> Neben der Formel steht die Form, die genau dieser Satz braucht — <em>wird gesucht</em>, <em>ist gekauft worden</em>, <em>steht auf</em>. Unregelmäßige Partizipien und trennbare Vorsilben stehen damit fertig da, statt selbst zusammengesucht zu werden. Stecken zwei Verben im Satz, zeigt das Schild beide.',
+      '<strong>Alle fünfzehn Zeitformen, nicht nur das Passiv.</strong> Perfekt zeigt <em>haben/sein + Partizip II</em>, Futur I <em>wird + Infinitiv</em>, Plusquamperfekt <em>hatte/war + Partizip II</em> — auch Präsens und Präteritum nennen ihre Regel.',
+      '<strong>Alt+R, nicht Umschalt+R.</strong> Hier tippst du Deutsch, und eine Umschalt-Kombination hätte dir das große R in <em>Regen</em> weggeschluckt. Alt+R greift auch mitten im Tippen, ohne dem Satz ein Zeichen zu nehmen. Wie die Wort-Hinweise klappt das Schild bei jedem neuen Satz wieder zu.'
+    ]
+  },
   {
     version: '1.18.05', date: '2026-08-07', kind: 'polish',
     title: 'Satz · Hinweise sagen mehr',
