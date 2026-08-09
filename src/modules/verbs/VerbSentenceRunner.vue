@@ -117,7 +117,7 @@ function toggleReveal(i: number) {
 }
 
 // Tense badge, two states. Hover reveals while the pointer is on it; click or
-// Alt+R pins it, so touch devices and typists both have a way in. Both reset
+// Strg+R pins it, so touch devices and typists both have a way in. Both reset
 // per card (like `revealed` above) — a hint asked for on card 3 must not
 // pre-answer card 4.
 const recipePinned = ref(false)
@@ -139,7 +139,7 @@ const badgeText = computed(() => {
 })
 
 const badgeTitle = computed(() =>
-  showRecipe.value ? 'Zeitform zeigen (Alt+R)' : 'Bildung zeigen (Alt+R)'
+  showRecipe.value ? 'Zeitform zeigen (Strg+R)' : 'Bildung zeigen (Strg+R)'
 )
 
 function toggleRecipe() {
@@ -343,12 +343,14 @@ function hearReference() {
  *  keys at the window makes the mapping independent of what happens to hold
  *  focus. */
 function onKey(e: KeyboardEvent) {
-  // Alt+R is handled ahead of everything else, including the input guard
+  // Strg+R is handled ahead of everything else, including the input guard
   // below: the whole point is to flip the badge without leaving the answer
-  // field. Alt (not Shift) because answers are German — Shift+R would swallow
+  // field. Ctrl (not Shift) because answers are German — Shift+R would swallow
   // the capital R in "Regen". Matched on e.code so non-QWERTY layouts, where
-  // Alt+key yields a different e.key, still reach the same physical R.
-  if (e.altKey && !e.ctrlKey && !e.metaKey && e.code === 'KeyR') {
+  // Ctrl+key yields a different e.key, still reach the same physical R.
+  // The preventDefault below deliberately swallows the browser's reload on a
+  // tensed card; Cmd+R (metaKey) is left alone so macOS keeps its reload.
+  if (e.ctrlKey && !e.altKey && !e.metaKey && e.code === 'KeyR') {
     if (!current.value?.tense) return
     e.preventDefault()
     toggleRecipe()
@@ -519,7 +521,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
               @keydown.space.prevent="toggleReveal(i)"
             >{{ seg.text }}<span class="hint-pop">{{ seg.hint.reveal }}</span></span><template v-else>{{ seg.text }}</template></template>
           </div>
-          <div class="en-hint">Translate into German.<template v-if="current.tense"> · Alt+R: Bildung</template></div>
+          <div class="en-hint">Translate into German.<template v-if="current.tense"> · Strg+R: Bildung</template></div>
         </div>
 
         <div v-if="spoken" class="mic-wrap">
