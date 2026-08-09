@@ -52,7 +52,7 @@ async function mountRunner(stash: object) {
 }
 
 function altR() {
-  window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR', key: 'R', altKey: true, bubbles: true }))
+  window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR', key: 'R', ctrlKey: true, bubbles: true }))
 }
 
 describe('VerbSentenceRunner tense recipe', () => {
@@ -85,7 +85,7 @@ describe('VerbSentenceRunner tense recipe', () => {
     expect(w.find('.tense-badge').text()).toBe('Passiv Präsens')
   })
 
-  it('flips on Alt+R while the answer input has focus', async () => {
+  it('flips on Strg+R while the answer input has focus', async () => {
     generateContentMock.mockResolvedValue(genResponse())
     const w = await mountRunner({ specs: [spec(0, 'passivPraesens')], level: 'A1' })
 
@@ -132,7 +132,7 @@ describe('VerbSentenceRunner tense recipe', () => {
     expect(w.find('.tense-badge').text()).toBe('Passiv Präsens')
   })
 
-  it('has no badge and ignores Alt+R for an untensed sentence', async () => {
+  it('has no badge and ignores Strg+R for an untensed sentence', async () => {
     generateContentMock.mockResolvedValue(genResponse())
     const w = await mountRunner({ specs: [spec(0, undefined)], level: 'A1' })
 
