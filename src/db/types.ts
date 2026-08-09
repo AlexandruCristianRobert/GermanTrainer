@@ -35,6 +35,8 @@ export interface Noun {
   english: string
   group: NounGroup
   createdAt: number
+  /** Bare nominative plural ('Tische'); '' = the noun has no plural; absent = not yet known. */
+  plural?: string
 }
 
 export const ADJECTIVE_GROUPS = [

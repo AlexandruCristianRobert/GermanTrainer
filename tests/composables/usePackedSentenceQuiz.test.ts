@@ -1,9 +1,11 @@
 import { describe, test, expect } from 'vitest'
 import {
   PACKED_MAX, PACKED_BUDGET, packedTotal, buildPackedSpecs, daCompoundFor, rektShort,
-  validatePackedCard, buildPackedGeneratePrompt, buildPackedSegments, connUsed,
+  validatePackedCard, buildPackedGeneratePrompt, buildPackedSegments, connUsed, nounHintText,
   verdictOf, parsePackedGrade, localCheckPackedCard, buildPackedMetaItems, buildPackedGradePrompt,
-  type PackedPools, type PackedCounts, type PackedCardSpec, type GeneratedPackedCard, type PackedItemResult
+  pendingPluralWrites,
+  type PackedPools, type PackedCounts, type PackedCardSpec, type PackedItemSpec, type PackedSpan,
+  type GeneratedPackedCard, type PackedItemResult
 } from '../../src/composables/usePackedSentenceQuiz'
 import { CONNECTORS } from '../../src/data/connectors'
 import type { NounRef } from '../../src/composables/useSentenceQuiz'
@@ -100,6 +102,18 @@ describe('rektShort', () => {
   })
 })
 
+describe('nounHintText', () => {
+  test('singular + plural: nominative plural and derived genitive plural, en-dash separated', () => {
+    expect(nounHintText('der Tisch', 'Tische')).toBe('der Tisch – die Tische (der Tische)')
+  })
+  test('empty plural ("no plural" signal) shows the singular alone', () => {
+    expect(nounHintText('die Milch', '')).toBe('die Milch')
+  })
+  test('undefined plural (not yet known) shows the singular alone', () => {
+    expect(nounHintText('der Bericht', undefined)).toBe('der Bericht')
+  })
+})
+
 const CONN_ABER = CONNECTORS.find(c => c.id === 'aber')!
 const CONN_PAIR = CONNECTORS.find(c => c.id === 'sowohl-als-auch')!
 
@@ -166,24 +180,87 @@ describe('validatePackedCard', () => {
     const v = validatePackedCard(raw, SPEC)!
     expect(v.spans).toEqual([{ key: 'v1', en: 'waiting' }])
   })
-  test('defaults extraNouns to [] when absent', () => {
-    expect(validatePackedCard(GOOD_RAW, SPEC)!.extraNouns).toEqual([])
+  test('carries span.pl through, INCLUDING the empty string "no plural" signal', () => {
+    const rawWithPlural = {
+      ...GOOD_RAW,
+      spans: [
+        { key: 'v1', en: 'waiting' }, { key: 'n1', en: 'report', pl: 'Berichte' },
+        { key: 'p1', en: 'since' }, { key: 'd1', en: 'on it' }, { key: 'k1', en: 'but' }
+      ]
+    }
+    expect(validatePackedCard(rawWithPlural, SPEC)!.spans.find(s => s.key === 'n1'))
+      .toEqual({ key: 'n1', en: 'report', pl: 'Berichte' })
+
+    // '' is not "absent" — it is the meaningful "this noun has no plural" signal
+    // and must survive the pass-through exactly like a real plural would.
+    const rawNoPlural = {
+      ...GOOD_RAW,
+      spans: [
+        { key: 'v1', en: 'waiting' }, { key: 'n1', en: 'report', pl: '' },
+        { key: 'p1', en: 'since' }, { key: 'd1', en: 'on it' }, { key: 'k1', en: 'but' }
+      ]
+    }
+    expect(validatePackedCard(rawNoPlural, SPEC)!.spans.find(s => s.key === 'n1'))
+      .toEqual({ key: 'n1', en: 'report', pl: '' })
+
+    // a span with no "pl" field at all (verb/prep/dac/conn keys) stays unset,
+    // never coerced to ''.
+    const v1Span = validatePackedCard(GOOD_RAW, SPEC)!.spans.find(s => s.key === 'v1')!
+    expect('pl' in v1Span).toBe(false)
   })
-  test('keeps well-formed extraNouns, filters malformed entries', () => {
+  test('defaults extras to [] when absent', () => {
+    expect(validatePackedCard(GOOD_RAW, SPEC)!.extras).toEqual([])
+  })
+  test('accepts extras of both kinds, dropping entries with empty en/de or an invalid kind', () => {
     const raw = {
       ...GOOD_RAW,
-      extraNouns: [
-        { en: 'colleague', de: 'der Kollege' },
-        { en: '', de: 'die Wohnung' },
-        { en: 'thing' },
+      extras: [
+        { en: 'colleague', de: 'der Kollege', kind: 'noun', pl: 'Kollegen' },
+        { en: 'must', de: 'müssen', kind: 'verb' },
+        { en: '', de: 'die Wohnung', kind: 'noun' },        // empty en
+        { en: 'thing', de: '', kind: 'noun' },              // empty de
+        { en: 'ghost', de: 'der Geist', kind: 'adjective' }, // invalid kind
+        { en: 'nothing', de: 'nichts' },                    // missing kind entirely
         'junk'
       ]
     }
-    expect(validatePackedCard(raw, SPEC)!.extraNouns).toEqual([{ en: 'colleague', de: 'der Kollege' }])
+    expect(validatePackedCard(raw, SPEC)!.extras).toEqual([
+      { en: 'colleague', de: 'der Kollege', kind: 'noun', pl: 'Kollegen' },
+      { en: 'must', de: 'müssen', kind: 'verb' }
+    ])
   })
-  test('drops extraNouns that duplicate a drilled noun', () => {
-    const raw = { ...GOOD_RAW, extraNouns: [{ en: 'report', de: 'der Bericht' }, { en: 'colleague', de: 'der Kollege' }] }
-    expect(validatePackedCard(raw, SPEC)!.extraNouns).toEqual([{ en: 'colleague', de: 'der Kollege' }])
+  test("drops a noun extra duplicating a drilled noun, and a verb extra whose de duplicates a drilled verb's infinitive", () => {
+    const raw = {
+      ...GOOD_RAW,
+      extras: [
+        { en: 'report', de: 'der Bericht', kind: 'noun' },   // duplicates drilled noun n1 (Bericht)
+        { en: 'colleague', de: 'der Kollege', kind: 'noun' },
+        { en: 'waited', de: 'warten', kind: 'verb' },        // duplicates drilled verb v1 (warten)
+        { en: 'must', de: 'müssen', kind: 'verb' }
+      ]
+    }
+    expect(validatePackedCard(raw, SPEC)!.extras).toEqual([
+      { en: 'colleague', de: 'der Kollege', kind: 'noun' },
+      { en: 'must', de: 'müssen', kind: 'verb' }
+    ])
+  })
+  test('NEVER rejects a card over bad hint data — entirely malformed extras still validate, rest of the card intact', () => {
+    const rawNotArray = { ...GOOD_RAW, extras: 'not-an-array' }
+    const v = validatePackedCard(rawNotArray, SPEC)
+    expect(v).not.toBeNull()
+    expect(v!.extras).toEqual([])
+    expect(v!.english).toBe(GOOD_RAW.english)
+    expect(v!.german).toBe(GOOD_RAW.german)
+    expect(v!.spans).toHaveLength(5)
+
+    const rawGarbageEntries = {
+      ...GOOD_RAW,
+      extras: [{ en: 123, de: {}, kind: 'bogus' }, null, 42, { kind: 'verb' }]
+    }
+    const v2 = validatePackedCard(rawGarbageEntries, SPEC)
+    expect(v2).not.toBeNull()
+    expect(v2!.extras).toEqual([])
+    expect(v2!.spans).toHaveLength(5)
   })
 })
 
@@ -198,9 +275,9 @@ describe('buildPackedGeneratePrompt', () => {
     expect(p).toContain('[k1]')
     expect(p).toContain('aber')
   })
-  test('asks for extraNouns alongside the spans', () => {
+  test('asks for extras (incidental nouns and verbs) alongside the spans', () => {
     const p = buildPackedGeneratePrompt([SPEC], 'B1/B2', { angles: ['set it at the office'], seed: 'abc' })
-    expect(p).toContain('extraNouns')
+    expect(p).toContain('extras')
   })
 })
 
@@ -214,6 +291,15 @@ describe('buildPackedSegments', () => {
     expect(byKey.get('v1')!.item!.hint).toEqual([{ text: 'warten + Akk' }])
     expect(byKey.get('n1')!.item!.hint).toEqual([{ text: 'der Bericht' }])
     expect(byKey.get('p1')!.item!.hint).toEqual([{ text: 'seit + Dat' }])
+  })
+  test("a drilled noun's hint shows the plural when the card's span carries one", () => {
+    const withPlural: GeneratedPackedCard = {
+      ...card,
+      spans: card.spans.map(s => (s.key === 'n1' ? { ...s, pl: 'Berichte' } : s))
+    }
+    const segs = buildPackedSegments(withPlural.english, withPlural)
+    const hint = segs.find(s => s.item?.key === 'n1')!.item!.hint!
+    expect(hint).toEqual([{ text: 'der Bericht – die Berichte (der Berichte)' }])
   })
   test('a da-compound reveals the collocation it stands for, not just the compound', () => {
     const segs = buildPackedSegments(card.english, card)
@@ -260,10 +346,13 @@ describe('buildPackedSegments', () => {
       expect(p.item!.hint!.every(l => l.badges?.length === 2)).toBe(true)
     }
   })
-  test('extra nouns become subtle noun spans revealing article + noun', () => {
+  test('a noun extra becomes a subtle noun span revealing article + noun', () => {
     const withExtras: GeneratedPackedCard = {
       ...card,
-      extraNouns: [{ en: 'colleague', de: 'der Kollege' }, { en: 'Monday', de: 'der Montag' }]
+      extras: [
+        { en: 'colleague', de: 'der Kollege', kind: 'noun' },
+        { en: 'Monday', de: 'der Montag', kind: 'noun' }
+      ]
     }
     const segs = buildPackedSegments(withExtras.english, withExtras)
     const extras = segs.filter(s => s.item?.extra)
@@ -273,16 +362,112 @@ describe('buildPackedSegments', () => {
     ])
     expect(extras.every(s => s.item!.cat === 'noun')).toBe(true)
   })
-  test('drilled spans win overlaps — an extra noun on a claimed range is dropped', () => {
-    const withClash: GeneratedPackedCard = { ...card, extraNouns: [{ en: 'report', de: 'der Bericht' }] }
+  test("a verb extra emits a segment with cat: 'verb' and extra: true, hinting its infinitive", () => {
+    // card.english: '...but I am still working on it.' — "am" is a whole word,
+    // unclaimed by any drilled span.
+    const withVerbExtra: GeneratedPackedCard = {
+      ...card,
+      extras: [{ en: 'am', de: 'sein', kind: 'verb' }]
+    }
+    const segs = buildPackedSegments(withVerbExtra.english, withVerbExtra)
+    const extra = segs.find(s => s.item?.extra)!
+    expect(extra.item!.cat).toBe('verb')
+    expect(extra.item!.extra).toBe(true)
+    expect(extra.item!.hint).toEqual([{ text: 'sein' }])
+  })
+  test('extras never steal a range a drilled span already claimed', () => {
+    // "report" is n1's own span surface (the only occurrence in card.english);
+    // an extra claiming the identical surface must find it already used.
+    const withClash: GeneratedPackedCard = { ...card, extras: [{ en: 'report', de: 'der Bericht', kind: 'noun' }] }
     const segs = buildPackedSegments(withClash.english, withClash)
     expect(segs.filter(s => s.item?.extra)).toHaveLength(0)
     expect(segs.filter(s => s.item?.key === 'n1')).toHaveLength(1)
   })
   test('segments concatenate back to the source string, extras included', () => {
-    const withExtras: GeneratedPackedCard = { ...card, extraNouns: [{ en: 'colleague', de: 'der Kollege' }] }
+    const withExtras: GeneratedPackedCard = { ...card, extras: [{ en: 'colleague', de: 'der Kollege', kind: 'noun' }] }
     const segs = buildPackedSegments(withExtras.english, withExtras)
     expect(segs.map(s => s.text).join('')).toBe(card.english)
+  })
+})
+
+describe("plural precedence (stored beats the card's AI guess — ADR-0003)", () => {
+  function nounSpec(plural?: string): PackedCardSpec {
+    const noun: NounRef = { german: 'Bericht', article: 'der', english: 'report' }
+    if (plural !== undefined) noun.plural = plural
+    return { index: 0, items: [{ key: 'n1', cat: 'noun', noun }] }
+  }
+  function nounCard(spec: PackedCardSpec, spanPl?: string): GeneratedPackedCard {
+    const span: PackedSpan = { key: 'n1', en: 'report' }
+    if (spanPl !== undefined) span.pl = spanPl
+    return { ...spec, english: 'I read the report.', german: 'Ich lese den Bericht.', sents: 1, spans: [span] }
+  }
+  test("a stored plural wins over the card's conflicting AI guess", () => {
+    const card = nounCard(nounSpec('Berichte'), 'Berichten') // AI guessed a different (wrong) plural
+    const segs = buildPackedSegments(card.english, card)
+    const hint = segs.find(s => s.item?.key === 'n1')!.item!.hint!
+    expect(hint).toEqual([{ text: 'der Bericht – die Berichte (der Berichte)' }]) // the STORED plural, not "Berichten"
+  })
+  test("with no stored plural, this card's AI guess is used", () => {
+    const card = nounCard(nounSpec(undefined), 'Berichte')
+    const segs = buildPackedSegments(card.english, card)
+    const hint = segs.find(s => s.item?.key === 'n1')!.item!.hint!
+    expect(hint).toEqual([{ text: 'der Bericht – die Berichte (der Berichte)' }])
+  })
+})
+
+describe('pendingPluralWrites', () => {
+  function nounItem(key: string, german: string, plural?: string): PackedItemSpec {
+    const noun: NounRef = { german, article: 'der', english: german.toLowerCase() }
+    if (plural !== undefined) noun.plural = plural
+    return { key, cat: 'noun', noun }
+  }
+  test("writes back only for drilled nouns lacking a stored plural, keyed on the card's AI span pl", () => {
+    const spec: PackedCardSpec = {
+      index: 0,
+      items: [
+        nounItem('n1', 'Bericht'),              // no stored plural -> eligible
+        nounItem('n2', 'Wohnung', 'Wohnungen')   // already stored -> not eligible
+      ]
+    }
+    const card: GeneratedPackedCard = {
+      ...spec, english: 'x', german: 'y', sents: 1,
+      spans: [{ key: 'n1', en: 'report', pl: 'Berichte' }, { key: 'n2', en: 'apartment', pl: 'ignored' }]
+    }
+    expect(pendingPluralWrites(card)).toEqual([{ german: 'Bericht', plural: 'Berichte' }])
+  })
+  test('includes an empty-string plural — "no plural" is still worth caching', () => {
+    const spec: PackedCardSpec = { index: 0, items: [nounItem('n1', 'Milch')] }
+    const card: GeneratedPackedCard = {
+      ...spec, english: 'x', german: 'y', sents: 1, spans: [{ key: 'n1', en: 'milk', pl: '' }]
+    }
+    expect(pendingPluralWrites(card)).toEqual([{ german: 'Milch', plural: '' }])
+  })
+  test('deduplicates by german', () => {
+    const spec: PackedCardSpec = {
+      index: 0,
+      items: [nounItem('n1', 'Bericht'), nounItem('n2', 'Bericht')]
+    }
+    const card: GeneratedPackedCard = {
+      ...spec, english: 'x', german: 'y', sents: 1,
+      spans: [{ key: 'n1', en: 'report', pl: 'Berichte' }, { key: 'n2', en: 'report', pl: 'Berichte' }]
+    }
+    expect(pendingPluralWrites(card)).toEqual([{ german: 'Bericht', plural: 'Berichte' }])
+  })
+  test('returns [] when there is nothing to write', () => {
+    // no noun items at all
+    expect(pendingPluralWrites({ index: 0, items: [], english: 'x', german: 'y', sents: 1, spans: [] })).toEqual([])
+    // noun already has a stored plural
+    const specStored: PackedCardSpec = { index: 0, items: [nounItem('n1', 'Bericht', 'Berichte')] }
+    const cardStored: GeneratedPackedCard = {
+      ...specStored, english: 'x', german: 'y', sents: 1, spans: [{ key: 'n1', en: 'report', pl: 'Berichten' }]
+    }
+    expect(pendingPluralWrites(cardStored)).toEqual([])
+    // no stored plural, but the span carries no pl at all
+    const specNoSpanPl: PackedCardSpec = { index: 0, items: [nounItem('n1', 'Bericht')] }
+    const cardNoSpanPl: GeneratedPackedCard = {
+      ...specNoSpanPl, english: 'x', german: 'y', sents: 1, spans: [{ key: 'n1', en: 'report' }]
+    }
+    expect(pendingPluralWrites(cardNoSpanPl)).toEqual([])
   })
 })
 

@@ -22,6 +22,9 @@ export interface NounRef {
   german: string
   article: Gender
   english: string
+  /** Bare nominative plural, passed through from the stored Noun when known
+   *  ('' = no plural); absent = not yet known. */
+  plural?: string
 }
 
 export type NounsPerSentence = 1 | 2 | 'mix'
@@ -119,9 +122,13 @@ export function prepUsed(german: string, prepGerman: string): boolean {
   return candidates.some(c => hay.includes(' ' + c + ' '))
 }
 
-/** Turn a stored Noun into the lean shape the AI prompt needs. */
+/** Turn a stored Noun into the lean shape the AI prompt needs. `plural` rides
+ *  along only when the store actually holds one (including '' = no plural) —
+ *  an absent field, not `undefined`, means "not yet known". */
 export function nounToRef(n: Noun): NounRef {
-  return { german: n.german, article: n.gender, english: n.english }
+  const ref: NounRef = { german: n.german, article: n.gender, english: n.english }
+  if (typeof n.plural === 'string') ref.plural = n.plural
+  return ref
 }
 
 /**

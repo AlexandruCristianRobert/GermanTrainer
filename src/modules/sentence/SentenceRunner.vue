@@ -16,12 +16,13 @@ import { checkSentence, type Direction } from '../../composables/useSentenceQuiz
 import {
   generatePackedBatch, gradePackedAnswer, gradePackedMeaning, localCheckPackedCard,
   verdictOf, buildPackedSegments, buildPackedMetaItems, aggregateOutcomes, rektShort,
-  prepCaseShort, dacSolution, PACKED_CATS,
+  prepCaseShort, dacSolution, PACKED_CATS, pendingPluralWrites,
   type PackedCardSpec, type PackedItemSpec, type PackedCategory, type PackedCounts,
   type GeneratedPackedCard, type PackedVerdict, type CardOutcome, type PackedHintBadge
 } from '../../composables/usePackedSentenceQuiz'
 import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun } from '../../composables/useQuizHistory'
+import { useNouns } from '../../composables/useNouns'
 import { useSettings } from '../../composables/useSettings'
 import { resolveAiClient } from '../../composables/localClaude'
 import { useSpeechRecognizer } from '../../composables/useSpeechRecognizer'
@@ -33,6 +34,7 @@ import SentenceResult from './SentenceResult.vue'
 const STASH_KEY = 'gt:lastPackedSentenceQuiz'
 const router = useRouter()
 const { settings, load: loadSettings } = useSettings()
+const { setPlural } = useNouns()
 const toast = useToast()
 const sound = useSound()
 const recognizer = useSpeechRecognizer('de-DE')
@@ -277,6 +279,13 @@ onMounted(async () => {
       return res.cards
     },
     onResults: (cards) => {
+      // Read off the raw `cards` before they enter deck and turn reactive —
+      // a Vue proxy is not structured-cloneable and Dexie rejects it silently
+      // (see useVortrag's `plain()`). Fire-and-forget: a failed cache write
+      // must never break a card.
+      for (const c of cards) {
+        for (const w of pendingPluralWrites(c)) setPlural(w.german, w.plural).catch(() => {})
+      }
       for (const c of cards) deck.value.push(c)
       if (!chimed && deck.value.length > 0) { chimed = true; sound.playReady() }
       if (awaitingNext.value) tryAdvance()
@@ -432,11 +441,14 @@ function grow(e: Event) {
   el.style.height = `${el.scrollHeight}px`
 }
 
+// Chat convention: Enter submits, Shift+Enter is the newline a multi-sentence
+// card needs. Ctrl/Cmd+Enter still submits — it falls through the same path
+// since shiftKey is false. isComposing is guarded so an IME candidate-commit
+// Enter does not submit.
 function onComposerKey(e: KeyboardEvent) {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-    e.preventDefault()
-    void submit()
-  }
+  if (e.key !== 'Enter' || e.isComposing || e.shiftKey) return
+  e.preventDefault()
+  void submit()
 }
 
 /** Replays the German reference — never the learner's own answer. */
@@ -635,7 +647,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
               v-model="userInput" @input="grow" @keydown="onComposerKey"
             ></textarea>
             <div class="sn-foot">
-              <span class="sn-kbd">Enter = neue Zeile · <span class="kbd">Strg</span>+<span class="kbd">Enter</span> reicht ein</span>
+              <span class="sn-kbd"><span class="kbd">Enter</span> reicht ein · <span class="kbd">Umschalt</span>+<span class="kbd">Enter</span> = neue Zeile</span>
               <button class="btn btn-accent" type="button" :disabled="!userInput.trim()" @click="submit">Einreichen →</button>
             </div>
           </template>
