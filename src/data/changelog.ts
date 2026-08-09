@@ -19,6 +19,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.18.08', date: '2026-08-09', kind: 'fix',
+    title: 'Satz (KI) · Strg+R statt Alt+R',
+    notes: [
+      '<strong>Das Zeitform-Schild klappt jetzt mit <em>Strg+R</em> um.</strong> <em>Alt+R</em> war auf manchen Tastaturen umständlich zu treffen. Maus und Klick funktionieren unverändert.',
+      '<strong>Solange eine Karte mit Zeitform offen ist, lädt <em>Strg+R</em> die Seite nicht neu</strong> — die Tastenkombination gehört jetzt dem Schild. Auf dem Mac bleibt <em>Cmd+R</em> das Neuladen.'
+    ]
+  },
+  {
     version: '1.18.07', date: '2026-08-09', kind: 'polish',
     title: 'Satz · jedes Verb, jeder Plural',
     notes: [
