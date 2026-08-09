@@ -19,6 +19,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.18.07', date: '2026-08-09', kind: 'polish',
+    title: 'Satz · jedes Verb, jeder Plural',
+    notes: [
+      '<strong>Jetzt ist jedes Verb markiert.</strong> Unterstrichen waren bisher nur die Verben, die die Karte abfragt — <em>müssen</em>, <em>sein</em>, <em>regnen</em> standen daneben blank da, obwohl du sie genauso mitschreiben musst. Jetzt trägt jedes Verb im englischen Satz seinen Strich und nennt den deutschen Infinitiv, Hilfs- und Modalverben eingeschlossen. Die abgefragten bleiben kräftiger unterstrichen als die beiläufigen: gewertet wird weiterhin nur, was die Karte verlangt.',
+      '<strong>Nomen nennen ihren Plural.</strong> Der Hinweis zeigte bisher <em>der Tisch</em> und ließ dich beim Plural raten. Jetzt steht die ganze Zeile da — <em>der Tisch – die Tische (der Tische)</em>: Singular, Plural, Genitiv Plural. Nomen ohne Plural (<em>die Milch</em>) bleiben wie sie waren. Gilt für abgefragte wie beiläufige Nomen.',
+      '<strong>Ein Plural wird nur einmal gefragt.</strong> Beim ersten Auftauchen liefert ihn die KI, danach steht er bei dem Nomen in deiner Wortliste und wird von dort gelesen. Was einmal gespeichert ist, gilt — deine Liste wird mit jeder Runde ein Stück vollständiger.',
+      '<strong>Enter reicht ein.</strong> Enter machte hier eine neue Zeile, und nur <em>Strg+Enter</em> gab ab — auf einer Karte mit einem einzigen Satz eine Handbewegung zu viel. Jetzt reicht Enter ein und blättert nach der Bewertung weiter; für eine neue Zeile ist <em>Umschalt+Enter</em> da. <em>Strg+Enter</em> funktioniert wie gehabt.'
+    ]
+  },
+  {
     version: '1.18.06', date: '2026-08-09', kind: 'polish',
     title: 'Satz (KI) · die Zeitform zeigt ihre Bildung',
     notes: [
