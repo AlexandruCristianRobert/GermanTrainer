@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import SentenceRunner from '../../../src/modules/sentence/SentenceRunner.vue'
 import { CONNECTORS } from '../../../src/data/connectors'
+import { db } from '../../../src/db'
 
 vi.mock('../../../src/composables/useSettings', async () => {
   const vue = await import('vue')
@@ -15,20 +16,32 @@ vi.mock('../../../src/composables/useSettings', async () => {
   }
 })
 
-// One canned generated card per spec; grader marks everything correct.
+// One canned generated card per spec; grader marks everything correct. A spec
+// carrying a noun item (id present only in the plural-write-back test) also
+// gets a drilled-noun span with an AI-guessed plural, so the runner's
+// write-back has something to cache.
 vi.mock('../../../src/composables/usePackedSentenceQuiz', async (importOriginal) => {
   const real = await importOriginal<typeof import('../../../src/composables/usePackedSentenceQuiz')>()
   return {
     ...real,
-    generatePackedBatch: async (_c: unknown, opts: { specs: Array<{ index: number; items: unknown[] }> }) => ({
-      cards: opts.specs.map(s => ({
-        ...s,
-        english: 'We are waiting at the station, but he is not coming.',
-        german: 'Wir warten am Bahnhof, aber er kommt nicht.',
-        sents: 1,
-        spans: [{ key: 'v1', en: 'waiting' }, { key: 'k1', en: 'but' }],
-        extraNouns: [{ en: 'station', de: 'der Bahnhof' }]
-      })),
+    generatePackedBatch: async (
+      _c: unknown,
+      opts: { specs: Array<{ index: number; items: Array<{ key: string; cat: string }> }> }
+    ) => ({
+      cards: opts.specs.map(s => {
+        const nounKey = s.items.find(i => i.cat === 'noun')?.key
+        const spans = nounKey
+          ? [{ key: 'v1', en: 'waiting' }, { key: 'k1', en: 'but' }, { key: nounKey, en: 'station', pl: 'Bahnhöfe' }]
+          : [{ key: 'v1', en: 'waiting' }, { key: 'k1', en: 'but' }]
+        return {
+          ...s,
+          english: 'We are waiting at the station, but he is not coming.',
+          german: 'Wir warten am Bahnhof, aber er kommt nicht.',
+          sents: 1,
+          spans,
+          extras: [{ en: 'station', de: 'der Bahnhof', kind: 'noun' }]
+        }
+      }),
       rejected: 0, attempts: 1
     }),
     gradePackedAnswer: async (_c: unknown, o: { card: { items: Array<{ key: string }> } }) => ({
@@ -50,6 +63,36 @@ function stash(cards = 2) {
     specs, direction: 'en-de', modality: 'typed', wordHints: true, level: 'B1',
     meta: { counts: { verb: 1, noun: 0, prep: 0, dac: 0, conn: 1 }, verbLevels: ['B1'], verbTypes: [], verbCases: [], nounGroups: [], prepCases: [], connFamilies: ['adversativ'], connWords: [] }
   }))
+}
+
+/** A stash whose card also carries a drilled noun — used by the plural
+ *  write-back test. The mocked generatePackedBatch above attaches a
+ *  matching span (with an AI-guessed "pl") whenever a noun item is present. */
+function stashWithNoun(nounGerman: string) {
+  const specs = [{
+    index: 0,
+    items: [
+      { key: 'v1', cat: 'verb', verb: { german: 'warten', english: 'wait', level: 'B1', case: 'accusative' } },
+      { key: 'k1', cat: 'conn', conn: CONN },
+      { key: 'n1', cat: 'noun', noun: { german: nounGerman, article: 'der', english: 'station' } }
+    ]
+  }]
+  sessionStorage.setItem('gt:lastPackedSentenceQuiz', JSON.stringify({
+    specs, direction: 'en-de', modality: 'typed', wordHints: true, level: 'B1',
+    meta: {
+      counts: { verb: 1, noun: 1, prep: 0, dac: 0, conn: 1 }, verbLevels: ['B1'], verbTypes: [], verbCases: [],
+      nounGroups: [], prepCases: [], connFamilies: ['adversativ'], connWords: []
+    }
+  }))
+}
+
+/** Dispatches a real keydown on `el` (defaults merged with `init`) and
+ *  returns it so callers can inspect `defaultPrevented`. Mirrors the pattern
+ *  VerbSentenceRunner.recipe.test.ts uses for its own key-handling checks. */
+function keydownOn(el: Element, init: KeyboardEventInit = {}): KeyboardEvent {
+  const ev = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, ...init })
+  el.dispatchEvent(ev)
+  return ev
 }
 
 async function mountRunner() {
@@ -123,5 +166,55 @@ describe('SentenceRunner', () => {
     expect(hist[0].correct).toBe(1)
     expect(hist[0].meta.packedConnItems).toHaveLength(1)
     expect(hist[0].meta.verbSentenceItems).toHaveLength(1)
+  })
+
+  it('Enter in the composer submits', async () => {
+    stash(1)
+    const w = await mountRunner()
+    await w.find('textarea.sn-ta').setValue('Wir warten, aber er kommt nicht.')
+    keydownOn(w.find('textarea.sn-ta').element)
+    await flushPromises()
+    expect(w.find('.sn-verdict').exists()).toBe(true)
+  })
+
+  it('Shift+Enter does not submit and does not preventDefault (the textarea keeps its native newline)', async () => {
+    stash(1)
+    const w = await mountRunner()
+    await w.find('textarea.sn-ta').setValue('Wir warten, aber er kommt nicht.')
+    const ev = keydownOn(w.find('textarea.sn-ta').element, { shiftKey: true })
+    await flushPromises()
+    expect(ev.defaultPrevented).toBe(false)
+    expect(w.find('.sn-verdict').exists()).toBe(false)
+    expect(w.find('textarea.sn-ta').exists()).toBe(true)
+  })
+
+  it('Ctrl+Enter still submits', async () => {
+    stash(1)
+    const w = await mountRunner()
+    await w.find('textarea.sn-ta').setValue('Wir warten, aber er kommt nicht.')
+    keydownOn(w.find('textarea.sn-ta').element, { ctrlKey: true })
+    await flushPromises()
+    expect(w.find('.sn-verdict').exists()).toBe(true)
+  })
+
+  it('an Enter that is part of an IME composition (isComposing) does not submit', async () => {
+    stash(1)
+    const w = await mountRunner()
+    await w.find('textarea.sn-ta').setValue('Wir warten, aber er kommt nicht.')
+    keydownOn(w.find('textarea.sn-ta').element, { isComposing: true })
+    await flushPromises()
+    expect(w.find('.sn-verdict').exists()).toBe(false)
+    expect(w.find('textarea.sn-ta').exists()).toBe(true)
+  })
+
+  it("writes back a drilled noun's plural once a card is generated, for a noun the store hasn't cached yet", async () => {
+    await db.nouns.clear()
+    const id = await db.nouns.add({
+      german: 'Bahnhof', gender: 'der', english: 'station', group: 'Transport & Travel', createdAt: 0
+    })
+    stashWithNoun('Bahnhof')
+    await mountRunner()
+    const noun = await db.nouns.get(id as number)
+    expect(noun?.plural).toBe('Bahnhöfe')
   })
 })

@@ -65,5 +65,13 @@ export function useNouns() {
     return db.nouns.where('german').equals(german).first()
   }
 
-  return { items, refresh, create, update, remove, count, sample, sampleByGroups, countsByGroup, findByGerman }
+  // Background cache write-back for a plural the store doesn't hold yet
+  // (Sentence module full reveal). No refresh() — this has no list of its
+  // own to update — and the undefined check keeps a stored plural, once set,
+  // canonical forever (ADR-0003: ours over the AI's).
+  async function setPlural(german: string, plural: string): Promise<void> {
+    await db.nouns.where('german').equals(german).modify(n => { if (n.plural === undefined) n.plural = plural })
+  }
+
+  return { items, refresh, create, update, remove, count, sample, sampleByGroups, countsByGroup, findByGerman, setPlural }
 }

@@ -140,19 +140,24 @@ export function prepCaseShort(c: PrepCase): string {
 
 // ─────────────────────── Generation (prompt + validation) ───────────────────────
 
-export interface PackedSpan { key: string; en: string }
-/** An [Incidental noun] the AI introduced, with its German (article + noun)
- *  so its gender can be hinted — mirrors the verb quiz's extraWords. */
-export interface PackedExtraNoun { en: string; de: string }
+export interface PackedSpan { key: string; en: string; pl?: string }
+/** An [Incidental noun] or verb the AI introduced, with its German dictionary
+ *  form so it can be hinted — mirrors the verb quiz's extraWords. `kind:'verb'`
+ *  → `de` is the infinitive; `kind:'noun'` → `de` is article + nominative
+ *  singular and `pl` its bare nominative plural ('' = no plural). */
+export interface PackedExtraWord { en: string; de: string; kind: 'verb' | 'noun'; pl?: string }
 export interface GeneratedPackedCard extends PackedCardSpec {
   english: string
   german: string
   /** 1–4 sentences; ≥3 renders the "Kurztext" note and the smaller type size. */
   sents: number
-  /** One span per item; a two-part connector carries TWO spans with one key. */
+  /** One span per item; a two-part connector carries TWO spans with one key.
+   *  A NOUN key's span also carries the AI's guess at its bare plural — used
+   *  only until the store learns the real one (see pendingPluralWrites). */
   spans: PackedSpan[]
-  /** Every non-drilled noun in the passage, hintable with its gender. */
-  extraNouns?: PackedExtraNoun[]
+  /** Every non-drilled noun or finite verb in the passage, hintable with its
+   *  German dictionary form. */
+  extras?: PackedExtraWord[]
 }
 
 export const PACKED_ANGLE_POOL = [
@@ -175,15 +180,20 @@ export const PACKED_GEN_SYSTEM =
   'the word order that part forces. ' +
   'Return ONLY one JSON object of exactly this shape (no prose, no markdown fences): ' +
   '{"items":[{"index":<number>,"english":"...","german":"...","sentenceCount":<1-4>,' +
-  '"spans":[{"key":"v1","en":"..."}],"extraNouns":[{"en":"...","de":"..."}]}]} — exactly one ' +
-  'entry per requested index. ' +
+  '"spans":[{"key":"v1","en":"...","pl":"..."}],' +
+  '"extras":[{"en":"...","de":"...","kind":"verb|noun","pl":"..."}]}]} — exactly one entry per ' +
+  'requested index. ' +
   '"spans" = one entry per ingredient key, where "en" is the exact English word(s) expressing ' +
   'that ingredient, copied verbatim from YOUR English translation (an exact substring of it); ' +
-  'a TWO-PART connector gets TWO span entries with the same key, one per part. ' +
-  '"extraNouns" = EVERY OTHER noun in your English translation that is NOT already covered by ' +
-  'a span entry, each with "en" = the exact noun as it appears in your English translation ' +
-  '(the noun head, without its article — an exact substring) and "de" = its German article + ' +
-  'nominative singular (e.g. "die Katze"); use [] when there are none.'
+  'a TWO-PART connector gets TWO span entries with the same key, one per part. For a NOUN key ' +
+  'ONLY, also add "pl" = its bare nominative plural WITHOUT an article (e.g. "Tische"), or "" ' +
+  'when that noun has no plural; omit "pl" for verb/preposition/da-compound/connector keys. ' +
+  '"extras" = EVERY OTHER noun and finite verb in your English translation that is NOT already ' +
+  'covered by a span entry — subjects, objects, auxiliaries, modals, incidental nouns — each ' +
+  'with "en" = its exact English surface (an exact substring of your English translation), ' +
+  '"de" = its German dictionary form (the INFINITIVE for a verb; article + nominative singular ' +
+  'for a noun, e.g. "die Katze"), "kind" ("verb" or "noun"), and for nouns "pl" = its bare ' +
+  'nominative plural ("" when it has none); use [] when there are none.'
 
 export const PACKED_GEN_SCHEMA = {
   type: 'object',
@@ -201,20 +211,25 @@ export const PACKED_GEN_SCHEMA = {
             type: 'array',
             items: {
               type: 'object',
-              properties: { key: { type: 'string' }, en: { type: 'string' } },
+              properties: { key: { type: 'string' }, en: { type: 'string' }, pl: { type: 'string' } },
               required: ['key', 'en']
             }
           },
-          extraNouns: {
+          extras: {
             type: 'array',
             items: {
               type: 'object',
-              properties: { en: { type: 'string' }, de: { type: 'string' } },
-              required: ['en', 'de']
+              properties: {
+                en: { type: 'string' },
+                de: { type: 'string' },
+                kind: { type: 'string', enum: ['verb', 'noun'] },
+                pl: { type: 'string' }
+              },
+              required: ['en', 'de', 'kind']
             }
           }
         },
-        required: ['index', 'english', 'german', 'sentenceCount', 'spans', 'extraNouns']
+        required: ['index', 'english', 'german', 'sentenceCount', 'spans', 'extras']
       }
     }
   },
@@ -269,7 +284,7 @@ export function buildPackedGeneratePrompt(
     blocks.join('\n') +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.` +
-    `\nAlso return sentenceCount, spans (one per ingredient key; two-part connectors get two entries with the same key) and extraNouns (every other noun in the English with its German article + nominative singular), each "en" an exact substring of your English translation.`
+    `\nAlso return sentenceCount, spans (one per ingredient key, plus "pl" — bare plural, "" if none — for noun keys; two-part connectors get two entries with the same key) and extras (every other noun and finite verb in the English, with "en"/"de"/"kind", nouns also carrying "pl"), each "en" an exact substring of your English translation.`
   )
 }
 
@@ -307,24 +322,46 @@ export function validatePackedCard(raw: unknown, spec: PackedCardSpec): Generate
   const spans: PackedSpan[] = Array.isArray(e.spans)
     ? e.spans
         .filter((s): s is Record<string, unknown> => !!s && typeof s === 'object')
-        .map(s => ({ key: typeof s.key === 'string' ? s.key : '', en: typeof s.en === 'string' ? s.en.trim() : '' }))
+        .map(s => {
+          const span: PackedSpan = { key: typeof s.key === 'string' ? s.key : '', en: typeof s.en === 'string' ? s.en.trim() : '' }
+          // '' is the meaningful "this noun has no plural" signal, so it must
+          // survive the pass-through — only a genuinely absent field leaves
+          // `pl` unset.
+          if (typeof s.pl === 'string') span.pl = s.pl.trim()
+          return span
+        })
         .filter(s => s.en.length > 0 && validKeys.has(s.key))
     : []
 
-  // Extra nouns are a bonus, never a rejection reason. Drop any that repeat a
-  // drilled noun — the drilled span already reveals its article.
+  // Extras are hint data, a bonus, never a rejection reason — a rejected card
+  // costs the learner a real card. Drop malformed entries and any noun/verb
+  // that repeats a drilled item; the drilled span already reveals it.
   const drilledNouns = new Set(
     spec.items.filter(i => i.cat === 'noun' && i.noun).map(i => normalizeGerman(i.noun!.german))
   )
-  const extraNouns: PackedExtraNoun[] = Array.isArray(e.extraNouns)
-    ? e.extraNouns
+  const drilledVerbs = new Set(
+    spec.items.filter(i => i.cat === 'verb' && i.verb).map(i => normalizeGerman(i.verb!.german))
+  )
+  const extras: PackedExtraWord[] = Array.isArray(e.extras)
+    ? e.extras
         .filter((n): n is Record<string, unknown> => !!n && typeof n === 'object')
-        .map(n => ({ en: typeof n.en === 'string' ? n.en.trim() : '', de: typeof n.de === 'string' ? n.de.trim() : '' }))
-        .filter(n => n.en.length > 0 && n.de.length > 0)
-        .filter(n => !drilledNouns.has(normalizeGerman(n.de.replace(/^(der|die|das)\s+/i, ''))))
+        .map((n): PackedExtraWord | null => {
+          const kind = n.kind === 'verb' ? 'verb' as const : n.kind === 'noun' ? 'noun' as const : null
+          if (!kind) return null
+          const en = typeof n.en === 'string' ? n.en.trim() : ''
+          const de = typeof n.de === 'string' ? n.de.trim() : ''
+          if (en.length === 0 || de.length === 0) return null
+          const w: PackedExtraWord = { en, de, kind }
+          if (kind === 'noun' && typeof n.pl === 'string') w.pl = n.pl.trim()
+          return w
+        })
+        .filter((w): w is PackedExtraWord => w !== null)
+        .filter(w => w.kind === 'noun'
+          ? !drilledNouns.has(normalizeGerman(w.de.replace(/^(der|die|das)\s+/i, '')))
+          : !drilledVerbs.has(normalizeGerman(w.de)))
     : []
 
-  return { ...spec, english, german, sents, spans, extraNouns }
+  return { ...spec, english, german, sents, spans, extras }
 }
 
 function makeSeed(rng: () => number): string {
@@ -387,10 +424,11 @@ export async function generatePackedBatch(
 //
 // Full reveal (CONTEXT.md → "Word hint"): every drilled item is highlighted
 // in its category color and carries a German reveal — verbs with their
-// governed case, nouns with their article, prepositions with their case, the
-// da-compound plus the collocation it stands for, connectors with the clause
-// they build and the position they take. Every AI-supplied incidental noun
-// gets a subtler span revealing article + noun.
+// governed case, nouns with their article and (once known) plural,
+// prepositions with their case, the da-compound plus the collocation it
+// stands for, connectors with the clause they build and the position they
+// take. Every AI-supplied incidental noun or verb gets a subtler span
+// revealing its German dictionary form.
 
 /** A colour-coded chip inside a hint: a connector part's clause (HZ green,
  *  NZ blue) or the position it occupies. */
@@ -431,13 +469,25 @@ export function connHintLine(p: ConnectorPart): PackedHintLine {
   }
 }
 
-/** The German reveal for one drilled item's hint span. */
-export function packedHint(it: PackedItemSpec): PackedHintLine[] | undefined {
+/** Nominative singular + plural + genitive plural: 'der Tisch – die Tische
+ *  (der Tische)'. `plural` undefined (not yet known) or '' (no plural) →
+ *  the singular alone. The plural article is always nominative 'die' /
+ *  genitive 'der' — derived here, never asked of the AI, so it can't be
+ *  hallucinated. */
+export function nounHintText(singularWithArticle: string, plural?: string): string {
+  if (!plural) return singularWithArticle
+  return `${singularWithArticle} – die ${plural} (der ${plural})`
+}
+
+/** The German reveal for one drilled item's hint span. `plural` is the
+ *  resolved plural for a noun item (stored plural wins over this card's AI
+ *  guess — see buildPackedSegments); ignored for every other category. */
+export function packedHint(it: PackedItemSpec, plural?: string): PackedHintLine[] | undefined {
   if (it.cat === 'verb' && it.verb) {
     const rekt = rektShort(it.verb.case)
     return [{ text: rekt ? `${it.verb.german} + ${rekt}` : it.verb.german }]
   }
-  if (it.cat === 'noun' && it.noun) return [{ text: `${it.noun.article} ${it.noun.german}` }]
+  if (it.cat === 'noun' && it.noun) return [{ text: nounHintText(`${it.noun.article} ${it.noun.german}`, plural) }]
   if (it.cat === 'prep' && it.prep) return [{ text: `${it.prep.german} + ${prepCaseShort(it.prep.case)}` }]
   if (it.cat === 'dac' && it.colloc) {
     return [{ text: daCompoundFor(it.colloc.preposition), note: dacSource(it.colloc) }]
@@ -479,17 +529,21 @@ export function buildPackedSegments(english: string, card: GeneratedPackedCard):
     if (!surface) continue
     const range = claim(surface)
     if (!range) continue
-    found.push({ start: range[0], end: range[1], key: it.key, cat: it.cat, hint: packedHint(it) })
+    // Resolution order: stored plural → this card's AI guess → none (ADR-0003
+    // — once the store learns a noun's plural, the AI's answer is ignored).
+    const plural = it.cat === 'noun' && it.noun ? (it.noun.plural ?? span.pl) : undefined
+    found.push({ start: range[0], end: range[1], key: it.key, cat: it.cat, hint: packedHint(it, plural) })
   }
 
-  // Extra nouns claim only what the drilled spans left free.
+  // Extras claim only what the drilled spans left free.
   let xi = 0
-  for (const n of card.extraNouns ?? []) {
+  for (const n of card.extras ?? []) {
     const surface = n.en.trim()
     if (!surface) continue
     const range = claim(surface)
     if (!range) continue
-    found.push({ start: range[0], end: range[1], key: `x${++xi}`, cat: 'noun', hint: [{ text: n.de }], extra: true })
+    const hint: PackedHintLine[] = n.kind === 'verb' ? [{ text: n.de }] : [{ text: nounHintText(n.de, n.pl) }]
+    found.push({ start: range[0], end: range[1], key: `x${++xi}`, cat: n.kind, hint, extra: true })
   }
 
   found.sort((a, b) => a.start - b.start)
@@ -506,6 +560,33 @@ export function buildPackedSegments(english: string, card: GeneratedPackedCard):
   }
   if (cursor < english.length) segments.push({ text: english.slice(cursor) })
   return segments
+}
+
+// ───────────────────── Plural cache write-back ─────────────────────
+//
+// The AI's plural is trustworthy but disposable: it rides on the card's spans
+// (never stored on the card itself) and is only ever used until the store
+// learns the real one (ADR-0003). The runner calls this after generation and
+// writes each entry back fire-and-forget, errors swallowed — a failed cache
+// write must never break a card.
+
+/** Drilled noun plurals the store doesn't have yet, read off this card's AI
+ *  spans. Deduplicated by German; plain strings only (safe to hand to Dexie
+ *  without unwrapping a reactive object first). */
+export function pendingPluralWrites(card: GeneratedPackedCard): Array<{ german: string; plural: string }> {
+  const spanPl = new Map(card.spans.map(s => [s.key, s.pl]))
+  const out: Array<{ german: string; plural: string }> = []
+  const seen = new Set<string>()
+  for (const it of card.items) {
+    if (it.cat !== 'noun' || !it.noun) continue
+    if (it.noun.plural !== undefined) continue
+    const pl = spanPl.get(it.key)
+    if (typeof pl !== 'string') continue
+    if (seen.has(it.noun.german)) continue
+    seen.add(it.noun.german)
+    out.push({ german: it.noun.german, plural: pl })
+  }
+  return out
 }
 
 // ─────────────────────────── Grading ────────────────────────────
