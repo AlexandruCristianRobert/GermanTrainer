@@ -107,7 +107,7 @@ const TEIL1_BAND_ANCHORS: Record<'erfuellung' | 'kohaerenz' | 'wortschatz' | 'st
   erfuellung:
     '23–25: alle fünf Punkte tragen, Position klar begründet, Nachfrage ' +
     'inhaltlich beantwortet — vereinzelte kleine Ausrutscher ändern daran ' +
-    'nichts. 18–22: alle Punkte vorhanden, einer nur angetippt, Position ' +
+    'nichts. 18–22: alle fünf Punkte behandelt, einer davon knapp, Position ' +
     'erkennbar. 12–17: ein Punkt fehlt oder mehrere bleiben oberflächlich, ' +
     'Position behauptet statt begründet. 5–11: mehrere Punkte fehlen, kaum ' +
     'Bezug zum Aufgabenblatt.',
@@ -505,8 +505,8 @@ export function buildVortragGraderPrompt(
   const coverageKeys = GLIEDERUNGSPUNKTE.map(p => `"${p.key}" (${p.labelDe})`).join(', ')
 
   const system =
-    graderPersonaDe(v.modality) + ' Du bewertest den VORTRAG und, falls vorhanden, die ' +
-    'ANTWORT auf die Nachfrage nach der Rubrik unten.\n\n' +
+    graderPersonaDe(v.modality) + ' Bewertet werden der VORTRAG und, falls vorhanden, die ' +
+    'ANTWORT auf die Nachfrage, nach der Rubrik unten.\n\n' +
     'Zusätzlich markierst du JEDEN sprachlichen Fehler im Vortrag und in der ' +
     'Nachfrage-Antwort:\n' +
     '- "phase": "rede", wenn der Fehler im VORTRAG vorkommt, oder "nachfrage", ' +
@@ -534,8 +534,10 @@ export function buildVortragGraderPrompt(
     'Englisch). Das sind KEINE Fehler und dürfen die Punktzahl in keinem ' +
     'Kriterium verändern.\n\n' +
     'KALIBRIERUNG: Ein Vortrag, der alle fünf Gliederungspunkte behandelt, klar ' +
-    'gegliedert ist und nur vereinzelte kleine Fehler enthält, gehört in den ' +
-    'Bereich 90–100. Vergib im Zweifel die höhere Punktzahl.\n\n' +
+    'gegliedert ist, den Mindestumfang erreicht und nur vereinzelte kleine ' +
+    'Fehler enthält, gehört in jedem Kriterium in das oberste Band (23–25), ' +
+    'zusammen also in den Bereich 90–100 Punkte. Vergib im Zweifel die höhere ' +
+    'Punktzahl.\n\n' +
     'Für jedes Kriterium: ganzzahlige Punktzahl im erlaubten Bereich plus kurze ' +
     'Begründung auf Deutsch UND Englisch. Danach Stärken, Schwächen und ein ' +
     'Gesamturteil, jeweils Deutsch und Englisch.\n' +

@@ -487,8 +487,8 @@ export const SPRECHEN_B2_TEIL1: SprechenRubric = {
   notes:
     'Adaptierte Bewertung für getippte Vorträge: Aussprache wird nicht bewertet; ' +
     'vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. Der Umfang des Vortrags ' +
-    `beeinflusst die Bewertung nicht, solange er mindestens ${VORTRAG_MIN_WORDS} ` +
-    'Wörter umfasst. Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, ' +
+    `beeinflusst die Bewertung nicht, solange der Vortrag mindestens ${VORTRAG_MIN_WORDS} ` +
+    'Wörter lang ist. Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, ' +
     '70+ befriedigend, 60+ ausreichend, darunter nicht bestanden.',
   notesSpokenDe:
     'Adaptierte Bewertung für gesprochene Vorträge: Aussprache wird nicht bewertet; ' +

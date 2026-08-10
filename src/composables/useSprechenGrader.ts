@@ -412,8 +412,8 @@ export function buildSprechenGraderPrompt(
   rubricLines.push(`Hinweis: ${sprechenNotes(SPRECHEN_B2_TEIL2, d.modality)}`)
 
   const system =
-    graderPersonaDe(d.modality) + ' Du bewertest AUSSCHLIESSLICH ' +
-    'die Beiträge des Lernenden (mit L0, L1, … markiert) nach der Rubrik unten — ' +
+    graderPersonaDe(d.modality) + ' Bewertet werden AUSSCHLIESSLICH ' +
+    'die Beiträge des Lernenden (mit L0, L1, … markiert), nach der Rubrik unten — ' +
     'die PARTNER-Beiträge stammen von einer KI und werden nicht bewertet.\n\n' +
     'Zusätzlich markierst du JEDEN sprachlichen Fehler in den Lernerbeiträgen:\n' +
     '- "turnIndex": die Zahl hinter dem L des betroffenen Beitrags.\n' +
@@ -453,9 +453,10 @@ export function buildSprechenGraderPrompt(
     '"rate": <Anteil der Beiträge mit reacts=true, als Dezimalzahl zwischen 0 und 1>}.\n' +
     'Diese beiden Felder sind BESCHREIBEND. Verteile dafür keine Punkte und ändere ' +
     'wegen ihnen keine Kriteriumsnote.\n\n' +
-    'KALIBRIERUNG: Beiträge mit klarer Position, Begründung und Reaktion auf den ' +
-    'Partner, die nur vereinzelte kleine Fehler enthalten, gehören in den Bereich ' +
-    '90–100. Vergib im Zweifel die höhere Punktzahl.\n\n' +
+    'KALIBRIERUNG: Bei ausreichendem Material gehören Beiträge mit klarer ' +
+    'Position, Begründung und Reaktion auf den Partner, die nur vereinzelte ' +
+    'kleine Fehler enthalten, in den Bereich 90–100. Vergib im Zweifel die ' +
+    'höhere Punktzahl.\n\n' +
     rubricLines.join('\n')
 
   let li = 0

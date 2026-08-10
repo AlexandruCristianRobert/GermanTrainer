@@ -133,6 +133,12 @@ describe('Teil1Runner over the real Dexie layer', () => {
     generateContent.mockClear()
     sessionStorage.clear()
     sessionStorage.setItem(TEIL1_STASH_KEY, JSON.stringify(stash()))
+    // F12's under-VORTRAG_MIN_WORDS-words confirmation defaults to accepted —
+    // LONG_REDE below clears the floor by only 11 words, so a future trim of
+    // that fixture must not silently start hitting an unstubbed
+    // window.confirm (jsdom does not implement it, so that would hang/throw
+    // rather than fail cleanly). Same stub as Teil1Runner.test.ts's beforeEach.
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
   })
 
   it("leaves the Rede phase on 'Vortrag beenden' and reaches the Nachfrage", async () => {

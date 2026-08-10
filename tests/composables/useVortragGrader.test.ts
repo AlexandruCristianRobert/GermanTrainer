@@ -230,7 +230,7 @@ describe('band anchors and consistency (F9)', () => {
     expect(system).toContain('12–17')
     expect(system).toContain('5–11')
     // The old set left 20–23 unreachable, which pinned a near-clean Vortrag at ~19 × 4.
-    expect(system).not.toMatch(/24–25|18–19|12–13|5–6:/)
+    expect(system).not.toMatch(/24–25|18–19|12–13|5–6/)
     expect(system).toMatch(/mindestens 4 Punkte Abzug/)
   })
 
