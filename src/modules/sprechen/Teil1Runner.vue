@@ -54,7 +54,7 @@ import {
   type HelpKind, type RedeRecord, type SpeechSpan, type SprechenVortrag, type Teil1RunStash
 } from '../../data/sprechen'
 import {
-  RETTUNGSLEINEN, SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES,
+  RETTUNGSLEINEN, SPRECHEN_VORTRAGSMITTEL, VORTRAG_MIN_WORDS, VORTRAG_MOVES,
   VORTRAG_MOVE_LABEL, VORTRAG_TARGET_WORDS, vortragClock, type VortragMove
 } from '../../data/sprechenVortragsmittel'
 import { matchRedemittel, pickMoveNudge } from '../../composables/useRedemittelMatch'
@@ -397,7 +397,7 @@ function checkHardLimit() {
 /** Commit the text first (recognizer.end() flushes pending finals before it
  *  actually stops), THEN treat the Rede as over. Never costs a half-said
  *  sentence. The hard limit is a system action, not a learner decision — it
- *  always skips F12's under-150-words confirmation. */
+ *  always skips F12's under-VORTRAG_MIN_WORDS-words confirmation. */
 async function handleHardLimit() {
   hardLimitNotice.value = true
   await finishRede({ skipConfirm: true })
@@ -667,7 +667,7 @@ async function commitRede(): Promise<void> {
  * `await`, so a double-click (or a manual click racing the hard limit) can
  * never issue two `generateNachfrage` calls: the second synchronous
  * invocation sees the latch already set and returns immediately, long before
- * `phase` itself would have changed. Below ~150 words, a confirmation is
+ * `phase` itself would have changed. Below VORTRAG_MIN_WORDS words, a confirmation is
  * required first — mirrors Teil2Runner's early-end warning — UNLESS the
  * caller is the hard limit itself (`skipConfirm`), which is a system action,
  * not a learner decision.
@@ -685,8 +685,8 @@ async function finishRede(opts: { skipConfirm?: boolean } = {}) {
   if (finishing.value) return
   finishing.value = true
   try {
-    if (!opts.skipConfirm && currentWords.value < 150) {
-      const warn = 'Mit weniger als 150 Wörtern ist die Bewertung wenig aussagekräftig. Trotzdem beenden?'
+    if (!opts.skipConfirm && currentWords.value < VORTRAG_MIN_WORDS) {
+      const warn = `Mit weniger als ${VORTRAG_MIN_WORDS} Wörtern ist die Bewertung wenig aussagekräftig. Trotzdem beenden?`
       if (!window.confirm(warn)) return
     }
     stopStuckTimer()

@@ -10,7 +10,7 @@ import { appendCorrections } from '../../src/composables/useSprechenArchive'
 import { saveQuizRun } from '../../src/composables/useQuizHistory'
 import { loadCachedBank } from '../../src/composables/useSprechenArguments'
 import { useToast } from '../../src/composables/useToast'
-import { GLIEDERUNGSPUNKTE, VORTRAG_MOVE_LABEL, vortragClock } from '../../src/data/sprechenVortragsmittel'
+import { GLIEDERUNGSPUNKTE, VORTRAG_MIN_WORDS, VORTRAG_MOVE_LABEL, vortragClock } from '../../src/data/sprechenVortragsmittel'
 import type { SprechenVortrag } from '../../src/data/sprechen'
 
 // ── Fake SpeechRecognition ──────────────────────────────────────────
@@ -274,8 +274,8 @@ async function mountReady(): Promise<VueWrapper> {
 
 /** Types into the Rede, ends it, and answers the Nachfrage — the shared path
  *  every grade-pipeline test needs before it can reach 'Abgeben'. Well under
- *  150 words — relies on the `confirmSpy` default (below) resolving F12's
- *  under-150-words confirmation to `true`. */
+ *  VORTRAG_MIN_WORDS words — relies on the `confirmSpy` default (below) resolving
+ *  F12's under-VORTRAG_MIN_WORDS-words confirmation to `true`. */
 async function reachNachfrageAnswer(w: VueWrapper, answer = 'Ich denke, beide Seiten sollten sich beteiligen.') {
   await w.find('.rede-textarea').setValue('Ein Vortrag über das Ehrenamt in unserer Gesellschaft und seine Bedeutung.')
   await w.find('.run-meta .btn-quiet').trigger('click')
@@ -307,9 +307,10 @@ beforeEach(() => {
   localStorage.clear()
   srInstances = []
   setSpeechCtor(FakeSpeechRecognition)
-  // F12's under-150-words confirmation defaults to accepted so every existing
-  // short-Rede test (well under 150 words) keeps working unchanged; the F12
-  // describe block below overrides this per-test to prove the decline path.
+  // F12's under-VORTRAG_MIN_WORDS-words confirmation defaults to accepted so every
+  // existing short-Rede test (well under VORTRAG_MIN_WORDS words) keeps working
+  // unchanged; the F12 describe block below overrides this per-test to prove the
+  // decline path.
   confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
   vi.mocked(findActiveVortrag).mockResolvedValue(baseVortrag())
   vi.mocked(createVortrag).mockResolvedValue(baseVortrag())
@@ -734,13 +735,13 @@ describe('Teil1Runner finishRede latch and confirmation (F12)', () => {
     expect(vi.mocked(generateNachfrage)).toHaveBeenCalledTimes(1)
   })
 
-  it('asks for confirmation before ending a Rede under 150 words', async () => {
+  it('asks for confirmation before ending a Rede under VORTRAG_MIN_WORDS words', async () => {
     const w = await mountReady()
     await w.find('.rede-textarea').setValue('Ein kurzer Vortrag.')
     await w.find('.run-meta .btn-quiet').trigger('click')
     await flushPromises()
     expect(confirmSpy).toHaveBeenCalled()
-    expect(confirmSpy.mock.calls[0][0]).toMatch(/150 Wört/)
+    expect(confirmSpy.mock.calls[0][0]).toMatch(new RegExp(`${VORTRAG_MIN_WORDS} Wört`))
   })
 
   it('keeps the Rede phase and never calls generateNachfrage when the confirmation is declined', async () => {

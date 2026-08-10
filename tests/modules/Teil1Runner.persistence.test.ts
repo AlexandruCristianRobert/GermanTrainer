@@ -60,9 +60,9 @@ vi.mock('../../src/composables/localClaude', async (importOriginal) => {
 
 import Teil1Runner from '../../src/modules/sprechen/Teil1Runner.vue'
 
-// 211 words — deliberately OVER finishRede's 150-word confirmation threshold,
-// so this exercises the persistence path and not the window.confirm branch
-// (jsdom does not implement confirm, so hitting it would be its own failure).
+// 211 words — deliberately OVER finishRede's VORTRAG_MIN_WORDS (200) confirmation
+// threshold, so this exercises the persistence path and not the window.confirm
+// branch (jsdom does not implement confirm, so hitting it would be its own failure).
 const LONG_REDE = (
   'Sehr geehrte Damen und Herren, ich freue mich, heute zu Ihnen sprechen zu ' +
   'dürfen, und ich habe mir für meinen Vortrag ein Thema ausgesucht, das mich ' +
