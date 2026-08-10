@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   SPRECHEN_VORTRAGSMITTEL, VORTRAG_MOVES, VORTRAG_MOVE_LABEL, vortragsmittelForMove,
-  GLIEDERUNGSPUNKTE, PUNKT_MOVES, VORTRAG_TARGET_WORDS, VORTRAG_WPM, vortragClock,
-  RETTUNGSLEINEN, KONNEKTOREN
+  GLIEDERUNGSPUNKTE, PUNKT_MOVES, VORTRAG_TARGET_WORDS, VORTRAG_MIN_WORDS, VORTRAG_WPM,
+  vortragClock, RETTUNGSLEINEN, KONNEKTOREN
 } from '../../src/data/sprechenVortragsmittel'
 import { redemittelNeedle, phraseNeedle } from '../../src/composables/useRedemittelMatch'
 
@@ -65,6 +65,11 @@ describe('GLIEDERUNGSPUNKTE', () => {
 
   it('gives every point a hint', () => {
     for (const p of GLIEDERUNGSPUNKTE) expect(p.hintDe.trim().length).toBeGreaterThan(10)
+  })
+
+  it('sets the grading floor below the display target — they are different jobs', () => {
+    expect(VORTRAG_MIN_WORDS).toBe(200)
+    expect(VORTRAG_MIN_WORDS).toBeLessThan(VORTRAG_TARGET_WORDS)
   })
 })
 

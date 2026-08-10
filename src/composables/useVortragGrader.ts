@@ -18,7 +18,9 @@
 import {
   SPRECHEN_B2_TEIL1, sprechenDescriptor, sprechenNotes, praedikat, type Praedikat
 } from '../data/rubrics'
-import { GLIEDERUNGSPUNKTE, type GliederungKey } from '../data/sprechenVortragsmittel'
+import {
+  GLIEDERUNGSPUNKTE, VORTRAG_MIN_WORDS, type GliederungKey
+} from '../data/sprechenVortragsmittel'
 import type {
   Modality, SprechenVortrag, VortragThemaRef, VortragHelps, VortragPlanEntry,
   RedeRecord, NachfrageRecord, HelpLogEntry
@@ -95,36 +97,45 @@ export const AUFWERTUNG_CAP = 5
 // give the model concrete score anchors instead of leaving 0-25 to vibes,
 // which is also why the per-Gliederungspunkt deduction rule travels with
 // them rather than living in the shared rubric.
+//
+// The bands are CONTIGUOUS (23–25 / 18–22 / 12–17 / 5–11) by design: the
+// earlier 24–25 / 18–19 / 12–13 / 5–6 set left holes at 20–23, so "very good
+// with a couple of slips" had nowhere to land and fell to ~19 × 4 ≈ 76. The
+// top band therefore also says out loud that isolated small slips do not cost
+// it — a Vortrag only leaves 23–25 for a reason the band below names.
 const TEIL1_BAND_ANCHORS: Record<'erfuellung' | 'kohaerenz' | 'wortschatz' | 'strukturen', string> = {
   erfuellung:
-    '24–25: alle fünf Punkte tragen, Position klar begründet, Nachfrage ' +
-    'inhaltlich beantwortet. 18–19: alle Punkte vorhanden, einer nur ' +
-    'angetippt, Position erkennbar. 12–13: ein Punkt fehlt oder mehrere ' +
-    'bleiben oberflächlich, Position behauptet statt begründet. 5–6: ' +
-    'mehrere Punkte fehlen, kaum Bezug zum Aufgabenblatt.',
+    '23–25: alle fünf Punkte tragen, Position klar begründet, Nachfrage ' +
+    'inhaltlich beantwortet — vereinzelte kleine Ausrutscher ändern daran ' +
+    'nichts. 18–22: alle Punkte vorhanden, einer nur angetippt, Position ' +
+    'erkennbar. 12–17: ein Punkt fehlt oder mehrere bleiben oberflächlich, ' +
+    'Position behauptet statt begründet. 5–11: mehrere Punkte fehlen, kaum ' +
+    'Bezug zum Aufgabenblatt.',
   kohaerenz:
-    '24–25: durchgehend klar gegliedert, Übergänge sitzen mit passenden ' +
-    'Signalwörtern, wirkt aus einem Guss. 18–19: erkennbare Grobgliederung, ' +
-    'Übergänge stellenweise abrupt oder Signalwörter wiederholen sich. ' +
-    '12–13: Gliederung nur in Ansätzen erkennbar, Punkte wirken eher ' +
-    'aneinandergereiht als verbunden. 5–6: kaum erkennbare Struktur, ' +
+    '23–25: durchgehend klar gegliedert, Übergänge sitzen mit passenden ' +
+    'Signalwörtern, wirkt aus einem Guss — vereinzelte kleine Ausrutscher ' +
+    'ändern daran nichts. 18–22: erkennbare Grobgliederung, Übergänge ' +
+    'stellenweise abrupt oder Signalwörter wiederholen sich. 12–17: ' +
+    'Gliederung nur in Ansätzen erkennbar, Punkte wirken eher ' +
+    'aneinandergereiht als verbunden. 5–11: kaum erkennbare Struktur, ' +
     'Sprünge von Gedanke zu Gedanke ohne Verbindung.',
   wortschatz:
-    '24–25: präziser, breiter Wortschatz mit treffenden Fachbegriffen, ' +
-    'Vortragsmittel wechseln merklich. 18–19: überwiegend passender ' +
-    'Wortschatz, gelegentlich allgemein oder mit sich wiederholenden ' +
-    'Vortragsmitteln. 12–13: Wortschatz oft allgemein („machen", „gut"), ' +
-    'Vortragsmittel beschränken sich auf ein oder zwei Wendungen. 5–6: ' +
-    'sehr eingeschränkter Wortschatz, kaum thematisches Vokabular, ' +
-    'Bedeutung streckenweise unklar.',
+    '23–25: präziser, breiter Wortschatz mit treffenden Fachbegriffen, ' +
+    'Vortragsmittel wechseln merklich — vereinzelte kleine Ausrutscher ' +
+    'ändern daran nichts. 18–22: überwiegend passender Wortschatz, ' +
+    'gelegentlich allgemein oder mit sich wiederholenden Vortragsmitteln. ' +
+    '12–17: Wortschatz oft allgemein („machen", „gut"), Vortragsmittel ' +
+    'beschränken sich auf ein oder zwei Wendungen. 5–11: sehr ' +
+    'eingeschränkter Wortschatz, kaum thematisches Vokabular, Bedeutung ' +
+    'streckenweise unklar.',
   strukturen:
-    '24–25: vielfältige, überwiegend korrekte Strukturen (Nebensätze, ' +
-    'Passiv, Konjunktiv II), Fehler sind selten und stören nie das ' +
-    'Verständnis. 18–19: solide Grundstrukturen mit gelegentlichen ' +
-    'Fehlern, das Verständnis bleibt durchgehend klar. 12–13: einfache ' +
-    'Strukturen dominieren, wiederkehrende Fehler erschweren das ' +
-    'Verständnis stellenweise. 5–6: Strukturen bleiben rudimentär, ' +
-    'häufige Fehler beeinträchtigen das Verständnis merklich.'
+    '23–25: vielfältige, überwiegend korrekte Strukturen (Nebensätze, ' +
+    'Passiv, Konjunktiv II), das Verständnis ist nie gestört — vereinzelte ' +
+    'kleine Ausrutscher ändern daran nichts. 18–22: solide Grundstrukturen ' +
+    'mit gelegentlichen Fehlern, das Verständnis bleibt durchgehend klar. ' +
+    '12–17: einfache Strukturen dominieren, wiederkehrende Fehler ' +
+    'erschweren das Verständnis stellenweise. 5–11: Strukturen bleiben ' +
+    'rudimentär, häufige Fehler beeinträchtigen das Verständnis merklich.'
 }
 
 // ── Schema ───────────────────────────────────────────────────────
@@ -406,11 +417,14 @@ export function validateVortragGrade(
 
 function graderPersonaDe(modality: Modality): string {
   return modality === 'spoken'
-    ? 'Du bist eine strenge, kalibrierte Prüferin für den mündlichen Goethe-B2-' +
-      'Vortrag (Sprechen Teil 1), der hier gesprochen und automatisch per ' +
-      'Spracherkennung transkribiert wurde.'
-    : 'Du bist eine strenge, kalibrierte Prüferin für den mündlichen Goethe-B2-' +
-      'Vortrag (Sprechen Teil 1), der hier in getippter Form geübt wird.'
+    ? 'Du bist eine faire, realistisch kalibrierte Prüferin für den mündlichen ' +
+      'Goethe-B2-Vortrag (Sprechen Teil 1), der hier gesprochen und automatisch ' +
+      'per Spracherkennung transkribiert wurde. Du bewertest wie in der echten ' +
+      'Goethe-Prüfung: wohlwollend im Zweifel, ohne Fehler zu erfinden.'
+    : 'Du bist eine faire, realistisch kalibrierte Prüferin für den mündlichen ' +
+      'Goethe-B2-Vortrag (Sprechen Teil 1), der hier in getippter Form geübt ' +
+      'wird. Du bewertest wie in der echten Goethe-Prüfung: wohlwollend im ' +
+      'Zweifel, ohne Fehler zu erfinden.'
 }
 
 // For spoken runs the transcript's spelling is the speech recognizer's
@@ -424,6 +438,19 @@ function spellingCaveatDe(modality: Modality): string {
       'Erkennungssoftware, NICHT vom Lernenden — vergib daher NIEMALS die ' +
       'Kategorie "spelling".\n'
     : ''
+}
+
+// The mirror image of the caveat above, for TYPED runs: the real exam is oral,
+// so a typo is a keyboard slip, not a language error the Prüfung would ever
+// see. It stays visible as feedback (the learner still wants it flagged) but
+// must not reach any criterion score. Spoken runs never need it — the
+// `spelling` tag is already banned there, and dropped by the validator.
+function typoRuleDe(modality: Modality): string {
+  return modality === 'spoken'
+    ? ''
+    : '- Tippfehler (Kategorie "spelling") werden als Fehler aufgelistet, ' +
+      'dürfen aber KEINE Kriteriumsnote senken — die echte Prüfung ist ' +
+      'mündlich, dort wird Rechtschreibung nicht bewertet.\n'
 }
 
 /** m:ss, floor-guarded — same shape as RedezeitState.clock but standalone. */
@@ -491,6 +518,7 @@ export function buildVortragGraderPrompt(
     'word-order (Verbstellung, Satzklammer), vocabulary (falsches Wort, ' +
     'Kollokation), spelling (Rechtschreibung), register (Du/Sie, Stilebene).\n' +
     spellingCaveatDe(v.modality) +
+    typoRuleDe(v.modality) +
     '- "reasonDe" UND "reasonEn": kurze Erklärung, WARUM es falsch ist ' +
     '(Deutsch einfach halten — B2-Lernende lesen sie).\n\n' +
     `Für "coverage": GENAU EIN Objekt für jeden der fünf Gliederungspunkte, in ` +
@@ -505,6 +533,9 @@ export function buildVortragGraderPrompt(
     'Formulierung), "whyDe" und "whyEn" (kurze Begründung, Deutsch und ' +
     'Englisch). Das sind KEINE Fehler und dürfen die Punktzahl in keinem ' +
     'Kriterium verändern.\n\n' +
+    'KALIBRIERUNG: Ein Vortrag, der alle fünf Gliederungspunkte behandelt, klar ' +
+    'gegliedert ist und nur vereinzelte kleine Fehler enthält, gehört in den ' +
+    'Bereich 90–100. Vergib im Zweifel die höhere Punktzahl.\n\n' +
     'Für jedes Kriterium: ganzzahlige Punktzahl im erlaubten Bereich plus kurze ' +
     'Begründung auf Deutsch UND Englisch. Danach Stärken, Schwächen und ein ' +
     'Gesamturteil, jeweils Deutsch und Englisch.\n' +
@@ -540,12 +571,27 @@ export function buildVortragGraderPrompt(
       formatVortragSprechdaten(v.rede, v.modality)
     : ''
 
+  // Typed-only counterpart to the SPRECHDATEN block: a typed Rede has no
+  // clock, so the only length evidence is the word count — computed HERE so
+  // the model never has to count and never miscounts. The rule attached to it
+  // takes length out of the scoring above VORTRAG_MIN_WORDS entirely; below it
+  // only `erfuellung` may move. Spoken runs get the real clock instead and are
+  // never told about a word floor.
+  const umfang = v.modality === 'spoken'
+    ? ''
+    : '\n\n' +
+      `UMFANG: Der Vortrag umfasst ${wordCount(v.rede.textDe)} Wörter (vom System gezählt). ` +
+      `Ab ${VORTRAG_MIN_WORDS} Wörtern darf der Umfang keine Punktzahl beeinflussen — ` +
+      `weder positiv noch negativ. Nur unter ${VORTRAG_MIN_WORDS} Wörtern mindert der ` +
+      'geringe Umfang die Punktzahl bei erfuellung, und NUR dort.'
+
   const user =
     `THEMA: „${v.thema.titleDe}"\n` +
     `AUFGABE: ${v.thema.taskDe}\n\n` +
     `VORTRAG:\n${v.rede.textDe}\n\n` +
     nachfrageBlock +
-    sprechdaten
+    sprechdaten +
+    umfang
 
   return { system, user }
 }

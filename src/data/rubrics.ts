@@ -12,6 +12,10 @@
 
 import type { WritingTaskType } from './writingPrompts'
 import type { Modality } from './sprechen'
+// The Teil 1 grading floor, interpolated into the typed footer note so the
+// number lives in exactly one place. `sprechenVortragsmittel` imports nothing,
+// so this value import cannot close a cycle.
+import { VORTRAG_MIN_WORDS } from './sprechenVortragsmittel'
 
 export type RubricSystem = 'goethe-c1' | 'telc-c1'
 
@@ -432,7 +436,7 @@ export const SPRECHEN_B2_TEIL1: SprechenRubric = {
       descriptorDe:
         'Werden alle fünf Gliederungspunkte des Aufgabenblatts behandelt — Einstieg, ' +
         'Situation, Vor- und Nachteile, eigene Erfahrung, Meinung und Abschluss? ' +
-        'Ist der Vortrag angemessen lang und durchgehend auf das Thema bezogen? ' +
+        'Ist der Vortrag durchgehend auf das Thema bezogen? ' +
         'Wird eine eigene Position genannt UND begründet? Wird die Nachfrage am Ende ' +
         'inhaltlich beantwortet, statt nur höflich quittiert? Ein ausgelassener oder ' +
         'nur angetippter Gliederungspunkt mindert die Punktzahl in diesem Kriterium.'
@@ -482,10 +486,10 @@ export const SPRECHEN_B2_TEIL1: SprechenRubric = {
   ],
   notes:
     'Adaptierte Bewertung für getippte Vorträge: Aussprache wird nicht bewertet; ' +
-    'vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. Die Redezeit wird hier ' +
-    'über den Umfang geschätzt (360 Wörter ≈ 4 Minuten), nicht über eine Uhr. ' +
-    'Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, ' +
-    '60+ ausreichend, darunter nicht bestanden.',
+    'vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. Der Umfang des Vortrags ' +
+    `beeinflusst die Bewertung nicht, solange er mindestens ${VORTRAG_MIN_WORDS} ` +
+    'Wörter umfasst. Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, ' +
+    '70+ befriedigend, 60+ ausreichend, darunter nicht bestanden.',
   notesSpokenDe:
     'Adaptierte Bewertung für gesprochene Vorträge: Aussprache wird nicht bewertet; ' +
     'vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. Die Redezeit ist hier ' +
