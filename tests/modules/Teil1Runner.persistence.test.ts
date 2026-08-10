@@ -60,9 +60,9 @@ vi.mock('../../src/composables/localClaude', async (importOriginal) => {
 
 import Teil1Runner from '../../src/modules/sprechen/Teil1Runner.vue'
 
-// 211 words — deliberately OVER finishRede's 150-word confirmation threshold,
-// so this exercises the persistence path and not the window.confirm branch
-// (jsdom does not implement confirm, so hitting it would be its own failure).
+// 211 words — deliberately OVER finishRede's VORTRAG_MIN_WORDS (200) confirmation
+// threshold, so this exercises the persistence path and not the window.confirm
+// branch (jsdom does not implement confirm, so hitting it would be its own failure).
 const LONG_REDE = (
   'Sehr geehrte Damen und Herren, ich freue mich, heute zu Ihnen sprechen zu ' +
   'dürfen, und ich habe mir für meinen Vortrag ein Thema ausgesucht, das mich ' +
@@ -133,6 +133,12 @@ describe('Teil1Runner over the real Dexie layer', () => {
     generateContent.mockClear()
     sessionStorage.clear()
     sessionStorage.setItem(TEIL1_STASH_KEY, JSON.stringify(stash()))
+    // F12's under-VORTRAG_MIN_WORDS-words confirmation defaults to accepted —
+    // LONG_REDE below clears the floor by only 11 words, so a future trim of
+    // that fixture must not silently start hitting an unstubbed
+    // window.confirm (jsdom does not implement it, so that would hang/throw
+    // rather than fail cleanly). Same stub as Teil1Runner.test.ts's beforeEach.
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
   })
 
   it("leaves the Rede phase on 'Vortrag beenden' and reaches the Nachfrage", async () => {

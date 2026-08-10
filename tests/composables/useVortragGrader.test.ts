@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   buildVortragGraderPrompt, validateVortragGrade, gradeVortrag, AUFWERTUNG_CAP
 } from '../../src/composables/useVortragGrader'
-import { GLIEDERUNGSPUNKTE } from '../../src/data/sprechenVortragsmittel'
+import { GLIEDERUNGSPUNKTE, VORTRAG_MIN_WORDS } from '../../src/data/sprechenVortragsmittel'
 import type { SprechenVortrag } from '../../src/data/sprechen'
 
 const REDE = 'Ich möchte heute über das Thema Ehrenamt sprechen. Ausserdem lernt man dabei viel. Ich bin für die Wettkämpfe gefahren. Zusammenfassend ist das Ehrenamt unverzichtbar.'
@@ -91,6 +91,52 @@ describe('buildVortragGraderPrompt', () => {
     const { user } = buildVortragGraderPrompt(vortrag())
     expect(user).not.toContain('SPRECHDATEN')
   })
+
+  it('is a fair, realistically calibrated examiner in both modalities', () => {
+    const prompts = [
+      buildVortragGraderPrompt(vortrag()),
+      buildVortragGraderPrompt(vortrag({ modality: 'spoken', rede: { textDe: REDE, seconds: 231 } }))
+    ]
+    for (const { system } of prompts) {
+      expect(system).toContain('faire, realistisch kalibrierte')
+      expect(system).not.toContain('strenge, kalibrierte')
+      expect(system).toContain('wohlwollend im Zweifel')
+    }
+  })
+
+  it('states the calibration target so a clean Vortrag lands at 90+', () => {
+    const { system } = buildVortragGraderPrompt(vortrag())
+    expect(system).toContain('KALIBRIERUNG')
+    expect(system).toContain('90–100')
+    expect(system).toMatch(/im Zweifel die höhere Punktzahl/)
+  })
+
+  it('sends the counted Umfang and the length rule for a typed Vortrag', () => {
+    const { user } = buildVortragGraderPrompt(vortrag())
+    const words = REDE.trim().split(/\s+/).length
+    expect(user).toContain(`UMFANG: Der Vortrag umfasst ${words} Wörter`)
+    expect(user).toContain(`Ab ${VORTRAG_MIN_WORDS} Wörtern darf der Umfang keine Punktzahl beeinflussen`)
+    expect(user).toContain(`Nur unter ${VORTRAG_MIN_WORDS} Wörtern`)
+    expect(user).toContain('bei erfuellung, und NUR dort')
+  })
+
+  it('sends no Umfang block for a spoken Vortrag — the clock is the evidence there', () => {
+    const { user } = buildVortragGraderPrompt(
+      vortrag({ modality: 'spoken', rede: { textDe: REDE, seconds: 231, restarts: 4 } })
+    )
+    expect(user).not.toContain('UMFANG:')
+    expect(user).toContain('SPRECHDATEN')
+  })
+
+  it('tells a typed run that typos never lower a score, and never says so when spoken', () => {
+    const typed = buildVortragGraderPrompt(vortrag()).system
+    expect(typed).toContain('Tippfehler')
+    expect(typed).toMatch(/KEINE Kriteriumsnote senken/)
+    const spoken = buildVortragGraderPrompt(
+      vortrag({ modality: 'spoken', rede: { textDe: REDE, seconds: 231 } })
+    ).system
+    expect(spoken).not.toContain('Tippfehler')
+  })
 })
 
 describe('validateVortragGrade', () => {
@@ -177,11 +223,20 @@ describe('validateVortragGrade', () => {
 })
 
 describe('band anchors and consistency (F9)', () => {
-  it('embeds four band anchors per criterion and the per-point deduction rule', () => {
+  it('embeds four CONTIGUOUS band anchors per criterion and the per-point deduction rule', () => {
     const { system } = buildVortragGraderPrompt(vortrag())
-    expect(system).toMatch(/24–25|24-25/)
-    expect(system).toMatch(/12–13|12-13/)
+    expect(system).toContain('23–25')
+    expect(system).toContain('18–22')
+    expect(system).toContain('12–17')
+    expect(system).toContain('5–11')
+    // The old set left 20–23 unreachable, which pinned a near-clean Vortrag at ~19 × 4.
+    expect(system).not.toMatch(/24–25|18–19|12–13|5–6/)
     expect(system).toMatch(/mindestens 4 Punkte Abzug/)
+  })
+
+  it('lets the top band tolerate isolated small slips, for every criterion', () => {
+    const { system } = buildVortragGraderPrompt(vortrag())
+    expect(system.match(/vereinzelte kleine Ausrutscher ändern daran nichts/g)).toHaveLength(4)
   })
   it('rejects a grade whose erfuellung contradicts its own coverage', () => {
     const p = goodPayload({

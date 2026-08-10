@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { SPRECHEN_B2_TEIL1, SPRECHEN_B2_TEIL2, sprechenDescriptor, sprechenNotes, praedikat } from '../../src/data/rubrics'
+import { VORTRAG_MIN_WORDS } from '../../src/data/sprechenVortragsmittel'
 
 describe('SPRECHEN_B2_TEIL1', () => {
   it('mirrors Teil 2 structurally so the two scores stay comparable', () => {
@@ -32,6 +33,22 @@ describe('SPRECHEN_B2_TEIL1', () => {
     expect(sprechenDescriptor(koh, 'typed')).toContain('schriftliche Form')
     expect(sprechenDescriptor(koh, 'spoken')).not.toContain('schriftliche Form')
     expect(sprechenDescriptor(koh, 'spoken')).toContain('Sprechtempo')
+  })
+
+  it('judges topic focus but never length, in erfuellung', () => {
+    const c = SPRECHEN_B2_TEIL1.criteria[0]
+    expect(c.descriptorDe).toContain('durchgehend auf das Thema bezogen')
+    expect(c.descriptorDe).not.toContain('angemessen lang')
+  })
+
+  it('takes the Umfang out of the typed footer note and names the floor instead', () => {
+    const typed = sprechenNotes(SPRECHEN_B2_TEIL1, 'typed')
+    expect(typed).not.toContain('360')
+    expect(typed).not.toContain('Redezeit')
+    expect(typed).toContain(`mindestens ${VORTRAG_MIN_WORDS} Wörter`)
+    expect(typed).toContain('beeinflusst die Bewertung nicht')
+    // The spoken note is untouched — a spoken Vortrag has a measured clock.
+    expect(sprechenNotes(SPRECHEN_B2_TEIL1, 'spoken')).toContain('Die Redezeit ist hier gemessen')
   })
 
   it('mentions that Aussprache stays excluded, in both modalities', () => {

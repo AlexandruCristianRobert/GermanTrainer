@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.18.08'
+export const APP_VERSION = '1.18.09'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.18.09', date: '2026-08-10', kind: 'fix',
+    title: 'Sprechen · Bewertung neu kalibriert',
+    notes: [
+      '<strong>Die Wortzahl zählt nicht mehr mit.</strong> Getippte Vorträge wurden bisher am Umfang gemessen (360 Wörter ≈ 4 Minuten) — ein vollständiger, kompakter Vortrag verlor Punkte fürs Kürzersein. Jetzt ist der Umfang für die Note egal, solange mindestens 200 Wörter dastehen; erst darunter kostet es Punkte, und nur bei <em>Erfüllung</em>. Die Warnung beim Beenden erscheint entsprechend erst unter 200 Wörtern.',
+      '<strong>Tippfehler kosten keine Punkte mehr.</strong> Die echte Prüfung ist mündlich — Rechtschreibung wird dort nicht bewertet. Tippfehler werden weiterhin angestrichen und erklärt, senken aber keine Kriteriumsnote. Gilt in Teil 1 und Teil 2.',
+      '<strong>Die Notenbänder haben keine Lücke mehr.</strong> Die Anker sprangen bisher von 24–25 direkt auf 18–19 — ein sehr guter Vortrag mit zwei kleinen Schnitzern landete rechnerisch bei ~76. Jetzt sind die Bänder lückenlos (23–25 / 18–22 / 12–17 / 5–11), und die Prüferin ist ausdrücklich kalibriert: alle fünf Punkte behandelt, klar gegliedert, nur vereinzelte kleine Fehler → 90+. Im Zweifel gibt es die höhere Note, in Teil 1 wie in Teil 2.'
+    ]
+  },
   {
     version: '1.18.08', date: '2026-08-09', kind: 'fix',
     title: 'Satz (KI) · Strg+R statt Alt+R',

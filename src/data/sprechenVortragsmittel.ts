@@ -133,6 +133,15 @@ export const GLIEDERUNGSPUNKTE: Gliederungspunkt[] = [
 export const VORTRAG_WPM = 90
 export const VORTRAG_TARGET_WORDS = 360
 
+/**
+ * The grading floor — the only length figure the grader is allowed to act on.
+ * Below it, the thin Umfang may reduce `erfuellung` and nothing else; at or
+ * above it, the length must not move ANY score, in either direction. Distinct
+ * from VORTRAG_TARGET_WORDS, which is a display target for the learner (the
+ * word meter, the Redezeit estimate) and never a grading threshold.
+ */
+export const VORTRAG_MIN_WORDS = 200
+
 /** Words → m:ss at VORTRAG_WPM. A display convention, not a claim about the learner. */
 export function vortragClock(words: number): string {
   const total = Math.round((words / VORTRAG_WPM) * 60)

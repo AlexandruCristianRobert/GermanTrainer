@@ -349,18 +349,22 @@ function formatSprechdaten(d: SprechenDiscussion): string {
 //
 // Same resolver pattern as `sprechenDescriptor`/`sprechenNotes` in
 // rubrics.ts: a typed default plus a spoken override, chosen by modality.
-// The typed branch is byte-identical to the pre-spoken-feature strings —
-// see BASELINE_TYPED_SYSTEM in the test file — so it must never be touched;
-// only the spoken branch may change.
+// The baseline was re-pinned on 2026-08-10 as part of the deliberate grader
+// recalibration (see BASELINE_TYPED_SYSTEM in the test file for the current
+// pin) — the invariant is now "typed and spoken differ only in modality
+// wording", not byte-stability against the pre-spoken-feature text.
 
 /** Opening sentence of the grader's system persona. */
 function graderPersonaDe(modality: Modality): string {
   return modality === 'spoken'
-    ? 'Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-' +
-      'Prüfung, die hier gesprochen und automatisch per Spracherkennung ' +
-      'transkribiert wird.'
-    : 'Du bist eine strenge, kalibrierte Prüferin für die mündliche Goethe-B2-' +
-      'Prüfung, die hier in getippter Form geübt wird.'
+    ? 'Du bist eine faire, realistisch kalibrierte Prüferin für die mündliche ' +
+      'Goethe-B2-Prüfung, die hier gesprochen und automatisch per ' +
+      'Spracherkennung transkribiert wird. Du bewertest wie in der echten ' +
+      'Goethe-Prüfung: wohlwollend im Zweifel, ohne Fehler zu erfinden.'
+    : 'Du bist eine faire, realistisch kalibrierte Prüferin für die mündliche ' +
+      'Goethe-B2-Prüfung, die hier in getippter Form geübt wird. Du ' +
+      'bewertest wie in der echten Goethe-Prüfung: wohlwollend im Zweifel, ' +
+      'ohne Fehler zu erfinden.'
 }
 
 // For spoken runs the transcript's spelling is the speech recognizer's
@@ -375,6 +379,19 @@ function spellingCaveatDe(modality: Modality): string {
       'Erkennungssoftware, NICHT vom Lernenden — vergib daher NIEMALS die ' +
       'Kategorie "spelling".\n'
     : ''
+}
+
+// The mirror image of the caveat above, for TYPED runs: the real exam is oral,
+// so a typo is a keyboard slip, not a language error the Prüfung would ever
+// see. It stays visible as feedback (the learner still wants it flagged) but
+// must not reach any criterion score. Spoken runs never need it — the
+// `spelling` tag is already banned there, and dropped by the validator.
+function typoRuleDe(modality: Modality): string {
+  return modality === 'spoken'
+    ? ''
+    : '- Tippfehler (Kategorie "spelling") werden als Fehler aufgelistet, ' +
+      'dürfen aber KEINE Kriteriumsnote senken — die echte Prüfung ist ' +
+      'mündlich, dort wird Rechtschreibung nicht bewertet.\n'
 }
 
 // ── Prompt builder ───────────────────────────────────────────────
@@ -395,8 +412,8 @@ export function buildSprechenGraderPrompt(
   rubricLines.push(`Hinweis: ${sprechenNotes(SPRECHEN_B2_TEIL2, d.modality)}`)
 
   const system =
-    graderPersonaDe(d.modality) + ' Du bewertest AUSSCHLIESSLICH ' +
-    'die Beiträge des Lernenden (mit L0, L1, … markiert) nach der Rubrik unten — ' +
+    graderPersonaDe(d.modality) + ' Bewertet werden AUSSCHLIESSLICH ' +
+    'die Beiträge des Lernenden (mit L0, L1, … markiert), nach der Rubrik unten — ' +
     'die PARTNER-Beiträge stammen von einer KI und werden nicht bewertet.\n\n' +
     'Zusätzlich markierst du JEDEN sprachlichen Fehler in den Lernerbeiträgen:\n' +
     '- "turnIndex": die Zahl hinter dem L des betroffenen Beitrags.\n' +
@@ -407,6 +424,7 @@ export function buildSprechenGraderPrompt(
     'word-order (Verbstellung, Satzklammer), vocabulary (falsches Wort, ' +
     'Kollokation), spelling (Rechtschreibung), register (Du/Sie, Stilebene).\n' +
     spellingCaveatDe(d.modality) +
+    typoRuleDe(d.modality) +
     '- "reasonDe" UND "reasonEn": kurze Erklärung, WARUM es falsch ist ' +
     '(Deutsch einfach halten — B2-Lernende lesen sie).\n\n' +
     'Für jedes Kriterium: ganzzahlige Punktzahl im erlaubten Bereich plus kurze ' +
@@ -435,6 +453,10 @@ export function buildSprechenGraderPrompt(
     '"rate": <Anteil der Beiträge mit reacts=true, als Dezimalzahl zwischen 0 und 1>}.\n' +
     'Diese beiden Felder sind BESCHREIBEND. Verteile dafür keine Punkte und ändere ' +
     'wegen ihnen keine Kriteriumsnote.\n\n' +
+    'KALIBRIERUNG: Bei ausreichendem Material gehören Beiträge mit klarer ' +
+    'Position, Begründung und Reaktion auf den Partner, die nur vereinzelte ' +
+    'kleine Fehler enthalten, in den Bereich 90–100. Vergib im Zweifel die ' +
+    'höhere Punktzahl.\n\n' +
     rubricLines.join('\n')
 
   let li = 0
