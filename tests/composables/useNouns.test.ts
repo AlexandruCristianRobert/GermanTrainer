@@ -118,4 +118,16 @@ describe('useNouns', () => {
     expect(counts['Office']).toBe(0)
     expect(counts['Bank & Money']).toBe(0)
   })
+
+  describe('byGermanList', () => {
+    test('returns only the rows that exist, and [] for an empty list', async () => {
+      const { create, byGermanList } = useNouns()
+      await create({ german: 'Container', gender: 'der', english: 'container', group: 'Programming' })
+      await create({ german: 'Abfrage', gender: 'die', english: 'query', group: 'Programming' })
+
+      const rows = await byGermanList(['Container', 'Abfrage', 'Gibtsnicht'])
+      expect(rows.map(r => r.german).sort()).toEqual(['Abfrage', 'Container'])
+      expect(await byGermanList([])).toEqual([])
+    })
+  })
 })

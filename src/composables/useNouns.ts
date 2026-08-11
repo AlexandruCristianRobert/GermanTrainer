@@ -52,6 +52,14 @@ export function useNouns() {
     return all.slice(0, k)
   }
 
+  /** Store rows for an explicit list of German words — how a Domain's noun
+   *  list (bare words, see data/domains.ts) becomes real nouns with gender and
+   *  any learned plural. Words the store does not have are simply absent. */
+  async function byGermanList(words: readonly string[]): Promise<Noun[]> {
+    if (words.length === 0) return []
+    return db.nouns.where('german').anyOf([...words]).toArray()
+  }
+
   async function countsByGroup(): Promise<Record<NounGroup, number>> {
     const counts = Object.fromEntries(NOUN_GROUPS.map(g => [g, 0])) as Record<NounGroup, number>
     const all = await db.nouns.toArray()
@@ -73,5 +81,5 @@ export function useNouns() {
     await db.nouns.where('german').equals(german).modify(n => { if (n.plural === undefined) n.plural = plural })
   }
 
-  return { items, refresh, create, update, remove, count, sample, sampleByGroups, countsByGroup, findByGerman, setPlural }
+  return { items, refresh, create, update, remove, count, sample, sampleByGroups, byGermanList, countsByGroup, findByGerman, setPlural }
 }
