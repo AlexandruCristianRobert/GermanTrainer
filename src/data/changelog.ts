@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.19.01'
+export const APP_VERSION = '1.19.02'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.19.02', date: '2026-08-12', kind: 'polish',
+    title: 'Satz · Fachgebiete',
+    notes: [
+      '<strong>Sätze über die eigene Arbeit.</strong> Kapitel XII lässt sich jetzt auf ein <em>Fachgebiet</em> richten — <em>.NET</em>, <em>SQL Server</em> oder <em>Docker</em>. Die KI schreibt die Karte dann in dieser Welt: eine Bereitstellung, die nachts um drei schiefgeht, eine Abfrage, die plötzlich langsam ist, ein Container, der immer wieder neu startet. Mehrere Fachgebiete gleichzeitig sind erlaubt — jede Karte spielt aber in <em>genau einem</em>, damit sie in sich stimmig bleibt.',
+      '<strong>Die Nomen kommen aus dem Fachgebiet.</strong> Solange eines gewählt ist, ersetzt seine Wortliste die Themengruppen: <em>der Container</em>, <em>das Abbild</em>, <em>die Bereitstellung</em>, <em>die Abfrage</em>, <em>der Primärschlüssel</em>, <em>die Vererbung</em>. 29 neue Wörter sind dafür in den Nomen-Speicher gewandert — <em>die Orchestrierung</em>, <em>der Mikrodienst</em>, <em>der Ausführungsplan</em>, <em>die Sicht</em> und weitere. Sie stehen auch allen anderen Übungen zur Verfügung, nicht nur dieser.',
+      '<strong>Die Verben werden bevorzugt, nicht beschränkt.</strong> Ein Fachgebiet zieht seine Verben zuerst (<em>bereitstellen, ausführen, speichern, überwachen</em>), aber der Verbpool bleibt vollständig offen — keine Karte scheitert daran, dass ein passendes Verb fehlt. Typ und Rektion filtern dann nicht mehr; das Niveau bleibt und bestimmt nur noch, wie schwer der Text selbst sein soll.',
+      '<strong>Die Sprache ist die, die man im Job hört.</strong> Anglizismen, wo sie das normale Wort sind (<em>der Container</em>, <em>das Repository</em>, <em>der Commit</em>), Deutsch, wo Deutsch das normale Wort ist (<em>die Bereitstellung</em>, <em>die Abfrage</em>, <em>der Fremdschlüssel</em>). Ohne Fachgebiet bleibt alles, wie es war.'
+    ]
+  },
   {
     version: '1.19.01', date: '2026-08-11', kind: 'fix',
     title: 'Dativ · Enter-Taste und mehr Sätze',
