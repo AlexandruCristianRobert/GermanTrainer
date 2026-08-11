@@ -3,13 +3,23 @@
 // this module owns the pure layer: filter → sample → build → grade.
 
 import { computed, ref } from 'vue'
-import { shuffle } from '../data/pool'
+import { shuffle, type Rng } from '../data/pool'
 import { checkText } from './drillGrading'
 import { DATIVE_VERBS, type DativeVerbEntry } from '../data/dativeVerbs'
 import {
   T1_CASE_ITEMS, T2_FORM_ITEMS, T3_TRAP_ITEMS,
   type CaseChoiceItem, type FormItem, type TrapItem, type DativeItemLevel,
 } from '../data/dativeItems'
+import {
+  EXPERIENCER_SUBJECT_ITEMS, EXPERIENCER_PRODUCTION_ITEMS,
+  type ExperiencerSubjectItem, type ExperiencerProductionItem, type DativeDrillLevel,
+} from '../data/dativeExperiencer'
+import { TWIN_PAIRS, TWIN_ITEMS, type TwinItem } from '../data/dativeTwins'
+import {
+  DITRANSITIVE_ITEMS, type DitransitiveItem,
+  OBJECT_ORDER_ITEMS, objectOrderAnswer, type ObjectOrderItem,
+} from '../data/dativeDitransitive'
+import { DATIVE_ADJECTIVE_ITEMS, type DativeAdjectiveItem } from '../data/dativeAdjectives'
 
 export interface DativeCard {
   id: string
@@ -139,4 +149,138 @@ export function useDativeQuiz(cards: DativeQuizCard[]) {
   }
 
   return { questions, currentIndex, current, finished, pickOption, submitText, advance, score, total, wrongIndexes }
+}
+
+// ─── Phase 3, Task 3: T4 Wer ist Subjekt? (family IV) ───
+// Ledger-coupled: keyed by the dative verb (item.verb).
+
+export function buildSubjectCards(items: ExperiencerSubjectItem[]): DativeQuizCard[] {
+  return items.map((item, sourceIndex) => ({
+    key: item.id,
+    prompt: item.kind === 'subject' ? `${item.sentence} — Was ist das Subjekt?` : item.sentence,
+    answers: item.answers,
+    options: item.options,
+    translation: item.translation,
+    note: item.explanation,
+    ledgerKey: item.verb,
+    sourceIndex,
+    picked: null, typed: null, isCorrect: null,
+  }))
+}
+
+export function filterSubjectItems(f: { levels: DativeDrillLevel[]; kinds: string[] }): ExperiencerSubjectItem[] {
+  return EXPERIENCER_SUBJECT_ITEMS.filter(i => f.levels.includes(i.level) && f.kinds.includes(i.kind))
+}
+
+// ─── Phase 3, Task 4: T5 Produktion (family IV) ───
+// Ledger-coupled: keyed by the dative verb (item.verb).
+
+export function buildProductionCards(items: ExperiencerProductionItem[]): DativeQuizCard[] {
+  return items.map((item, sourceIndex) => ({
+    key: item.id,
+    prompt: item.promptEn,
+    answers: item.answers,
+    options: [],
+    translation: `Bausteine: ${item.cue}`,
+    note: item.explanation,
+    ledgerKey: item.verb,
+    sourceIndex,
+    picked: null, typed: null, isCorrect: null,
+  }))
+}
+
+export function filterProductionItems(f: { levels: DativeDrillLevel[]; verbs: string[] }): ExperiencerProductionItem[] {
+  return EXPERIENCER_PRODUCTION_ITEMS.filter(i => f.levels.includes(i.level) && f.verbs.includes(i.verb))
+}
+
+// ─── Phase 3, Task 6: T6 Zwillingspaare (family V) ───
+// Ledger-coupled: keyed by the pair's DATIVE verb, never the twin — twins are
+// teaching contrast, not their own ledger entries.
+
+const TWIN_DATIVE_BY_PAIR = new Map(TWIN_PAIRS.map(p => [p.pairId, p.dativeVerb]))
+
+export function buildTwinCards(items: TwinItem[]): DativeQuizCard[] {
+  return items.map((item, sourceIndex) => ({
+    key: item.id,
+    prompt: item.prompt,
+    answers: item.answers,
+    options: item.options,
+    translation: item.translation,
+    note: item.explanation,
+    ledgerKey: TWIN_DATIVE_BY_PAIR.get(item.pairId) ?? null,
+    sourceIndex,
+    picked: null, typed: null, isCorrect: null,
+  }))
+}
+
+export function filterTwinItems(f: { levels: DativeDrillLevel[]; pairs: string[] }): TwinItem[] {
+  return TWIN_ITEMS.filter(i => f.levels.includes(i.level) && f.pairs.includes(i.pairId))
+}
+
+// ─── Phase 3, Task 8: T7 Welches Objekt? (family VI) ───
+// Rule-driven: ledgerKey is always null — band-tracked only, never in gt:dativeLedger.
+
+export function buildDitransitiveCards(items: DitransitiveItem[]): DativeQuizCard[] {
+  return items.map((item, sourceIndex) => ({
+    key: item.id,
+    prompt: item.prompt,
+    answers: item.answers,
+    options: item.options,
+    translation: item.translation,
+    note: item.explanation,
+    ledgerKey: null,
+    sourceIndex,
+    picked: null, typed: null, isCorrect: null,
+  }))
+}
+
+export function filterDitransitiveItems(f: { levels: DativeDrillLevel[]; roles: string[] }): DitransitiveItem[] {
+  return DITRANSITIVE_ITEMS.filter(i => f.levels.includes(i.level) && f.roles.includes(i.gapRole))
+}
+
+// ─── Phase 3, Task 9: T8 Objektfolge (family VI) ───
+// Rule-driven: ledgerKey is always null — band-tracked only, never in gt:dativeLedger.
+
+export function buildObjectOrderCards(items: ObjectOrderItem[], rng: Rng = Math.random): DativeQuizCard[] {
+  return items.map((item, sourceIndex) => {
+    const correct = objectOrderAnswer(item)
+    const flipped = correct === `${item.datPhrase} ${item.akkPhrase}`
+      ? `${item.akkPhrase} ${item.datPhrase}` : `${item.datPhrase} ${item.akkPhrase}`
+    return {
+      key: item.id,
+      prompt: `${item.stem} ___${item.punct}`,
+      answers: [correct],
+      options: shuffle([correct, flipped], 2, rng),
+      translation: item.translation,
+      note: item.explanation,
+      ledgerKey: null,
+      sourceIndex,
+      picked: null, typed: null, isCorrect: null,
+    }
+  })
+}
+
+export function filterObjectOrderItems(f: { levels: DativeDrillLevel[]; kinds: string[] }): ObjectOrderItem[] {
+  return OBJECT_ORDER_ITEMS.filter(i => f.levels.includes(i.level) && f.kinds.includes(i.kind))
+}
+
+// ─── Phase 3, Task 11: T9 Dativ-Adjektive (family VII) ───
+// Ledger-coupled: keyed by the adjective LEMMA (item.adjective), not the inflected answer.
+
+export function buildAdjectiveCards(items: DativeAdjectiveItem[]): DativeQuizCard[] {
+  return items.map((item, sourceIndex) => ({
+    key: item.id,
+    prompt: item.prompt,
+    answers: item.answers,
+    options: item.options,
+    translation: item.translation,
+    note: item.explanation,
+    ledgerKey: item.adjective,
+    sourceIndex,
+    picked: null, typed: null, isCorrect: null,
+  }))
+}
+
+export function filterAdjectiveItems(f: { levels: DativeDrillLevel[]; adjectives: string[] }): DativeAdjectiveItem[] {
+  return DATIVE_ADJECTIVE_ITEMS.filter(i => f.levels.includes(i.level) && f.adjectives.includes(i.adjective))
 }

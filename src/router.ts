@@ -121,6 +121,21 @@ export const routes: RouteRecordRaw[] = [
   { path: '/dative/form/run', name: 'dative-form-run', component: () => import('./modules/dative/FormRunner.vue') },
   { path: '/dative/trap', name: 'dative-trap', component: () => import('./modules/dative/TrapSetup.vue') },
   { path: '/dative/trap/run', name: 'dative-trap-run', component: () => import('./modules/dative/TrapRunner.vue') },
+  // Families IV-VII. Route names must match DAT_FAMILIES in drillCatalogue.ts
+  // exactly - the hub gates each card on router.hasRoute(card.route), so a
+  // mismatch leaves the card permanently disabled rather than erroring.
+  { path: '/dative/subject', name: 'dative-subject', component: () => import('./modules/dative/SubjectSetup.vue') },
+  { path: '/dative/subject/run', name: 'dative-subject-run', component: () => import('./modules/dative/SubjectRunner.vue') },
+  { path: '/dative/experiencer', name: 'dative-experiencer', component: () => import('./modules/dative/ExperiencerSetup.vue') },
+  { path: '/dative/experiencer/run', name: 'dative-experiencer-run', component: () => import('./modules/dative/ExperiencerRunner.vue') },
+  { path: '/dative/twins', name: 'dative-twins', component: () => import('./modules/dative/TwinSetup.vue') },
+  { path: '/dative/twins/run', name: 'dative-twins-run', component: () => import('./modules/dative/TwinRunner.vue') },
+  { path: '/dative/ditransitive', name: 'dative-ditransitive', component: () => import('./modules/dative/DitransitiveSetup.vue') },
+  { path: '/dative/ditransitive/run', name: 'dative-ditransitive-run', component: () => import('./modules/dative/DitransitiveRunner.vue') },
+  { path: '/dative/object-order', name: 'dative-object-order', component: () => import('./modules/dative/ObjectOrderSetup.vue') },
+  { path: '/dative/object-order/run', name: 'dative-object-order-run', component: () => import('./modules/dative/ObjectOrderRunner.vue') },
+  { path: '/dative/adjectives', name: 'dative-adjectives', component: () => import('./modules/dative/AdjectiveSetup.vue') },
+  { path: '/dative/adjectives/run', name: 'dative-adjectives-run', component: () => import('./modules/dative/AdjectiveRunner.vue') },
   { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
   { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
   { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },
