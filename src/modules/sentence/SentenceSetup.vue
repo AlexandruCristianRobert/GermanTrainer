@@ -184,14 +184,26 @@ const domainSummary = computed(() => {
   return `${activeDomains.value.length} ${activeDomains.value.length === 1 ? 'Fachgebiet' : 'Fachgebiete'} · ${n} Nomen im Pool`
 })
 
+// Guards against out-of-order completion: toggling a second Fachgebiet
+// before an earlier query resolves must never let that stale, superseded
+// result overwrite the later (current) one. Bumped synchronously at entry —
+// before any await — and checked again right before the assignment it
+// guards; a call whose token no longer matches the latest one drops its
+// result instead of writing it.
+let domainNounsRequest = 0
 async function resolveDomainNouns(): Promise<void> {
+  const request = ++domainNounsRequest
   const out: Record<string, NounRef[]> = {}
   for (const d of activeDomains.value) {
     out[d.id] = (await byGermanList(d.nouns)).map(nounToRef)
   }
+  if (request !== domainNounsRequest) return
   domainNouns.value = out
 }
-watch(domains, resolveDomainNouns, { deep: true })
+// Not `{ deep: true }` — domains is only ever reassigned wholesale (toggle()
+// and `domains = []` both produce a new array), so a deep traversal buys
+// nothing here.
+watch(domains, resolveDomainNouns)
 
 // ── Verb pool ──
 // A Fachgebiet unrestricts the whole verb pool (ADR-0018): Typ and Rektion

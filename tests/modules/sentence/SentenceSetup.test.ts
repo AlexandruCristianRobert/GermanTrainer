@@ -3,7 +3,14 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import SentenceSetup from '../../../src/modules/sentence/SentenceSetup.vue'
 
-const { canUseAiRef } = vi.hoisted(() => ({ canUseAiRef: { value: true } }))
+const { canUseAiRef, byGermanListGate } = vi.hoisted(() => ({
+  canUseAiRef: { value: true },
+  // Off by default: byGermanList resolves immediately, as every test but the
+  // out-of-order-completion one needs. A test flips `active` on to get a
+  // controllable, manually-resolved promise per call instead, queued here in
+  // call order so it can resolve them in whatever order it likes.
+  byGermanListGate: { active: false, queue: [] as Array<{ words: readonly string[]; resolve: () => void }> }
+}))
 
 vi.mock('../../../src/composables/useNouns', () => ({
   useNouns: () => ({
@@ -17,10 +24,14 @@ vi.mock('../../../src/composables/useNouns', () => ({
     ],
     // Resolves every requested word, so a Domain always has enough nouns to
     // clear the per-card empty-pool guard.
-    byGermanList: async (words: readonly string[]) => words.map((german, i) => ({
-      id: 100 + i, german, gender: 'der', english: german.toLowerCase(),
-      group: 'Programming', createdAt: 0
-    }))
+    byGermanList: (words: readonly string[]) => {
+      const rows = words.map((german, i) => ({
+        id: 100 + i, german, gender: 'der', english: german.toLowerCase(),
+        group: 'Programming', createdAt: 0
+      }))
+      if (!byGermanListGate.active) return Promise.resolve(rows)
+      return new Promise(resolve => { byGermanListGate.queue.push({ words, resolve: () => resolve(rows) }) })
+    }
   })
 }))
 vi.mock('../../../src/composables/useSettings', async () => {
@@ -114,6 +125,8 @@ describe('Fachgebiet', () => {
     localStorage.clear()
     sessionStorage.clear()
     canUseAiRef.value = true
+    byGermanListGate.active = false
+    byGermanListGate.queue = []
   })
 
   // Category blocks are identified by their .sna-name text ('Verben',
@@ -199,5 +212,51 @@ describe('Fachgebiet', () => {
     expect(summary).not.toContain('Rektion')
     expect(summary).toContain('Fachgebiet aktiv')
     expect(summary).toMatch(/\d+ Verben im Pool/)
+  })
+
+  it('a slower, earlier Domain query cannot overwrite a faster, later one — but a normal, non-racing change still resolves', async () => {
+    byGermanListGate.active = true
+    const { wrapper } = await mountSetup()
+
+    // Baseline (untargeted case): a single Domain selection with nothing
+    // racing it still resolves and updates the pool normally. Without this
+    // half, a guard that just drops every result (instead of only stale
+    // ones) would also make this test pass.
+    await wrapper.findAll('button.chip').find(b => b.text() === '.NET')!.trigger('click')
+    await flushPromises()
+    expect(byGermanListGate.queue).toHaveLength(1)
+    byGermanListGate.queue[0].resolve()
+    await flushPromises()
+    const startBaseline = wrapper.findAll('button').find(b => b.text().startsWith('Start ·'))!
+    expect(startBaseline.attributes('disabled')).toBeUndefined()
+    expect(wrapper.text()).not.toContain('Leerer Pool')
+    await wrapper.findAll('button.chip').find(b => b.text() === '.NET')!.trigger('click') // deselect
+    await flushPromises()
+
+    // Race: select Docker (its query held open), then swap to SQL Server
+    // before Docker's query resolves — a later resolveDomainNouns() run
+    // starts, and its own query is held open too.
+    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await flushPromises()
+    const dockerCall = byGermanListGate.queue.at(-1)!
+    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click') // toggle off
+    await flushPromises()
+    await wrapper.findAll('button.chip').find(b => b.text() === 'SQL Server')!.trigger('click')
+    await flushPromises()
+    const sqlServerCall = byGermanListGate.queue.at(-1)!
+
+    // The later (SQL Server) query resolves first, then the earlier
+    // (Docker) query finally resolves too, out of order. Docker's now-stale
+    // result must be dropped, not overwrite SQL Server's — the domain that
+    // is actually still selected.
+    sqlServerCall.resolve()
+    await flushPromises()
+    dockerCall.resolve()
+    await flushPromises()
+
+    const start = wrapper.findAll('button').find(b => b.text().startsWith('Start ·'))!
+    expect(start.attributes('disabled')).toBeUndefined()
+    expect(wrapper.text()).not.toContain('Leerer Pool')
+    expect(wrapper.text()).not.toContain('0 Nomen im Pool')
   })
 })
