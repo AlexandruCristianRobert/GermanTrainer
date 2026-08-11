@@ -109,6 +109,18 @@ export const routes: RouteRecordRaw[] = [
   { path: '/direction-words/lexical/run', name: 'directionwords-lexical-run', component: () => import('./modules/direction-words/LexicalRunner.vue') },
   { path: '/direction-words/idioms', name: 'directionwords-idioms', component: () => import('./modules/direction-words/IdiomSetup.vue') },
   { path: '/direction-words/idioms/run', name: 'directionwords-idioms-run', component: () => import('./modules/direction-words/IdiomRunner.vue') },
+  // Dativ (Kapitel XIII). Names are 'dative' / 'dative-*' so NavShell's
+  // name.split('-')[0] tab derivation resolves them all to the hub, the same
+  // reason the Direction Words names above are hyphen-free. DativeHome gates
+  // each catalogue card on router.hasRoute(), so families whose drills land in
+  // later phases render as disabled 'Bald' rows rather than dead links.
+  { path: '/dative', name: 'dative', component: () => import('./modules/dative/DativeHome.vue') },
+  { path: '/dative/case', name: 'dative-case', component: () => import('./modules/dative/CaseSetup.vue') },
+  { path: '/dative/case/run', name: 'dative-case-run', component: () => import('./modules/dative/CaseRunner.vue') },
+  { path: '/dative/form', name: 'dative-form', component: () => import('./modules/dative/FormSetup.vue') },
+  { path: '/dative/form/run', name: 'dative-form-run', component: () => import('./modules/dative/FormRunner.vue') },
+  { path: '/dative/trap', name: 'dative-trap', component: () => import('./modules/dative/TrapSetup.vue') },
+  { path: '/dative/trap/run', name: 'dative-trap-run', component: () => import('./modules/dative/TrapRunner.vue') },
   { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
   { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
   { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },

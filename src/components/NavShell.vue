@@ -24,6 +24,7 @@ const items: NavItem[] = [
   { route: 'prepositions', label: 'Prepositions', de: 'Präpositionen' },
   { route: 'dacompounds', label: 'Da-Compounds', de: 'Pronominaladverbien' },
   { route: 'directionwords', label: 'Direction Words', de: 'hin & her' },
+  { route: 'dative', label: 'Dativ', de: 'Dativverben' },
   { route: 'sprechen', label: 'Sprechen', de: 'Diskussion' },
   { route: 'declension', label: 'Declension', de: 'Deklination' },
   { route: 'sentence', label: 'Sentence', de: 'Sätze' },
