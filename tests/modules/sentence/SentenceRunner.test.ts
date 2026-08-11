@@ -86,6 +86,26 @@ function stashWithNoun(nounGerman: string) {
   }))
 }
 
+/** A stash whose only card is targeted at a Fachgebiet (ADR-0018) — used by
+ *  the manifest-strip badge test. */
+function stashWithDomain(label: string, id: string) {
+  const specs = [{
+    index: 0,
+    domain: { id, label, scene: 'a walkthrough for a new teammate' },
+    items: [
+      { key: 'v1', cat: 'verb', verb: { german: 'warten', english: 'wait', level: 'B1', case: 'accusative' } },
+      { key: 'k1', cat: 'conn', conn: CONN }
+    ]
+  }]
+  sessionStorage.setItem('gt:lastPackedSentenceQuiz', JSON.stringify({
+    specs, direction: 'en-de', modality: 'typed', wordHints: true, level: 'B1',
+    meta: {
+      counts: { verb: 1, noun: 0, prep: 0, dac: 0, conn: 1 }, verbLevels: ['B1'], verbTypes: [], verbCases: [],
+      nounGroups: [], prepCases: [], connFamilies: ['adversativ'], connWords: [], domains: [id]
+    }
+  }))
+}
+
 /** Dispatches a real keydown on `el` (defaults merged with `init`) and
  *  returns it so callers can inspect `defaultPrevented`. Mirrors the pattern
  *  VerbSentenceRunner.recipe.test.ts uses for its own key-handling checks. */
@@ -135,6 +155,18 @@ describe('SentenceRunner', () => {
     expect(extra).toHaveLength(1)
     expect(extra[0].text()).toContain('station')
     expect(extra[0].find('.sn-pop').text()).toBe('der Bahnhof')
+  })
+
+  it("shows the current card's Fachgebiet on the manifest strip when the run is targeted", async () => {
+    stashWithDomain('Docker', 'docker')
+    const w = await mountRunner()
+    expect(w.find('.sna-manifest').text()).toContain('Docker')
+  })
+
+  it('shows no Fachgebiet badge on the manifest strip in an untargeted run', async () => {
+    stash(1)
+    const w = await mountRunner()
+    expect(w.find('.sna-manifest .micro-mark').exists()).toBe(false)
   })
 
   it('shifts a hint popover back into the viewport when it would clip at the edge', async () => {

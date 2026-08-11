@@ -46,6 +46,7 @@ interface StashMeta {
   verbLevels: string[]; verbTypes: string[]; verbCases: string[]
   nounGroups: string[]; prepCases: string[]
   connFamilies: string[]; connWords: string[]
+  domains: string[]
 }
 interface Stash {
   specs: PackedCardSpec[]
@@ -136,6 +137,7 @@ function manifestParts(card: GeneratedPackedCard): string[] {
   return parts
 }
 const manifestPartsList = computed(() => current.value ? manifestParts(current.value) : [])
+const domainLabel = computed(() => current.value?.domain?.label ?? null)
 
 // Full reveal (CONTEXT.md → "Word hint"): every span carries a German popover
 // — drilled items with case/word-order info, incidental nouns with their
@@ -389,6 +391,7 @@ function recordHistoryOnce() {
       packedDirection: direction.value,
       packedModality: spoken.value ? 'spoken' : 'typed',
       packedHints: wordHints.value,
+      packedDomains: metaInfo.value?.domains,
       packedItemsOk,
       packedItemsTotal,
       ...metaItems,
@@ -599,6 +602,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
       <template v-else-if="current">
         <div v-if="direction === 'en-de' && phase !== 'graded'" class="sna-manifest">
           <span class="m-l">Gesucht</span>
+          <span v-if="domainLabel" class="micro-mark">{{ domainLabel }}</span>
           <template v-for="(p, i) in manifestPartsList" :key="i">
             <span class="m-p">{{ p }}</span>
             <span v-if="i < manifestPartsList.length - 1" class="m-s">·</span>

@@ -57,3 +57,27 @@ describe('SentenceResult', () => {
     expect(w.text()).toContain('keine Fehler-Tags')
   })
 })
+
+function themedOutcome(label: string, id: string): CardOutcome {
+  const base = outcome('ok')
+  return { ...base, card: { ...base.card, domain: { id, label, scene: 'set it during a failed deployment' } } }
+}
+
+describe('SentenceResult · Fachgebiet', () => {
+  it('names each Fachgebiet the run used, once', () => {
+    const wrapper = mount(SentenceResult, {
+      props: {
+        direction: 'en-de',
+        history: [themedOutcome('Docker', 'docker'), themedOutcome('Docker', 'docker'), themedOutcome('.NET', 'dotnet')]
+      }
+    })
+    expect(wrapper.text()).toContain('Fachgebiet: Docker · .NET')
+  })
+
+  it('says nothing about Fachgebiete in an untargeted run', () => {
+    const wrapper = mount(SentenceResult, {
+      props: { direction: 'en-de', history: [outcome('ok'), outcome('no')] }
+    })
+    expect(wrapper.text()).not.toContain('Fachgebiet')
+  })
+})
