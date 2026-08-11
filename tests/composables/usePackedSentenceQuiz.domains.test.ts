@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import {
-  buildPackedSpecs,
-  type PackedPools, type PackedCounts, type PackedDomainPool
+  buildPackedSpecs, buildPackedGeneratePrompt, PACKED_ANGLE_POOL, PACKED_SCENE_ANGLES, PACKED_STRUCTURAL_ANGLES,
+  type PackedPools, type PackedCounts, type PackedDomainPool, type PackedCardSpec
 } from '../../src/composables/usePackedSentenceQuiz'
 import type { NounRef } from '../../src/composables/useSentenceQuiz'
 
@@ -107,5 +107,41 @@ describe('buildPackedSpecs — Fachgebiete', () => {
       expect(s.items.filter(i => i.cat === 'noun')).toHaveLength(0)
       expect(s.domain!.id).toBe('docker')
     }
+  })
+})
+
+describe('buildPackedGeneratePrompt — Fachgebiete', () => {
+  const plain: PackedCardSpec = {
+    index: 0,
+    items: [{ key: 'v1', cat: 'verb', verb: { german: 'tanzen', english: 'dance', level: 'A1', case: 'none' } }]
+  }
+  const themed: PackedCardSpec = {
+    index: 1,
+    items: [{ key: 'v1', cat: 'verb', verb: { german: 'bereitstellen', english: 'provide', level: 'B2.1', case: 'accusative' } }],
+    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment' }
+  }
+  const variation = { angles: ['use wir'], seed: 'abc' }
+
+  test('the angle pool splits into scenes and structure without losing anything', () => {
+    expect(PACKED_ANGLE_POOL).toEqual([...PACKED_SCENE_ANGLES, ...PACKED_STRUCTURAL_ANGLES])
+    expect(PACKED_SCENE_ANGLES.length).toBeGreaterThanOrEqual(6)
+    expect(PACKED_STRUCTURAL_ANGLES.length).toBeGreaterThanOrEqual(6)
+  })
+
+  test('a themed card names its Fachgebiet and its scene in its own block', () => {
+    const p = buildPackedGeneratePrompt([themed], 'B1', variation)
+    expect(p).toContain('#1 — Fachgebiet: Docker')
+    expect(p).toContain('set it during a failed deployment')
+  })
+
+  test('a themed batch carries the register instruction exactly once', () => {
+    const p = buildPackedGeneratePrompt([themed, { ...themed, index: 2 }], 'B1', variation)
+    expect(p.split('der Container').length - 1).toBe(1)
+  })
+
+  test('a plain card is untouched and carries no Fachgebiet wording', () => {
+    const p = buildPackedGeneratePrompt([plain], 'B1', variation)
+    expect(p).toContain('#0 — required ingredients:')
+    expect(p).not.toContain('Fachgebiet')
   })
 })

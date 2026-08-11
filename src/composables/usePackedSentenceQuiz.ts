@@ -219,13 +219,24 @@ export interface GeneratedPackedCard extends PackedCardSpec {
   extras?: PackedExtraWord[]
 }
 
-export const PACKED_ANGLE_POOL = [
+/** Scene-setters — WHERE the passage happens. A Domain replaces these with its
+ *  own scenes (ADR-0018); they are never mixed. */
+export const PACKED_SCENE_ANGLES = [
   'set the scene at the office', 'set it during a move to a new apartment',
-  'use a first-person plural subject (wir)', 'frame part of it as a question',
-  'set it on a weekend trip', 'put one clause in the Perfekt (past)',
-  'set it in a kitchen', 'use a polite request (Sie)', 'open with an adverb of time',
-  'set it at a train station', 'frame it as something overheard', 'set it during bad weather'
+  'set it on a weekend trip', 'set it in a kitchen',
+  'set it at a train station', 'set it during bad weather'
 ] as const
+
+/** Structural angles — HOW the passage is put together. Domain-neutral, so a
+ *  themed batch keeps varying its person, mood and tense exactly as an
+ *  untargeted one does. */
+export const PACKED_STRUCTURAL_ANGLES = [
+  'use a first-person plural subject (wir)', 'frame part of it as a question',
+  'put one clause in the Perfekt (past)', 'use a polite request (Sie)',
+  'open with an adverb of time', 'frame it as something overheard'
+] as const
+
+export const PACKED_ANGLE_POOL = [...PACKED_SCENE_ANGLES, ...PACKED_STRUCTURAL_ANGLES] as const
 
 export const PACKED_GEN_SYSTEM =
   'You are a German teacher writing packed translation exercises. For each item you are given ' +
@@ -333,14 +344,28 @@ function itemLine(it: PackedItemSpec): string {
   return `  [${it.key}] (unknown)`
 }
 
+const PACKED_DOMAIN_NOTE =
+  '\nWhere a card names a Fachgebiet, write that card entirely inside that field: every sentence ' +
+  'is about that work, and the vocabulary is the German practitioners in that field actually use — ' +
+  'established anglicisms where those are the normal words (der Container, das Repository, der ' +
+  'Commit) and the German term where that is (die Bereitstellung, die Abfrage, der Primärschlüssel). ' +
+  'A card without a Fachgebiet is an everyday scene as usual.'
+
 export function buildPackedGeneratePrompt(
   specs: readonly PackedCardSpec[], level: string, variation: { angles: string[]; seed: string }
 ): string {
-  const blocks = specs.map(s => `#${s.index} — required ingredients:\n${s.items.map(itemLine).join('\n')}`)
+  const blocks = specs.map(s => {
+    const head = s.domain
+      ? `#${s.index} — Fachgebiet: ${s.domain.label} · ${s.domain.scene} — required ingredients:`
+      : `#${s.index} — required ingredients:`
+    return `${head}\n${s.items.map(itemLine).join('\n')}`
+  })
+  const domainNote = specs.some(s => s.domain) ? PACKED_DOMAIN_NOTE : ''
   return (
     `Target CEFR level: ${level}.\n` +
     `Write one packed German passage (1–2 sentences, 3–4 only if unavoidable) and its English translation for each of the following ${specs.length} item(s):\n` +
     blocks.join('\n') +
+    domainNote +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.` +
     `\nAlso return sentenceCount, spans (one per ingredient key, plus "pl" — bare plural, "" if none — for noun keys; two-part connectors get two entries with the same key) and extras (every other noun and finite verb in the English, with "en"/"de"/"kind", nouns also carrying "pl"), each "en" an exact substring of your English translation.`
@@ -442,7 +467,10 @@ export async function generatePackedBatch(
   while (accepted.size < opts.specs.length && attempts <= maxRetries) {
     attempts++
     const remaining = opts.specs.filter(s => !accepted.has(s.index))
-    const angles = shuffle([...PACKED_ANGLE_POOL], Math.max(3, Math.min(6, remaining.length)), rng)
+    const anglePool = remaining.some(s => !s.domain)
+      ? [...PACKED_ANGLE_POOL]
+      : [...PACKED_STRUCTURAL_ANGLES]
+    const angles = shuffle(anglePool, Math.max(3, Math.min(6, remaining.length)), rng)
     const prompt = buildPackedGeneratePrompt(remaining, level, { angles, seed: makeSeed(rng) })
 
     let text = ''
