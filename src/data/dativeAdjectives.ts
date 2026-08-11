@@ -121,3 +121,164 @@ export const DATIVE_ADJECTIVES: Record<string, DativeAdjectiveEntry> = {
 }
 
 export const DATIVE_ADJECTIVE_KEYS: readonly string[] = Object.freeze(Object.keys(DATIVE_ADJECTIVES))
+
+// ─── T9 item bank (phase 3) — Dativ-Adjektive drill ───
+// Every item's `adjective` keys into DATIVE_ADJECTIVES above; the reachability
+// test (tests/data/dativeAdjectiveItems.test.ts) demands the reverse too —
+// every one of the 16 phase-1 keys is drilled by at least one item here,
+// because the item ledger's denominator counts these lemmas.
+//
+// No new adjective lemma is introduced here. DATIVE_ADJECTIVE_KEYS above is a
+// frozen snapshot taken at module-load time, and useDativeLedger's
+// ledgerSummary() compares its live Object.keys(DATIVE_ADJECTIVES).length
+// against that frozen array (tests/composables/useDativeLedger.test.ts) —
+// so mutating DATIVE_ADJECTIVES down here to add a 17th key would desync the
+// two and fail that pinned test. This bank only ever reuses the 16 keys
+// phase 1 already committed.
+
+import type { DativeDrillLevel } from './dativeExperiencer'
+
+export interface DativeAdjectiveItem {
+  id: string
+  adjective: string         // key of DATIVE_ADJECTIVES
+  level: DativeDrillLevel
+  prompt: string            // one ___ where the dative NP/pronoun goes; ends with the (cue)
+  cue: string                // dictionary form of the person, e.g. 'ich', 'der Chef'
+  options: string[]         // exactly 2
+  answers: string[]         // exactly 1 — the dative form
+  translation: string
+  explanation: string
+}
+
+export const DATIVE_ADJECTIVE_ITEMS: DativeAdjectiveItem[] = [
+  { id: 'da-wichtig-1', adjective: 'wichtig', level: 'B1',
+    prompt: 'Deine Meinung ist ___ sehr wichtig. (ich)', cue: 'ich',
+    options: ['mir', 'mich'], answers: ['mir'],
+    translation: 'Your opinion is very important to me.',
+    explanation: 'wichtig nimmt die betroffene Person im Dativ: mir wichtig — important TO me.' },
+  { id: 'da-wichtig-2', adjective: 'wichtig', level: 'B1',
+    prompt: 'Pünktlichkeit ist ___ Chef sehr wichtig. (der Chef)', cue: 'der Chef',
+    options: ['dem', 'den'], answers: ['dem'],
+    translation: 'Punctuality is very important to the boss.',
+    explanation: 'Die Person, für die etwas wichtig ist, steht im Dativ: dem Chef.' },
+  { id: 'da-wichtig-3', adjective: 'wichtig', level: 'B1',
+    prompt: 'Ist ___ die Umwelt wichtig? (ihr)', cue: 'ihr',
+    options: ['euch', 'ihr'], answers: ['euch'],
+    translation: 'Is the environment important to you (all)?',
+    explanation: 'ihr wird im Dativ zu euch: Ist euch die Umwelt wichtig?' },
+  { id: 'da-peinlich-1', adjective: 'peinlich', level: 'B1',
+    prompt: 'Der Fehler ist ___ peinlich. (ich)', cue: 'ich',
+    options: ['mir', 'mich'], answers: ['mir'],
+    translation: 'The mistake embarrasses me.',
+    explanation: 'peinlich + Dativ: mir peinlich. Der englische Sog (embarrasses ME) zieht zum Akkusativ — widerstehen.' },
+  { id: 'da-peinlich-2', adjective: 'peinlich', level: 'B2',
+    prompt: 'Die Frage war ___ Studentin peinlich. (die Studentin)', cue: 'die Studentin',
+    options: ['der', 'die'], answers: ['der'],
+    translation: 'The question embarrassed the student.',
+    explanation: 'Die Person, der etwas peinlich ist, steht im Dativ: der Studentin.' },
+  { id: 'da-egal-1', adjective: 'egal', level: 'B1',
+    prompt: 'Das Wetter ist ___ egal. (er)', cue: 'er',
+    options: ['ihm', 'ihn'], answers: ['ihm'],
+    translation: 'He does not care about the weather.',
+    explanation: 'egal + Dativ: ihm egal — gleichgültig für ihn.' },
+  { id: 'da-egal-2', adjective: 'egal', level: 'B1',
+    prompt: 'Es ist ___ Bruder egal, was du denkst. (mein Bruder)', cue: 'mein Bruder',
+    options: ['meinem', 'meinen'], answers: ['meinem'],
+    translation: 'My brother does not care what you think.',
+    explanation: 'egal nimmt den Dativ: meinem Bruder egal.' },
+  { id: 'da-aehnlich-1', adjective: 'ähnlich', level: 'B1',
+    prompt: 'Du bist ___ Vater sehr ähnlich. (dein Vater)', cue: 'dein Vater',
+    options: ['deinem', 'deinen'], answers: ['deinem'],
+    translation: 'You are very similar to your father.',
+    explanation: 'ähnlich + Dativ: deinem Vater ähnlich — similar TO him.' },
+  { id: 'da-aehnlich-2', adjective: 'ähnlich', level: 'B1',
+    prompt: 'Der Sohn ist ___ Mutter ähnlich. (seine Mutter)', cue: 'seine Mutter',
+    options: ['seiner', 'seine'], answers: ['seiner'],
+    translation: 'The son resembles his mother.',
+    explanation: 'Die Vergleichsperson steht im Dativ: seiner Mutter.' },
+  { id: 'da-treu-1', adjective: 'treu', level: 'B2',
+    prompt: 'Der Hund bleibt ___ Besitzerin treu. (seine Besitzerin)', cue: 'seine Besitzerin',
+    options: ['seiner', 'seine'], answers: ['seiner'],
+    translation: 'The dog stays loyal to its owner.',
+    explanation: 'treu + Dativ: seiner Besitzerin treu — loyal TO her.' },
+  { id: 'da-treu-2', adjective: 'treu', level: 'B2',
+    prompt: 'Die Firma bleibt ___ Kunden treu. (die Kunden)', cue: 'die Kunden',
+    options: ['den', 'die'], answers: ['den'],
+    translation: 'The company stays loyal to its customers.',
+    explanation: 'treu + Dativ Plural: den Kunden treu bleiben.' },
+  { id: 'da-klar-1', adjective: 'klar', level: 'B1',
+    prompt: 'Die Antwort ist ___ jetzt klar. (wir)', cue: 'wir',
+    options: ['uns', 'wir'], answers: ['uns'],
+    translation: 'The answer is clear to us now.',
+    explanation: 'klar + Dativ: uns klar — clear TO us.' },
+  { id: 'da-klar-2', adjective: 'klar', level: 'B1',
+    prompt: 'Ist ___ die Lage klar? (Sie, formell)', cue: 'Sie, formell',
+    options: ['Ihnen', 'Sie'], answers: ['Ihnen'],
+    translation: 'Is the situation clear to you (formal)?',
+    explanation: 'klar + Dativ: Ihnen klar — die Höflichkeitsform bleibt groß auch im Dativ.' },
+  { id: 'da-dankbar-1', adjective: 'dankbar', level: 'B1',
+    prompt: 'Ich bin ___ Eltern sehr dankbar. (meine Eltern)', cue: 'meine Eltern',
+    options: ['meinen', 'meine'], answers: ['meinen'],
+    translation: 'I am very grateful to my parents.',
+    explanation: 'dankbar + Dativ Plural: meinen Eltern dankbar.' },
+  { id: 'da-dankbar-2', adjective: 'dankbar', level: 'B1',
+    prompt: 'Wir sind ___ für die Hilfe dankbar. (ihr)', cue: 'ihr',
+    options: ['euch', 'ihr'], answers: ['euch'],
+    translation: 'We are grateful to you (all) for the help.',
+    explanation: 'Die Person steht im Dativ (euch), die Sache hinter für.' },
+  { id: 'da-bekannt-1', adjective: 'bekannt', level: 'B1',
+    prompt: 'Diese Geschichte ist ___ bekannt. (sie, Plural)', cue: 'sie, Plural',
+    options: ['ihnen', 'sie'], answers: ['ihnen'],
+    translation: 'This story is known to them.',
+    explanation: 'bekannt + Dativ: ihnen bekannt — known TO them.' },
+  { id: 'da-bekannt-2', adjective: 'bekannt', level: 'B1',
+    prompt: 'Diese Telefonnummer ist ___ Lehrerin bekannt. (die Lehrerin)', cue: 'die Lehrerin',
+    options: ['der', 'die'], answers: ['der'],
+    translation: 'This phone number is known to the teacher.',
+    explanation: 'Wem etwas bekannt ist → Dativ: der Lehrerin.' },
+  { id: 'da-fremd-1', adjective: 'fremd', level: 'B2',
+    prompt: 'Die Stadt ist ___ noch fremd. (ich)', cue: 'ich',
+    options: ['mir', 'mich'], answers: ['mir'],
+    translation: 'The city is still unfamiliar to me.',
+    explanation: 'fremd + Dativ: mir fremd — foreign TO me.' },
+  { id: 'da-recht-1', adjective: 'recht', level: 'B2',
+    prompt: 'Der Termin ist ___ recht. (du)', cue: 'du',
+    options: ['dir', 'dich'], answers: ['dir'],
+    translation: 'The date suits you fine.',
+    explanation: 'recht sein + Dativ: dir recht — fine BY you.' },
+  { id: 'da-leid-1', adjective: 'leid', level: 'A2',
+    prompt: 'Es tut ___ wirklich leid. (ich)', cue: 'ich',
+    options: ['mir', 'mich'], answers: ['mir'],
+    translation: 'I am really sorry.',
+    explanation: 'leidtun nimmt die Person im Dativ: Es tut MIR leid, nie *mich.' },
+  { id: 'da-leid-2', adjective: 'leid', level: 'A2',
+    prompt: 'Tut es ___ wirklich leid, dass du gehst? (du)', cue: 'du',
+    options: ['dir', 'dich'], answers: ['dir'],
+    translation: 'Are you really sorry that you are leaving?',
+    explanation: 'leidtun bleibt fix mit tun: Tut es DIR leid — nie *dich, und niemals *du bist leid (kein sein-Muster).' },
+  { id: 'da-kalt-1', adjective: 'kalt', level: 'A2',
+    prompt: '___ ist kalt — mach bitte das Fenster zu. (ich)', cue: 'ich',
+    options: ['Mir', 'Mich'], answers: ['Mir'],
+    translation: 'I am cold — please close the window.',
+    explanation: 'Befindens-Dativ: Mir ist kalt. *Ich bin kalt beschreibt den Charakter, nicht das Frieren.' },
+  { id: 'da-warm-1', adjective: 'warm', level: 'A2',
+    prompt: 'Ist ___ zu warm hier? (du)', cue: 'du',
+    options: ['dir', 'dich'], answers: ['dir'],
+    translation: 'Are you too warm in here?',
+    explanation: 'Befindens-Dativ: Ist dir zu warm?' },
+  { id: 'da-schlecht-1', adjective: 'schlecht', level: 'A2',
+    prompt: '___ ist schlecht — ich brauche frische Luft. (ich)', cue: 'ich',
+    options: ['Mir', 'Mich'], answers: ['Mir'],
+    translation: 'I feel sick — I need fresh air.',
+    explanation: 'Befindens-Dativ: Mir ist schlecht (Übelkeit), nicht *Ich bin schlecht.' },
+  { id: 'da-boese-1', adjective: 'böse', level: 'B2',
+    prompt: 'Bist du ___ noch böse? (ich)', cue: 'ich',
+    options: ['mir', 'mich'], answers: ['mir'],
+    translation: 'Are you still mad at me?',
+    explanation: 'böse sein + Dativ: mir böse.' },
+  { id: 'da-uebel-1', adjective: 'übel', level: 'B1',
+    prompt: 'Nach dem fettigen Essen ist ___ übel. (er)', cue: 'er',
+    options: ['ihm', 'ihn'], answers: ['ihm'],
+    translation: 'He feels queasy after the greasy food.',
+    explanation: 'Befindens-Dativ: ihm ist übel.' },
+]

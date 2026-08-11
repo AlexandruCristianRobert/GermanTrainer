@@ -2,6 +2,7 @@
 // drills (ADR-0007 family). No Vue/DOM — runners own their own ref state,
 // this module owns the pure layer: filter → sample → build → grade.
 
+import { computed, ref } from 'vue'
 import { shuffle } from '../data/pool'
 import { checkText } from './drillGrading'
 import { DATIVE_VERBS, type DativeVerbEntry } from '../data/dativeVerbs'
@@ -87,4 +88,55 @@ export function buildTrapCards(items: readonly TrapItem[]): DativeCard[] {
     verb: i.verb,
     explanation: DATIVE_VERBS[i.verb].coreIdeaExplanation,
   }))
+}
+
+// ─── Phase 3+: shared question engine for the deterministic Dativ drills ───
+// Mirrors useDirectionDrill's state machine. `ledgerKey` names the gt:dativeLedger
+// item this card is an encounter of (a dative verb or adjective lemma) — or null
+// for the rule-driven drills (T7/T8/T10/T12/T13), which are band-tracked only.
+
+export interface DativeQuizCard {
+  key: string
+  prompt: string
+  answers: string[]        // [0] canonical; the rest accepted alternatives (type mode)
+  options: string[]        // pick-mode buttons; [] in type-only drills
+  translation: string
+  note: string | null      // teaching line revealed after grading
+  ledgerKey: string | null
+  sourceIndex: number      // index into the sampled source array (retry rebuild)
+  picked: string | null
+  typed: string | null
+  isCorrect: boolean | null
+}
+
+export function useDativeQuiz(cards: DativeQuizCard[]) {
+  const questions = ref<DativeQuizCard[]>(cards)
+  const currentIndex = ref(0)
+  const current = computed(() => questions.value[currentIndex.value] ?? null)
+  const finished = computed(() => currentIndex.value >= questions.value.length)
+  const score = computed(() => questions.value.filter(q => q.isCorrect === true).length)
+  const total = computed(() => questions.value.length)
+  const wrongIndexes = computed(() =>
+    questions.value.filter(q => q.isCorrect === false).map(q => q.sourceIndex))
+
+  function pickOption(option: string) {
+    const q = questions.value[currentIndex.value]
+    if (!q || q.isCorrect !== null) return
+    q.picked = option
+    q.isCorrect = q.answers.includes(option)
+  }
+
+  function submitText(input: string) {
+    const q = questions.value[currentIndex.value]
+    if (!q || q.isCorrect !== null) return
+    const cleaned = input.replace(/[.!?]+\s*$/, '')
+    q.typed = input
+    q.isCorrect = gradeDativeAnswer(cleaned, q.answers)
+  }
+
+  function advance() {
+    if (currentIndex.value < questions.value.length) currentIndex.value++
+  }
+
+  return { questions, currentIndex, current, finished, pickOption, submitText, advance, score, total, wrongIndexes }
 }

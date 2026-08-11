@@ -167,6 +167,8 @@ export interface QuizHistoryMeta {
   types?: string[]
   cases?: string[]
   roles?: string[]   // Fixed prepositions drill: collocation word types (verb/adjective/noun)
+  verbs?: string[]        // Dativ drills: drilled dative-verb filter (T5)
+  adjectives?: string[]   // Dativ adjective drill (T9): adjective lemma filter
   tenses?: string[]
   verbDirection?: 'de-en' | 'en-de'
   /** Verb translation EN→DE Variante; absent on DE→EN and on runs before it existed (= bedeutungsfeld). */
