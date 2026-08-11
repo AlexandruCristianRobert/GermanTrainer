@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.19.00'
+export const APP_VERSION = '1.19.01'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.19.01', date: '2026-08-11', kind: 'fix',
+    title: 'Dativ · Enter-Taste und mehr Sätze',
+    notes: [
+      '<strong>Die Enter-Taste verschluckt keine Karte mehr.</strong> In <em>IV · Produktion</em> sprang ein Enter zur nächsten Karte — und beim <em>Loslassen</em> derselben Taste wurde die frische Karte sofort leer abgeschickt. Ursache: das Weiterblättern hängt am Tastendruck, das Abschicken hing am Loslassen, und dazwischen wechselt der Fokus vom Knopf zurück ins Eingabefeld. Beide Hälften eines Tastendrucks gehören jetzt zum selben Element.',
+      '<strong>Enter auf einem leeren Feld tut gar nichts mehr.</strong> Wer nichts eingetippt hat, verliert die Karte nicht durch einen versehentlichen Tastendruck. Wer die Lösung sehen will, klickt bewusst auf <em>Submit</em> — dieser Weg bleibt unverändert.',
+      '<strong>Deutlich mehr Sätze in den Kapiteln I bis IV.</strong> <em>Verb → Dativobjekt</em> 34 → 60 Sätze und deckt jetzt <em>alle</em> 44 Dativverben ab (zehn hatten vorher keinen einzigen Satz: <em>misslingen, auffallen, passieren, leidtun, guttun, entgehen, zusehen, zuschauen, beistehen, unterliegen</em>). <em>Fallen-Karten</em> 22 → 45 und deckt alle 23 Verben mit englischem Sog ab. <em>Wer ist Subjekt?</em> 25 → 52, <em>Produktion</em> 22 → 45 mit fünf Sätzen pro Verb. Bei <em>Dativ oder Akkusativ?</em> gibt es 16 neue Akkusativ-Verben zum Gegenhalten (20 → 36).'
+    ]
+  },
   {
     version: '1.19.00', date: '2026-08-11', kind: 'module',
     title: 'Dativ · Kapitel XIII',
