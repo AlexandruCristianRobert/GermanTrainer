@@ -14,7 +14,13 @@ vi.mock('../../../src/composables/useNouns', () => ({
     sampleByGroups: async () => [
       { id: 1, german: 'Küche', gender: 'die', english: 'kitchen', group: 'House', createdAt: 0 },
       { id: 2, german: 'Bericht', gender: 'der', english: 'report', group: 'Office', createdAt: 0 }
-    ]
+    ],
+    // Resolves every requested word, so a Domain always has enough nouns to
+    // clear the per-card empty-pool guard.
+    byGermanList: async (words: readonly string[]) => words.map((german, i) => ({
+      id: 100 + i, german, gender: 'der', english: german.toLowerCase(),
+      group: 'Programming', createdAt: 0
+    }))
   })
 }))
 vi.mock('../../../src/composables/useSettings', async () => {
@@ -100,5 +106,98 @@ describe('SentenceSetup', () => {
     }
     const start = wrapper.findAll('button').find(b => b.text().startsWith('Start ·'))!
     expect(start.attributes('disabled')).toBeDefined()
+  })
+})
+
+describe('Fachgebiet', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    sessionStorage.clear()
+    canUseAiRef.value = true
+  })
+
+  // Category blocks are identified by their .sna-name text ('Verben',
+  // 'Nomen', ...); their Niveau/Typ/Rektion/Themen chips live inside a
+  // collapsible "Filter" panel (closed by default) that must be opened
+  // before those chips are in the DOM.
+  function findBlock(wrapper: ReturnType<typeof mount>, name: string) {
+    return wrapper.findAll('.sna-block').find(b => b.find('.sna-name').text().includes(name))!
+  }
+  async function openFilter(wrapper: ReturnType<typeof mount>, blockName: string) {
+    await findBlock(wrapper, blockName).find('.sna-flt').trigger('click')
+  }
+  function findField(wrapper: ReturnType<typeof mount>, label: string) {
+    return wrapper.findAll('.field').find(f => f.find('.field-label').text() === label)!
+  }
+
+  it('shows the block, and with no Domain the Themen chips stay live', async () => {
+    const { wrapper } = await mountSetup()
+    expect(wrapper.text()).toContain('Fachgebiet')
+    await openFilter(wrapper, 'Nomen')
+    const office = wrapper.findAll('button.chip').find(b => b.text().startsWith('Office'))!
+    expect(office.attributes('disabled')).toBeUndefined()
+  })
+
+  it('selecting a Domain disables the Themen chips and explains the verb pool', async () => {
+    const { wrapper } = await mountSetup()
+    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await flushPromises()
+    await openFilter(wrapper, 'Nomen')
+    expect(wrapper.text()).toContain('Fachgebiet aktiv')
+    const office = wrapper.findAll('button.chip').find(b => b.text().startsWith('Office'))!
+    expect(office.attributes('disabled')).toBeDefined()
+  })
+
+  it('stashes the selected Domains and stamps every card with one', async () => {
+    const { wrapper } = await mountSetup()
+    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await flushPromises()
+    await wrapper.find('button.btn-accent').trigger('click')
+    await flushPromises()
+    const stash = JSON.parse(sessionStorage.getItem('gt:lastPackedSentenceQuiz')!)
+    expect(stash.meta.domains).toEqual(['docker'])
+    for (const spec of stash.specs) expect(spec.domain.id).toBe('docker')
+  })
+
+  it('an emptied Niveau cannot block Start while a Fachgebiet is active — but does without one', async () => {
+    // Baseline (no Fachgebiet): emptying Niveau leaves the filtered verb pool
+    // genuinely empty, so Start must stay disabled and the alert must explain
+    // why. Without this half, the fix below could be a blanket removal of
+    // the guard instead of a Fachgebiet-scoped one.
+    const { wrapper: plain } = await mountSetup()
+    await openFilter(plain, 'Verben')
+    await findField(plain, 'Niveau').findAll('button').find(b => b.text() === 'None')!.trigger('click')
+    const plainStart = plain.findAll('button').find(b => b.text().startsWith('Start ·'))!
+    expect(plainStart.attributes('disabled')).toBeDefined()
+    expect(plain.text()).toContain('kein Verb passt zu den Filtern')
+
+    // With a Fachgebiet active, the verb pool is the whole (non-empty) list
+    // regardless of Niveau/Typ/Rektion, so Start must stay enabled and the
+    // empty-pool alert must be absent.
+    const { wrapper } = await mountSetup()
+    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await flushPromises()
+    await openFilter(wrapper, 'Verben')
+    await findField(wrapper, 'Niveau').findAll('button').find(b => b.text() === 'None')!.trigger('click')
+    const start = wrapper.findAll('button').find(b => b.text().startsWith('Start ·'))!
+    expect(start.attributes('disabled')).toBeUndefined()
+    expect(wrapper.text()).not.toContain('kein Verb passt zu den Filtern')
+  })
+
+  it('verbSummary explains the unrestricted pool while a Fachgebiet is active, and is unchanged otherwise', async () => {
+    const { wrapper: plain } = await mountSetup()
+    const plainSummary = findBlock(plain, 'Verben').find('.sna-sum-t').text()
+    expect(plainSummary).toContain('Typen')
+    expect(plainSummary).toContain('Rektion')
+    expect(plainSummary).not.toContain('Fachgebiet aktiv')
+
+    const { wrapper } = await mountSetup()
+    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await flushPromises()
+    const summary = findBlock(wrapper, 'Verben').find('.sna-sum-t').text()
+    expect(summary).not.toContain('Typen')
+    expect(summary).not.toContain('Rektion')
+    expect(summary).toContain('Fachgebiet aktiv')
+    expect(summary).toMatch(/\d+ Verben im Pool/)
   })
 })
