@@ -234,6 +234,18 @@ export const VERB_TIPS: Record<string, string> = {
   "vorhaben": "To have something in mind to do.",
   "zerstören": "To break something completely.",
   "zugeben": "To openly acknowledge the truth.",
+  // Task 2 — dative-module pool expansion (B1)
+  "widersprechen": "To voice the opposite of what someone just said.",
+  "ähneln": "To look or be much like someone.",
+  "genügen": "The amount is sufficient; no more is needed.",
+  "gehorchen": "To do exactly what one is told.",
+  "nützen": "It brings someone a real advantage.",
+  "auffallen": "Something catches your eye immediately.",
+  "leidtun": "The fixed phrase for regret: es tut mir …",
+  "guttun": "A rest or a walk has a healing effect on someone.",
+  "zusehen": "To look on while others act.",
+  "zuschauen": "To follow a game or performance with your eyes.",
+  "sich nähern": "To come closer and closer to something.",
 
   // ─── B2 ───
   "beauftragen": "To give someone a task or responsibility.",
@@ -405,6 +417,16 @@ export const VERB_TIPS: Record<string, string> = {
   "vornehmen": "To set about completing a task.",
   "wagen": "To be bold and take a risk.",
   "werten": "To assess and assign a judgment.",
+  // Task 3 — dative-module pool expansion (B2.1)
+  "befehlen": "A general tells the troops what to do.",
+  "imponieren": "Someone's feat leaves you in quiet awe.",
+  "misstrauen": "To withhold your confidence from someone.",
+  "beitreten": "To become a member of a club or party.",
+  "ausweichen": "To sidestep an obstacle or an awkward question.",
+  "beistehen": "To stay at someone's side through their trouble.",
+  "misslingen": "The cake collapses; the attempt comes to nothing.",
+  "unterliegen": "To lose the contest; also to be bound by rules.",
+  "entgehen": "A detail slips past you unnoticed.",
 
   // ─── B2.2 ───
   "lassen": "To permit something to happen, or to stop holding on.",

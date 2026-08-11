@@ -2,7 +2,9 @@ import { describe, test, expect } from 'vitest'
 import { DATIVE_ADJECTIVES, DATIVE_ADJECTIVE_KEYS } from '../../src/data/dativeAdjectives'
 
 const entries = Object.entries(DATIVE_ADJECTIVES)
-const DATIVE_MARKER = /\b(mir|dir|ihm|ihr|ihnen|uns|euch|dem|einem|einer|seinem|seiner|ihrem|ihrer|meinem|meiner|deinem|deiner|unserem|eurem)\b/
+// Case-insensitive: the impersonal body-state examples are subjectless, so the
+// dative pronoun opens the sentence and is capitalized ("Mir ist kalt.").
+const DATIVE_MARKER = /\b(mir|dir|ihm|ihr|ihnen|uns|euch|dem|einem|einer|seinem|seiner|ihrem|ihrer|meinem|meiner|deinem|deiner|unserem|eurem)\b/i
 
 describe('DATIVE_ADJECTIVES invariants', () => {
   test('floors: ≥12 plain adjectives plus exactly the four impersonal body states', () => {
