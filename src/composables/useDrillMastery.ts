@@ -74,6 +74,25 @@ const DAC_TYPE_TO_CODE: Partial<Record<QuizHistoryType, string>> = {
   'dac-relative': 'T20',
 }
 
+// Dativ: thirteen distinct run types, one card each (T1–T13). All thirteen
+// register in phase 2 even though only T1–T3 have runners yet — a type that
+// never occurs simply never produces a key.
+export const DAT_TYPE_TO_CODE: Partial<Record<QuizHistoryType, string>> = {
+  'dat-case': 'T1',
+  'dat-form': 'T2',
+  'dat-trap': 'T3',
+  'dat-subject': 'T4',
+  'dat-experiencer': 'T5',
+  'dat-twin': 'T6',
+  'dat-ditrans': 'T7',
+  'dat-object-order': 'T8',
+  'dat-adjective': 'T9',
+  'dat-free': 'T10',
+  'dat-sentence': 'T11',
+  'dat-passive': 'T12',
+  'dat-reflexive': 'T13',
+}
+
 /**
  * Maps one history run to its catalogue card key ('dw-T6', 'dac-T14', …), or
  * `null` if the run belongs to neither module. `dac-sentence` is the one type
@@ -90,6 +109,8 @@ export function drillKey(entry: QuizHistoryEntry): string | null {
   if (dw) return `dw-${dw}`
   const dac = DAC_TYPE_TO_CODE[entry.type]
   if (dac) return `dac-${dac}`
+  const dat = DAT_TYPE_TO_CODE[entry.type]
+  if (dat) return `dat-${dat}`
   return null
 }
 

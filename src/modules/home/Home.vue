@@ -108,6 +108,14 @@ const modules: ModuleCard[] = [
     title: 'Sentence',
     desc: 'The packed card: verbs, nouns, prepositions, da-compounds and connectors in one AI-written sentence — you pick how many of each.',
     meta: 'AI-generated · budget of 8 items per card'
+  },
+  {
+    numeral: 'XIII',
+    route: 'dative',
+    de: 'Dativ',
+    title: 'Dative',
+    desc: 'helfen, danken, gefallen — the verbs and adjectives that mark their person dative, the English pull that breaks them, and the inverted sentences.',
+    meta: '13 drills · cheatsheet · item ledger'
   }
 ]
 
@@ -125,7 +133,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/XII</div>
+        <div class="breadcrumb">Frontispiece · I/XIII</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,

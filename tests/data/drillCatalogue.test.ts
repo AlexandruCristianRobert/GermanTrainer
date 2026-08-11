@@ -1,9 +1,10 @@
 import { describe, test, expect } from 'vitest'
-import { DW_FAMILIES, DAC_PHASES } from '../../src/data/drillCatalogue'
+import { DW_FAMILIES, DAC_PHASES, DAT_FAMILIES } from '../../src/data/drillCatalogue'
 import { router } from '../../src/router'
 
 const dwCards = DW_FAMILIES.flatMap(f => f.cards)
 const dacCards = DAC_PHASES.flatMap(f => f.cards)
+const datCards = DAT_FAMILIES.flatMap(f => f.cards)
 const routeNames = new Set(router.getRoutes().map(r => r.name))
 
 describe('drillCatalogue', () => {
@@ -47,7 +48,7 @@ describe('drillCatalogue', () => {
   })
 
   test('every family has a stable kebab-case id', () => {
-    const bad = [...DW_FAMILIES, ...DAC_PHASES].filter(f => !/^[a-z]+$/.test(f.id))
+    const bad = [...DW_FAMILIES, ...DAC_PHASES, ...DAT_FAMILIES].filter(f => !/^[a-z]+$/.test(f.id))
     expect(bad.map(f => f.id)).toEqual([])
   })
 
@@ -62,5 +63,41 @@ describe('drillCatalogue', () => {
     const aiCodes = (cards: typeof dwCards) => cards.filter(c => c.ai).map(c => c.code)
     expect(aiCodes(dwCards).sort()).toEqual(['T6', 'T7'])
     expect(aiCodes(dacCards).sort()).toEqual(['T14', 'T15', 'T17'])
+  })
+
+  test('Dativ: 11 families, 14 cards (T1–T13 + A)', () => {
+    expect(DAT_FAMILIES).toHaveLength(11)
+    expect(datCards).toHaveLength(14)
+  })
+
+  test('every DAT card code is unique and every route sits under the dative- head', () => {
+    const codes = datCards.map(c => c.code)
+    expect(new Set(codes).size).toBe(codes.length)
+    const bad = datCards.filter(c => !/^dative-[a-z-]+$/.test(c.route))
+    expect(bad.map(c => c.code)).toEqual([])
+  })
+
+  test('DAT: T11 is the only AI card; A is level Ref', () => {
+    expect(datCards.filter(c => c.ai).map(c => c.code)).toEqual(['T11'])
+    expect(datCards.find(c => c.code === 'A')!.level).toBe('Ref')
+  })
+
+  // FULL-LADDER ROUTE GATE. DativeHome gates each card on
+  // router.hasRoute(card.route), so a catalogue route with no matching router
+  // entry does not throw — it silently renders a permanently disabled "Bald"
+  // row. That failure is invisible in the browser and invisible to typecheck,
+  // which is exactly how two mismatches (dative-ditrans vs dative-ditransitive,
+  // dative-adjective vs dative-adjectives) survived until this gate existed.
+  test('FULL-LADDER: every DAT card route resolves in the router', () => {
+    const bad = datCards.filter(c => !routeNames.has(c.route))
+    expect(bad.map(c => `${c.code}:${c.route}`)).toEqual([])
+  })
+
+  test('FULL-LADDER: every DAT drill has a -run route; the Ref card has none', () => {
+    const drills = datCards.filter(c => c.level !== 'Ref')
+    const missing = drills.filter(c => !routeNames.has(`${c.route}-run`))
+    expect(missing.map(c => `${c.code}:${c.route}-run`)).toEqual([])
+    const ref = datCards.find(c => c.code === 'A')!
+    expect(routeNames.has(`${ref.route}-run`)).toBe(false)
   })
 })

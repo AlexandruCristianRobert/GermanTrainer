@@ -109,6 +109,13 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     ]
   },
   {
+    meaning: 'advise',
+    senses: [
+      { cue: 'a bank or a lawyer walking you through your options', verbs: ['beraten'] },
+      { cue: 'urging a friend to take one course of action', verbs: ['raten'] }
+    ]
+  },
+  {
     meaning: 'agree',
     senses: [
       { cue: 'saying yes to what someone has proposed', verbs: ['zustimmen'] },
@@ -218,7 +225,7 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
   {
     meaning: 'be enough',
     senses: [
-      { cue: 'having just enough of something to get by', verbs: ['ausreichen', 'reichen'] }
+      { cue: 'having just enough of something to get by', verbs: ['ausreichen', 'reichen', 'genügen'] }
     ]
   },
   {
@@ -538,6 +545,13 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     ]
   },
   {
+    meaning: 'evade',
+    senses: [
+      { cue: 'getting around a rule or an obstacle', verbs: ['umgehen'] },
+      { cue: 'sidestepping a punch or an awkward question', verbs: ['ausweichen'] }
+    ]
+  },
+  {
     meaning: 'evaluate',
     senses: [
       { cue: 'sizing up a situation or a risk', verbs: ['einschätzen'] },
@@ -609,7 +623,8 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     meaning: 'fail',
     senses: [
       { cue: 'the power or a machine breaking down', verbs: ['ausfallen'] },
-      { cue: 'a plan or a relationship falling apart', verbs: ['scheitern'] }
+      { cue: 'a plan or a relationship falling apart', verbs: ['scheitern'] },
+      { cue: 'a cake or an attempt turning out badly', verbs: ['misslingen'] }
     ]
   },
   {
@@ -624,6 +639,12 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     senses: [
       { cue: 'walking behind someone or obeying instructions', verbs: ['folgen'] },
       { cue: 'tracking a suspect or following the news closely', verbs: ['verfolgen'] }
+    ]
+  },
+  {
+    meaning: 'forgive',
+    senses: [
+      { cue: 'letting go of what someone did to you', verbs: ['vergeben', 'verzeihen'] }
     ]
   },
   {
@@ -699,7 +720,7 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
   {
     meaning: 'happen',
     senses: [
-      { cue: 'an accident or a miracle taking place', verbs: ['geschehen'] },
+      { cue: 'an accident or a miracle taking place', verbs: ['geschehen', 'passieren'] },
       { cue: 'asking what is going on here right now', verbs: ['vorgehen'] }
     ]
   },
@@ -722,6 +743,13 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     senses: [
       { cue: 'putting on an event or a party', verbs: ['veranstalten'] },
       { cue: 'keeping something in your hands', verbs: ['halten'] }
+    ]
+  },
+  {
+    meaning: 'hurt',
+    senses: [
+      { cue: 'causing someone a wound or an injury', verbs: ['verletzen'] },
+      { cue: 'a body part aching and throbbing', verbs: ['wehtun'] }
     ]
   },
   {
@@ -790,7 +818,8 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     meaning: 'join',
     senses: [
       { cue: 'attaching yourself to a group that is already going', verbs: ['anschließen'] },
-      { cue: 'an extra person or factor being added to the rest', verbs: ['hinzukommen'] }
+      { cue: 'an extra person or factor being added to the rest', verbs: ['hinzukommen'] },
+      { cue: 'formally becoming a member of a club or party', verbs: ['beitreten'] }
     ]
   },
   {
@@ -840,6 +869,13 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     ]
   },
   {
+    meaning: 'listen',
+    senses: [
+      { cue: 'music or the radio playing in your ears', verbs: ['hören'] },
+      { cue: 'giving a speaker your full attention', verbs: ['zuhören'] }
+    ]
+  },
+  {
     meaning: 'live',
     senses: [
       { cue: 'being alive and leading your life', verbs: ['leben'] },
@@ -885,7 +921,7 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
   {
     meaning: 'meet',
     senses: [
-      { cue: 'running into a friend in town', verbs: ['treffen'] },
+      { cue: 'running into a friend in town', verbs: ['treffen', 'begegnen'] },
       { cue: 'two people meeting up by arrangement', verbs: ['sich treffen', 'treffen'] }
     ]
   },
@@ -933,7 +969,7 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
   {
     meaning: 'occur',
     senses: [
-      { cue: 'an accident happening out of the blue', verbs: ['geschehen'] },
+      { cue: 'an accident happening out of the blue', verbs: ['geschehen', 'passieren'] },
       { cue: 'payment following as the next step in a process', verbs: ['erfolgen'] },
       { cue: 'symptoms or faults showing up', verbs: ['auftreten'] }
     ]
@@ -956,6 +992,13 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     senses: [
       { cue: 'running a shop or a power plant', verbs: ['betreiben'] },
       { cue: 'working the controls of a machine', verbs: ['bedienen'] }
+    ]
+  },
+  {
+    meaning: 'order',
+    senses: [
+      { cue: 'asking the waiter to bring food or booking goods', verbs: ['bestellen'] },
+      { cue: 'a general or a boss demanding something be done', verbs: ['befehlen'] }
     ]
   },
   {
@@ -1303,6 +1346,13 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     ]
   },
   {
+    meaning: 'stand by',
+    senses: [
+      { cue: 'waiting ready to be used or deployed', verbs: ['bereitstehen'] },
+      { cue: 'staying at the side of someone in trouble', verbs: ['beistehen'] }
+    ]
+  },
+  {
     meaning: 'start',
     senses: [
       { cue: 'beginning a task', verbs: ['anfangen'] },
@@ -1460,6 +1510,12 @@ export const VERB_SENSES: readonly MeaningSenses[] = [
     meaning: 'walk',
     senses: [
       { cue: 'going somewhere on foot instead of driving', verbs: ['laufen', 'gehen'] }
+    ]
+  },
+  {
+    meaning: 'watch',
+    senses: [
+      { cue: 'looking on while others do something', verbs: ['zusehen', 'zuschauen'] }
     ]
   },
   {

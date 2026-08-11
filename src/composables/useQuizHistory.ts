@@ -62,6 +62,19 @@ export type QuizHistoryType =
   | 'sprechen-teil2'
   | 'sprechen-drill'
   | 'sentence-packed'
+  | 'dat-case'
+  | 'dat-form'
+  | 'dat-trap'
+  | 'dat-subject'
+  | 'dat-experiencer'
+  | 'dat-twin'
+  | 'dat-ditrans'
+  | 'dat-object-order'
+  | 'dat-adjective'
+  | 'dat-free'
+  | 'dat-sentence'
+  | 'dat-passive'
+  | 'dat-reflexive'
 
 export type PrepErrorTag = 'preposition' | 'case' | 'noun' | 'typo'
 
@@ -132,6 +145,21 @@ export interface DwDrillItem {
   tags?: DwErrorTag[]    // why wrong; absent when correct
 }
 
+/**
+ * A Dativ-module error category the AI grader may assign (see CONTEXT.md,
+ * [Dative error tag]). 'case', 'subject', 'twin' and 'object-order' are the
+ * module's own; the other four mirror the verb-sentence tags.
+ */
+export type DatErrorTag = 'case' | 'subject' | 'twin' | 'object-order' | 'conjugation' | 'word-order' | 'noun' | 'typo'
+
+/** One recorded answer in a dat-sentence run (T11, EN→DE only). */
+export interface DatDrillItem {
+  verb?: string          // the drilled dative verb (DATIVE_VERBS key)
+  family?: string        // its semantic family, denormalized for display
+  correct: boolean
+  tags?: DatErrorTag[]   // why wrong; absent when correct
+}
+
 /** A connector error category the packed-sentence grader may assign. */
 export type ConnErrorTag = 'connector' | 'word-order' | 'typo'
 
@@ -147,12 +175,15 @@ export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation' | 'pick' | 'type'
   preps?: string[]   // Da-compound drills: preposition filter
   pairs?: string[]   // Direction Words compound drill: adverb-pair element filter
+  families?: string[] // Dativ drills: semantic-family filter (recipient/experiencer/co-agent)
   kinds?: string[]   // Da-compound Korrelat drill (T11): status filter (obligatory/optional/excluded)
   groups?: string[]
   levels?: string[]
   types?: string[]
   cases?: string[]
   roles?: string[]   // Fixed prepositions drill: collocation word types (verb/adjective/noun)
+  verbs?: string[]        // Dativ drills: drilled dative-verb filter (T5)
+  adjectives?: string[]   // Dativ adjective drill (T9): adjective lemma filter
   tenses?: string[]
   verbDirection?: 'de-en' | 'en-de'
   /** Verb translation EN→DE Variante; absent on DE→EN and on runs before it existed (= bedeutungsfeld). */
@@ -213,6 +244,11 @@ export interface QuizHistoryMeta {
   dwAnswerPairs?: string[]
   dwAnswerGroups?: string[]
   dwAnswerItems?: DwDrillItem[]
+
+  // Dativ sentence-translation (AI) — T11, EN→DE, AI-graded
+  datSentenceFamilies?: string[]
+  datSentenceFocus?: 'all' | 'weak'
+  datSentenceItems?: DatDrillItem[]
 
   declLevels?: string[]
   declCases?: string[]

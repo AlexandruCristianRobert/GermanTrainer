@@ -109,6 +109,44 @@ export const routes: RouteRecordRaw[] = [
   { path: '/direction-words/lexical/run', name: 'directionwords-lexical-run', component: () => import('./modules/direction-words/LexicalRunner.vue') },
   { path: '/direction-words/idioms', name: 'directionwords-idioms', component: () => import('./modules/direction-words/IdiomSetup.vue') },
   { path: '/direction-words/idioms/run', name: 'directionwords-idioms-run', component: () => import('./modules/direction-words/IdiomRunner.vue') },
+  // Dativ (Kapitel XIII). Names are 'dative' / 'dative-*' so NavShell's
+  // name.split('-')[0] tab derivation resolves them all to the hub, the same
+  // reason the Direction Words names above are hyphen-free. DativeHome gates
+  // each catalogue card on router.hasRoute(), so families whose drills land in
+  // later phases render as disabled 'Bald' rows rather than dead links.
+  { path: '/dative', name: 'dative', component: () => import('./modules/dative/DativeHome.vue') },
+  { path: '/dative/case', name: 'dative-case', component: () => import('./modules/dative/CaseSetup.vue') },
+  { path: '/dative/case/run', name: 'dative-case-run', component: () => import('./modules/dative/CaseRunner.vue') },
+  { path: '/dative/form', name: 'dative-form', component: () => import('./modules/dative/FormSetup.vue') },
+  { path: '/dative/form/run', name: 'dative-form-run', component: () => import('./modules/dative/FormRunner.vue') },
+  { path: '/dative/trap', name: 'dative-trap', component: () => import('./modules/dative/TrapSetup.vue') },
+  { path: '/dative/trap/run', name: 'dative-trap-run', component: () => import('./modules/dative/TrapRunner.vue') },
+  // Families IV-VII. Route names must match DAT_FAMILIES in drillCatalogue.ts
+  // exactly - the hub gates each card on router.hasRoute(card.route), so a
+  // mismatch leaves the card permanently disabled rather than erroring.
+  { path: '/dative/subject', name: 'dative-subject', component: () => import('./modules/dative/SubjectSetup.vue') },
+  { path: '/dative/subject/run', name: 'dative-subject-run', component: () => import('./modules/dative/SubjectRunner.vue') },
+  { path: '/dative/experiencer', name: 'dative-experiencer', component: () => import('./modules/dative/ExperiencerSetup.vue') },
+  { path: '/dative/experiencer/run', name: 'dative-experiencer-run', component: () => import('./modules/dative/ExperiencerRunner.vue') },
+  { path: '/dative/twins', name: 'dative-twins', component: () => import('./modules/dative/TwinSetup.vue') },
+  { path: '/dative/twins/run', name: 'dative-twins-run', component: () => import('./modules/dative/TwinRunner.vue') },
+  { path: '/dative/ditransitive', name: 'dative-ditransitive', component: () => import('./modules/dative/DitransitiveSetup.vue') },
+  { path: '/dative/ditransitive/run', name: 'dative-ditransitive-run', component: () => import('./modules/dative/DitransitiveRunner.vue') },
+  { path: '/dative/object-order', name: 'dative-object-order', component: () => import('./modules/dative/ObjectOrderSetup.vue') },
+  { path: '/dative/object-order/run', name: 'dative-object-order-run', component: () => import('./modules/dative/ObjectOrderRunner.vue') },
+  { path: '/dative/adjectives', name: 'dative-adjectives', component: () => import('./modules/dative/AdjectiveSetup.vue') },
+  { path: '/dative/adjectives/run', name: 'dative-adjectives-run', component: () => import('./modules/dative/AdjectiveRunner.vue') },
+  // Families VIII-X + the Spickzettel. dative-sentence is the module's only
+  // AI drill; dative-cheatsheet is level 'Ref' and has no -run pair.
+  { path: '/dative/free', name: 'dative-free', component: () => import('./modules/dative/FreeSetup.vue') },
+  { path: '/dative/free/run', name: 'dative-free-run', component: () => import('./modules/dative/FreeRunner.vue') },
+  { path: '/dative/sentence', name: 'dative-sentence', component: () => import('./modules/dative/DativeSentenceSetup.vue') },
+  { path: '/dative/sentence/run', name: 'dative-sentence-run', component: () => import('./modules/dative/DativeSentenceRunner.vue') },
+  { path: '/dative/passive', name: 'dative-passive', component: () => import('./modules/dative/PassiveSetup.vue') },
+  { path: '/dative/passive/run', name: 'dative-passive-run', component: () => import('./modules/dative/PassiveRunner.vue') },
+  { path: '/dative/reflexive', name: 'dative-reflexive', component: () => import('./modules/dative/ReflexiveSetup.vue') },
+  { path: '/dative/reflexive/run', name: 'dative-reflexive-run', component: () => import('./modules/dative/ReflexiveRunner.vue') },
+  { path: '/dative/cheatsheet', name: 'dative-cheatsheet', component: () => import('./modules/dative/DativeCheatsheet.vue') },
   { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
   { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
   { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },

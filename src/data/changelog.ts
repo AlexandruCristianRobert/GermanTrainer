@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.18.09'
+export const APP_VERSION = '1.19.00'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,19 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.19.00', date: '2026-08-11', kind: 'module',
+    title: 'Dativ · Kapitel XIII',
+    notes: [
+      '<strong>Ein neues Kapitel für den ganzen Dativ — dreizehn Übungen in zehn Familien, dazu ein Spickzettel.</strong> Die Leitidee: der Dativ markiert einen <em>betroffenen Menschen</em>. Viele Dativverben haben dabei ein verschlucktes Akkusativobjekt — <em>antworten</em> = [eine Antwort] geben, <em>danken</em> = [einen Dank] geben. Deshalb bleibt der Mensch im Dativ übrig. Jede verfehlte Karte erklärt genau diesen Zusammenhang, statt nur <em>falsch</em> zu sagen.',
+      '<strong>Ein Verzeichnis statt einer Prozentzahl.</strong> Anders als bei Präpositionen ist der Dativ eine <em>geschlossene</em> Liste: 44 Verben und 16 Adjektive, die man wirklich auswendig können muss. Das Kapitel führt Buch über jeden einzelnen Eintrag — <em>gesichert</em> heißt: die letzten drei Begegnungen alle richtig. Ein Fehler stuft zurück auf <em>wackelig</em>. Der Zähler vergisst nichts, auch wenn wochenlang etwas anderes geübt wird.',
+      '<strong>Der englische Sog.</strong> <em>help, thank, follow, answer, trust, congratulate</em> — im Englischen ein schlichtes Objekt, im Deutschen Dativ. Eine eigene Übung nur für diese Fallen, weil sie den größten Ertrag bringen.',
+      '<strong>Umgekehrte Verben.</strong> Bei <em>gefallen, schmecken, fehlen, gehören, passen, wehtun, einfallen, gelingen</em> ist die <em>Sache</em> das Subjekt und bestimmt die Verbform: <em>Die Schuhe gefallen mir</em> — nicht <em>gefällt</em>, und niemals <em>*Ich gefalle das Buch</em>. Zwei Übungen dafür: eine fürs Subjekt, eine fürs Selberbauen.',
+      '<strong>Zwillinge und zwei Objekte.</strong> <em>antworten</em> oder <em>beantworten</em>? <em>folgen</em> oder <em>verfolgen</em>? <em>zuhören</em> oder <em>hören</em>? Acht Paare, bei denen die Vorsilbe den Kasus umlegt. Dazu die Objektfolge: <em>Ich gebe dem Kind das Buch</em>, aber <em>Ich gebe es ihm</em> — bei zwei Pronomen kommt der Akkusativ zuerst.',
+      '<strong>Und was daraus folgt.</strong> Dativverben haben kein persönliches Passiv: <em>Mir wird geholfen</em>, nie <em>*Ich werde geholfen</em>. Der freie Dativ (<em>Wasch dir die Hände</em>) lässt sich weglassen, das Objekt eines Dativverbs nicht — daran erkennt man den Unterschied. Der reflexive Dativ kippt, sobald ein Akkusativobjekt dasteht: <em>ich wasche mich</em>, aber <em>ich wasche mir die Hände</em>. Eine KI-Übung übersetzt ganze Sätze und benennt Kasusfehler einzeln.',
+      '<strong>Der Verbpool ist um 29 Verben gewachsen</strong> — <em>danken, zuhören, gratulieren, begegnen, passieren, wehtun, raten, verzeihen, widersprechen, ähneln</em> und weitere, alle mit vollen Stammformen. Davon profitieren auch Übersetzung, Konjugation und Rektion, nicht nur das neue Kapitel. Dativ-Präpositionen und die Dativ-Endungen bleiben, wo sie hingehören: bei Präpositionen und Deklination — der Spickzettel verlinkt dorthin, statt sie zu wiederholen.'
+    ]
+  },
   {
     version: '1.18.09', date: '2026-08-10', kind: 'fix',
     title: 'Sprechen · Bewertung neu kalibriert',

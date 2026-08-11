@@ -99,7 +99,20 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'sprechen-teil1':     { label: 'Sprechen — Teil 1 Vortrag',       de: 'Sprechen · Teil 1 Vortrag',    module: 'Sprechen' },
   'sprechen-teil2':     { label: 'Sprechen — Teil 2 discussion',    de: 'Sprechen · Teil 2 Diskussion', module: 'Sprechen' },
   'sprechen-drill':     { label: 'Sprechen — Korrekturdrill',       de: 'Sprechen · Korrekturdrill',    module: 'Sprechen' },
-  'sentence-packed':    { label: 'Sentence · packed (AI)',          de: 'Satz · Gepackt (KI)',          module: 'Sentence' }
+  'sentence-packed':    { label: 'Sentence · packed (AI)',          de: 'Satz · Gepackt (KI)',          module: 'Sentence' },
+  'dat-case':         { label: 'Dative · case pick', de: 'Dativ · Dativ oder Akkusativ', module: 'Dativ' },
+  'dat-form':         { label: 'Dative · object form', de: 'Dativ · Dativobjekt', module: 'Dativ' },
+  'dat-trap':         { label: 'Dative · trap cards', de: 'Dativ · Fallen-Karten', module: 'Dativ' },
+  'dat-subject':      { label: 'Dative · who is subject', de: 'Dativ · Wer ist Subjekt', module: 'Dativ' },
+  'dat-experiencer':  { label: 'Dative · experiencer production', de: 'Dativ · Produktion', module: 'Dativ' },
+  'dat-twin':         { label: 'Dative · twin pairs', de: 'Dativ · Zwillingspaare', module: 'Dativ' },
+  'dat-ditrans':      { label: 'Dative · which object', de: 'Dativ · Welches Objekt', module: 'Dativ' },
+  'dat-object-order': { label: 'Dative · object order', de: 'Dativ · Objektfolge', module: 'Dativ' },
+  'dat-adjective':    { label: 'Dative · adjectives', de: 'Dativ · Adjektive', module: 'Dativ' },
+  'dat-free':         { label: 'Dative · free dative', de: 'Dativ · Freier Dativ', module: 'Dativ' },
+  'dat-sentence':     { label: 'Dative · sentence (AI)', de: 'Dativ · Satz (KI)', module: 'Dativ' },
+  'dat-passive':      { label: 'Dative · passive', de: 'Dativ · Passiv', module: 'Dativ' },
+  'dat-reflexive':    { label: 'Dative · reflexive', de: 'Dativ · Reflexiv', module: 'Dativ' }
 }
 
 const typeOrder: QuizHistoryType[] = [
@@ -119,6 +132,10 @@ const typeOrder: QuizHistoryType[] = [
   'dw-hinher', 'dw-compound', 'dw-question', 'dw-register', 'dw-assembly',
   'dw-sentence', 'dw-answer',
   'dw-lexical', 'dw-idiom',
+  'dat-case', 'dat-form', 'dat-trap',
+  'dat-subject', 'dat-experiencer', 'dat-twin',
+  'dat-ditrans', 'dat-object-order', 'dat-adjective',
+  'dat-free', 'dat-sentence', 'dat-passive', 'dat-reflexive',
   'prep-sentence', 'prep-remedial',
   'decl-table', 'decl-article', 'decl-adjective',
   'decl-pronoun', 'decl-case-recognition',

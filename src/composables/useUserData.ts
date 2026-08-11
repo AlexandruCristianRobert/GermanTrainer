@@ -56,7 +56,9 @@ export const USER_DATA_KEYS = [
   // lifetime per-drill mastery rollup (Direction Words / Da-Compounds)
   'gt:drillTotals',
   // lifetime Redemittel yield rollup (Sprechen)
-  'gt:sprechenRedemittel'
+  'gt:sprechenRedemittel',
+  // Dativ item ledger (ADR-0017)
+  'gt:dativeLedger'
 ] as const
 
 export type UserDataKey = (typeof USER_DATA_KEYS)[number]
@@ -89,7 +91,8 @@ const KEY_LABELS: Record<UserDataKey, { label: string; group: string }> = {
   adjectiveQuizGroups: { label: 'Adjective groups (legacy)', group: 'Quiz setup' },
   'gt:quizHistory': { label: 'Quiz history', group: 'History' },
   'gt:drillTotals': { label: 'Drill mastery totals', group: 'History' },
-  'gt:sprechenRedemittel': { label: 'Sprechen Redemittel yield', group: 'History' }
+  'gt:sprechenRedemittel': { label: 'Sprechen Redemittel yield', group: 'History' },
+  'gt:dativeLedger': { label: 'Dativ item ledger', group: 'History' }
 }
 
 export interface ExportSummaryRow {

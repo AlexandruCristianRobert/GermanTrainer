@@ -55,6 +55,8 @@ export const VERB_TIPS: Record<string, string> = {
   "fliegen": "Movement through the air.",
   "laufen": "Fast movement on foot.",
   "helfen": "To assist someone with something.",
+  // Task 1 — dative-module pool expansion (A1)
+  "danken": "To express gratitude to someone.",
   "treffen": "To encounter someone.",
   "lachen": "To make sounds of joy.",
   "weinen": "To shed tears from sadness.",
@@ -157,6 +159,16 @@ export const VERB_TIPS: Record<string, string> = {
   "sich kümmern": "To look after; to tend to someone or something.",
   "sich treffen": "To encounter each other.",
 
+  // Task 1 — dative-module pool expansion (A2)
+  "gratulieren": "Warm words on someone's birthday or success.",
+  "begegnen": "To cross paths with someone by chance.",
+  "passieren": "Events that simply take place, often to someone.",
+  "raten": "To suggest what someone should do; also to take a shot at the answer.",
+  "verzeihen": "To stop holding someone's mistake against them.",
+  "zuhören": "To give a speaker your full attention.",
+  "wehtun": "A knee or a back throbbing with pain.",
+  "einfallen": "An idea suddenly pops into your head.",
+
   // ─── B1 ───
   "sich anmelden": "To officially enroll or create an account.",
   "sich abmelden": "To officially remove oneself from a list or account.",
@@ -222,6 +234,18 @@ export const VERB_TIPS: Record<string, string> = {
   "vorhaben": "To have something in mind to do.",
   "zerstören": "To break something completely.",
   "zugeben": "To openly acknowledge the truth.",
+  // Task 2 — dative-module pool expansion (B1)
+  "widersprechen": "To voice the opposite of what someone just said.",
+  "ähneln": "To look or be much like someone.",
+  "genügen": "The amount is sufficient; no more is needed.",
+  "gehorchen": "To do exactly what one is told.",
+  "nützen": "It brings someone a real advantage.",
+  "auffallen": "Something catches your eye immediately.",
+  "leidtun": "The fixed phrase for regret: es tut mir …",
+  "guttun": "A rest or a walk has a healing effect on someone.",
+  "zusehen": "To look on while others act.",
+  "zuschauen": "To follow a game or performance with your eyes.",
+  "sich nähern": "To come closer and closer to something.",
 
   // ─── B2 ───
   "beauftragen": "To give someone a task or responsibility.",
@@ -393,6 +417,16 @@ export const VERB_TIPS: Record<string, string> = {
   "vornehmen": "To set about completing a task.",
   "wagen": "To be bold and take a risk.",
   "werten": "To assess and assign a judgment.",
+  // Task 3 — dative-module pool expansion (B2.1)
+  "befehlen": "A general tells the troops what to do.",
+  "imponieren": "Someone's feat leaves you in quiet awe.",
+  "misstrauen": "To withhold your confidence from someone.",
+  "beitreten": "To become a member of a club or party.",
+  "ausweichen": "To sidestep an obstacle or an awkward question.",
+  "beistehen": "To stay at someone's side through their trouble.",
+  "misslingen": "The cake collapses; the attempt comes to nothing.",
+  "unterliegen": "To lose the contest; also to be bound by rules.",
+  "entgehen": "A detail slips past you unnoticed.",
 
   // ─── B2.2 ───
   "lassen": "To permit something to happen, or to stop holding on.",
