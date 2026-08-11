@@ -161,6 +161,25 @@ export class GermanTrainerDb extends Dexie {
       // existing row gains a required field.
       sprechenVortraege: '&id, status, startedAt'
     })
+    this.version(12).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt',
+      sprechenDiscussions: '&id, status, startedAt',
+      sprechenCorrections: '&id, kind, createdAt, topicTitle',
+      sprechenCorrectionEvents: '&id, correctionId, at',
+      sprechenArgumentBanks: 'topicId',
+      sprechenVortraege: '&id, status, startedAt'
+    }).upgrade(async tx => {
+      // Top up the nouns the Sentence module's Fachgebiete reference
+      // (ADR-0018 — a Domain's noun list is a reference into this store, so a
+      // missing word would silently shrink the Domain). Same top-up as
+      // version(8): add missing germans, re-group where the seed changed it,
+      // leave user-added nouns untouched.
+      await topUpNounsFromSeed(tx)
+    })
   }
 }
 
