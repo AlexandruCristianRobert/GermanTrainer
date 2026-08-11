@@ -1,9 +1,11 @@
 import { describe, test, expect } from 'vitest'
 import {
-  buildPackedSpecs, buildPackedGeneratePrompt, PACKED_ANGLE_POOL, PACKED_SCENE_ANGLES, PACKED_STRUCTURAL_ANGLES,
+  buildPackedSpecs, buildPackedGeneratePrompt, generatePackedBatch,
+  PACKED_ANGLE_POOL, PACKED_SCENE_ANGLES, PACKED_STRUCTURAL_ANGLES,
   type PackedPools, type PackedCounts, type PackedDomainPool, type PackedCardSpec
 } from '../../src/composables/usePackedSentenceQuiz'
 import type { NounRef } from '../../src/composables/useSentenceQuiz'
+import type { AiClient } from '../../src/composables/useClaude'
 
 const BASE: PackedPools = {
   verbs: [
@@ -123,9 +125,18 @@ describe('buildPackedGeneratePrompt — Fachgebiete', () => {
   const variation = { angles: ['use wir'], seed: 'abc' }
 
   test('the angle pool splits into scenes and structure without losing anything', () => {
-    expect(PACKED_ANGLE_POOL).toEqual([...PACKED_SCENE_ANGLES, ...PACKED_STRUCTURAL_ANGLES])
-    expect(PACKED_SCENE_ANGLES.length).toBeGreaterThanOrEqual(6)
-    expect(PACKED_STRUCTURAL_ANGLES.length).toBeGreaterThanOrEqual(6)
+    // Pins the actual wording of the twelve original angles (pre-split) rather than
+    // just re-checking PACKED_ANGLE_POOL against its own definition.
+    const ORIGINAL_TWELVE = [
+      'set the scene at the office', 'set it during a move to a new apartment',
+      'use a first-person plural subject (wir)', 'frame part of it as a question',
+      'set it on a weekend trip', 'put one clause in the Perfekt (past)',
+      'set it in a kitchen', 'use a polite request (Sie)', 'open with an adverb of time',
+      'set it at a train station', 'frame it as something overheard', 'set it during bad weather'
+    ]
+    expect([...PACKED_ANGLE_POOL].sort()).toEqual([...ORIGINAL_TWELVE].sort())
+    expect(PACKED_SCENE_ANGLES.length).toBe(6)
+    expect(PACKED_STRUCTURAL_ANGLES.length).toBe(6)
   })
 
   test('a themed card names its Fachgebiet and its scene in its own block', () => {
@@ -143,5 +154,66 @@ describe('buildPackedGeneratePrompt — Fachgebiete', () => {
     const p = buildPackedGeneratePrompt([plain], 'B1', variation)
     expect(p).toContain('#0 — required ingredients:')
     expect(p).not.toContain('Fachgebiet')
+  })
+})
+
+describe('generatePackedBatch — angle pool selection', () => {
+  const themedDocker: PackedCardSpec = {
+    index: 0,
+    items: [{ key: 'v1', cat: 'verb', verb: { german: 'bereitstellen', english: 'provide', level: 'B2.1', case: 'accusative' } }],
+    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment' }
+  }
+  const themedSql: PackedCardSpec = {
+    index: 1,
+    items: [{ key: 'v1', cat: 'verb', verb: { german: 'speichern', english: 'save', level: 'B2.1', case: 'accusative' } }],
+    domain: { id: 'sql-server', label: 'SQL Server', scene: 'set it while a query is slow' }
+  }
+  const plainCard: PackedCardSpec = {
+    index: 2,
+    items: [{ key: 'v1', cat: 'verb', verb: { german: 'tanzen', english: 'dance', level: 'A1', case: 'none' } }]
+  }
+
+  // Records the prompt (`contents`) the batch handed to the model, without needing
+  // a fully realistic response — one non-matching call is enough to observe the angles.
+  function fakeClient(capture: { prompt: string }): AiClient {
+    return {
+      models: {
+        generateContent: async (p) => {
+          capture.prompt = String(p.contents ?? '')
+          return { text: JSON.stringify({ items: [] }) }
+        }
+      }
+    }
+  }
+
+  // Pulls the angle strings the prompt actually asked for out of its one "Vary the
+  // framing…" line, so assertions target the real selection rather than substrings.
+  function drawnAngles(prompt: string): string[] {
+    const line = prompt.split('\n').find(l => l.includes('draw inspiration from these angles'))
+    if (!line) return []
+    const joined = line.slice(line.indexOf('): ') + 3).replace(/\.$/, '')
+    return joined.split(' · ')
+  }
+
+  test('a fully themed batch draws its angles only from the structural six, never a scene', async () => {
+    const capture = { prompt: '' }
+    await generatePackedBatch(fakeClient(capture), {
+      model: 'm', specs: [themedDocker, themedSql], maxRetries: 0, rng: () => 0
+    })
+    const angles = drawnAngles(capture.prompt)
+    expect(angles.length).toBeGreaterThan(0)
+    expect(angles.some(a => (PACKED_SCENE_ANGLES as readonly string[]).includes(a))).toBe(false)
+    expect(angles.some(a => (PACKED_STRUCTURAL_ANGLES as readonly string[]).includes(a))).toBe(true)
+  })
+
+  test('a batch with at least one domainless card draws from the full pool, scenes included', async () => {
+    const capture = { prompt: '' }
+    await generatePackedBatch(fakeClient(capture), {
+      model: 'm', specs: [themedDocker, plainCard], maxRetries: 0, rng: () => 0
+    })
+    const angles = drawnAngles(capture.prompt)
+    expect(angles.length).toBeGreaterThan(0)
+    expect(angles.every(a => (PACKED_ANGLE_POOL as readonly string[]).includes(a))).toBe(true)
+    expect(angles.some(a => (PACKED_SCENE_ANGLES as readonly string[]).includes(a))).toBe(true)
   })
 })
