@@ -259,4 +259,23 @@ describe('Fachgebiet', () => {
     expect(wrapper.text()).not.toContain('Leerer Pool')
     expect(wrapper.text()).not.toContain('0 Nomen im Pool')
   })
+
+  it('does not show a false "Leerer Pool" alert or disable Start while a newly-active Domain\'s nouns are still resolving', async () => {
+    byGermanListGate.active = true
+    const { wrapper } = await mountSetup()
+
+    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await flushPromises()
+    expect(byGermanListGate.queue).toHaveLength(1) // the resolution is outstanding, not yet resolved
+
+    expect(wrapper.text()).not.toContain('Leerer Pool')
+    const start = wrapper.findAll('button').find(b => b.text().startsWith('Start ·'))!
+    expect(start.attributes('disabled')).toBeUndefined()
+
+    // Once the query lands, behaviour is unchanged — still no false alert.
+    byGermanListGate.queue[0].resolve()
+    await flushPromises()
+    expect(wrapper.text()).not.toContain('Leerer Pool')
+    expect(start.attributes('disabled')).toBeUndefined()
+  })
 })

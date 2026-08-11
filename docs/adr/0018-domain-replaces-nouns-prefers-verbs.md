@@ -50,3 +50,17 @@ about containers.
 - **The Domain data file is drill-agnostic on purpose.** Only the Sentence module reads it in v1; the
   four sibling sentence drills keep their own angle pools, and extending one of them later is
   additive rather than a refactor.
+- **The fallback verb pool is unrestricted by level, deliberately.** A Domain's own verbs
+  are B2.1+, which is why the pool opens; but slots the Domain cannot fill draw uniformly
+  from all 607 verbs, so an A2 learner who ticks Docker can be asked for arbitrary B2.2
+  vocabulary inside a passage the prompt still requests at A2–B1. The narrower alternative
+  — preferred bag, then a Niveau-filtered bag, then the full pool — was available and not
+  taken, because a Domain that quietly reintroduced level filtering would put back the
+  rule this ADR exists to remove. Revisit this before adding a Domain aimed at beginners.
+- **A new Domain's seed words can move a learner's own nouns.** `topUpNounsFromSeed`
+  re-groups any existing row whose seed group changed, and several Domain words are
+  ordinary German (*die Verbindung*, *die Eigenschaft*, *der Filter*, *der Dienst*,
+  *die Wartung*, *die Sicht*, *die Migration*). A learner who had added one by hand under
+  another Themengruppe will see it silently move to `Programming` and leave that group's
+  chip. That is the documented behaviour of the shared migration, not a regression — but
+  it is worth checking the word list against common vocabulary each time a Domain ships.

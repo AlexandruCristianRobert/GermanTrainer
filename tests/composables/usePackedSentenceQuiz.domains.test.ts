@@ -1,11 +1,14 @@
 import { describe, test, expect } from 'vitest'
 import {
-  buildPackedSpecs, buildPackedGeneratePrompt, generatePackedBatch,
+  buildPackedSpecs, buildPackedGeneratePrompt, buildPackedGradePrompt, buildPackedMetaItems,
+  generatePackedBatch,
   PACKED_ANGLE_POOL, PACKED_SCENE_ANGLES, PACKED_STRUCTURAL_ANGLES,
-  type PackedPools, type PackedCounts, type PackedDomainPool, type PackedCardSpec
+  type PackedPools, type PackedCounts, type PackedDomainPool, type PackedCardSpec,
+  type GeneratedPackedCard, type PackedItemResult
 } from '../../src/composables/usePackedSentenceQuiz'
 import type { NounRef } from '../../src/composables/useSentenceQuiz'
 import type { AiClient } from '../../src/composables/useClaude'
+import type { Connector } from '../../src/data/connectors'
 
 const BASE: PackedPools = {
   verbs: [
@@ -51,6 +54,19 @@ describe('buildPackedSpecs — Fachgebiete', () => {
   test('with no domains the nouns come from the generic pool', () => {
     const specs = buildPackedSpecs(BASE, { ...COUNTS, noun: 1 }, 3)
     for (const s of specs) {
+      const noun = s.items.find(i => i.cat === 'noun')!.noun!
+      expect(noun.german).toBe('Zwiebel')
+    }
+  })
+
+  // SentenceSetup.vue always passes `domains: domainPools`, which is `[]` when
+  // untargeted — every other "no domains" test above omits the key entirely,
+  // but production never does. Pin that the explicit-empty shape behaves
+  // identically to the omitted one.
+  test('an explicit empty domains array behaves exactly like an omitted domains key', () => {
+    const specs = buildPackedSpecs({ ...BASE, domains: [] }, { ...COUNTS, noun: 1 }, 3)
+    for (const s of specs) {
+      expect(s.domain).toBeUndefined()
       const noun = s.items.find(i => i.cat === 'noun')!.noun!
       expect(noun.german).toBe('Zwiebel')
     }
@@ -215,5 +231,66 @@ describe('generatePackedBatch — angle pool selection', () => {
     expect(angles.length).toBeGreaterThan(0)
     expect(angles.every(a => (PACKED_ANGLE_POOL as readonly string[]).includes(a))).toBe(true)
     expect(angles.some(a => (PACKED_SCENE_ANGLES as readonly string[]).includes(a))).toBe(true)
+  })
+})
+
+// ADR-0018 rule 3: a Domain is descriptive metadata only and must never reach
+// grading, error tags, weak points or mastery. Nothing in buildPackedGradePrompt
+// or buildPackedMetaItems reads card.domain today — these tests pin that down
+// so a later "pass the Fachgebiet to the grader for context" change fails CI
+// instead of silently letting AI judgement drift by subject matter.
+describe('buildPackedGradePrompt — ADR-0018 rule 3 (metadata only)', () => {
+  const themedGradeCard: GeneratedPackedCard = {
+    index: 0,
+    items: [{ key: 'v1', cat: 'verb', verb: { german: 'bereitstellen', english: 'provide', level: 'B2.1', case: 'accusative' } }],
+    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment' },
+    english: 'We provide the container during the deployment.',
+    german: 'Wir stellen den Container während der Bereitstellung bereit.',
+    sents: 1,
+    spans: [{ key: 'v1', en: 'provide' }]
+  }
+
+  test('a themed card\'s grade prompt names neither its Domain label nor "Fachgebiet"', () => {
+    const { system, user } = buildPackedGradePrompt(themedGradeCard, 'Wir stellen den Container bereit.', false)
+    expect(system).not.toContain('Docker')
+    expect(system).not.toContain('Fachgebiet')
+    expect(user).not.toContain('Docker')
+    expect(user).not.toContain('Fachgebiet')
+  })
+})
+
+describe('buildPackedMetaItems — ADR-0018 rule 3 (metadata only)', () => {
+  const conn: Connector = { id: 'aber', display: 'aber', english: 'but', family: 'adversativ', parts: [{ text: 'aber', behavior: '0' }] }
+  const baseItems: PackedCardSpec['items'] = [
+    { key: 'v1', cat: 'verb', verb: { german: 'bereitstellen', english: 'provide', level: 'B2.1', case: 'accusative' } },
+    { key: 'n1', cat: 'noun', noun: { german: 'Container', article: 'der', english: 'container' } },
+    { key: 'p1', cat: 'prep', prep: { id: 'mit', german: 'mit', english: 'with', case: 'dative' } },
+    { key: 'd1', cat: 'dac', colloc: { id: 'denken-an', word: 'denken', english: 'think', preposition: 'an', case: 'accusative' } },
+    { key: 'k1', cat: 'conn', conn }
+  ]
+  const results: readonly PackedItemResult[] = [
+    { key: 'v1', correct: true },
+    { key: 'n1', correct: false, tags: ['noun'] },
+    { key: 'p1', correct: true },
+    { key: 'd1', correct: false, tags: ['compound'] },
+    { key: 'k1', correct: true }
+  ]
+
+  // Same fixture, only `domain` differs — a themed card and its otherwise-
+  // identical unthemed copy.
+  const themedCard: GeneratedPackedCard = {
+    index: 0, items: baseItems,
+    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment' },
+    english: 'ignored', german: 'ignored', sents: 1, spans: []
+  }
+  const unthemedCard: GeneratedPackedCard = {
+    index: 0, items: baseItems,
+    english: 'ignored', german: 'ignored', sents: 1, spans: []
+  }
+
+  test('output is identical for a themed card and an otherwise-identical unthemed copy — same items, same tags, everything', () => {
+    const themedMeta = buildPackedMetaItems([themedCard], new Map([[0, results]]))
+    const unthemedMeta = buildPackedMetaItems([unthemedCard], new Map([[0, results]]))
+    expect(themedMeta).toEqual(unthemedMeta)
   })
 })

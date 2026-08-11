@@ -391,7 +391,7 @@ function recordHistoryOnce() {
       packedDirection: direction.value,
       packedModality: spoken.value ? 'spoken' : 'typed',
       packedHints: wordHints.value,
-      packedDomains: metaInfo.value?.domains,
+      packedDomains: metaInfo.value?.domains?.length ? metaInfo.value.domains : undefined,
       packedItemsOk,
       packedItemsTotal,
       ...metaItems,

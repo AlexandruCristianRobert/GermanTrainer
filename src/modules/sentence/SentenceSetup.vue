@@ -32,7 +32,7 @@ const STORAGE_KEY = 'sentenceSetup'
 const STASH_KEY = 'gt:lastPackedSentenceQuiz'
 const router = useRouter()
 
-const { filter } = useVerbs()
+const { filter, all } = useVerbs()
 const { sampleByGroups, countsByGroup, byGermanList } = useNouns()
 const { settings, canUseAi, load: loadSettings } = useSettings()
 const toast = useToast()
@@ -191,14 +191,23 @@ const domainSummary = computed(() => {
 // guards; a call whose token no longer matches the latest one drops its
 // result instead of writing it.
 let domainNounsRequest = 0
+// True while a resolveDomainNouns() call is outstanding — set before its first
+// `await` and cleared only by the call whose token still matches when it
+// lands, so a stale (superseded) resolution finishing late can never clear
+// the flag a newer, still-in-flight call owns. ANDed into the noun empty-pool
+// guard below so a Domain whose Dexie query simply hasn't landed yet never
+// reads as an empty pool.
+const domainNounsPending = ref(false)
 async function resolveDomainNouns(): Promise<void> {
   const request = ++domainNounsRequest
+  domainNounsPending.value = true
   const out: Record<string, NounRef[]> = {}
   for (const d of activeDomains.value) {
     out[d.id] = (await byGermanList(d.nouns)).map(nounToRef)
   }
   if (request !== domainNounsRequest) return
   domainNouns.value = out
+  domainNounsPending.value = false
 }
 // Not `{ deep: true }` — domains is only ever reassigned wholesale (toggle()
 // and `domains = []` both produce a new array), so a deep traversal buys
@@ -210,13 +219,12 @@ watch(domains, resolveDomainNouns)
 // stop selecting, so the "im Pool" count and the filter fractions must not
 // claim otherwise — both the count and the summary text branch on it.
 const availableVerbs = computed(() => (domainActive.value
-  ? filter({ levels: [...VERB_LEVELS], types: [...VERB_TYPES], cases: [...VERB_CASES] }).length
+  ? all().length
   : filter({ levels: vLevels.value, types: vTypes.value, cases: vCases.value }).length
 ))
 const verbSummary = computed(() => {
   if (domainActive.value) {
-    const niveau = vLevels.value.length > 0 ? vLevels.value.join(' ') : '—'
-    return `Fachgebiet aktiv · alle ${availableVerbs.value} Verben im Pool, Fachverben zuerst · Niveau ${niveau} setzt das Sprachniveau`
+    return `Fachgebiet aktiv · alle ${availableVerbs.value} Verben im Pool, Fachverben zuerst · Niveau ${levelLabel(vLevels.value)} setzt das Sprachniveau`
   }
   return `${vLevels.value.length > 0 ? vLevels.value.join(' ') : '—'} · ${vTypes.value.length}/${VERB_TYPES.length} Typen · Rektion ${vCases.value.length}/${VERB_CASES.length} · ${availableVerbs.value} im Pool`
 })
@@ -265,7 +273,7 @@ const emptyPool = computed(() => ({
   // can never empty the full pool — so the guard never fires while active.
   verb: !domainActive.value && counts.value.verb > 0 && (vLevels.value.length === 0 || vTypes.value.length === 0 || vCases.value.length === 0),
   noun: counts.value.noun > 0 && (domainActive.value
-    ? activeDomains.value.some(d => (domainNouns.value[d.id]?.length ?? 0) < counts.value.noun)
+    ? !domainNounsPending.value && activeDomains.value.some(d => (domainNouns.value[d.id]?.length ?? 0) < counts.value.noun)
     : nGroups.value.length === 0),
   prep: counts.value.prep > 0 && pCases.value.length === 0,
   dac: false,
@@ -303,7 +311,7 @@ async function start() {
     // and Rektion stop selecting verbs, and Niveau keeps only its second job —
     // the Target CEFR handed to the generator below.
     verbs: (domainActive.value
-      ? filter({ levels: [...VERB_LEVELS], types: [...VERB_TYPES], cases: [...VERB_CASES] })
+      ? all()
       : filter({ levels: vLevels.value, types: vTypes.value, cases: vCases.value })
     ).map(packedVerbToRef),
     nouns: domainActive.value ? [] : (await sampleByGroups([...nGroups.value], 100000)).map(nounToRef),

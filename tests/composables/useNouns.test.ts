@@ -120,7 +120,7 @@ describe('useNouns', () => {
   })
 
   describe('byGermanList', () => {
-    test('returns only the rows that exist, and [] for an empty list', async () => {
+    it('returns only the rows that exist, and [] for an empty list', async () => {
       const { create, byGermanList } = useNouns()
       await create({ german: 'Container', gender: 'der', english: 'container', group: 'Programming' })
       await create({ german: 'Abfrage', gender: 'die', english: 'query', group: 'Programming' })

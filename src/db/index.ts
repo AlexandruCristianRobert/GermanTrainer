@@ -184,7 +184,7 @@ export class GermanTrainerDb extends Dexie {
 }
 
 /**
- * Shared "top up + re-categorize" migration step used by version(4), (7) and (8).
+ * Shared "top up + re-categorize" migration step used by version(4), (7), (8) and (12).
  * Existing users already have nouns, so seedIfEmpty() never re-runs for them — we
  * have to migrate explicitly when new categories ship. For each seed entry:
  *   - If the german key is missing → add it.
