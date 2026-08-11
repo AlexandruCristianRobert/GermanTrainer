@@ -158,6 +158,56 @@ _Avoid_: perspective error, compound error (the da-compounds tag)
 A schematic picture shown with a Direction Words drill card that fixes where the speaker stands and which way the motion goes — the information the perspective rule needs and the sentence alone may not give. Drawn from a small set of reusable scene archetypes (stairs, doorway, window, street, hill, room); its one-line text description doubles as the accessible fallback.
 _Avoid_: illustration, image, picture hint
 
+### Dative
+
+**Dative verb** (Dativverb):
+A verb whose *only* object is dative — *helfen*, *danken*, *begegnen*. The absence of an accusative object is what defines the class: a verb taking both (*geben*) is a [Ditransitive verb], not a dative verb. Membership is unpredictable from meaning and unpredictable from English, which is why the module tracks it per verb rather than by rule. ~45 members, the module's primary item bank.
+_Avoid_: dative-only verb (redundant), indirect-object verb, Dativobjekt-Verb
+
+**Semantic family**:
+One of the three readings the dative gives its object across the [Dative verb] set — `recipient` (*danken*, *antworten*, *raten*), `experiencer` (*gefallen*, *schmecken*, *wehtun*), `co-agent` (*helfen*, *folgen*, *widersprechen*). A memory hook, not a rule: membership is still memorized. The organizing spine of the **Dativ cheatsheet**, the way [Fixed-preposition core idea] organizes the preposition cheatsheet. Stored per verb as `family`.
+_Avoid_: semantic role, category, group, class
+
+**Swallowed accusative**:
+The hook explaining why a [Dative verb] governs the dative: an accusative object was absorbed into the verb's own meaning, leaving the indirect object behind — *antworten* = give [an answer] to sb, *danken* = give [thanks] to sb. Applies to most `recipient`-family verbs and some `co-agent` ones; it does **not** apply to the `experiencer` family, and the data must not claim it does. The content of the [Core-idea explanation] for this module.
+_Avoid_: implied object, dropped object, hidden accusative
+
+**Inverted experiencer**:
+A [Dative verb] of the `experiencer` family where the *thing* is the nominative subject and controls verb agreement, while the person is the dative object — *Die Schuhe gefallen mir*, *Das Essen schmeckt mir*. The mirror of the English construction, and the source of the two errors the module's family IV exists to kill: `*Ich gefalle das Buch` (person taken as subject) and `*Die Schuhe gefällt mir` (agreement with the dative). Flagged per verb as `experiencer`.
+_Avoid_: reversed verb, backwards verb, psych verb, gefallen-type
+
+**Twin verb**:
+A near-synonym of a [Dative verb] that governs the *accusative* instead, usually formed by prefixing — *antworten*/*beantworten*, *folgen*/*verfolgen*, *zuhören*/*hören*, *helfen*/*unterstützen*. The pair is the unit family V drills. Stored per verb as `twin`; both members must genuinely differ in governed case per `verbs.ts`, never an invented contrast.
+_Avoid_: pair, minimal pair (that is the drill format), synonym, prefix variant
+
+**English pull**:
+The property of a [Dative verb] whose English equivalent takes a plain direct object, so L1 transfer pushes the learner toward the accusative — *help*, *follow*, *thank*, *answer*, *trust*, *congratulate*, *contradict*, *resemble*. The highest-yield trap set; flagged per verb as `englishPull` and the basis of family III.
+_Avoid_: L1 interference, false friend, transfer error, English trap
+
+**Ditransitive verb** (Verb mit Dativ und Akkusativ):
+A verb taking both a dative and an accusative object — *geben*, *erklären*, *schenken*. 36 already carry `case: "dative+accusative"` in the pool. Distinguished from a [Dative verb] in that its dative is *predictable* from the recipient role and needs no memorizing — so it is band-tracked only, never entered in the [Item ledger]. Its own trap is [Object order].
+_Avoid_: double-object verb, dative-accusative verb, two-object verb
+
+**Object order**:
+The rule governing the sequence of a [Ditransitive verb]'s two objects: dative before accusative by default (*Ich gebe dem Kind das Buch*), but **accusative before dative when both are pronouns** (*Ich gebe es ihm*). The subject matter of T8 and the source of the `object-order` [Dative error tag].
+_Avoid_: word order (that is the general concept), pronoun order (only the exception), object sequence
+
+**Free dative** (freier Dativ):
+An *optional* dative adjunct the verb does not require, in three readings — `commodi` (to whose benefit: *Ich trage dir den Koffer*), `possessivus`/Pertinenzdativ (an inalienable possessor: *Wasch dir die Hände*), `ethicus` (an emotionally involved non-participant, near-particle, almost only *mir*/*dir*: *Sei mir bloß vorsichtig!*). Contrasted against a [Dative verb]'s obligatory object — dropping a free dative leaves a grammatical sentence, dropping a dative verb's object does not. That test is what family VIII drills.
+_Avoid_: optional dative, adverbial dative, extra dative
+
+**Dative error tag**:
+A classification the grader assigns to a wrong answer in the Dativ module, the module's counterpart of [Verb error tag]. One of: `case` (accusative — or any wrong case — where dative is required), `subject` (an [Inverted experiencer]'s subject or agreement wrong), `twin` (the [Twin verb] used instead of the dative one, or vice versa), `object-order` ([Object order] violated), plus the reused `conjugation`, `word-order`, `noun`, and `typo`. A single answer may carry several. `case` and `subject` feed [Weak point]s per verb.
+_Avoid_: dative mistake, case error (that is one tag, not the set)
+
+**Item ledger**:
+The module's per-item lifetime progress store (`gt:dativeLedger`) — one entry per memorization item, meaning every [Dative verb] plus every dative-governing adjective. Each entry is `new` (never encountered), `wackelig`, or `gesichert`. Drives the hub's `n / total gesichert` meter, whose denominator is derived at runtime as `Object.keys(DATIVE_VERBS).length + Object.keys(DATIVE_ADJECTIVES).length` rather than a hard-coded count, so it moves whenever a verb or adjective is added. Lifetime-scoped for the same reason ADR-0011 gives, but keyed by *item* where ADR-0011's rollup is keyed by *drill*. Rule-driven families — [Ditransitive verb]s, [Free dative]s, the passive consequence — are band-tracked only and never appear in the ledger, because there is no list to secure.
+_Avoid_: mastery (that is the per-drill band), progress store, SRS, verb ledger (it holds adjectives too)
+
+**Secured item** (gesichert):
+An [Item ledger] entry whose **last three encounters were all correct**, across any drill. An entry with encounters but no clean streak of three is `wackelig`; one with none is `new`. A single miss demotes a secured item, and it must earn three clean encounters back. Chosen over an accuracy-over-a-floor rule so the meter reads current command rather than accumulated volume.
+_Avoid_: mastered (collides with the per-drill mastery band), learned, known, complete
+
 ### Sentence
 
 **Sentence quiz**:

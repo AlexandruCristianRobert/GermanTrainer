@@ -55,6 +55,8 @@ export const VERB_TIPS: Record<string, string> = {
   "fliegen": "Movement through the air.",
   "laufen": "Fast movement on foot.",
   "helfen": "To assist someone with something.",
+  // Task 1 — dative-module pool expansion (A1)
+  "danken": "To express gratitude to someone.",
   "treffen": "To encounter someone.",
   "lachen": "To make sounds of joy.",
   "weinen": "To shed tears from sadness.",
@@ -156,6 +158,16 @@ export const VERB_TIPS: Record<string, string> = {
   "sich beschweren": "To express dissatisfaction or grievance.",
   "sich kümmern": "To look after; to tend to someone or something.",
   "sich treffen": "To encounter each other.",
+
+  // Task 1 — dative-module pool expansion (A2)
+  "gratulieren": "Warm words on someone's birthday or success.",
+  "begegnen": "To cross paths with someone by chance.",
+  "passieren": "Events that simply take place, often to someone.",
+  "raten": "To suggest what someone should do; also to take a shot at the answer.",
+  "verzeihen": "To stop holding someone's mistake against them.",
+  "zuhören": "To give a speaker your full attention.",
+  "wehtun": "A knee or a back throbbing with pain.",
+  "einfallen": "An idea suddenly pops into your head.",
 
   // ─── B1 ───
   "sich anmelden": "To officially enroll or create an account.",
