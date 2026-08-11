@@ -36,6 +36,23 @@ export function packedVerbToRef(v: Verb): PackedVerbRef {
 export interface PackedPrepRef { id: string; german: string; english: string; case: PrepCase }
 export interface PackedCollocRef { id: string; word: string; english: string; preposition: string; case: 'accusative' | 'dative' }
 
+/** The [Domain] (de "Fachgebiet") one card is written in, resolved at
+ *  spec-build time — all randomness up front, as the rest of this file does.
+ *  `scene` is the single scene line drawn for this card. */
+export interface PackedDomainRef { id: string; label: string; scene: string }
+
+/** One Domain's runtime pools, resolved by the setup screen from
+ *  data/domains.ts plus the noun store. This file never imports the bank
+ *  itself — it only consumes what it is handed. */
+export interface PackedDomainPool {
+  id: string
+  label: string
+  scenes: readonly string[]
+  nouns: readonly NounRef[]
+  /** German infinitives; matched against `PackedPools.verbs` by `german`. */
+  verbs: readonly string[]
+}
+
 export interface PackedItemSpec {
   key: string
   cat: PackedCategory
@@ -45,13 +62,16 @@ export interface PackedItemSpec {
   colloc?: PackedCollocRef
   conn?: Connector
 }
-export interface PackedCardSpec { index: number; items: PackedItemSpec[] }
+export interface PackedCardSpec { index: number; items: PackedItemSpec[]; domain?: PackedDomainRef }
 export interface PackedPools {
   verbs: readonly PackedVerbRef[]
   nouns: readonly NounRef[]
   preps: readonly PackedPrepRef[]
   collocs: readonly PackedCollocRef[]
   conns: readonly Connector[]
+  /** When non-empty every card is written in exactly one of these, and its
+   *  nouns replace `nouns` for that card (ADR-0018). */
+  domains?: readonly PackedDomainPool[]
 }
 
 /** A refilling shuffled bag: draws spread the pool before any repeat. */
@@ -65,9 +85,10 @@ function makeBag<T>(pool: readonly T[], rng: () => number) {
   }
 }
 
-/** Draw up to `k` distinct items (by `key`) from a bag. */
-function drawUnique<T>(next: () => T | null, k: number, key: (t: T) => string): T[] {
-  const out: T[] = []
+/** Fill `out` up to `k` distinct items (by `key`) from a bag, keeping whatever
+ *  is already in it — how a card takes its first verb from its Domain and the
+ *  rest from the full pool. */
+function drawUniqueInto<T>(out: T[], next: () => T | null, k: number, key: (t: T) => string): void {
   let guard = 0
   while (out.length < k && guard < k * 4) {
     guard++
@@ -75,6 +96,12 @@ function drawUnique<T>(next: () => T | null, k: number, key: (t: T) => string): 
     if (t === null) break
     if (!out.some(x => key(x) === key(t))) out.push(t)
   }
+}
+
+/** Draw up to `k` distinct items (by `key`) from a bag. */
+function drawUnique<T>(next: () => T | null, k: number, key: (t: T) => string): T[] {
+  const out: T[] = []
+  drawUniqueInto(out, next, k, key)
   return out
 }
 
@@ -90,20 +117,52 @@ export function buildPackedSpecs(
   const nextPrep = makeBag(pools.preps, rng)
   const nextColloc = makeBag(pools.collocs, rng)
   const nextConn = makeBag(pools.conns, rng)
+
+  // Fachgebiete (ADR-0018): one Domain per card from a rotating bag, and one
+  // bag per Domain for its scenes, its nouns, and the verbs it prefers — so a
+  // run spreads each Domain's vocabulary before repeating any of it.
+  const domainPools = pools.domains ?? []
+  const nextDomain = makeBag(domainPools, rng)
+  const sceneBags = new Map(domainPools.map(d => [d.id, makeBag(d.scenes, rng)]))
+  const nounBags = new Map(domainPools.map(d => [d.id, makeBag(d.nouns, rng)]))
+  // A Domain's verbs are only PREFERRED: matched against the real verb pool so
+  // level/Typ/Rektion are never invented here, and empty is fine — the card
+  // then simply draws every verb from the full pool.
+  const preferredBags = new Map(domainPools.map(d => {
+    const wanted = new Set(d.verbs)
+    return [d.id, makeBag(pools.verbs.filter(v => wanted.has(v.german)), rng)]
+  }))
+
   const specs: PackedCardSpec[] = []
   for (let index = 0; index < cards; index++) {
     const items: PackedItemSpec[] = []
-    drawUnique(nextVerb, counts.verb, v => v.german)
-      .forEach((verb, i) => items.push({ key: `v${i + 1}`, cat: 'verb', verb }))
-    drawUnique(nextNoun, counts.noun, n => n.german)
+    const dom = nextDomain()
+
+    const verbs: PackedVerbRef[] = []
+    if (dom && counts.verb > 0) {
+      // The first verb slot is on-theme; the rest are free (ADR-0018).
+      drawUniqueInto(verbs, preferredBags.get(dom.id) ?? (() => null), 1, v => v.german)
+    }
+    drawUniqueInto(verbs, nextVerb, counts.verb, v => v.german)
+    verbs.forEach((verb, i) => items.push({ key: `v${i + 1}`, cat: 'verb', verb }))
+
+    const nounSource = dom ? (nounBags.get(dom.id) ?? (() => null)) : nextNoun
+    drawUnique(nounSource, counts.noun, n => n.german)
       .forEach((noun, i) => items.push({ key: `n${i + 1}`, cat: 'noun', noun }))
+
     drawUnique(nextPrep, counts.prep, p => p.id)
       .forEach((prep, i) => items.push({ key: `p${i + 1}`, cat: 'prep', prep }))
     drawUnique(nextColloc, counts.dac, c => c.id)
       .forEach((colloc, i) => items.push({ key: `d${i + 1}`, cat: 'dac', colloc }))
     drawUnique(nextConn, counts.conn, c => c.id)
       .forEach((conn, i) => items.push({ key: `k${i + 1}`, cat: 'conn', conn }))
-    specs.push({ index, items })
+
+    const spec: PackedCardSpec = { index, items }
+    if (dom) {
+      const scene = (sceneBags.get(dom.id) ?? (() => null))() ?? dom.scenes[0] ?? ''
+      spec.domain = { id: dom.id, label: dom.label, scene }
+    }
+    specs.push(spec)
   }
   return specs
 }
