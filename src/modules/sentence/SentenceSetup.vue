@@ -19,20 +19,21 @@ import { PREPOSITIONS, PREPOSITION_CASES, type PrepCase } from '../../data/prepo
 import { COLLOCATIONS } from '../../data/collocations'
 import { CONNECTORS, CONN_FAMILIES, connectorsForFamilies, type ConnFamilyId } from '../../data/connectors'
 import { NOUN_GROUPS, type NounGroup } from '../../db/types'
-import { nounToRef, type Direction } from '../../composables/useSentenceQuiz'
+import { nounToRef, type Direction, type NounRef } from '../../composables/useSentenceQuiz'
 import { levelLabel } from '../../composables/useVerbSentenceQuiz'
 import {
   PACKED_CATS, PACKED_MAX, PACKED_BUDGET, PACKED_WARN_AT,
   packedTotal, packedVerbToRef, buildPackedSpecs,
-  type PackedCategory, type PackedCounts, type PackedPools
+  type PackedCategory, type PackedCounts, type PackedPools, type PackedDomainPool
 } from '../../composables/usePackedSentenceQuiz'
+import { DOMAINS, domainsByIds } from '../../data/domains'
 
 const STORAGE_KEY = 'sentenceSetup'
 const STASH_KEY = 'gt:lastPackedSentenceQuiz'
 const router = useRouter()
 
-const { filter } = useVerbs()
-const { sampleByGroups, countsByGroup } = useNouns()
+const { filter, all } = useVerbs()
+const { sampleByGroups, countsByGroup, byGermanList } = useNouns()
 const { settings, canUseAi, load: loadSettings } = useSettings()
 const toast = useToast()
 
@@ -61,6 +62,10 @@ const vLevels = ref<VerbLevel[]>(['A2', 'B1'])
 const vTypes = ref<VerbType[]>([...VERB_TYPES])
 const vCases = ref<VerbCase[]>([...VERB_CASES])
 const nGroups = ref<NounGroup[]>([])
+const domains = ref<string[]>([])
+/** Resolved store rows per Domain — kept live so the summary and the empty-pool
+ *  guard can speak before Start is pressed. */
+const domainNouns = ref<Record<string, NounRef[]>>({})
 const pCases = ref<PrepCase[]>([...PREPOSITION_CASES])
 const kFams = ref<ConnFamilyId[]>(['adversativ', 'kausal', 'konzessiv'])
 const kDetail = ref(false)
@@ -81,7 +86,7 @@ const nounCounts = ref<Record<NounGroup, number>>(
 interface Stored {
   counts?: PackedCounts
   vLevels?: VerbLevel[]; vTypes?: VerbType[]; vCases?: VerbCase[]
-  nGroups?: NounGroup[]; pCases?: PrepCase[]
+  nGroups?: NounGroup[]; domains?: string[]; pCases?: PrepCase[]
   kFams?: ConnFamilyId[]; kDetail?: boolean; kWords?: string[]
   direction?: Direction; modality?: 'typed' | 'spoken'; wordHints?: boolean
   preset?: CardPreset; custom?: number
@@ -94,7 +99,7 @@ function saveStored(): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       counts: counts.value,
       vLevels: [...vLevels.value], vTypes: [...vTypes.value], vCases: [...vCases.value],
-      nGroups: [...nGroups.value], pCases: [...pCases.value],
+      nGroups: [...nGroups.value], domains: [...domains.value], pCases: [...pCases.value],
       kFams: [...kFams.value], kDetail: kDetail.value, kWords: [...kWords.value],
       direction: direction.value, modality: modality.value, wordHints: wordHints.value,
       preset: preset.value, custom: custom.value
@@ -112,6 +117,7 @@ onMounted(async () => {
     if (Array.isArray(s.vTypes)) vTypes.value = s.vTypes.filter(t => (VERB_TYPES as readonly string[]).includes(t))
     if (Array.isArray(s.vCases)) vCases.value = s.vCases.filter(c => (VERB_CASES as readonly string[]).includes(c))
     if (Array.isArray(s.nGroups)) nGroups.value = s.nGroups.filter(g => (NOUN_GROUPS as readonly string[]).includes(g))
+    if (Array.isArray(s.domains)) domains.value = s.domains.filter(id => DOMAINS.some(d => d.id === id))
     if (Array.isArray(s.pCases)) pCases.value = s.pCases.filter(c => (PREPOSITION_CASES as readonly string[]).includes(c))
     if (Array.isArray(s.kFams)) kFams.value = s.kFams.filter(f => CONN_FAMILIES.some(cf => cf.id === f))
     if (typeof s.kDetail === 'boolean') kDetail.value = s.kDetail
@@ -132,8 +138,9 @@ onMounted(async () => {
       description: 'Auf Getippt umgeschaltet — das läuft überall.'
     })
   }
+  await resolveDomainNouns()
 })
-watch([counts, vLevels, vTypes, vCases, nGroups, pCases, kFams, kDetail, kWords, direction, modality, wordHints, preset, custom], saveStored, { deep: true })
+watch([counts, vLevels, vTypes, vCases, nGroups, domains, pCases, kFams, kDetail, kWords, direction, modality, wordHints, preset, custom], saveStored, { deep: true })
 
 // ── Budget + meter ──
 const total = computed(() => packedTotal(counts.value))
@@ -168,13 +175,59 @@ function toggle<T>(set: T[], v: T): T[] {
   const i = set.indexOf(v); return i >= 0 ? set.filter((_, j) => j !== i) : [...set, v]
 }
 
+// ── Fachgebiet (Domain, ADR-0018) ──
+const activeDomains = computed(() => domainsByIds(domains.value))
+const domainActive = computed(() => activeDomains.value.length > 0)
+const domainSummary = computed(() => {
+  if (!domainActive.value) return 'Kein Fachgebiet — Sätze wie bisher aus den Themengruppen'
+  const n = activeDomains.value.reduce((s, d) => s + (domainNouns.value[d.id]?.length ?? 0), 0)
+  return `${activeDomains.value.length} ${activeDomains.value.length === 1 ? 'Fachgebiet' : 'Fachgebiete'} · ${n} Nomen im Pool`
+})
+
+// Guards against out-of-order completion: toggling a second Fachgebiet
+// before an earlier query resolves must never let that stale, superseded
+// result overwrite the later (current) one. Bumped synchronously at entry —
+// before any await — and checked again right before the assignment it
+// guards; a call whose token no longer matches the latest one drops its
+// result instead of writing it.
+let domainNounsRequest = 0
+// True while a resolveDomainNouns() call is outstanding — set before its first
+// `await` and cleared only by the call whose token still matches when it
+// lands, so a stale (superseded) resolution finishing late can never clear
+// the flag a newer, still-in-flight call owns. ANDed into the noun empty-pool
+// guard below so a Domain whose Dexie query simply hasn't landed yet never
+// reads as an empty pool.
+const domainNounsPending = ref(false)
+async function resolveDomainNouns(): Promise<void> {
+  const request = ++domainNounsRequest
+  domainNounsPending.value = true
+  const out: Record<string, NounRef[]> = {}
+  for (const d of activeDomains.value) {
+    out[d.id] = (await byGermanList(d.nouns)).map(nounToRef)
+  }
+  if (request !== domainNounsRequest) return
+  domainNouns.value = out
+  domainNounsPending.value = false
+}
+// Not `{ deep: true }` — domains is only ever reassigned wholesale (toggle()
+// and `domains = []` both produce a new array), so a deep traversal buys
+// nothing here.
+watch(domains, resolveDomainNouns)
+
 // ── Verb pool ──
-const availableVerbs = computed(() =>
-  filter({ levels: vLevels.value, types: vTypes.value, cases: vCases.value }).length
-)
-const verbSummary = computed(() =>
-  `${vLevels.value.length > 0 ? vLevels.value.join(' ') : '—'} · ${vTypes.value.length}/${VERB_TYPES.length} Typen · Rektion ${vCases.value.length}/${VERB_CASES.length} · ${availableVerbs.value} im Pool`
-)
+// A Fachgebiet unrestricts the whole verb pool (ADR-0018): Typ and Rektion
+// stop selecting, so the "im Pool" count and the filter fractions must not
+// claim otherwise — both the count and the summary text branch on it.
+const availableVerbs = computed(() => (domainActive.value
+  ? all().length
+  : filter({ levels: vLevels.value, types: vTypes.value, cases: vCases.value }).length
+))
+const verbSummary = computed(() => {
+  if (domainActive.value) {
+    return `Fachgebiet aktiv · alle ${availableVerbs.value} Verben im Pool, Fachverben zuerst · Niveau ${levelLabel(vLevels.value)} setzt das Sprachniveau`
+  }
+  return `${vLevels.value.length > 0 ? vLevels.value.join(' ') : '—'} · ${vTypes.value.length}/${VERB_TYPES.length} Typen · Rektion ${vCases.value.length}/${VERB_CASES.length} · ${availableVerbs.value} im Pool`
+})
 
 // ── Noun pool ──
 const availableNounGroups = computed(() => NOUN_GROUPS.filter(g => (nounCounts.value[g] ?? 0) > 0))
@@ -215,8 +268,13 @@ function enterDetail(): void {
 
 // ── Empty-pool guards ──
 const emptyPool = computed(() => ({
-  verb: counts.value.verb > 0 && (vLevels.value.length === 0 || vTypes.value.length === 0 || vCases.value.length === 0),
-  noun: counts.value.noun > 0 && nGroups.value.length === 0,
+  // A Fachgebiet unrestricts the whole verb pool (ADR-0018): Typ and Rektion
+  // are inert and cannot be the reason the pool is empty, and Niveau alone
+  // can never empty the full pool — so the guard never fires while active.
+  verb: !domainActive.value && counts.value.verb > 0 && (vLevels.value.length === 0 || vTypes.value.length === 0 || vCases.value.length === 0),
+  noun: counts.value.noun > 0 && (domainActive.value
+    ? !domainNounsPending.value && activeDomains.value.some(d => (domainNouns.value[d.id]?.length ?? 0) < counts.value.noun)
+    : nGroups.value.length === 0),
   prep: counts.value.prep > 0 && pCases.value.length === 0,
   dac: false,
   conn: counts.value.conn > 0 && (kDetail.value ? kWords.value.size === 0 : kFams.value.length === 0)
@@ -242,12 +300,25 @@ async function start() {
   }
   if (!canStart.value) return
 
+  const domainPools: PackedDomainPool[] = activeDomains.value.map(d => ({
+    id: d.id, label: d.label, scenes: d.scenes,
+    nouns: domainNouns.value[d.id] ?? [],
+    verbs: d.verbs
+  }))
+
   const pools: PackedPools = {
-    verbs: filter({ levels: vLevels.value, types: vTypes.value, cases: vCases.value }).map(packedVerbToRef),
-    nouns: (await sampleByGroups([...nGroups.value], 100000)).map(nounToRef),
+    // A Fachgebiet unrestricts the verb pool entirely (ADR-0018): Niveau, Typ
+    // and Rektion stop selecting verbs, and Niveau keeps only its second job —
+    // the Target CEFR handed to the generator below.
+    verbs: (domainActive.value
+      ? all()
+      : filter({ levels: vLevels.value, types: vTypes.value, cases: vCases.value })
+    ).map(packedVerbToRef),
+    nouns: domainActive.value ? [] : (await sampleByGroups([...nGroups.value], 100000)).map(nounToRef),
     preps: prepPool.value.map(p => ({ id: p.id, german: p.german, english: p.english, case: p.case })),
     collocs: COLLOCATIONS.map(c => ({ id: c.id, word: c.word, english: c.english, preposition: c.preposition, case: c.case })),
-    conns: connPool.value
+    conns: connPool.value,
+    domains: domainPools
   }
   const specs = buildPackedSpecs(pools, counts.value, cards.value)
 
@@ -265,7 +336,7 @@ async function start() {
     meta: {
       counts: counts.value,
       verbLevels: vLevels.value, verbTypes: vTypes.value, verbCases: vCases.value,
-      nounGroups: nGroups.value, prepCases: pCases.value,
+      nounGroups: nGroups.value, domains: [...domains.value], prepCases: pCases.value,
       connFamilies: kFams.value, connWords: [...kWords.value]
     }
   }))
@@ -303,6 +374,26 @@ function back() { router.push({ name: 'home' }) }
         Set a Gemini API key, or pick <em>Local Claude (dev)</em>, in Settings.
       </div>
 
+      <!-- Fachgebiet block (ADR-0018) — sits above the categories it governs -->
+      <div class="sna-block">
+        <div class="sna-block-h">
+          <span :style="{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent)', flex: 'none' }"></span>
+          <span class="sna-name">Fachgebiet<span class="de">worüber die Karte handelt</span></span>
+        </div>
+        <div class="sna-sum">
+          <span class="sna-sum-t">{{ domainSummary }}</span>
+          <button v-if="domainActive" class="sna-flt" type="button" @click="domains = []">Zurücksetzen</button>
+        </div>
+        <div class="chip-row">
+          <button v-for="d in DOMAINS" :key="d.id" class="chip" :class="{ selected: domains.includes(d.id) }"
+            type="button" @click="domains = toggle(domains, d.id)">{{ d.label }}</button>
+        </div>
+        <p class="grading-hint">
+          Jede Karte spielt in <em>genau einem</em> gewählten Fachgebiet. Die Nomen kommen dann aus
+          dem Fachgebiet statt aus den Themengruppen, und der Verbpool wird nicht mehr gefiltert.
+        </p>
+      </div>
+
       <!-- Verb block -->
       <div class="sna-block">
         <div class="sna-block-h">
@@ -332,31 +423,36 @@ function back() { router.push({ name: 'home' }) }
             <div class="chip-row">
               <button v-for="l in VERB_LEVELS" :key="l" class="chip" :class="{ selected: vLevels.includes(l) }" type="button" @click="vLevels = toggle(vLevels, l)">{{ l }}</button>
             </div>
+            <p v-if="domainActive" class="grading-hint">
+              Fachgebiet aktiv — das Niveau wählt keine Verben mehr aus, es setzt nur noch das Sprachniveau des Textes.
+            </p>
           </div>
           <div class="field">
             <div class="field-row">
               <div class="field-label">Typ</div>
               <div class="field-actions">
-                <button class="btn btn-quiet" type="button" @click="vTypes = [...VERB_TYPES]">All</button>
-                <button class="btn btn-quiet" type="button" @click="vTypes = []">None</button>
+                <button class="btn btn-quiet" type="button" :disabled="domainActive" @click="vTypes = [...VERB_TYPES]">All</button>
+                <button class="btn btn-quiet" type="button" :disabled="domainActive" @click="vTypes = []">None</button>
               </div>
             </div>
             <div class="chip-row">
-              <button v-for="t in VERB_TYPES" :key="t" class="chip" :class="{ selected: vTypes.includes(t) }" type="button" @click="vTypes = toggle(vTypes, t)">{{ t }}</button>
+              <button v-for="t in VERB_TYPES" :key="t" class="chip" :class="{ selected: vTypes.includes(t) }" :disabled="domainActive" type="button" @click="vTypes = toggle(vTypes, t)">{{ t }}</button>
             </div>
           </div>
           <div class="field">
             <div class="field-row">
               <div class="field-label">Rektion · Objektkasus</div>
               <div class="field-actions">
-                <button class="btn btn-quiet" type="button" @click="vCases = [...VERB_CASES]">All</button>
-                <button class="btn btn-quiet" type="button" @click="vCases = []">None</button>
+                <button class="btn btn-quiet" type="button" :disabled="domainActive" @click="vCases = [...VERB_CASES]">All</button>
+                <button class="btn btn-quiet" type="button" :disabled="domainActive" @click="vCases = []">None</button>
               </div>
             </div>
             <div class="chip-row">
-              <button v-for="c in VERB_CASES" :key="c" class="chip" :class="{ selected: vCases.includes(c) }" type="button" @click="vCases = toggle(vCases, c)">{{ c }}</button>
+              <button v-for="c in VERB_CASES" :key="c" class="chip" :class="{ selected: vCases.includes(c) }" :disabled="domainActive" type="button" @click="vCases = toggle(vCases, c)">{{ c }}</button>
             </div>
-            <p class="grading-hint">„Verb + Dativ" gezielt üben: nur Dativ anwählen.</p>
+            <p class="grading-hint">{{ domainActive
+              ? 'Fachgebiet aktiv — Typ und Rektion filtern nicht mehr; jedes Verb ist möglich, die Fachverben kommen zuerst.'
+              : '„Verb + Dativ" gezielt üben: nur Dativ anwählen.' }}</p>
           </div>
         </div>
         <div v-if="emptyPool.verb" class="alert alert-warning"><span class="alert-label">Leerer Pool</span>Verben stehen auf {{ counts.verb }}, aber kein Verb passt zu den Filtern.</div>
@@ -384,19 +480,24 @@ function back() { router.push({ name: 'home' }) }
             <div class="field-row">
               <div class="field-label">Themen</div>
               <div class="field-actions">
-                <button class="btn btn-quiet" type="button" @click="nGroups = availableNounGroups">All</button>
-                <button class="btn btn-quiet" type="button" @click="nGroups = []">None</button>
+                <button class="btn btn-quiet" type="button" :disabled="domainActive" @click="nGroups = availableNounGroups">All</button>
+                <button class="btn btn-quiet" type="button" :disabled="domainActive" @click="nGroups = []">None</button>
               </div>
             </div>
             <div class="chip-row">
               <button v-for="g in NOUN_GROUPS" :key="g" class="chip" :class="{ selected: nGroups.includes(g) }"
-                :disabled="(nounCounts[g] ?? 0) === 0" type="button" @click="nGroups = toggle(nGroups, g)">
+                :disabled="domainActive || (nounCounts[g] ?? 0) === 0" type="button" @click="nGroups = toggle(nGroups, g)">
                 <span>{{ g }}</span><span class="chip-count">{{ nounCounts[g] ?? 0 }}</span>
               </button>
             </div>
+            <p v-if="domainActive" class="grading-hint">
+              Fachgebiet aktiv — die Nomen kommen aus dem Fachgebiet, die Themengruppen pausieren.
+            </p>
           </div>
         </div>
-        <div v-if="emptyPool.noun" class="alert alert-warning"><span class="alert-label">Leerer Pool</span>Nomen stehen auf {{ counts.noun }}, aber keine Themengruppe ist gewählt.</div>
+        <div v-if="emptyPool.noun" class="alert alert-warning"><span class="alert-label">Leerer Pool</span>{{ domainActive
+          ? `Nomen stehen auf ${counts.noun}, aber mindestens ein Fachgebiet hat weniger Wörter im Speicher. Seite neu laden — die Wortliste wird beim Start ergänzt.`
+          : `Nomen stehen auf ${counts.noun}, aber keine Themengruppe ist gewählt.` }}</div>
       </div>
 
       <!-- Preposition block -->

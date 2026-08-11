@@ -340,6 +340,9 @@ export interface QuizHistoryMeta {
   packedDirection?: 'en-de' | 'de-en'
   packedModality?: 'typed' | 'spoken'
   packedHints?: boolean
+  /** Fachgebiet ids the run was targeted at (ADR-0018) — descriptive only:
+   *  weak points and mastery are keyed by item exactly as in an untargeted run. */
+  packedDomains?: string[]
   packedItemsOk?: number      // items hit across the run (for the result header)
   packedItemsTotal?: number
   packedConnItems?: ConnectorDrillItem[]

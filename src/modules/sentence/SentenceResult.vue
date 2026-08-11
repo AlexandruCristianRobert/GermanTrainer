@@ -30,6 +30,9 @@ const itemsTotal = computed(() => PACKED_CATS.reduce((s, c) => s + agg.value.cat
 const itemsOk = computed(() => PACKED_CATS.reduce((s, c) => s + agg.value.cat[c].ok, 0))
 const catsWithItems = computed(() => PACKED_CATS.filter(c => agg.value.cat[c].n > 0))
 const tagList = computed(() => Object.entries(agg.value.tags).sort((a, b) => b[1] - a[1]))
+const domainLabels = computed(() =>
+  [...new Set(props.history.map(h => h.card.domain?.label).filter((l): l is string => !!l))]
+)
 
 function barPct(c: PackedCategory): number {
   const b = agg.value.cat[c]
@@ -103,6 +106,9 @@ function practice(): void {
       <div class="sn-res-sub">
         {{ history.length === 1 ? 'Karte' : 'Karten' }} ganz richtig<template v-if="itemsTotal > 0"> · {{ itemsOk }} von {{ itemsTotal }} Items getroffen</template><template v-if="direction === 'de-en'"> · DE → EN, nur Bedeutung bewertet</template>
       </div>
+      <p v-if="domainLabels.length > 0" class="micro-mark">
+        Fachgebiet: {{ domainLabels.join(' · ') }}
+      </p>
     </div>
 
     <div v-if="itemsTotal > 0" class="sn-res-sec">

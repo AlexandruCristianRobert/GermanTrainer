@@ -1,5 +1,11 @@
 [
   {
+    "german": "Abbild",
+    "gender": "das",
+    "english": "image (container / disk image)",
+    "group": "Programming"
+  },
+  {
     "german": "Abbuchung",
     "gender": "die",
     "english": "debit / deduction",
@@ -354,6 +360,18 @@
     "group": "Work"
   },
   {
+    "german": "Ausfall",
+    "gender": "der",
+    "english": "outage / failure",
+    "group": "Programming"
+  },
+  {
+    "german": "Ausführungsplan",
+    "gender": "der",
+    "english": "execution plan",
+    "group": "Programming"
+  },
+  {
     "german": "Ausgabe",
     "gender": "die",
     "english": "expense / expenditure",
@@ -370,6 +388,18 @@
     "gender": "der",
     "english": "out-tray",
     "group": "Office"
+  },
+  {
+    "german": "Auslastung",
+    "gender": "die",
+    "english": "load / utilization",
+    "group": "Programming"
+  },
+  {
+    "german": "Auswertung",
+    "gender": "die",
+    "english": "evaluation / analysis",
+    "group": "Programming"
   },
   {
     "german": "Auszahlung",
@@ -1200,6 +1230,12 @@
     "group": "House"
   },
   {
+    "german": "Dienst",
+    "gender": "der",
+    "english": "service",
+    "group": "Programming"
+  },
+  {
     "german": "Dienstag",
     "gender": "der",
     "english": "tuesday",
@@ -1378,6 +1414,12 @@
     "gender": "das",
     "english": "squirrel",
     "group": "Other"
+  },
+  {
+    "german": "Eigenschaft",
+    "gender": "die",
+    "english": "property / characteristic",
+    "group": "Programming"
   },
   {
     "german": "Einfahrt",
@@ -1774,6 +1816,12 @@
     "gender": "der",
     "english": "movie / film",
     "group": "Culture & Arts"
+  },
+  {
+    "german": "Filter",
+    "gender": "der",
+    "english": "filter",
+    "group": "Programming"
   },
   {
     "german": "Finger",
@@ -2760,6 +2808,12 @@
     "group": "Nature & Weather"
   },
   {
+    "german": "Instanz",
+    "gender": "die",
+    "english": "instance",
+    "group": "Programming"
+  },
+  {
     "german": "Internet",
     "gender": "das",
     "english": "internet",
@@ -2986,6 +3040,12 @@
     "gender": "der",
     "english": "waiter",
     "group": "Food"
+  },
+  {
+    "german": "Kennzahl",
+    "gender": "die",
+    "english": "metric / key figure",
+    "group": "Programming"
   },
   {
     "german": "Ketchup",
@@ -3858,6 +3918,18 @@
     "group": "City & Shopping"
   },
   {
+    "german": "Migration",
+    "gender": "die",
+    "english": "migration",
+    "group": "Programming"
+  },
+  {
+    "german": "Mikrodienst",
+    "gender": "der",
+    "english": "microservice",
+    "group": "Programming"
+  },
+  {
     "german": "Mikrofon",
     "gender": "das",
     "english": "microphone",
@@ -4128,6 +4200,12 @@
     "group": "Technology"
   },
   {
+    "german": "Neustart",
+    "gender": "der",
+    "english": "restart / reboot",
+    "group": "Programming"
+  },
+  {
     "german": "Nichte",
     "gender": "die",
     "english": "niece",
@@ -4234,6 +4312,12 @@
     "gender": "der",
     "english": "orange juice",
     "group": "Food"
+  },
+  {
+    "german": "Orchestrierung",
+    "gender": "die",
+    "english": "orchestration",
+    "group": "Programming"
   },
   {
     "german": "Ordner",
@@ -4680,6 +4764,12 @@
     "group": "Office"
   },
   {
+    "german": "Registrierung",
+    "gender": "die",
+    "english": "registry / registration",
+    "group": "Programming"
+  },
+  {
     "german": "Reichtum",
     "gender": "der",
     "english": "wealth / richness",
@@ -4738,6 +4828,12 @@
     "gender": "die",
     "english": "pension insurance",
     "group": "Work"
+  },
+  {
+    "german": "Ressource",
+    "gender": "die",
+    "english": "resource",
+    "group": "Programming"
   },
   {
     "german": "Restaurant",
@@ -5304,6 +5400,12 @@
     "group": "House"
   },
   {
+    "german": "Sicht",
+    "gender": "die",
+    "english": "view (database) / perspective",
+    "group": "Programming"
+  },
+  {
     "german": "Sideboard",
     "gender": "das",
     "english": "sideboard / credenza",
@@ -5394,6 +5496,12 @@
     "group": "Other"
   },
   {
+    "german": "Sortierung",
+    "gender": "die",
+    "english": "sorting / sort order",
+    "group": "Programming"
+  },
+  {
     "german": "Soße",
     "gender": "die",
     "english": "sauce / gravy",
@@ -5430,6 +5538,18 @@
     "group": "Food"
   },
   {
+    "german": "Speicher",
+    "gender": "der",
+    "english": "memory / storage",
+    "group": "Programming"
+  },
+  {
+    "german": "Speicherung",
+    "gender": "die",
+    "english": "storage (act of storing)",
+    "group": "Programming"
+  },
+  {
     "german": "Speisekammer",
     "gender": "die",
     "english": "pantry / larder",
@@ -5446,6 +5566,12 @@
     "gender": "die",
     "english": "donation",
     "group": "Bank & Money"
+  },
+  {
+    "german": "Sperre",
+    "gender": "die",
+    "english": "lock / block",
+    "group": "Programming"
   },
   {
     "german": "Spesenabrechnung",
@@ -6174,6 +6300,12 @@
     "group": "Work"
   },
   {
+    "german": "Überwachung",
+    "gender": "die",
+    "english": "monitoring",
+    "group": "Programming"
+  },
+  {
     "german": "Überweisung",
     "gender": "die",
     "english": "bank transfer",
@@ -6190,6 +6322,12 @@
     "gender": "der",
     "english": "revenue / turnover",
     "group": "Work"
+  },
+  {
+    "german": "Umsetzung",
+    "gender": "die",
+    "english": "implementation",
+    "group": "Programming"
   },
   {
     "german": "Unglück",
@@ -6288,6 +6426,18 @@
     "group": "House"
   },
   {
+    "german": "Verbindung",
+    "gender": "die",
+    "english": "connection",
+    "group": "Programming"
+  },
+  {
+    "german": "Verbund",
+    "gender": "der",
+    "english": "join / composite",
+    "group": "Programming"
+  },
+  {
     "german": "Verlängerungskabel",
     "gender": "das",
     "english": "extension cord",
@@ -6340,6 +6490,12 @@
     "gender": "die",
     "english": "video conference",
     "group": "Office"
+  },
+  {
+    "german": "Virtualisierung",
+    "gender": "die",
+    "english": "virtualization",
+    "group": "Programming"
   },
   {
     "german": "Visitenkarte",
@@ -6478,6 +6634,12 @@
     "gender": "das",
     "english": "waiting room",
     "group": "Rooms"
+  },
+  {
+    "german": "Wartung",
+    "gender": "die",
+    "english": "maintenance",
+    "group": "Programming"
   },
   {
     "german": "Waschbecken",
@@ -6634,6 +6796,12 @@
     "gender": "das",
     "english": "whiteboard",
     "group": "Office"
+  },
+  {
+    "german": "Wiederherstellung",
+    "gender": "die",
+    "english": "restore / recovery",
+    "group": "Programming"
   },
   {
     "german": "Wiese",
@@ -6886,6 +7054,12 @@
     "gender": "die",
     "english": "access card",
     "group": "Office"
+  },
+  {
+    "german": "Zugriff",
+    "gender": "der",
+    "english": "access",
+    "group": "Programming"
   },
   {
     "german": "Zuhause",
