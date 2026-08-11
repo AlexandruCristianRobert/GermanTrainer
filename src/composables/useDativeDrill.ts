@@ -20,6 +20,11 @@ import {
   OBJECT_ORDER_ITEMS, objectOrderAnswer, type ObjectOrderItem,
 } from '../data/dativeDitransitive'
 import { DATIVE_ADJECTIVE_ITEMS, type DativeAdjectiveItem } from '../data/dativeAdjectives'
+import { FREE_DATIVE_ITEMS, type FreeDativeItem } from '../data/dativeFree'
+import {
+  PASSIVE_ITEMS, type PassiveItem,
+  REFLEXIVE_ITEMS, type ReflexiveItem,
+} from '../data/dativeConsequences'
 
 export interface DativeCard {
   id: string
@@ -283,4 +288,69 @@ export function buildAdjectiveCards(items: DativeAdjectiveItem[]): DativeQuizCar
 
 export function filterAdjectiveItems(f: { levels: DativeDrillLevel[]; adjectives: string[] }): DativeAdjectiveItem[] {
   return DATIVE_ADJECTIVE_ITEMS.filter(i => f.levels.includes(i.level) && f.adjectives.includes(i.adjective))
+}
+
+// ─── Phase 4, Task 2: T10 Freier Dativ (family VIII) ───
+// Rule-driven: ledgerKey is always null — band-tracked only, never in gt:dativeLedger.
+
+export function buildFreeCards(items: FreeDativeItem[]): DativeQuizCard[] {
+  return items.map((item, sourceIndex) => ({
+    key: item.id,
+    prompt: item.kind === 'drop'
+      ? `${item.prompt} — Ist „${item.probePhrase}“ weglassbar?`
+      : `${item.prompt} — Welche Lesart hat „${item.probePhrase}“?`,
+    answers: item.answers,
+    options: item.options,
+    translation: item.translation,
+    note: item.explanation,
+    ledgerKey: null,   // rule-driven family: band-tracked only, never in the ledger
+    sourceIndex,
+    picked: null, typed: null, isCorrect: null,
+  }))
+}
+
+export function filterFreeItems(f: { levels: DativeDrillLevel[]; kinds: string[] }): FreeDativeItem[] {
+  return FREE_DATIVE_ITEMS.filter(i => f.levels.includes(i.level) && f.kinds.includes(i.kind))
+}
+
+// ─── Phase 4, Task 4: T12 Kein persönliches Passiv (family X) ───
+// Rule-driven: ledgerKey is always null — band-tracked only, never in gt:dativeLedger.
+
+export function buildPassiveCards(items: PassiveItem[]): DativeQuizCard[] {
+  return items.map((item, sourceIndex) => ({
+    key: item.id,
+    prompt: item.prompt,        // authored complete per kind (question suffix / gap / constant)
+    answers: item.answers,
+    options: item.options,
+    translation: item.translation,
+    note: item.explanation,
+    ledgerKey: null,   // rule-driven family: band-tracked only, never in the ledger
+    sourceIndex,
+    picked: null, typed: null, isCorrect: null,
+  }))
+}
+
+export function filterPassiveItems(f: { levels: DativeDrillLevel[]; kinds: string[] }): PassiveItem[] {
+  return PASSIVE_ITEMS.filter(i => f.levels.includes(i.level) && f.kinds.includes(i.kind))
+}
+
+// ─── Phase 4, Task 5: T13 Reflexiver Dativ (family X) ───
+// Rule-driven: ledgerKey is always null — band-tracked only, never in gt:dativeLedger.
+
+export function buildReflexiveCards(items: ReflexiveItem[]): DativeQuizCard[] {
+  return items.map((item, sourceIndex) => ({
+    key: item.id,
+    prompt: item.prompt,
+    answers: item.answers,
+    options: item.options,
+    translation: item.translation,
+    note: item.explanation,
+    ledgerKey: null,   // rule-driven family: band-tracked only, never in the ledger
+    sourceIndex,
+    picked: null, typed: null, isCorrect: null,
+  }))
+}
+
+export function filterReflexiveItems(f: { levels: DativeDrillLevel[] }): ReflexiveItem[] {
+  return REFLEXIVE_ITEMS.filter(i => f.levels.includes(i.level))
 }

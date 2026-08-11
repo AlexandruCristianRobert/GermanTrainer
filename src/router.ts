@@ -136,6 +136,17 @@ export const routes: RouteRecordRaw[] = [
   { path: '/dative/object-order/run', name: 'dative-object-order-run', component: () => import('./modules/dative/ObjectOrderRunner.vue') },
   { path: '/dative/adjectives', name: 'dative-adjectives', component: () => import('./modules/dative/AdjectiveSetup.vue') },
   { path: '/dative/adjectives/run', name: 'dative-adjectives-run', component: () => import('./modules/dative/AdjectiveRunner.vue') },
+  // Families VIII-X + the Spickzettel. dative-sentence is the module's only
+  // AI drill; dative-cheatsheet is level 'Ref' and has no -run pair.
+  { path: '/dative/free', name: 'dative-free', component: () => import('./modules/dative/FreeSetup.vue') },
+  { path: '/dative/free/run', name: 'dative-free-run', component: () => import('./modules/dative/FreeRunner.vue') },
+  { path: '/dative/sentence', name: 'dative-sentence', component: () => import('./modules/dative/DativeSentenceSetup.vue') },
+  { path: '/dative/sentence/run', name: 'dative-sentence-run', component: () => import('./modules/dative/DativeSentenceRunner.vue') },
+  { path: '/dative/passive', name: 'dative-passive', component: () => import('./modules/dative/PassiveSetup.vue') },
+  { path: '/dative/passive/run', name: 'dative-passive-run', component: () => import('./modules/dative/PassiveRunner.vue') },
+  { path: '/dative/reflexive', name: 'dative-reflexive', component: () => import('./modules/dative/ReflexiveSetup.vue') },
+  { path: '/dative/reflexive/run', name: 'dative-reflexive-run', component: () => import('./modules/dative/ReflexiveRunner.vue') },
+  { path: '/dative/cheatsheet', name: 'dative-cheatsheet', component: () => import('./modules/dative/DativeCheatsheet.vue') },
   { path: '/declension', name: 'declension', component: () => import('./modules/declension/DeclensionHome.vue') },
   { path: '/declension/tables', name: 'declension-tables', component: () => import('./modules/declension/TablesReference.vue') },
   { path: '/declension/table-quiz', name: 'declension-table', component: () => import('./modules/declension/TableQuizSetup.vue') },

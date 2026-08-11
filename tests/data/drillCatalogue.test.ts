@@ -81,4 +81,23 @@ describe('drillCatalogue', () => {
     expect(datCards.filter(c => c.ai).map(c => c.code)).toEqual(['T11'])
     expect(datCards.find(c => c.code === 'A')!.level).toBe('Ref')
   })
+
+  // FULL-LADDER ROUTE GATE. DativeHome gates each card on
+  // router.hasRoute(card.route), so a catalogue route with no matching router
+  // entry does not throw — it silently renders a permanently disabled "Bald"
+  // row. That failure is invisible in the browser and invisible to typecheck,
+  // which is exactly how two mismatches (dative-ditrans vs dative-ditransitive,
+  // dative-adjective vs dative-adjectives) survived until this gate existed.
+  test('FULL-LADDER: every DAT card route resolves in the router', () => {
+    const bad = datCards.filter(c => !routeNames.has(c.route))
+    expect(bad.map(c => `${c.code}:${c.route}`)).toEqual([])
+  })
+
+  test('FULL-LADDER: every DAT drill has a -run route; the Ref card has none', () => {
+    const drills = datCards.filter(c => c.level !== 'Ref')
+    const missing = drills.filter(c => !routeNames.has(`${c.route}-run`))
+    expect(missing.map(c => `${c.code}:${c.route}-run`)).toEqual([])
+    const ref = datCards.find(c => c.code === 'A')!
+    expect(routeNames.has(`${ref.route}-run`)).toBe(false)
+  })
 })

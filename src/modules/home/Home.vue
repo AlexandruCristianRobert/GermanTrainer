@@ -115,7 +115,7 @@ const modules: ModuleCard[] = [
     de: 'Dativ',
     title: 'Dative',
     desc: 'helfen, danken, gefallen — the verbs and adjectives that mark their person dative, the English pull that breaks them, and the inverted sentences.',
-    meta: 'Item ledger · drills arriving in phases'
+    meta: '13 drills · cheatsheet · item ledger'
   }
 ]
 
