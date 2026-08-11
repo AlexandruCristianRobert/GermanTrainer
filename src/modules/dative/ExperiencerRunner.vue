@@ -108,6 +108,16 @@ function submit() {
   nextTick(() => nextBtnRef.value?.focus())
 }
 
+/** Enter-driven submit. Blank input is a no-op so a stray keystroke cannot burn
+ *  a card — clicking Submit stays the deliberate "reveal it, I don't know" path.
+ *  Bound to keydown, never keyup: advancing happens on the focused Next
+ *  button's keydown, which re-focuses this input mid-keystroke, so a keyup
+ *  binding here would fire the next card's submit on the SAME physical press. */
+function submitFromKey() {
+  if (typedInput.value.trim().length === 0) return
+  submit()
+}
+
 function next() {
   if (!quiz.value) return
   quiz.value.advance()
@@ -260,7 +270,7 @@ function resultGiven(q: DativeQuizCard): string {
           autocapitalize="off"
           spellcheck="false"
           :class="{ ok: submitted && current.isCorrect, err: submitted && !current.isCorrect }"
-          @keyup.enter="submitted ? next() : submit()"
+          @keydown.enter.prevent="submitted ? next() : submitFromKey()"
         />
         <button v-if="!submitted" class="btn btn-accent" type="button" @click="submit">
           Submit <span aria-hidden="true">→</span>
