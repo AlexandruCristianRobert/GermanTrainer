@@ -173,3 +173,18 @@ describe('the lifetime rollup (gt:drillTotals)', () => {
     expect(mastery['dac-T19'].band).toBe(5)
   })
 })
+
+describe('drillKey — Dativ', () => {
+  test('all 13 dat types map to their catalogue codes', () => {
+    const expected: Array<[QuizHistoryType, string]> = [
+      ['dat-case', 'T1'], ['dat-form', 'T2'], ['dat-trap', 'T3'],
+      ['dat-subject', 'T4'], ['dat-experiencer', 'T5'], ['dat-twin', 'T6'],
+      ['dat-ditrans', 'T7'], ['dat-object-order', 'T8'], ['dat-adjective', 'T9'],
+      ['dat-free', 'T10'], ['dat-sentence', 'T11'], ['dat-passive', 'T12'],
+      ['dat-reflexive', 'T13'],
+    ]
+    for (const [type, code] of expected) {
+      expect(drillKey(run(type, 10, 5))).toBe(`dat-${code}`)
+    }
+  })
+})

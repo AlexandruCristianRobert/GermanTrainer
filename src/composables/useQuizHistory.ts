@@ -62,6 +62,19 @@ export type QuizHistoryType =
   | 'sprechen-teil2'
   | 'sprechen-drill'
   | 'sentence-packed'
+  | 'dat-case'
+  | 'dat-form'
+  | 'dat-trap'
+  | 'dat-subject'
+  | 'dat-experiencer'
+  | 'dat-twin'
+  | 'dat-ditrans'
+  | 'dat-object-order'
+  | 'dat-adjective'
+  | 'dat-free'
+  | 'dat-sentence'
+  | 'dat-passive'
+  | 'dat-reflexive'
 
 export type PrepErrorTag = 'preposition' | 'case' | 'noun' | 'typo'
 
@@ -147,6 +160,7 @@ export interface QuizHistoryMeta {
   mode?: 'gender' | 'translation' | 'pick' | 'type'
   preps?: string[]   // Da-compound drills: preposition filter
   pairs?: string[]   // Direction Words compound drill: adverb-pair element filter
+  families?: string[] // Dativ drills: semantic-family filter (recipient/experiencer/co-agent)
   kinds?: string[]   // Da-compound Korrelat drill (T11): status filter (obligatory/optional/excluded)
   groups?: string[]
   levels?: string[]

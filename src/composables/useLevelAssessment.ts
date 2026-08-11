@@ -146,7 +146,20 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
     'mistakes, replayed from the error archive. A high score means earlier corrections ' +
     'were revised successfully; it is NOT evidence of fresh B2 command, because every ' +
     'item was already a known weak spot.',
-  'sentence-packed': 'Sentence · packed (AI)'
+  'sentence-packed': 'Sentence · packed (AI)',
+  'dat-case': 'dative verb · governs dative or accusative (membership pick)',
+  'dat-form': 'dative verb · produce the dative object form',
+  'dat-trap': 'dative verb · English-transitive trap cards',
+  'dat-subject': 'dative verb · inverted-experiencer subject/agreement pick',
+  'dat-experiencer': 'dative verb · inverted-experiencer production',
+  'dat-twin': 'dative verb · dative/accusative twin pairs',
+  'dat-ditrans': 'ditransitive · tag dative and accusative objects',
+  'dat-object-order': 'ditransitive · object order incl. pronoun inversion',
+  'dat-adjective': 'dative adjectives and body-state predicatives',
+  'dat-free': 'free dative (commodi/possessivus/ethicus) vs verb object',
+  'dat-sentence': 'dative · sentence translation (AI)',
+  'dat-passive': 'dative verbs · no personal passive',
+  'dat-reflexive': 'reflexive dative (wasche mir die Hände)',
 }
 
 function fmtPct(n: number): string {

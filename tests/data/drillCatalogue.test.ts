@@ -1,9 +1,10 @@
 import { describe, test, expect } from 'vitest'
-import { DW_FAMILIES, DAC_PHASES } from '../../src/data/drillCatalogue'
+import { DW_FAMILIES, DAC_PHASES, DAT_FAMILIES } from '../../src/data/drillCatalogue'
 import { router } from '../../src/router'
 
 const dwCards = DW_FAMILIES.flatMap(f => f.cards)
 const dacCards = DAC_PHASES.flatMap(f => f.cards)
+const datCards = DAT_FAMILIES.flatMap(f => f.cards)
 const routeNames = new Set(router.getRoutes().map(r => r.name))
 
 describe('drillCatalogue', () => {
@@ -47,7 +48,7 @@ describe('drillCatalogue', () => {
   })
 
   test('every family has a stable kebab-case id', () => {
-    const bad = [...DW_FAMILIES, ...DAC_PHASES].filter(f => !/^[a-z]+$/.test(f.id))
+    const bad = [...DW_FAMILIES, ...DAC_PHASES, ...DAT_FAMILIES].filter(f => !/^[a-z]+$/.test(f.id))
     expect(bad.map(f => f.id)).toEqual([])
   })
 
@@ -62,5 +63,22 @@ describe('drillCatalogue', () => {
     const aiCodes = (cards: typeof dwCards) => cards.filter(c => c.ai).map(c => c.code)
     expect(aiCodes(dwCards).sort()).toEqual(['T6', 'T7'])
     expect(aiCodes(dacCards).sort()).toEqual(['T14', 'T15', 'T17'])
+  })
+
+  test('Dativ: 11 families, 14 cards (T1–T13 + A)', () => {
+    expect(DAT_FAMILIES).toHaveLength(11)
+    expect(datCards).toHaveLength(14)
+  })
+
+  test('every DAT card code is unique and every route sits under the dative- head', () => {
+    const codes = datCards.map(c => c.code)
+    expect(new Set(codes).size).toBe(codes.length)
+    const bad = datCards.filter(c => !/^dative-[a-z-]+$/.test(c.route))
+    expect(bad.map(c => c.code)).toEqual([])
+  })
+
+  test('DAT: T11 is the only AI card; A is level Ref', () => {
+    expect(datCards.filter(c => c.ai).map(c => c.code)).toEqual(['T11'])
+    expect(datCards.find(c => c.code === 'A')!.level).toBe('Ref')
   })
 })

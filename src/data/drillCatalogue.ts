@@ -285,3 +285,145 @@ export const DAC_PHASES: DrillFamily[] = [
     ],
   },
 ]
+
+// ─── Dativ — 10 skill families + reference, 14 cards ───
+// All 14 cards register from day one so the hub shows the whole ladder;
+// DativeHome renders a card whose route does not resolve yet (phases 3–4)
+// as a disabled "Bald" row via router.hasRoute — the staged-arrival pattern.
+
+export const DAT_FAMILIES: DrillFamily[] = [
+  {
+    id: 'membership', numeral: 'I', heading: 'The affected person', de: 'Der betroffene Mensch',
+    blurb: 'The dative marks an affected person. First question, always: does this verb take it?',
+    cards: [
+      {
+        code: 'T1', route: 'dative-case',
+        title: 'Dative or accusative?', de: 'Dativ oder Akkusativ?', level: 'A2',
+        desc: 'Every dative verb in the pool plus accusative look-alikes — two buttons, fast rounds, the membership instinct.',
+      },
+    ],
+  },
+  {
+    id: 'form', numeral: 'II', heading: 'The form on the verb', de: 'Die Form am Verb',
+    blurb: 'Knowing the verb is dative is half the job; producing dem, der, den …n, ihm, ihr, ihnen is the other half.',
+    cards: [
+      {
+        code: 'T2', route: 'dative-form',
+        title: 'Verb → dative object', de: 'Verb → Dativobjekt', level: 'A2',
+        desc: 'The sentence hands you a base form — decline it into the dative the verb demands.',
+      },
+    ],
+  },
+  {
+    id: 'pull', numeral: 'III', heading: 'The English pull', de: 'Der englische Sog',
+    blurb: 'help, thank, follow, answer — English takes a plain object and drags you to the accusative. The highest-yield traps.',
+    cards: [
+      {
+        code: 'T3', route: 'dative-trap',
+        title: 'Trap cards', de: 'Fallen-Karten', level: 'B1',
+        desc: 'An English sentence pulls accusative-ward; the German verb refuses. Type the object the dative verb wants.',
+      },
+    ],
+  },
+  {
+    id: 'inverted', numeral: 'IV', heading: 'Inverted verbs', de: 'Umgekehrte Verben',
+    blurb: 'Die Schuhe gefallen mir — the thing is the subject and controls agreement; the person is the object.',
+    cards: [
+      {
+        code: 'T4', route: 'dative-subject',
+        title: 'Who is the subject?', de: 'Wer ist Subjekt?', level: 'B1',
+        desc: 'Pick the subject and the agreeing verb form — plural things take gefallen, never gefällt.',
+      },
+      {
+        code: 'T5', route: 'dative-experiencer',
+        title: 'Production', de: 'Produktion', level: 'B1',
+        desc: 'gefallen, schmecken, fehlen, gehören, passen, wehtun, einfallen, gelingen — build the inverted sentence yourself.',
+      },
+    ],
+  },
+  {
+    id: 'twins', numeral: 'V', heading: 'Twin verbs', de: 'Zwillinge',
+    blurb: 'Near-synonyms on opposite sides of the case line — the boundary that proves membership is per verb.',
+    cards: [
+      {
+        code: 'T6', route: 'dative-twins',
+        title: 'Twin pairs', de: 'Zwillingspaare', level: 'B2',
+        desc: 'antworten or beantworten? folgen or verfolgen? zuhören or hören? glauben + Dat or + Akk? Pick the verb the sentence demands.',
+      },
+    ],
+  },
+  {
+    id: 'ditransitives', numeral: 'VI', heading: 'Two objects', de: 'Zwei Objekte',
+    blurb: 'geben, schenken, erklären — here the dative is predictable: the receiver. The trap is the order.',
+    cards: [
+      {
+        code: 'T7', route: 'dative-ditransitive',
+        title: 'Which object?', de: 'Welches Objekt?', level: 'A2',
+        desc: 'Ich schenke dem Bruder das Buch — who receives, what moves. Tag each object with its case.',
+      },
+      {
+        code: 'T8', route: 'dative-object-order',
+        title: 'Object order', de: 'Objektfolge', level: 'B1',
+        desc: 'Dative before accusative — until both are pronouns: Ich gebe es ihm. Put the objects in order.',
+      },
+    ],
+  },
+  {
+    id: 'adjectives', numeral: 'VII', heading: 'Dative without an object', de: 'Dativ ohne Objekt',
+    blurb: 'Adjectives and body states that mark their person dative — no verb object in sight.',
+    cards: [
+      {
+        code: 'T9', route: 'dative-adjectives',
+        title: 'Dative adjectives', de: 'Dativ-Adjektive', level: 'B1',
+        desc: 'mir ist kalt · das ist mir wichtig, peinlich, egal, ähnlich, treu, klar — supply the person the state belongs to.',
+      },
+    ],
+  },
+  {
+    id: 'free', numeral: 'VIII', heading: 'Free datives', de: 'Freier Dativ',
+    blurb: 'Optional datives the verb never asked for — drop them and the sentence survives.',
+    cards: [
+      {
+        code: 'T10', route: 'dative-free',
+        title: 'Free dative', de: 'Freier Dativ', level: 'C1',
+        desc: 'Ich trage dir den Koffer — benefit, possession, or pure emotion, set against a real dative-verb object.',
+      },
+    ],
+  },
+  {
+    id: 'production', numeral: 'IX', heading: 'In the sentence', de: 'Im Satz',
+    cards: [
+      {
+        code: 'T11', route: 'dative-sentence', level: 'B2', ai: true,
+        title: 'Sentence translation (AI)', de: 'Satzübersetzung (KI)',
+        desc: 'The AI writes English around your dative verbs; you write the German. Case slips get named as case slips.',
+      },
+    ],
+  },
+  {
+    id: 'consequences', numeral: 'X', heading: 'Consequences', de: 'Folgen',
+    blurb: 'What being a dative verb entails further up the grammar.',
+    cards: [
+      {
+        code: 'T12', route: 'dative-passive',
+        title: 'No personal passive', de: 'Kein persönliches Passiv', level: 'B2',
+        desc: 'Mir wird geholfen — never *Ich werde geholfen. Dative verbs keep their dative in the passive.',
+      },
+      {
+        code: 'T13', route: 'dative-reflexive',
+        title: 'Reflexive dative', de: 'Reflexiver Dativ', level: 'B2',
+        desc: 'Ich wasche mir die Hände, ich kaufe mir ein Eis — the reflexive turns dative when an accusative is already taken.',
+      },
+    ],
+  },
+  {
+    id: 'reference', numeral: 'XI', heading: 'Reference', de: 'Nachschlagen',
+    cards: [
+      {
+        code: 'A', route: 'dative-cheatsheet', level: 'Ref',
+        title: 'Cheatsheet', de: 'Spickzettel',
+        desc: 'The dative map by semantic family — recipients, experiencers, co-agents — with the swallowed-accusative hooks, plus cross-links out to Prepositions and Declension.',
+      },
+    ],
+  },
+]

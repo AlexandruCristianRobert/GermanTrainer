@@ -143,7 +143,20 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'sprechen-teil1': 0,
     'sprechen-teil2': 0,
     'sprechen-drill': 0,
-    'sentence-packed': 0
+    'sentence-packed': 0,
+    'dat-case': 0,
+    'dat-form': 0,
+    'dat-trap': 0,
+    'dat-subject': 0,
+    'dat-experiencer': 0,
+    'dat-twin': 0,
+    'dat-ditrans': 0,
+    'dat-object-order': 0,
+    'dat-adjective': 0,
+    'dat-free': 0,
+    'dat-sentence': 0,
+    'dat-passive': 0,
+    'dat-reflexive': 0
   }
 }
 
@@ -205,7 +218,20 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'sprechen-teil1': emptyBucket(),
     'sprechen-teil2': emptyBucket(),
     'sprechen-drill': emptyBucket(),
-    'sentence-packed': emptyBucket()
+    'sentence-packed': emptyBucket(),
+    'dat-case': emptyBucket(),
+    'dat-form': emptyBucket(),
+    'dat-trap': emptyBucket(),
+    'dat-subject': emptyBucket(),
+    'dat-experiencer': emptyBucket(),
+    'dat-twin': emptyBucket(),
+    'dat-ditrans': emptyBucket(),
+    'dat-object-order': emptyBucket(),
+    'dat-adjective': emptyBucket(),
+    'dat-free': emptyBucket(),
+    'dat-sentence': emptyBucket(),
+    'dat-passive': emptyBucket(),
+    'dat-reflexive': emptyBucket()
   }
 }
 

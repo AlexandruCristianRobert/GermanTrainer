@@ -57,7 +57,20 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'sprechen-teil1': 'Sprechen · Teil 1 Vortrag',
   'sprechen-teil2': 'Sprechen · Teil 2 discussion',
   'sprechen-drill': 'Sprechen · Korrekturdrill',
-  'sentence-packed': 'Sentence · packed (AI)'
+  'sentence-packed': 'Sentence · packed (AI)',
+  'dat-case': 'Dative · case pick',
+  'dat-form': 'Dative · object form',
+  'dat-trap': 'Dative · trap cards',
+  'dat-subject': 'Dative · who is subject',
+  'dat-experiencer': 'Dative · experiencer production',
+  'dat-twin': 'Dative · twin pairs',
+  'dat-ditrans': 'Dative · which object',
+  'dat-object-order': 'Dative · object order',
+  'dat-adjective': 'Dative · adjectives',
+  'dat-free': 'Dative · free dative',
+  'dat-sentence': 'Dative · sentence (AI)',
+  'dat-passive': 'Dative · passive',
+  'dat-reflexive': 'Dative · reflexive'
 }
 
 export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
@@ -117,7 +130,20 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'sprechen-teil1': 'Sprechen · Teil 1 Vortrag',
   'sprechen-teil2': 'Sprechen · Teil 2 Diskussion',
   'sprechen-drill': 'Sprechen · Korrekturdrill',
-  'sentence-packed': 'Satz · Gepackt (KI)'
+  'sentence-packed': 'Satz · Gepackt (KI)',
+  'dat-case': 'Dativ · Dativ oder Akkusativ',
+  'dat-form': 'Dativ · Dativobjekt',
+  'dat-trap': 'Dativ · Fallen-Karten',
+  'dat-subject': 'Dativ · Wer ist Subjekt',
+  'dat-experiencer': 'Dativ · Produktion',
+  'dat-twin': 'Dativ · Zwillingspaare',
+  'dat-ditrans': 'Dativ · Welches Objekt',
+  'dat-object-order': 'Dativ · Objektfolge',
+  'dat-adjective': 'Dativ · Adjektive',
+  'dat-free': 'Dativ · Freier Dativ',
+  'dat-sentence': 'Dativ · Satz (KI)',
+  'dat-passive': 'Dativ · Passiv',
+  'dat-reflexive': 'Dativ · Reflexiv'
 }
 
 export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
@@ -177,5 +203,18 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'simulator-c1',
   'sprechen-teil1',
   'sprechen-teil2',
-  'sprechen-drill'
+  'sprechen-drill',
+  'dat-case',
+  'dat-form',
+  'dat-trap',
+  'dat-subject',
+  'dat-experiencer',
+  'dat-twin',
+  'dat-ditrans',
+  'dat-object-order',
+  'dat-adjective',
+  'dat-free',
+  'dat-sentence',
+  'dat-passive',
+  'dat-reflexive'
 ]
