@@ -19,6 +19,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.20.02', date: '2026-08-12', kind: 'polish',
+    title: 'Schreiben · Mustertexte',
+    notes: [
+      '<strong>Fünf Aufgabenmuster, fünf kommentierte Mustertexte.</strong> Die 24 Schreibthemen folgen wiederkehrenden Mustern — <em>Pro & Contra abwägen</em>, <em>Meinung + Alternative</em>, <em>eigene Erfahrung als Beleg</em>, <em>Gegenmeinung entkräften</em>, <em>Maßnahme bewerten & empfehlen</em>. Für jedes Muster gibt es jetzt einen prüfungsreifen Beispiel-Forumsbeitrag unter <em>Mustertexte</em>.',
+      '<strong>Sichtbar, was den Text gut macht.</strong> Drei einblendbare Ebenen markieren Konnektoren, Schreibmittel und grammatische Strukturen direkt im Text — und jede Markierung erklärt beim Antippen, <em>warum</em> das Mittel genau an dieser Stelle wirkt: der zweiteilige Konnektor, der die Abwägung ankündigt, der Konjunktiv II, der den Vorschlag höflich hält, der Nebensatz, der die Begründung trägt.',
+      '<strong>Vom Aufgabenblatt direkt zum Muster.</strong> Jedes eingebaute Schreibthema kennt sein Aufgabenmuster: Themenwahl und Schreibplan verlinken den passenden Mustertext, dazu Kacheln auf der Schreiben-Übersicht und im Spickzettel.',
+      '<strong>Der Schreibplan meckert nicht mehr beim Tippen.</strong> Die Stichwort-Warnung erscheint erst, wenn man das Feld verlässt — und sitzt jetzt direkt unter dem Eingabefeld statt verloren zwischen den Zeilen.'
+    ]
+  },
+  {
     version: '1.20.01', date: '2026-08-12', kind: 'polish',
     title: 'Navigation · Gruppierte Leiste',
     notes: [
