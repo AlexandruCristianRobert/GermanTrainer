@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.20.00'
+export const APP_VERSION = '1.20.01'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.20.01', date: '2026-08-12', kind: 'polish',
+    title: 'Navigation · Gruppierte Leiste',
+    notes: [
+      '<strong>Die obere Leiste ist aufgeräumt.</strong> Statt dreizehn nebeneinandergedrängter Links gibt es vier Gruppen mit Aufklappmenü — <em>Wörter</em> (Nouns, Adjectives, Declension), <em>Verben</em> (Verbs, Dativ, Konjunktiv I, Passiv), <em>Kleine Wörter</em> (Prepositions, Da-Compounds, Direction Words) und <em>Prüfung</em> (Sprechen, Schreiben, Writing tutor, Mock C1) — daneben <em>Sätze</em> und <em>History</em> als direkte Links und ein Zahnrad für die Einstellungen.',
+      '<strong>Endlich sind alle Module erreichbar.</strong> Konjunktiv I, Passiv, der Writing tutor, die C1-Simulation und das neue Schreiben-Kapitel fehlten in der Leiste komplett — sie hatten nur eine Kachel auf der Startseite. Ein neuer Test wacht darüber: jede Route der App muss von der Navigation aus erreichbar sein, sonst schlägt der Build fehl.',
+      '<strong>Auch das Handy-Menü ist gruppiert.</strong> Die Schublade zeigt dieselben vier Gruppen mit Überschriften und den deutschen Untertiteln — nichts muss mehr gesucht werden.'
+    ]
+  },
   {
     version: '1.20.00', date: '2026-08-12', kind: 'module',
     title: 'Schreiben · Kapitel XIV',
