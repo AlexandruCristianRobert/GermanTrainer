@@ -31,6 +31,10 @@ const items = ref<ArchivedCorrection[]>([])
 // lets `openByKind` exist without a second archive read.
 const allCorrections = ref<ArchivedCorrection[]>([])
 const selectedKind = ref<SprechenErrorTag | null>(null)
+// ADR-0020: the archive now holds Schreiben corrections alongside Sprechen
+// ones (module ?? 'sprechen' on read, see useSprechenArchive.ts). This chip
+// row scopes every read below it, exactly like selectedKind does.
+const selectedModule = ref<'sprechen' | 'schreiben' | null>(null)
 
 // Same five tags and the same German labels Teil2Result.vue's KIND_LABEL
 // uses for the marked transcript, kept in lockstep on purpose.
@@ -46,6 +50,19 @@ const KIND_LABEL: Record<SprechenErrorTag, string> = {
 const totalCount = computed(() =>
   counts.value ? Object.values(counts.value).reduce((a, b) => a + b, 0) : 0
 )
+
+// ADR-0020: counts for the module chip row, derived from `allCorrections`
+// (the same unfiltered snapshot openByKind reuses) so this never triggers a
+// second archive read. Every row here is already normalised by
+// listCorrections, so `.module` is never undefined.
+const moduleCounts = computed<{ sprechen: number; schreiben: number }>(() => {
+  const out = { sprechen: 0, schreiben: 0 }
+  for (const c of allCorrections.value) {
+    if (c.module === 'schreiben') out.schreiben += 1
+    else out.sprechen += 1
+  }
+  return out
+})
 
 /** Open (not-yet-drilled) corrections per kind, derived from `allCorrections`
  *  joined against `drilled` — never a second read of either archive table. */
@@ -105,7 +122,10 @@ const rows = computed<ArchiveRow[]>(() =>
 let loadToken = 0
 async function loadList() {
   const token = ++loadToken
-  const result = await listCorrections(selectedKind.value ? { kind: selectedKind.value } : {})
+  const filter: { kind?: SprechenErrorTag; module?: 'sprechen' | 'schreiben' } = {}
+  if (selectedKind.value) filter.kind = selectedKind.value
+  if (selectedModule.value) filter.module = selectedModule.value
+  const result = await listCorrections(filter)
   if (token === loadToken) items.value = result
 }
 
@@ -116,8 +136,9 @@ async function loadAll() {
     const [c, d] = await Promise.all([countsByKind(), drilledIds()])
     counts.value = c
     drilled.value = d
-    // selectedKind is still null here, so this fetches every correction —
-    // keep that copy around for openByKind instead of reading again per kind.
+    // selectedKind and selectedModule are both still null here, so this
+    // fetches every correction — keep that copy around for openByKind and
+    // moduleCounts instead of reading again per kind/module.
     await loadList()
     allCorrections.value = items.value
   } catch (e) {
@@ -129,6 +150,13 @@ async function loadAll() {
 
 function toggleKind(k: SprechenErrorTag) {
   selectedKind.value = selectedKind.value === k ? null : k
+  loadList().catch(e => {
+    error.value = e instanceof Error ? e.message : 'Filter konnte nicht angewendet werden.'
+  })
+}
+
+function selectModule(m: 'sprechen' | 'schreiben' | null) {
+  selectedModule.value = m
   loadList().catch(e => {
     error.value = e instanceof Error ? e.message : 'Filter konnte nicht angewendet werden.'
   })
@@ -181,6 +209,32 @@ onMounted(loadAll)
     </template>
 
     <template v-else>
+      <div class="spr-kinds spr-modules">
+        <button
+          type="button" class="spr-mkind" :class="{ on: selectedModule === null }"
+          @click="selectModule(null)"
+        >
+          <div class="spr-mkind-n spr-num">{{ totalCount }}</div>
+          <div class="spr-mkind-t">Alle</div>
+        </button>
+        <button
+          type="button" class="spr-mkind" :class="{ on: selectedModule === 'sprechen' }"
+          :disabled="moduleCounts.sprechen === 0"
+          @click="selectModule('sprechen')"
+        >
+          <div class="spr-mkind-n spr-num">{{ moduleCounts.sprechen }}</div>
+          <div class="spr-mkind-t">Sprechen</div>
+        </button>
+        <button
+          type="button" class="spr-mkind" :class="{ on: selectedModule === 'schreiben' }"
+          :disabled="moduleCounts.schreiben === 0"
+          @click="selectModule('schreiben')"
+        >
+          <div class="spr-mkind-n spr-num">{{ moduleCounts.schreiben }}</div>
+          <div class="spr-mkind-t">Schreiben</div>
+        </button>
+      </div>
+
       <div class="spr-kinds">
         <button
           v-for="k in KIND_ORDER" :key="k" type="button" class="spr-kind"
@@ -214,6 +268,10 @@ onMounted(loadAll)
                   v-if="r.c.modality === 'spoken'" class="tag"
                   title="Aus einer gesprochenen Diskussion — kann eine Fehlhörung der Erkennung sein."
                 >gesprochen</span>
+                <span
+                  v-if="r.c.module === 'schreiben'" class="tag"
+                  title="Aus einer Schreiben-Korrektur (ADR-0020) — teilt sich das Fehlerarchiv mit Sprechen."
+                >Schreiben</span>
                 <span class="tag" :class="r.isDrilled ? 'tag-success' : 'tag-ochre'">
                   {{ r.isDrilled ? 'nachgeübt' : 'offen' }}
                 </span>
@@ -248,6 +306,35 @@ onMounted(loadAll)
 <style scoped>
 .archive-page { max-width: 880px; }
 .spoken-note { margin: 0 0 20px; }
+
+/* ADR-0020: the module chip row sits directly above the kind filter row and
+   shares its container (.spr-kinds, from sprechen.css) so the two rows line
+   up identically. Its buttons get their own .spr-mkind* rules — a deliberate
+   near-duplicate of sprechen.css's .spr-kind* rules, kept distinct on
+   purpose so tests/modules/SprechenArchive.test.ts's `.spr-kind` queries
+   (which assume exactly 5 elements, one per Sprechen error tag) keep seeing
+   only the kind-filter row. */
+.spr-modules { margin-top: 32px; }
+.spr-modules + .spr-kinds { border-top: 0; margin-top: 0; }
+
+.spr-mkind {
+  padding: 18px 18px 20px 0; border-right: 1px dotted var(--hairline);
+  background: transparent; border-top: 0; border-bottom: 0; border-left: 0;
+  text-align: left; font: inherit; color: inherit; cursor: pointer; transition: background .16s;
+}
+.spr-mkind:last-child { border-right: 0; }
+.spr-mkind:hover { background: var(--accent-wash); }
+.spr-mkind:disabled { opacity: .4; cursor: not-allowed; }
+.spr-mkind:disabled:hover { background: transparent; }
+.spr-mkind.on { background: var(--accent-tint); }
+.spr-mkind-n {
+  font-family: var(--font-display); font-size: 38px; font-weight: 500;
+  letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.spr-mkind-t {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--mute); margin-top: 8px;
+}
 
 .ar-empty-note { color: var(--ink-soft); font-style: italic; margin: 12px 0; }
 
