@@ -270,7 +270,7 @@ onMounted(loadAll)
                 >gesprochen</span>
                 <span
                   v-if="r.c.module === 'schreiben'" class="tag"
-                  title="Aus einer Schreiben-Korrektur (ADR-0020) — teilt sich das Fehlerarchiv mit Sprechen."
+                  title="Aus einem Forumsbeitrag (Schreiben) — Sprechen und Schreiben teilen sich das Fehlerarchiv."
                 >Schreiben</span>
                 <span class="tag" :class="r.isDrilled ? 'tag-success' : 'tag-ochre'">
                   {{ r.isDrilled ? 'nachgeübt' : 'offen' }}

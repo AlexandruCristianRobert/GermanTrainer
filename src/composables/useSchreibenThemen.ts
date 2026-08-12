@@ -81,16 +81,13 @@ export function allThemen(): Schreibthema[] {
 
 /**
  * Titles of Schreibthemen already graded in a Teil 1 Run. Filters on
- * `e.type === 'schreiben-teil1'` reading `e.meta.topicTitle` (deliberately
- * reused, not forked to `themaTitle` — same convention as
- * useVortragsthemen.ts:96-98). 'schreiben-teil1' is not yet a member of
- * QuizHistoryType (a parallel grader task adds it), so the comparison casts
- * through `string` rather than relying on union narrowing until that lands.
+ * `e.type === 'schreiben-teil1'` — NOT `-teil2` — reading `e.meta.topicTitle`
+ * (deliberately reused, not forked to `themaTitle`; see useQuizHistory.ts).
  */
 export function doneThemaTitles(): Set<string> {
   const titles = new Set<string>()
   for (const e of loadHistory()) {
-    if ((e.type as string) === 'schreiben-teil1' && typeof e.meta.topicTitle === 'string') {
+    if (e.type === 'schreiben-teil1' && typeof e.meta.topicTitle === 'string') {
       titles.add(e.meta.topicTitle)
     }
   }

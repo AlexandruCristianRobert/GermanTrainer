@@ -335,7 +335,6 @@ async function runGrading() {
     const matched = matchRedemittel([b.textDe], SCHREIBEN_SCHREIBMITTEL).map(p => p.id)
 
     if (!runRecorded.value) {
-      runRecorded.value = true
       bumpRedemittelYield(matched, finishedAt)
       saveQuizRun({
         type: 'schreiben-teil1',
@@ -370,6 +369,7 @@ async function runGrading() {
           sprechenOverallEn: result.overallEn
         }
       })
+      runRecorded.value = true
 
       // Deliberately non-fatal, same reasoning as the Vortrag/Discussion
       // runners: the Run above is already recorded, so throwing here would

@@ -225,7 +225,7 @@ function start() {
             <div class="spr-sheet-t">{{ chosen.titleDe }}</div>
             <p class="sch-sheet-forum">{{ chosen.forumContextDe }}</p>
             <p class="spr-sheet-task">{{ chosen.taskDe }}</p>
-            <ol class="spr-sheet-glied sch-inhaltspunkte">
+            <ol class="spr-sheet-glied">
               <li v-for="(p, i) in chosen.inhaltspunkte" :key="i">{{ p }}</li>
             </ol>
             <div class="spr-sheet-f">
