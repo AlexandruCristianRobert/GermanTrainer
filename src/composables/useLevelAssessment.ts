@@ -140,6 +140,7 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'writing-grade': 'graded essay (writing tutor)',
   'simulator-c1': 'Goethe C1 simulator (mock exam)',
   'sprechen-teil1': 'Sprechen Teil 1 — a four-minute Vortrag on a task sheet with five fixed points, plus one follow-up question, typed or spoken (score 0-100, Goethe B2 rubric)',
+  'schreiben-teil1': 'Schreiben Teil 1 — a forum post of at least 150 words covering a task sheet\'s four content points (score 0-100, Goethe B2 rubric)',
   'sprechen-teil2': 'Sprechen Teil 2 — discussion with an AI partner, typed or spoken (score 0-100, Goethe B2 rubric)',
   'sprechen-drill':
     'Sprechen Korrekturdrill — re-practice of the learner\'s OWN previously marked ' +

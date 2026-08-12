@@ -5,6 +5,7 @@ import type { SimulatorSession } from '../data/simulatorC1'
 import type { SprechenDiscussion, SprechenVortrag } from '../data/sprechen'
 import type { ArchivedCorrection, CorrectionEvent } from '../composables/useSprechenArchive'
 import type { CachedArgumentBank } from '../data/sprechenArguments'
+import type { CachedSchreibArgumentBank, SchreibenBeitrag } from '../data/schreiben'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
 
@@ -21,6 +22,10 @@ export class GermanTrainerDb extends Dexie {
   sprechenArgumentBanks!: Table<CachedArgumentBank, string>
   /** Teil 1 working state — one in-flight Vortrag at a time (see useVortrag.ts). */
   sprechenVortraege!: Table<SprechenVortrag, string>
+  /** Schreiben Teil 1 working state — one in-flight Forumsbeitrag at a time (see useSchreibenBeitrag.ts). */
+  schreibenBeitraege!: Table<SchreibenBeitrag, string>
+  /** Cached AI-generated argument bank per Schreibthema (see ../data/schreiben). */
+  schreibenArgumentBanks!: Table<CachedSchreibArgumentBank, string>
 
   constructor() {
     super('GermanTrainerDb')
@@ -179,6 +184,23 @@ export class GermanTrainerDb extends Dexie {
       // version(8): add missing germans, re-group where the seed changed it,
       // leave user-added nouns untouched.
       await topUpNounsFromSeed(tx)
+    })
+    this.version(13).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt',
+      sprechenDiscussions: '&id, status, startedAt',
+      sprechenCorrections: '&id, kind, createdAt, topicTitle',
+      sprechenCorrectionEvents: '&id, correctionId, at',
+      sprechenArgumentBanks: 'topicId',
+      sprechenVortraege: '&id, status, startedAt',
+      // Schreiben Teil 1 working state (see useSchreibenBeitrag.ts) plus its
+      // cached argument bank. Purely additive — no upgrade hook, because no
+      // existing row gains a required field.
+      schreibenBeitraege: '&id, status, startedAt',
+      schreibenArgumentBanks: 'themaId'
     })
   }
 }

@@ -538,7 +538,7 @@ function openDrill() { router.push({ name: 'sprechen-drill' }) }
 
       <div class="alert alert-info spr-archive-cta">
         <span class="alert-label">Fehlerarchiv</span>
-        Vortrag und Diskussion schreiben ins selbe Archiv — der Korrekturdrill mischt beide.
+        Vortrag, Diskussion und Forumsbeitrag schreiben ins selbe Archiv — der Korrekturdrill mischt alle drei.
         <div class="spr-archive-actions">
           <button class="btn btn-ghost" type="button" @click="openArchive">Archiv öffnen</button>
           <button class="btn btn-accent" type="button" @click="openDrill">Korrekturdrill starten <span aria-hidden="true">→</span></button>

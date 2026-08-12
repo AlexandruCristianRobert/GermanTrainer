@@ -59,6 +59,7 @@ export type QuizHistoryType =
   | 'writing-grade'
   | 'simulator-c1'
   | 'sprechen-teil1'
+  | 'schreiben-teil1'
   | 'sprechen-teil2'
   | 'sprechen-drill'
   | 'sentence-packed'
@@ -320,6 +321,9 @@ export interface QuizHistoryMeta {
   sprechenDrilledKinds?: Partial<Record<SprechenErrorTag, number>>
 
   // Sprechen Teil 1 (Vortrag) — summary only, no Rede, no Nachfrage.
+  // `schreiben-teil1` runs (Forumsbeitrag) reuse this same `sprechen*` meta
+  // cluster rather than forking their own fields — the `type` discriminator
+  // already tells the two apart, in ADR-0020's misnomer-containment spirit.
   // `topicTitle` is deliberately reused rather than forked to `themaTitle`:
   // the hub's merged recents list reads meta.topicTitle for both parts, and
   // the Topic/Vortragsthema distinction is a domain one, not a storage one.

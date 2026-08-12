@@ -116,6 +116,14 @@ const modules: ModuleCard[] = [
     title: 'Dative',
     desc: 'helfen, danken, gefallen — the verbs and adjectives that mark their person dative, the English pull that breaks them, and the inverted sentences.',
     meta: '13 drills · cheatsheet · item ledger'
+  },
+  {
+    numeral: 'XIV',
+    route: 'schreiben',
+    de: 'Goethe B2 · Schreiben',
+    title: 'Forumsbeitrag',
+    desc: 'Teil 1 der B2-Prüfung trainieren: ein Schreibthema, vier Inhaltspunkte, mindestens 150 Wörter — mit Schreibplan, Redemittel-Drawer und Bewertung nach der offiziellen Rubrik.',
+    meta: 'Teil 1 live · Teil 2 folgt · AI-graded'
   }
 ]
 
@@ -133,7 +141,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/XIII</div>
+        <div class="breadcrumb">Frontispiece · I/XIV</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,

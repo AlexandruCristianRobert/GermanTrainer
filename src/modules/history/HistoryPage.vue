@@ -97,6 +97,7 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'writing-grade':      { label: 'Writing — graded essay',         de: 'Schreiben · benoteter Aufsatz', module: 'Schreiben' },
   'simulator-c1':       { label: 'Goethe C1 — mock exam',          de: 'Goethe C1 · Prüfungssimulation', module: 'Schreiben' },
   'sprechen-teil1':     { label: 'Sprechen — Teil 1 Vortrag',       de: 'Sprechen · Teil 1 Vortrag',    module: 'Sprechen' },
+  'schreiben-teil1':    { label: 'Schreiben — Teil 1 Forumsbeitrag', de: 'Schreiben · Teil 1 Forumsbeitrag', module: 'Schreiben' },
   'sprechen-teil2':     { label: 'Sprechen — Teil 2 discussion',    de: 'Sprechen · Teil 2 Diskussion', module: 'Sprechen' },
   'sprechen-drill':     { label: 'Sprechen — Korrekturdrill',       de: 'Sprechen · Korrekturdrill',    module: 'Sprechen' },
   'sentence-packed':    { label: 'Sentence · packed (AI)',          de: 'Satz · Gepackt (KI)',          module: 'Sentence' },
@@ -145,6 +146,7 @@ const typeOrder: QuizHistoryType[] = [
   'writing-grade',
   'simulator-c1',
   'sprechen-teil1',
+  'schreiben-teil1',
   'sprechen-teil2',
   'sprechen-drill'
 ]

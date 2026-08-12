@@ -41,6 +41,16 @@ export interface ArchivedCorrection {
    * and the defaulting lives here in the repository, never in the schema.
    */
   part?: 1 | 2
+  /**
+   * Which exam skill produced this correction. OPTIONAL and written on new
+   * rows only (ADR-0020): Schreiben corrections join these same append-only
+   * tables rather than getting a parallel archive, and ADR-0012 forbids
+   * mutating an existing row, so there is no backfill migration. `undefined`
+   * reads as 'sprechen' — the only module that existed before Schreiben
+   * joined — and the defaulting lives here in the repository, never in the
+   * schema. Exactly the same pattern as `part` above.
+   */
+  module?: 'sprechen' | 'schreiben'
 }
 
 /**
@@ -70,19 +80,33 @@ export async function appendCorrections(
 }
 
 /**
- * Newest first, with optional kind/part filter and result cap.
+ * Read-side normalisation, shared by every read path in this module.
+ * `part ?? 2` and `module ?? 'sprechen'` are both ADR-0012 defaults: neither
+ * field is ever backfilled onto an existing row, so a row written before
+ * that field existed simply lacks it, and this function is where the two
+ * historical defaults ("Teil 2" / "Sprechen") get applied on the way out.
+ */
+export function normalizeCorrection(
+  row: ArchivedCorrection
+): ArchivedCorrection & { part: 1 | 2; module: 'sprechen' | 'schreiben' } {
+  return { ...row, part: row.part ?? 2, module: row.module ?? 'sprechen' }
+}
+
+/**
+ * Newest first, with optional kind/part/module filter and result cap.
  *
- * Every row is normalised on read — `part: row.part ?? 2` — so no consumer
- * ever sees `undefined`. This is a full-table scan, same as every other read
- * in this module; `part` gets no Dexie index (that needs a version bump this
- * task does not own).
+ * Every row is normalised on read via `normalizeCorrection` so no consumer
+ * ever sees `undefined` for `part` or `module`. This is a full-table scan,
+ * same as every other read in this module; neither field gets a Dexie index
+ * (that needs a version bump this task does not own).
  */
 export async function listCorrections(
-  filter: { kind?: SprechenErrorTag; part?: 1 | 2; limit?: number } = {}
+  filter: { kind?: SprechenErrorTag; part?: 1 | 2; module?: 'sprechen' | 'schreiben'; limit?: number } = {}
 ): Promise<ArchivedCorrection[]> {
-  let all = (await db.sprechenCorrections.toArray()).map(c => ({ ...c, part: c.part ?? 2 as const }))
+  let all = (await db.sprechenCorrections.toArray()).map(normalizeCorrection)
   if (filter.kind) all = all.filter(c => c.kind === filter.kind)
   if (filter.part != null) all = all.filter(c => c.part === filter.part)
+  if (filter.module != null) all = all.filter(c => c.module === filter.module)
   all.sort((a, b) => b.createdAt - a.createdAt)
   return filter.limit != null ? all.slice(0, filter.limit) : all
 }
@@ -121,15 +145,25 @@ export async function drilledIds(): Promise<Set<string>> {
 }
 
 /** Corrections with no successful drill event yet, newest first. */
-export async function openCorrections(limit?: number, part?: 1 | 2): Promise<ArchivedCorrection[]> {
+export async function openCorrections(
+  limit?: number, part?: 1 | 2, module?: 'sprechen' | 'schreiben'
+): Promise<ArchivedCorrection[]> {
   const drilled = await drilledIds()
-  const all = await listCorrections(part != null ? { part } : {})
+  const filter: { part?: 1 | 2; module?: 'sprechen' | 'schreiben' } = {}
+  if (part != null) filter.part = part
+  if (module != null) filter.module = module
+  const all = await listCorrections(filter)
   const open = all.filter(c => !drilled.has(c.id))
   return limit != null ? open.slice(0, limit) : open
 }
 
-/** Standing counts per Sprechen error tag, for the archive's grouped view. Optionally scoped to one exam part. */
-export async function countsByKind(part?: 1 | 2): Promise<Record<SprechenErrorTag, number>> {
+/**
+ * Standing counts per Sprechen error tag, for the archive's grouped view.
+ * Optionally scoped to one exam part and/or one module.
+ */
+export async function countsByKind(
+  part?: 1 | 2, module?: 'sprechen' | 'schreiben'
+): Promise<Record<SprechenErrorTag, number>> {
   const counts: Record<SprechenErrorTag, number> = {
     grammar: 0,
     'word-order': 0,
@@ -137,7 +171,10 @@ export async function countsByKind(part?: 1 | 2): Promise<Record<SprechenErrorTa
     spelling: 0,
     register: 0
   }
-  const all = await listCorrections(part != null ? { part } : {})
+  const filter: { part?: 1 | 2; module?: 'sprechen' | 'schreiben' } = {}
+  if (part != null) filter.part = part
+  if (module != null) filter.module = module
+  const all = await listCorrections(filter)
   for (const c of all) counts[c.kind] += 1
   return counts
 }
