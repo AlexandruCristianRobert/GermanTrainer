@@ -197,7 +197,15 @@ export const routes: RouteRecordRaw[] = [
   { path: '/sprechen/teil2/run', name: 'sprechen-teil2-run', component: () => import('./modules/sprechen/Teil2Runner.vue') },
   { path: '/sprechen/teil2/result', name: 'sprechen-teil2-result', component: () => import('./modules/sprechen/Teil2Result.vue') },
   { path: '/sprechen/archive', name: 'sprechen-archive', component: () => import('./modules/sprechen/SprechenArchive.vue') },
-  { path: '/sprechen/drill', name: 'sprechen-drill', component: () => import('./modules/sprechen/SprechenDrill.vue') }
+  { path: '/sprechen/drill', name: 'sprechen-drill', component: () => import('./modules/sprechen/SprechenDrill.vue') },
+  // Schreiben (Goethe B2 exam trainer — CONTEXT.md → Forumsbeitrag). Distinct
+  // from /writing, the C1 keep-every-draft tutor.
+  { path: '/schreiben', name: 'schreiben', component: () => import('./modules/schreiben/SchreibenHome.vue') },
+  { path: '/schreiben/cheatsheet', name: 'schreiben-cheatsheet', component: () => import('./modules/schreiben/SchreibenCheatsheet.vue') },
+  { path: '/schreiben/teil1', name: 'schreiben-teil1', component: () => import('./modules/schreiben/Teil1Setup.vue') },
+  { path: '/schreiben/teil1/prep', name: 'schreiben-teil1-prep', component: () => import('./modules/schreiben/Teil1Prep.vue') },
+  { path: '/schreiben/teil1/run', name: 'schreiben-teil1-run', component: () => import('./modules/schreiben/Teil1Runner.vue') },
+  { path: '/schreiben/teil1/result', name: 'schreiben-teil1-result', component: () => import('./modules/schreiben/Teil1Result.vue') }
 ]
 
 export const router = createRouter({
