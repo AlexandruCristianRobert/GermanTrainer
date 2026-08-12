@@ -403,3 +403,12 @@ export const SCHREIBEN_MUSTER: Mustertext[] = [
     ]
   }
 ]
+
+/**
+ * Pattern-title lookup for badges and links (Setup preview, pool list, Prep
+ * mast). Derived from the models so it can never drift from what the
+ * Mustertexte page shows.
+ */
+export const MUSTER_TITLE: Record<MusterId, string> = Object.fromEntries(
+  SCHREIBEN_MUSTER.map(m => [m.id, m.titleDe])
+) as Record<MusterId, string>

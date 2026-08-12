@@ -25,7 +25,7 @@ import {
   type SchreibenRunStash, type SchreibPlanEntry
 } from '../../data/schreiben'
 import { resolveSchreibArgumentBank } from '../../data/schreibenArguments'
-import { SCHREIBTHEMA_MUSTER } from '../../data/schreibenMuster'
+import { SCHREIBTHEMA_MUSTER, MUSTER_TITLE } from '../../data/schreibenMuster'
 import type { ArgumentBank } from '../../data/sprechenArguments'
 import {
   loadCachedSchreibBank, generateSchreibArgumentBank, saveCachedSchreibBank
@@ -260,7 +260,10 @@ function backToSetup() { router.push({ name: 'schreiben-teil1' }) }
 
     <div class="spr-prep-mast">
       <div>
-        <div class="spr-lbl">Schreibthema · {{ stash.thema.titleDe }}</div>
+        <div class="spr-lbl">
+          Schreibthema · {{ stash.thema.titleDe }}
+          <span v-if="musterId" class="sch-mast-muster">{{ MUSTER_TITLE[musterId] }}</span>
+        </div>
         <p class="sch-prep-forum">{{ stash.thema.forumContextDe }}</p>
         <p class="spr-prep-stmt">{{ stash.thema.taskDe }}</p>
         <div class="spr-sides">
@@ -378,6 +381,19 @@ function backToSetup() { router.push({ name: 'schreiben-teil1' }) }
 /* Quiet inline link to the Mustertexte library, right under the task-sheet
    stats row — no button affordance. */
 .sch-muster-link { font-size: 12.5px; margin: 12px 0 0; }
+
+/* Aufgabenmuster badge beside the mast label — the pattern the learner is
+   about to write, named where they plan it. */
+.sch-mast-muster {
+  color: var(--accent);
+  border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin-left: 8px;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
 .regen-btn { text-transform: none; letter-spacing: normal; font-family: var(--font-body); font-size: 13px; }
 .ai-cost-note {
   margin: 8px 0 0;

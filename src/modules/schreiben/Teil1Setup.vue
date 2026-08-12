@@ -20,7 +20,7 @@ import {
   type SchreibHelps, type SchreibenBeitrag, type SchreibenRunStash, type SchreibThemaRef
 } from '../../data/schreiben'
 import type { Schreibthema } from '../../data/schreibenThemen'
-import { SCHREIBTHEMA_MUSTER } from '../../data/schreibenMuster'
+import { SCHREIBTHEMA_MUSTER, MUSTER_TITLE } from '../../data/schreibenMuster'
 import {
   drawThema, allThemen, doneThemaTitles,
   addCustomThemen, deleteCustomThema, generateThemen
@@ -234,6 +234,7 @@ function start() {
             <div class="spr-sheet-h">
               <span class="spr-sheet-letter">Schreibthema</span>
               <span class="spr-sheet-flags">
+                <span v-if="musterId" class="spr-flag sch-muster-flag">{{ MUSTER_TITLE[musterId] }}</span>
                 <span v-if="done.has(chosen.titleDe)" class="spr-flag done">✓ geschrieben</span>
                 <span v-if="chosen.source === 'custom'" class="spr-flag cache">generiert</span>
               </span>
@@ -275,6 +276,7 @@ function start() {
                 <span class="spr-titem-t">
                   {{ t.titleDe }}
                   <span class="spr-titem-tags">{{ t.tags.join(' · ') }}</span>
+                  <span v-if="SCHREIBTHEMA_MUSTER[t.id]" class="sch-titem-muster">{{ MUSTER_TITLE[SCHREIBTHEMA_MUSTER[t.id]] }}</span>
                 </span>
                 <span class="spr-titem-s spr-titem-block">{{ t.taskDe }}</span>
               </span>
@@ -374,6 +376,19 @@ function start() {
 /* Quiet inline link to the Mustertexte library, sharing .spr-sheet-f's
    existing space-between row with the tags — no button affordance. */
 .sch-muster-link { font-size: 12.5px; white-space: nowrap; }
+
+/* Aufgabenmuster badge: the pattern name on the sheet header and, smaller,
+   in the pool list — accent-toned so it reads as a category, not a status. */
+.sch-muster-flag { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
+.sch-titem-muster {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-left: 10px;
+  white-space: nowrap;
+}
 
 .spr-tlist-spaced { margin-top: 26px; }
 .spr-tlist-row { display: flex; align-items: center; gap: 10px; }
