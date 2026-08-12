@@ -340,6 +340,12 @@ _Avoid_: outline, Vortragsplan (Sprechen's), notes, checklist
 The Schreiben Teil 1 phrase bank: stock written-German phrases for a [Forumsbeitrag], filed under the Beitragsfunktionen (see [Move]). A kind of Redemittel, like [Vortragsmittel] — so [Redemittel yield] counts them on their own separate tally, and the cheatsheet gives them their own tab.
 _Avoid_: Redemittel (unqualified, where the Schreiben bank specifically is meant), Vortragsmittel (Sprechen Teil 1's bank), Textbausteine, phrase list
 
+**Aufgabenmuster**: One of five recurring shapes the four [Inhaltspunkt]s of a [Schreibthema] take — *Pro & Contra abwägen*, *Meinung + Alternative vorschlagen*, *Eigene Erfahrung als Beleg*, *Gegenmeinung entkräften*, *Maßnahme bewerten & empfehlen*. Every seeded Schreibthema is mapped to its **dominant** Aufgabenmuster (custom themes are not mapped); the mapping is a study lens that picks the right [Mustertext], never a filter, never a grading input.
+_Avoid_: Textsorte (email genres are Teil 2's world), task type, Kategorie, pattern (code-only term)
+
+**Mustertext**: The annotated model [Forumsbeitrag] for one [Aufgabenmuster]: a hand-authored answer of exam length to one seeded [Schreibthema], marked up in three layers — Konnektoren, [Schreibmittel]-style moves, grammatische Strukturen — where every marked span carries a note explaining why the device works *at that spot*. Read-only teaching material: never graded, never counted in [Redemittel yield], never a [Run].
+_Avoid_: sample essay, Vorlage, Musterlösung (implies the one correct answer), template (that is the skeleton, the paragraph plan beside it)
+
 ### Identity & history
 
 **User**:

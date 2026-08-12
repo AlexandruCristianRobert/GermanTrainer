@@ -79,6 +79,11 @@ function everUsed(id: string): boolean {
     </template>
 
     <template v-else>
+      <p class="schr-muster-pointer">
+        Die fünf Aufgabenmuster mit kommentierten Mustertexten →
+        <router-link :to="{ name: 'schreiben-muster' }">Mustertexte</router-link>
+      </p>
+
       <section v-for="(s, i) in SCHREIBEN_TEIL1_TIPPS" :key="s.id" :id="`schr-tipp-${s.id}`" class="plate">
         <div class="plate-h">
           <span class="plate-n">{{ tippNumerals[i] }}</span>
@@ -104,6 +109,11 @@ function everUsed(id: string): boolean {
 
 .spr-usedot { color: var(--mute); }
 .spr-usedot.on { color: var(--accent); }
+
+/* Cross-reference to the Mustertexte library, above the Strategie tab's
+   plates — quiet inline link, no dedicated "note" class exists in this file
+   to reuse (SprechenCheatsheet.vue's .spr-note is scoped there, not shared). */
+.schr-muster-pointer { font-size: 13.5px; font-style: italic; color: var(--mute); margin: 0 0 28px; }
 
 /* Same small pill-shaped segmented control as SprechenCheatsheet.vue's Teil
    1 / Teil 2 toggle — scoped here for the same reason: no shared "segmented

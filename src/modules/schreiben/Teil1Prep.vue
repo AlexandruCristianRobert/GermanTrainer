@@ -25,6 +25,7 @@ import {
   type SchreibenRunStash, type SchreibPlanEntry
 } from '../../data/schreiben'
 import { resolveSchreibArgumentBank } from '../../data/schreibenArguments'
+import { SCHREIBTHEMA_MUSTER } from '../../data/schreibenMuster'
 import type { ArgumentBank } from '../../data/sprechenArguments'
 import {
   loadCachedSchreibBank, generateSchreibArgumentBank, saveCachedSchreibBank
@@ -45,6 +46,19 @@ const regenerating = ref(false)
 let stashDebounce: number | undefined
 
 const filledCount = computed(() => plan.value.filter(p => p.keyword.trim().length > 0).length)
+
+// Mustertext cross-link (design doc, Integration) — same resolution as
+// Teil1Setup.vue's task-sheet preview: only the 24 seeded themes are mapped,
+// so custom/AI themes fall back to the library link without a query.
+const musterId = computed(() => (stash.value ? SCHREIBTHEMA_MUSTER[stash.value.thema.id] : undefined))
+const musterLinkLabel = computed(() =>
+  musterId.value ? 'Mustertext zu diesem Aufgabentyp' : 'Mustertexte ansehen'
+)
+const musterLinkTo = computed(() =>
+  musterId.value
+    ? { name: 'schreiben-muster', query: { muster: musterId.value } }
+    : { name: 'schreiben-muster' }
+)
 
 // F11-style keyword hygiene, identical normalisation to Sprechen Teil 1's
 // prep matcher (punctuation stripped, whitespace collapsed, case-folded) so
@@ -254,6 +268,9 @@ function backToSetup() { router.push({ name: 'schreiben-teil1' }) }
           <span style="opacity: 0.5">·</span>
           <span>Ziel</span><b>{{ SCHREIBEN_TARGET_WORDS }} Wörter</b>
         </div>
+        <p class="sch-muster-link">
+          <router-link :to="musterLinkTo">{{ musterLinkLabel }} <span aria-hidden="true">→</span></router-link>
+        </p>
       </div>
     </div>
 
@@ -357,6 +374,10 @@ function backToSetup() { router.push({ name: 'schreiben-teil1' }) }
 <style scoped>
 .prep-page { max-width: 900px; }
 .sch-prep-forum { font-size: 13.5px; line-height: 1.5; color: var(--mute); font-style: italic; margin: 8px 0 0; }
+
+/* Quiet inline link to the Mustertexte library, right under the task-sheet
+   stats row — no button affordance. */
+.sch-muster-link { font-size: 12.5px; margin: 12px 0 0; }
 .regen-btn { text-transform: none; letter-spacing: normal; font-family: var(--font-body); font-size: 13px; }
 .ai-cost-note {
   margin: 8px 0 0;

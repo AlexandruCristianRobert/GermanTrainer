@@ -20,6 +20,7 @@ import {
   type SchreibHelps, type SchreibenBeitrag, type SchreibenRunStash, type SchreibThemaRef
 } from '../../data/schreiben'
 import type { Schreibthema } from '../../data/schreibenThemen'
+import { SCHREIBTHEMA_MUSTER } from '../../data/schreibenMuster'
 import {
   drawThema, allThemen, doneThemaTitles,
   addCustomThemen, deleteCustomThema, generateThemen
@@ -76,6 +77,21 @@ const chosen = computed<Schreibthema>(() => {
   }
   return drawn.value
 })
+
+// Mustertext cross-link (design doc, Integration): only the 24 seeded themes
+// are mapped, so custom/AI themes fall back to the library link without a
+// query — SCHREIBTHEMA_MUSTER[id] resolves to undefined at runtime for them
+// even though the Record's value type has no `| undefined` (no
+// noUncheckedIndexedAccess in this repo's tsconfig).
+const musterId = computed(() => SCHREIBTHEMA_MUSTER[chosen.value.id])
+const musterLinkLabel = computed(() =>
+  musterId.value ? 'Mustertext zu diesem Aufgabentyp' : 'Mustertexte ansehen'
+)
+const musterLinkTo = computed(() =>
+  musterId.value
+    ? { name: 'schreiben-muster', query: { muster: musterId.value } }
+    : { name: 'schreiben-muster' }
+)
 
 function toThemaRef(t: Schreibthema): SchreibThemaRef {
   return {
@@ -230,6 +246,9 @@ function start() {
             </ol>
             <div class="spr-sheet-f">
               <span class="spr-titem-tags">{{ chosen.tags.join(' · ') }}</span>
+              <router-link class="sch-muster-link" :to="musterLinkTo">
+                {{ musterLinkLabel }} <span aria-hidden="true">→</span>
+              </router-link>
             </div>
           </div>
         </div>
@@ -351,6 +370,10 @@ function start() {
 .sch-sheet-static:hover { background: var(--paper-card); }
 
 .sch-sheet-forum { font-size: 14px; line-height: 1.5; color: var(--mute); margin: 10px 0 0; font-style: italic; }
+
+/* Quiet inline link to the Mustertexte library, sharing .spr-sheet-f's
+   existing space-between row with the tags — no button affordance. */
+.sch-muster-link { font-size: 12.5px; white-space: nowrap; }
 
 .spr-tlist-spaced { margin-top: 26px; }
 .spr-tlist-row { display: flex; align-items: center; gap: 10px; }
