@@ -12,6 +12,8 @@ describe('db', () => {
     expect(db.tables.map(t => t.name).sort()).toEqual([
       'adjectives',
       'nouns',
+      'schreibenArgumentBanks',
+      'schreibenBeitraege',
       'settings',
       'simulatorSessions',
       'sprechenArgumentBanks',
