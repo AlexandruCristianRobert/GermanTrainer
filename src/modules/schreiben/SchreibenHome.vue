@@ -11,6 +11,7 @@ import { countsByKind, openCorrections } from '../../composables/useSprechenArch
 import { lifetimeCounts } from '../../composables/useRedemittelYield'
 import { allThemen, doneThemaTitles } from '../../composables/useSchreibenThemen'
 import { SCHREIBEN_SCHREIBMITTEL } from '../../data/schreibenMittel'
+import { SCHREIBEN_MUSTER } from '../../data/schreibenMuster'
 import SchrYield from '../../components/schreiben/SchrYield.vue'
 import SprCriterionBars, { type CriterionScore } from '../../components/sprechen/SprCriterionBars.vue'
 import { SCHREIBEN_B2_TEIL1 } from '../../data/rubrics'
@@ -84,12 +85,18 @@ const rows = [
       'Tipps zu Aufbau, Zeitbudget, Wortzahl und den vier Bewertungskriterien.'
   },
   {
-    n: 'II', route: 'sprechen-archive', title: 'Fehlerarchiv',
+    n: 'II', route: 'schreiben-muster', title: 'Mustertexte',
+    de: 'Fünf Aufgabenmuster, Satz für Satz erklärt',
+    desc: 'Ein annotierter Mustertext je Aufgabenmuster: Konnektoren, Schreibmittel-Züge und ' +
+      'grammatische Strukturen markiert, jede Stelle mit einer eigenen Begründung.'
+  },
+  {
+    n: 'III', route: 'sprechen-archive', title: 'Fehlerarchiv',
     de: 'Wiederkehrende Fehler',
     desc: 'Deine eigenen falschen Stellen aus den Forumsbeiträgen, nach Fehlerart sortiert. Der Text selbst wird verworfen — diese Sätze nicht.'
   },
   {
-    n: 'III', route: 'sprechen-drill', title: 'Korrekturdrill',
+    n: 'IV', route: 'sprechen-drill', title: 'Korrekturdrill',
     de: 'Deine Sätze, noch einmal',
     desc: 'Spielt deine eigenen markierten Stellen aus — du tippst nur die Korrektur. Was du richtig hast, gilt als nachgeübt.'
   }
@@ -98,6 +105,9 @@ const rows = [
 function metaFor(route: string): string[] {
   if (route === 'schreiben-cheatsheet') {
     return [`${SCHREIBEN_SCHREIBMITTEL.length} Wendungen`, `${usedSchreibmittelCount.value} davon benutzt`]
+  }
+  if (route === 'schreiben-muster') {
+    return [`${SCHREIBEN_MUSTER.length} Muster`]
   }
   if (archiveState.value === 'loading') return ['Archiv wird geladen']
   if (archiveState.value === 'failed' || !archive.value) return ['Archiv nicht lesbar']

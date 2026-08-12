@@ -202,6 +202,7 @@ export const routes: RouteRecordRaw[] = [
   // from /writing, the C1 keep-every-draft tutor.
   { path: '/schreiben', name: 'schreiben', component: () => import('./modules/schreiben/SchreibenHome.vue') },
   { path: '/schreiben/cheatsheet', name: 'schreiben-cheatsheet', component: () => import('./modules/schreiben/SchreibenCheatsheet.vue') },
+  { path: '/schreiben/muster', name: 'schreiben-muster', component: () => import('./modules/schreiben/MusterView.vue') },
   { path: '/schreiben/teil1', name: 'schreiben-teil1', component: () => import('./modules/schreiben/Teil1Setup.vue') },
   { path: '/schreiben/teil1/prep', name: 'schreiben-teil1-prep', component: () => import('./modules/schreiben/Teil1Prep.vue') },
   { path: '/schreiben/teil1/run', name: 'schreiben-teil1-run', component: () => import('./modules/schreiben/Teil1Runner.vue') },

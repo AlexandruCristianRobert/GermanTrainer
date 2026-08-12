@@ -325,7 +325,7 @@ A Goethe B2 Schreiben Teil 1 writing-practice unit: one [Schreibthema], one guid
 _Avoid_: essay, draft (the C1 tutor's unit), Diskussionsbeitrag, post, Teil 1 (the exam part, not one practice unit)
 
 **Schreibthema**:
-The task sheet a [Forumsbeitrag] answers: a controversial subject framed as an online-forum discussion, the exam-style instruction, and its own four [Inhaltspunkt]s. Like a [Topic] it invites taking a side — but it is a full task sheet rather than a bare statement, and it belongs to Schreiben: its own seeded pool and its own AI-generated custom pool, mirroring [Vortragsthema], never shared with the Sprechen pools. Tagged with the same ten fields as the Sprechen pools, but resolving its *own* writing argument bank — written-register pro/contra angles and Textwortschatz, layered like Sprechen's: AI-cached per Schreibthema, hand-authored for flagship themes, per-field fallback so every theme resolves offline.
+The task sheet a [Forumsbeitrag] answers: a controversial subject framed as an online-forum discussion, the exam-style instruction, and its own four [Inhaltspunkt]s. Like a [Topic] it invites taking a side — but it is a full task sheet rather than a bare statement, and it belongs to Schreiben: its own seeded pool and its own AI-generated custom pool, mirroring [Vortragsthema], never shared with the Sprechen pools. Tagged with the same ten fields as the Sprechen pools, but resolving its *own* writing argument bank — written-register pro/contra angles and Textwortschatz, layered like Sprechen's: AI-cached per Schreibthema, hand-authored for flagship themes, per-field fallback so every theme resolves offline. Every seeded Schreibthema also carries a dominant [Aufgabenmuster] — the lens that picks its matching [Mustertext].
 _Avoid_: Topic (Sprechen Teil 2's term), Vortragsthema (Sprechen Teil 1's), prompt (the C1 tutor's word), Thema (ambiguous across modules)
 
 **Inhaltspunkt**:
@@ -339,6 +339,12 @@ _Avoid_: outline, Vortragsplan (Sprechen's), notes, checklist
 **Schreibmittel**:
 The Schreiben Teil 1 phrase bank: stock written-German phrases for a [Forumsbeitrag], filed under the Beitragsfunktionen (see [Move]). A kind of Redemittel, like [Vortragsmittel] — so [Redemittel yield] counts them on their own separate tally, and the cheatsheet gives them their own tab.
 _Avoid_: Redemittel (unqualified, where the Schreiben bank specifically is meant), Vortragsmittel (Sprechen Teil 1's bank), Textbausteine, phrase list
+
+**Aufgabenmuster**: One of five recurring shapes the four [Inhaltspunkt]s of a [Schreibthema] take — *Pro & Contra abwägen*, *Meinung + Alternative vorschlagen*, *Eigene Erfahrung als Beleg*, *Gegenmeinung entkräften*, *Maßnahme bewerten & empfehlen*. Every seeded Schreibthema is mapped to its **dominant** Aufgabenmuster (custom themes are not mapped); the mapping is a study lens that picks the right [Mustertext], never a filter, never a grading input.
+_Avoid_: Textsorte (email genres are Teil 2's world), task type, Kategorie, pattern (code-only term)
+
+**Mustertext**: The annotated model [Forumsbeitrag] for one [Aufgabenmuster]: a hand-authored answer of exam length to one seeded [Schreibthema], marked up in three layers — Konnektoren, [Schreibmittel]-style moves, grammatische Strukturen — where every marked span carries a note explaining why the device works *at that spot*. Read-only teaching material: never graded, never counted in [Redemittel yield], never a [Run].
+_Avoid_: sample essay, Vorlage, Musterlösung (implies the one correct answer), template (that is the skeleton, the paragraph plan beside it)
 
 ### Identity & history
 

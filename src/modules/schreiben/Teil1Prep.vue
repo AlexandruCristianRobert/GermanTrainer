@@ -25,6 +25,7 @@ import {
   type SchreibenRunStash, type SchreibPlanEntry
 } from '../../data/schreiben'
 import { resolveSchreibArgumentBank } from '../../data/schreibenArguments'
+import { SCHREIBTHEMA_MUSTER } from '../../data/schreibenMuster'
 import type { ArgumentBank } from '../../data/sprechenArguments'
 import {
   loadCachedSchreibBank, generateSchreibArgumentBank, saveCachedSchreibBank
@@ -46,6 +47,19 @@ let stashDebounce: number | undefined
 
 const filledCount = computed(() => plan.value.filter(p => p.keyword.trim().length > 0).length)
 
+// Mustertext cross-link (design doc, Integration) — same resolution as
+// Teil1Setup.vue's task-sheet preview: only the 24 seeded themes are mapped,
+// so custom/AI themes fall back to the library link without a query.
+const musterId = computed(() => (stash.value ? SCHREIBTHEMA_MUSTER[stash.value.thema.id] : undefined))
+const musterLinkLabel = computed(() =>
+  musterId.value ? 'Mustertext zu diesem Aufgabentyp' : 'Mustertexte ansehen'
+)
+const musterLinkTo = computed(() =>
+  musterId.value
+    ? { name: 'schreiben-muster', query: { muster: musterId.value } }
+    : { name: 'schreiben-muster' }
+)
+
 // F11-style keyword hygiene, identical normalisation to Sprechen Teil 1's
 // prep matcher (punctuation stripped, whitespace collapsed, case-folded) so
 // a warning here and the runner's own coverage check can never disagree
@@ -54,15 +68,34 @@ function normalizeKeyword(s: string): string {
   return s.replace(/[.,;:!?…]/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
 }
 
+// Blur-gated: a warning is only ever *hygiene-eligible* here; whether it is
+// actually shown for a given index is decided below by `touched`/`focused`
+// (design doc Part 1 — "Warning fix"). `requires` records which indices must
+// be touched before the warning may appear at all: just the one index for
+// the too-short rule, both indices for a pair (duplicate/substring) rule —
+// so a duplicate never fires off a single blurred field.
+interface RawWarning { msg: string; requires: number[] }
+
+const touched = ref<Set<number>>(new Set())
+const focused = ref<number | null>(null)
+
+function markTouched(index: number) {
+  focused.value = null
+  const next = new Set(touched.value); next.add(index); touched.value = next
+}
+
 const keywordWarnings = computed<Partial<Record<number, string>>>(() => {
-  const out: Partial<Record<number, string>> = {}
+  const raw: Partial<Record<number, RawWarning>> = {}
   const entries = plan.value
     .map(p => ({ index: p.index, raw: p.keyword.trim(), norm: normalizeKeyword(p.keyword) }))
     .filter(e => e.norm.length > 0)
 
   for (const e of entries) {
     if (e.norm.length < 4) {
-      out[e.index] = `„${e.raw}" ist kürzer als vier Zeichen — kaum von einem Zufallstreffer im Text zu unterscheiden.`
+      raw[e.index] = {
+        msg: `„${e.raw}" ist kürzer als vier Zeichen — kaum von einem Zufallstreffer im Text zu unterscheiden.`,
+        requires: [e.index]
+      }
     }
   }
 
@@ -70,17 +103,26 @@ const keywordWarnings = computed<Partial<Record<number, string>>>(() => {
     for (let j = i + 1; j < entries.length; j++) {
       const a = entries[i]
       const b = entries[j]
+      let msg: string | null = null
       if (a.norm === b.norm) {
-        const msg = `„${a.raw}" und „${b.raw}" sind gleich — beide Häkchen leuchten zusammen.`
-        if (out[a.index] === undefined) out[a.index] = msg
-        if (out[b.index] === undefined) out[b.index] = msg
+        msg = `„${a.raw}" und „${b.raw}" sind gleich — beide Häkchen leuchten zusammen.`
       } else if (a.norm.includes(b.norm) || b.norm.includes(a.norm)) {
         const [short, long] = a.norm.length < b.norm.length ? [a, b] : [b, a]
-        const msg = `„${short.raw}" steckt in „${long.raw}" — beide Häkchen leuchten zusammen.`
-        if (out[a.index] === undefined) out[a.index] = msg
-        if (out[b.index] === undefined) out[b.index] = msg
+        msg = `„${short.raw}" steckt in „${long.raw}" — beide Häkchen leuchten zusammen.`
+      }
+      if (msg !== null) {
+        if (raw[a.index] === undefined) raw[a.index] = { msg, requires: [a.index, b.index] }
+        if (raw[b.index] === undefined) raw[b.index] = { msg, requires: [a.index, b.index] }
       }
     }
+  }
+
+  const out: Partial<Record<number, string>> = {}
+  for (const [key, entry] of Object.entries(raw)) {
+    if (!entry) continue
+    const index = Number(key)
+    const allTouched = entry.requires.every(i => touched.value.has(i))
+    if (allTouched && focused.value !== index) out[index] = entry.msg
   }
   return out
 })
@@ -226,6 +268,9 @@ function backToSetup() { router.push({ name: 'schreiben-teil1' }) }
           <span style="opacity: 0.5">·</span>
           <span>Ziel</span><b>{{ SCHREIBEN_TARGET_WORDS }} Wörter</b>
         </div>
+        <p class="sch-muster-link">
+          <router-link :to="musterLinkTo">{{ musterLinkLabel }} <span aria-hidden="true">→</span></router-link>
+        </p>
       </div>
     </div>
 
@@ -242,14 +287,18 @@ function backToSetup() { router.push({ name: 'schreiben-teil1' }) }
             <div class="spr-plan-t">Inhaltspunkt {{ index + 1 }}</div>
             <div class="spr-plan-h">{{ punkt }}</div>
           </div>
-          <input
-            class="spr-plan-in"
-            :value="keywordFor(index)"
-            placeholder="Stichwort …"
-            @input="setKeyword(index, ($event.target as HTMLInputElement).value)"
-          />
+          <div class="sch-plan-incell">
+            <input
+              class="spr-plan-in"
+              :value="keywordFor(index)"
+              placeholder="Stichwort …"
+              @input="setKeyword(index, ($event.target as HTMLInputElement).value)"
+              @focus="focused = index"
+              @blur="markTouched(index)"
+            />
+            <p v-if="keywordWarnings[index]" class="sch-plan-warn">{{ keywordWarnings[index] }}</p>
+          </div>
         </div>
-        <p v-if="keywordWarnings[index]" class="spr-plan-warn">{{ keywordWarnings[index] }}</p>
       </template>
     </div>
 
@@ -325,6 +374,10 @@ function backToSetup() { router.push({ name: 'schreiben-teil1' }) }
 <style scoped>
 .prep-page { max-width: 900px; }
 .sch-prep-forum { font-size: 13.5px; line-height: 1.5; color: var(--mute); font-style: italic; margin: 8px 0 0; }
+
+/* Quiet inline link to the Mustertexte library, right under the task-sheet
+   stats row — no button affordance. */
+.sch-muster-link { font-size: 12.5px; margin: 12px 0 0; }
 .regen-btn { text-transform: none; letter-spacing: normal; font-family: var(--font-body); font-size: 13px; }
 .ai-cost-note {
   margin: 8px 0 0;
@@ -336,12 +389,30 @@ function backToSetup() { router.push({ name: 'schreiben-teil1' }) }
 }
 .spr-argnote { font-size: 13px; font-style: italic; color: var(--mute); margin: 4px 0 0; }
 
-.spr-plan-warn {
-  margin: -8px 0 12px;
-  padding-left: 4px;
+/*
+ * The keyword warning now lives inside .spr-plan-row, in the input's own
+ * grid cell, instead of floating between rows (see design doc Part 1). This
+ * component owns .spr-plan-row's alignment for its own instances only — the
+ * scoped attribute selector below never reaches Sprechen's rows in
+ * sprechen.css. `align-items: start` (rather than the shared `center`) keeps
+ * the number/label columns pinned to the top of the row so a two-line cell
+ * (input + warning) grows downward without recentering its siblings.
+ */
+.spr-plan-row { align-items: start; }
+.sch-plan-incell { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sch-plan-warn {
+  margin: 0;
+  padding-left: 2px;
   font-size: 12.5px;
   line-height: 1.5;
   color: var(--clay);
+}
+
+/* Mirrors sprechen.css's `@media (max-width:1080px) .spr-plan-in{grid-column:2}`
+   for the new wrapper — the input used to occupy that cell directly, now the
+   wrapper does. */
+@media (max-width: 1080px) {
+  .sch-plan-incell { grid-column: 2; }
 }
 
 .spr-phrasestrip { margin-top: 0; border-top: 0; padding-top: 0; }
