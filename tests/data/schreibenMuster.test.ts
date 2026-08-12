@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { SCHREIBEN_MUSTER, SCHREIBTHEMA_MUSTER, MUSTER_LAYER_LABEL } from '../../src/data/schreibenMuster'
+import { SCHREIBEN_MUSTER, SCHREIBTHEMA_MUSTER, MUSTER_LAYER_LABEL, MUSTER_TITLE } from '../../src/data/schreibenMuster'
 import { SCHREIBEN_THEMEN } from '../../src/data/schreibenThemen'
 
 const MUSTER_IDS = ['abwaegen', 'alternative', 'erfahrung', 'gegenmeinung', 'vorschlag'] as const
@@ -9,6 +9,10 @@ const words = (m: (typeof SCHREIBEN_MUSTER)[number]) =>
 describe('schreibenMuster', () => {
   test('exactly five models, one per pattern id', () => {
     expect(SCHREIBEN_MUSTER.map(m => m.id).sort()).toEqual([...MUSTER_IDS].sort())
+  })
+  test('MUSTER_TITLE mirrors every model title (badge lookup can never drift)', () => {
+    expect(Object.keys(MUSTER_TITLE).sort()).toEqual([...MUSTER_IDS].sort())
+    for (const m of SCHREIBEN_MUSTER) expect(MUSTER_TITLE[m.id]).toBe(m.titleDe)
   })
   test('map covers exactly the 24 seeded themes, each pattern used at least twice', () => {
     const seeded = SCHREIBEN_THEMEN.map(t => t.id).sort()

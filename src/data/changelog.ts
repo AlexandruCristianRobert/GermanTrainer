@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.20.02'
+export const APP_VERSION = '1.20.03'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,13 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.20.03', date: '2026-08-12', kind: 'polish',
+    title: 'Schreiben · Aufgabenmuster am Thema',
+    notes: [
+      '<strong>Jedes eingebaute Schreibthema zeigt jetzt sein Aufgabenmuster.</strong> Ob <em>Pro & Contra abwägen</em>, <em>Meinung + Alternative vorschlagen</em> oder <em>Gegenmeinung entkräften</em> — die Kategorie steht direkt am Aufgabenblatt, in der Themenliste und über dem Schreibplan. So ist vor dem ersten Wort klar, welche Textform die Aufgabe verlangt — und welcher Mustertext dazu passt.'
+    ]
+  },
   {
     version: '1.20.02', date: '2026-08-12', kind: 'polish',
     title: 'Schreiben · Mustertexte',
