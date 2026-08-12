@@ -498,6 +498,75 @@ export const SPRECHEN_B2_TEIL1: SprechenRubric = {
 }
 
 /**
+ * Schreiben Teil 1 · Forumsbeitrag. Deliberately SprechenRubric-shaped —
+ * four criteria à 25, pass at 60, same Prädikat bands — so a Schreiben score
+ * sits on the same 0-100 scale as both Sprechen parts. Typed-only: no
+ * spoken descriptor variants. Inhaltspunkt coverage is judged by the grader
+ * inside `erfuellung`, never mechanically measured (ADR-0014's logic).
+ */
+export const SCHREIBEN_B2_TEIL1: SprechenRubric = {
+  labelDe: 'Goethe-Zertifikat B2 · Schreiben Teil 1 (adaptiert)',
+  totalMax: 100,
+  passingScore: 60,
+  criteria: [
+    {
+      key: 'erfuellung',
+      labelDe: 'Erfüllung / Inhalt',
+      labelEn: 'Task fulfilment / content',
+      maxPoints: 25,
+      descriptorDe:
+        'Werden alle vier Inhaltspunkte des Aufgabenblatts behandelt — nicht nur ' +
+        'gestreift, sondern jeweils mit mindestens einem eigenen Gedanken ausgeführt? ' +
+        'Ist der Text ein erkennbarer Forumsbeitrag: eine eigene, begründete Position ' +
+        'zum Thema, an die Diskussion angeschlossen, mit Einleitung und Schluss? ' +
+        'Ein komplett fehlender Inhaltspunkt begrenzt dieses Kriterium deutlich; ' +
+        'ebenso ein Text, der die Mindestwortzahl klar verfehlt.'
+    },
+    {
+      key: 'kohaerenz',
+      labelDe: 'Kohärenz & Textaufbau',
+      labelEn: 'Coherence & text structure',
+      maxPoints: 25,
+      descriptorDe:
+        'Ist der Text als Ganzes logisch aufgebaut — Absätze mit je einem Gedanken, ' +
+        'ein roter Faden von der Einleitung zum Fazit? Werden Konnektoren und ' +
+        'Verweismittel (deshalb, trotzdem, einerseits/andererseits, dabei, darauf) ' +
+        'passend und variantenreich eingesetzt, statt Sätze nur aneinanderzureihen? ' +
+        'Sind die Übergänge zwischen den Inhaltspunkten geglättet?'
+    },
+    {
+      key: 'wortschatz',
+      labelDe: 'Wortschatz',
+      labelEn: 'Vocabulary',
+      maxPoints: 25,
+      descriptorDe:
+        'Ist der Wortschatz für B2 angemessen breit und präzise — themenspezifische ' +
+        'Nomen, treffende Verben, schriftsprachliche Redemittel des Argumentierens ' +
+        '(Meinung, Begründung, Einräumung, Fazit)? Führen Lücken zu Umschreibungen, ' +
+        'Wiederholungen oder Registerbrüchen (zu mündlich für einen Forumsbeitrag)?'
+    },
+    {
+      key: 'strukturen',
+      labelDe: 'Strukturen',
+      labelEn: 'Structures',
+      maxPoints: 25,
+      descriptorDe:
+        'Wie korrekt und variantenreich sind die grammatischen Strukturen — ' +
+        'Nebensätze (weil, obwohl, während), Konjunktiv II für Vorschläge, Passiv, ' +
+        'korrekte Verbstellung nach Konnektoren? Wie häufig und wie schwerwiegend ' +
+        'sind Fehler in Deklination, Konjugation und Rechtschreibung, und ' +
+        'beeinträchtigen sie das Verständnis?'
+    }
+  ],
+  notes:
+    'Adaptierte Bewertung für getippte Forumsbeiträge (Schreiben Teil 1): vier ' +
+    'Kriterien zu je 25 Punkten, Bestehensgrenze 60. Die Aufgabe verlangt ' +
+    'mindestens 150 Wörter; ein deutlich kürzerer Text senkt die Erfüllung. ' +
+    'Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, ' +
+    '60+ ausreichend, darunter nicht bestanden.'
+}
+
+/**
  * Resolves the modality-appropriate descriptor for a Sprechen criterion.
  * Typed runs (and any criterion without a spoken variant) get descriptorDe
  * unchanged; spoken runs get descriptorSpokenDe where one is defined. The
