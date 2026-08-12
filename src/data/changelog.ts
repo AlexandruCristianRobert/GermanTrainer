@@ -19,6 +19,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.20.00', date: '2026-08-12', kind: 'module',
+    title: 'Schreiben · Kapitel XIV',
+    notes: [
+      '<strong>Ein neues Kapitel für Schreiben Teil 1 der B2-Prüfung.</strong> Ein <em>Schreibthema</em> wie im Prüfungsheft: ein Forumsthread, die Aufgabe, vier <em>Inhaltspunkte</em> — und mindestens 150 Wörter. 24 Themen sind eingebaut, von <em>Homeoffice</em> bis <em>Fast Fashion</em>; die KI erzeugt auf Wunsch weitere. Geschrieben wird in einer Sitzung: Wortzähler gegen die 150er-Grenze, eine weiche 50-Minuten-Uhr, die anzeigt, aber nie abbricht — und der Text lässt sich jederzeit unterbrechen und fortsetzen.',
+      '<strong>Erst planen, dann schreiben.</strong> Vor der Sitzung ein <em>Schreibplan</em>: ein Stichwort je Inhaltspunkt, das die Sitzung live abhakt, sobald es im Text auftaucht. Dazu eine Argumentbank in Schriftsprache — Pro, Contra, Themenwortschatz — für jedes Thema, offline aus zehn Fachfeldern, auf Wunsch von der KI fürs konkrete Thema verfeinert.',
+      '<strong>35 Schreibmittel unter sieben Beitragsfunktionen.</strong> Thema aufgreifen, Meinung äußern, begründen, Beispiel geben, Gegenmeinung einräumen, Alternative vorschlagen, Fazit ziehen — als Drawer in der Sitzung (ein Klick fügt die Wendung ein) und als eigener Spickzettel-Tab. Die App zählt mit, welche Wendungen wirklich im Text landen, und stupst mit <em>„Diesmal: …"</em> die Funktion an, die noch fehlt. Ein Strategie-Tab bündelt die Prüfungstipps: Aufbau, Zeiteinteilung, Wortzahl, typische Fehler, Bewertungskriterien.',
+      '<strong>Bewertet wie im Zeugnis.</strong> Die vier offiziellen Kriterien — Erfüllung, Kohärenz, Wortschatz, Strukturen — zu je 25 Punkten, mit Prädikat von <em>sehr gut</em> bis <em>nicht bestanden</em>. Jeder Inhaltspunkt bekommt sein eigenes Urteil, jeder Fehler eine Erklärung, und was <em>nicht falsch</em> war, aber besser ginge, erscheint als Aufwertung daneben.',
+      '<strong>Fehler wandern ins gemeinsame Archiv.</strong> Vortrag, Diskussion und jetzt Forumsbeitrag schreiben ins selbe Fehlerarchiv — der Korrekturdrill mischt alle drei, und das Archiv lässt sich nach Modul filtern. Der Aufsatz selbst wird nach der Bewertung verworfen: was bleibt, sind Ergebnis, Korrekturen und Aufwertungen.'
+    ]
+  },
+  {
     version: '1.19.02', date: '2026-08-12', kind: 'polish',
     title: 'Satz · Fachgebiete',
     notes: [
