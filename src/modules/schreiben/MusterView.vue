@@ -258,6 +258,7 @@ function core(t: string): string { return t.trim() }
 .muster-span.pinned.konnektor { outline: 1.5px solid var(--muster-konnektor); background: color-mix(in oklab, var(--muster-konnektor) 30%, var(--muster-konnektor-wash)); }
 .muster-span.pinned.mittel { outline: 1.5px solid var(--muster-mittel); background: color-mix(in oklab, var(--muster-mittel) 30%, var(--muster-mittel-wash)); }
 .muster-span.pinned.struktur { outline: 1.5px solid var(--muster-struktur); background: color-mix(in oklab, var(--muster-struktur) 30%, var(--muster-struktur-wash)); }
+.muster-span.pinned.dim { background: transparent; outline: none; }
 
 .muster-note {
   margin-top: 28px; padding: 18px 22px; border-left: 3px solid var(--rule);

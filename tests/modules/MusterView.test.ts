@@ -102,6 +102,24 @@ describe('MusterView', () => {
     expect(wrapper.find('.muster-note-empty').exists()).toBe(false)
   })
 
+  it('toggling a pinned span\'s own layer off dims it and drops the pinned highlight', async () => {
+    const { wrapper } = await mountView()
+    const abwaegen = musterOf('abwaegen')
+    const firstAnnotated = abwaegen.segments.find(s => s.layer)!
+    const span = wrapper.findAll('.muster-span')[0]
+
+    await span.trigger('click')
+    expect(span.classes()).toContain('pinned')
+    expect(span.classes()).toContain(firstAnnotated.layer!)
+    expect(span.classes()).not.toContain('dim')
+
+    const layerBtn = wrapper.findAll('.muster-layer-btn').find(b => b.classes().includes(firstAnnotated.layer!))!
+    await layerBtn.trigger('click')
+
+    expect(span.classes()).toContain('pinned')
+    expect(span.classes()).toContain('dim')
+  })
+
   it('shows an empty-state hint in the note panel until something is pinned', async () => {
     const { wrapper } = await mountView()
     expect(wrapper.find('.muster-note-empty').exists()).toBe(true)
