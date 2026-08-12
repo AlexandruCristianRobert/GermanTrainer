@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest'
 import {
   buildPackedSpecs, buildPackedGeneratePrompt, buildPackedGradePrompt, buildPackedMetaItems,
   generatePackedBatch,
-  PACKED_ANGLE_POOL, PACKED_SCENE_ANGLES, PACKED_STRUCTURAL_ANGLES,
+  PACKED_ANGLE_POOL, PACKED_SCENE_ANGLES, PACKED_STRUCTURAL_ANGLES, PACKED_DOMAIN_ANGLES,
   type PackedPools, type PackedCounts, type PackedDomainPool, type PackedCardSpec,
   type GeneratedPackedCard, type PackedItemResult
 } from '../../src/composables/usePackedSentenceQuiz'
@@ -166,6 +166,16 @@ describe('buildPackedGeneratePrompt — Fachgebiete', () => {
     expect(p.split('der Container').length - 1).toBe(1)
   })
 
+  // The point of a Fachgebiet is the definition, not the anecdote: a themed card
+  // must be asked for the explanation a practitioner would give, and told in as
+  // many words that the everyday-scene mode does not apply to it.
+  test('a themed card is asked for an explanation, not a scene', () => {
+    const p = buildPackedGeneratePrompt([themed], 'B1', variation)
+    expect(p).toContain('technical interview')
+    expect(p).toContain('not a scene')
+    expect(p).toContain('no anecdote')
+  })
+
   test('a plain card is untouched and carries no Fachgebiet wording', () => {
     const p = buildPackedGeneratePrompt([plain], 'B1', variation)
     expect(p).toContain('#0 — required ingredients:')
@@ -211,15 +221,29 @@ describe('generatePackedBatch — angle pool selection', () => {
     return joined.split(' · ')
   }
 
-  test('a fully themed batch draws its angles only from the structural six, never a scene', async () => {
+  test('a fully themed batch draws its angles only from the Fachgebiet pool, never a scene', async () => {
     const capture = { prompt: '' }
     await generatePackedBatch(fakeClient(capture), {
       model: 'm', specs: [themedDocker, themedSql], maxRetries: 0, rng: () => 0
     })
     const angles = drawnAngles(capture.prompt)
     expect(angles.length).toBeGreaterThan(0)
+    expect(angles.every(a => (PACKED_DOMAIN_ANGLES as readonly string[]).includes(a))).toBe(true)
     expect(angles.some(a => (PACKED_SCENE_ANGLES as readonly string[]).includes(a))).toBe(false)
-    expect(angles.some(a => (PACKED_STRUCTURAL_ANGLES as readonly string[]).includes(a))).toBe(true)
+  })
+
+  test('the Fachgebiet angle pool frames explanations and keeps the compatible grammar variety', () => {
+    expect(PACKED_DOMAIN_ANGLES.length).toBeGreaterThanOrEqual(6)
+    expect(new Set(PACKED_DOMAIN_ANGLES).size).toBe(PACKED_DOMAIN_ANGLES.length)
+    // No scene-setter leaks in, and the two structural angles that fight a
+    // definition — the polite request and the overheard remark — stay out.
+    for (const a of PACKED_DOMAIN_ANGLES) {
+      expect((PACKED_SCENE_ANGLES as readonly string[]).includes(a), a).toBe(false)
+      expect(a).not.toContain('overheard')
+      expect(a).not.toContain('polite request')
+    }
+    // …while the person/tense variety the drill depends on survives.
+    expect(PACKED_DOMAIN_ANGLES.some(a => (PACKED_STRUCTURAL_ANGLES as readonly string[]).includes(a))).toBe(true)
   })
 
   test('a batch with at least one domainless card draws from the full pool, scenes included', async () => {

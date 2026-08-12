@@ -38,7 +38,8 @@ export interface PackedCollocRef { id: string; word: string; english: string; pr
 
 /** The [Domain] (de "Fachgebiet") one card is written in, resolved at
  *  spec-build time — all randomness up front, as the rest of this file does.
- *  `scene` is the single scene line drawn for this card. */
+ *  `scene` is the single framing drawn for this card: the concept it explains
+ *  (ADR-0018), not a scene from that job. */
 export interface PackedDomainRef { id: string; label: string; scene: string }
 
 /** One Domain's runtime pools, resolved by the setup screen from
@@ -238,6 +239,23 @@ export const PACKED_STRUCTURAL_ANGLES = [
 
 export const PACKED_ANGLE_POOL = [...PACKED_SCENE_ANGLES, ...PACKED_STRUCTURAL_ANGLES] as const
 
+/** Angles for a fully targeted batch (ADR-0018). A Fachgebiet card explains a
+ *  concept, so its angles vary HOW the explanation is delivered — and carry over
+ *  only the structural angles that survive a definition: "wir", the question
+ *  framing and the Perfekt still work, a polite request and an overheard remark
+ *  do not. */
+export const PACKED_DOMAIN_ANGLES = [
+  'answer it the way you would in a job interview',
+  'define the term first, then add one qualification',
+  'contrast the two things directly and say which you would pick',
+  'name one concrete consequence for day-to-day work',
+  'mention the typical mistake and what it costs',
+  'keep it impersonal (man, or the passive)',
+  'use a first-person plural subject (wir)',
+  'frame part of it as a question',
+  'put one clause in the Perfekt (past)'
+] as const
+
 export const PACKED_GEN_SYSTEM =
   'You are a German teacher writing packed translation exercises. For each item you are given ' +
   'a list of REQUIRED ingredients, each with a key: German verbs (conjugate them), nouns, ' +
@@ -345,11 +363,15 @@ function itemLine(it: PackedItemSpec): string {
 }
 
 const PACKED_DOMAIN_NOTE =
-  '\nWhere a card names a Fachgebiet, write that card entirely inside that field: every sentence ' +
-  'is about that work, and the vocabulary is the German practitioners in that field actually use — ' +
-  'established anglicisms where those are the normal words (der Container, das Repository, der ' +
-  'Commit) and the German term where that is (die Bereitstellung, die Abfrage, der Primärschlüssel). ' +
-  'A card without a Fachgebiet is an everyday scene as usual.'
+  '\nA card that names a Fachgebiet is not a scene from that job — it is the ANSWER to the ' +
+  'explanation the card asks for, the way a practitioner would give it in a technical interview: ' +
+  'say what the thing is, or how the two named things differ, and add a consequence for practice ' +
+  'where one fits. So: general, definitional statements in the present tense (a generic subject, ' +
+  'man, or the passive), no anecdote, no named colleague, no time of day, no story, no first-person ' +
+  'account of a single incident. The vocabulary is the German practitioners in that field actually ' +
+  'use — established anglicisms where those are the normal words (der Container, das Repository, ' +
+  'der Commit) and the German term where that is (die Bereitstellung, die Abfrage, der ' +
+  'Primärschlüssel). A card without a Fachgebiet is an everyday scene as usual.'
 
 export function buildPackedGeneratePrompt(
   specs: readonly PackedCardSpec[], level: string, variation: { angles: string[]; seed: string }
@@ -469,7 +491,7 @@ export async function generatePackedBatch(
     const remaining = opts.specs.filter(s => !accepted.has(s.index))
     const anglePool = remaining.some(s => !s.domain)
       ? [...PACKED_ANGLE_POOL]
-      : [...PACKED_STRUCTURAL_ANGLES]
+      : [...PACKED_DOMAIN_ANGLES]
     const angles = shuffle(anglePool, Math.max(3, Math.min(6, remaining.length)), rng)
     const prompt = buildPackedGeneratePrompt(remaining, level, { angles, seed: makeSeed(rng) })
 

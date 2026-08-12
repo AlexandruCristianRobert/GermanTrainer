@@ -43,12 +43,28 @@ describe('Domain bank', () => {
       expect(d.verbs.length, d.id).toBeGreaterThanOrEqual(10)
     }
   })
-  test('every Domain has at least six distinct scenes', () => {
+  test('every Domain has at least six distinct framings', () => {
     for (const d of DOMAINS) {
       expect(d.scenes.length, d.id).toBeGreaterThanOrEqual(6)
       expect(new Set(d.scenes).size, d.id).toBe(d.scenes.length)
       for (const s of d.scenes) expect(s.trim().length).toBeGreaterThan(0)
     }
+  })
+  // A framing asks for a DEFINITION of a concept in the field, not an anecdote
+  // from it (ADR-0018) — the interview answer, not the Friday-night deployment.
+  test('every framing asks for an explanation, never a scene', () => {
+    for (const d of DOMAINS) {
+      for (const s of d.scenes) {
+        expect(s, `${d.id}: "${s}"`).toMatch(/^explain\b/)
+        expect(s.toLowerCase(), d.id).not.toContain('set it')
+        expect(s.toLowerCase(), d.id).not.toContain('set the scene')
+      }
+    }
+  })
+  test('the framings name the concepts an interview in that field would ask about', () => {
+    expect(domainById('sql-server')!.scenes.join(' | ')).toContain('stored procedure')
+    expect(domainById('docker')!.scenes.join(' | ')).toContain('image and a container')
+    expect(domainById('dotnet')!.scenes.join(' | ')).toContain('interface')
   })
   test('lookup helpers', () => {
     expect(domainById('docker')?.label).toBe('Docker')

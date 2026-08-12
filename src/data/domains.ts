@@ -21,8 +21,11 @@ export interface Domain {
   id: string
   /** chip and card-badge label */
   label: string
-  /** English scene lines; one is drawn per card and replaces the generic
-   *  scene-setters in PACKED_SCENE_ANGLES. */
+  /** English framings — the concept ONE card explains. Drawn one per card, in
+   *  place of the generic scene-setters in PACKED_SCENE_ANGLES: a targeted card
+   *  defines or contrasts something in the field the way a practitioner answers
+   *  it in a technical interview, it does not narrate a day at that job
+   *  (ADR-0018). Named `scenes` because it fills the scene-setting slot. */
   scenes: string[]
   /** bare German nouns, no article — must exist in nouns.seed.json */
   nouns: string[]
@@ -35,12 +38,18 @@ export const DOMAINS: Domain[] = [
     id: 'dotnet',
     label: '.NET',
     scenes: [
-      'set it in a code review of a new service class',
-      'set it while refactoring a class that has grown too large',
-      'set it during a sprint planning about a new feature',
-      'set it while a unit test suite keeps failing',
-      'set it while onboarding a new colleague to the codebase',
-      'set it while upgrading a package that broke the build'
+      'explain the difference between an interface and an abstract class',
+      'explain the difference between a value type and a reference type',
+      'explain what dependency injection solves and what it costs',
+      'explain the difference between a property and a field',
+      'explain how an exception should be handled and where it should not be caught',
+      'explain the difference between inheritance and composition, and when each one fits',
+      'explain what a unit test proves and what it cannot prove',
+      'explain the difference between asynchronous work and parallel work',
+      'explain the difference between a library and a framework',
+      'explain what a constructor is responsible for',
+      'explain the difference between an enum and a set of constants',
+      'explain what a namespace is for'
     ],
     nouns: [
       'Klasse', 'Eigenschaft', 'Methode', 'Objekt', 'Schnittstellentyp', 'Vererbung',
@@ -60,12 +69,18 @@ export const DOMAINS: Domain[] = [
     id: 'sql-server',
     label: 'SQL Server',
     scenes: [
-      'set it while a query in production has become slow',
-      'set it during a database migration on a Friday evening',
-      'set it while restoring a backup after a failure',
-      'set it while designing a table for a new report',
-      'set it while a transaction is blocking other users',
-      'set it while going through an execution plan with a colleague'
+      'explain the difference between a function and a stored procedure',
+      'explain what an index does and when it costs more than it saves',
+      'explain the difference between a clustered and a non-clustered index',
+      'explain what a transaction guarantees',
+      'explain the difference between a primary key and a foreign key',
+      'explain the difference between a view and a table',
+      'explain what an execution plan tells you',
+      'explain the difference between an inner join and an outer join',
+      'explain how a deadlock arises and what a lock has to do with it',
+      'explain the difference between a full backup and a differential one',
+      'explain the difference between deleting rows and truncating a table',
+      'explain when a cache helps a slow query and when it hides the real problem'
     ],
     nouns: [
       'Abfrage', 'Spalte', 'Zeile', 'Datensatz', 'Primärschlüssel', 'Fremdschlüssel',
@@ -84,12 +99,18 @@ export const DOMAINS: Domain[] = [
     id: 'docker',
     label: 'Docker',
     scenes: [
-      'set it during a deployment that failed late at night',
-      'set it while a container keeps restarting',
-      'set it while writing a configuration file for a new environment',
-      'set it during a rollout to the production cluster',
-      'set it while the monitoring dashboard shows an outage',
-      'set it while a colleague cannot reach the service endpoint'
+      'explain the difference between an image and a container',
+      'explain the difference between a container and a virtual machine',
+      'explain what a volume is for and what happens without one',
+      'explain why the order of the layers in an image matters',
+      'explain the difference between exposing a port and publishing one',
+      'explain what orchestration solves that a single container cannot',
+      'explain the difference between stopping a container and removing it',
+      'explain what a registry is for',
+      'explain how a container gets its configuration',
+      'explain the difference between a restart policy and a health check',
+      'explain why a container should stay stateless',
+      'explain what monitoring should watch on a running service'
     ],
     nouns: [
       'Container', 'Abbild', 'Bereitstellung', 'Umgebung', 'Laufzeitumgebung',

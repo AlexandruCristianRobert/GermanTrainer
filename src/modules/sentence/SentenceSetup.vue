@@ -378,7 +378,7 @@ function back() { router.push({ name: 'home' }) }
       <div class="sna-block">
         <div class="sna-block-h">
           <span :style="{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent)', flex: 'none' }"></span>
-          <span class="sna-name">Fachgebiet<span class="de">worüber die Karte handelt</span></span>
+          <span class="sna-name">Fachgebiet<span class="de">welchen Begriff die Karte erklärt</span></span>
         </div>
         <div class="sna-sum">
           <span class="sna-sum-t">{{ domainSummary }}</span>
@@ -389,8 +389,10 @@ function back() { router.push({ name: 'home' }) }
             type="button" @click="domains = toggle(domains, d.id)">{{ d.label }}</button>
         </div>
         <p class="grading-hint">
-          Jede Karte spielt in <em>genau einem</em> gewählten Fachgebiet. Die Nomen kommen dann aus
-          dem Fachgebiet statt aus den Themengruppen, und der Verbpool wird nicht mehr gefiltert.
+          Jede Karte <em>erklärt</em> einen Begriff aus <em>genau einem</em> gewählten Fachgebiet — wie
+          im Fachgespräch: <em>der Unterschied zwischen Funktion und Stored Procedure</em>, <em>was ein
+          Index kostet</em>. Keine Geschichte aus dem Büro. Die Nomen kommen dann aus dem Fachgebiet
+          statt aus den Themengruppen, und der Verbpool wird nicht mehr gefiltert.
         </p>
       </div>
 

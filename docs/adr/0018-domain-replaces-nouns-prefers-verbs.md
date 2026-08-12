@@ -6,6 +6,15 @@ work instead of setting the scene at a train station. It steers three things: th
 drilled nouns, and the drilled verbs. It steers each of them **differently**, and the asymmetry is
 the decision.
 
+**The framing is a definition, not a scene.** A targeted card does not narrate a day at that job —
+it answers one *explanation* prompt from the Domain's own list (*the difference between a function
+and a stored procedure*, *what an index costs*, *why the order of an image's layers matters*) in the
+register a practitioner uses in a technical interview: present tense, generic subject or *man*, no
+anecdote. The scene-setting slot is reused rather than emptied, so the mechanism is unchanged and only
+the content of `Domain.scenes` differs; a fully targeted batch also swaps the structural angle pool
+for `PACKED_DOMAIN_ANGLES`, which keeps the person/tense variety that survives a definition (*wir*,
+question framing, Perfekt) and drops the two that do not (polite request, overheard remark).
+
 **Nouns are replaced.** While any Domain is selected, its curated word list *is* the noun bag and the
 Themengruppen chips go inert and greyed. Intersecting Domain ∩ chips was rejected: every Docker noun
 lives in the `Programming` group, so ticking `Food` would produce an empty pool and block Start on a
