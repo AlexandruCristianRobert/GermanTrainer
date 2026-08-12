@@ -1,0 +1,1 @@
+const n=150,t=180;const E=3e3;function r(S){return S<150?"under":S<=240?"ok":"over"}function _(S){return`${Math.floor(S/60)}:${String(Math.floor(S%60)).padStart(2,"0")}`}const a="gt:lastSchreibenTeil1";function e(){return[0,1,2,3].map(S=>({index:S,keyword:""}))}export{a as S,t as a,n as b,E as c,_ as d,e,r as s};
