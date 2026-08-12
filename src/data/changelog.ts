@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.20.01'
+export const APP_VERSION = '1.20.02'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
