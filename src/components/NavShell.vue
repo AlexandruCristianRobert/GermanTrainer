@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useTheme } from '../composables/useTheme'
+import { NAV_GROUPS, NAV_SINGLES, NAV_SETTINGS, navMatches, type NavGroup, type NavLeaf } from '../data/nav'
 import VersionBadge from './VersionBadge.vue'
 
 const router = useRouter()
@@ -9,40 +10,40 @@ const route = useRoute()
 const { resolved, toggle } = useTheme()
 
 const drawerOpen = ref(false)
+const openGroup = ref<string | null>(null)
+const navEl = ref<HTMLElement | null>(null)
 
-interface NavItem {
-  route: string
-  label: string
-  de?: string
+const routeName = computed(() => String(route.name ?? 'home'))
+
+function leafActive(leaf: NavLeaf): boolean { return navMatches(routeName.value, leaf) }
+function groupActive(g: NavGroup): boolean { return g.items.some(leafActive) }
+function toggleGroup(id: string) { openGroup.value = openGroup.value === id ? null : id }
+
+function closeGroup(focusTrigger = false) {
+  const id = openGroup.value
+  if (!id) return
+  openGroup.value = null
+  if (focusTrigger && navEl.value) {
+    navEl.value.querySelector<HTMLElement>(`[data-group="${id}"]`)?.focus()
+  }
 }
 
-const items: NavItem[] = [
-  { route: 'home', label: 'Home' },
-  { route: 'nouns', label: 'Nouns', de: 'Substantive' },
-  { route: 'adjectives', label: 'Adjectives', de: 'Adjektive' },
-  { route: 'verbs', label: 'Verbs', de: 'Verben' },
-  { route: 'prepositions', label: 'Prepositions', de: 'Präpositionen' },
-  { route: 'dacompounds', label: 'Da-Compounds', de: 'Pronominaladverbien' },
-  { route: 'directionwords', label: 'Direction Words', de: 'hin & her' },
-  { route: 'dative', label: 'Dativ', de: 'Dativverben' },
-  { route: 'sprechen', label: 'Sprechen', de: 'Diskussion' },
-  { route: 'declension', label: 'Declension', de: 'Deklination' },
-  { route: 'sentence', label: 'Sentence', de: 'Sätze' },
-  { route: 'history', label: 'History', de: 'Verlauf' },
-  { route: 'settings', label: 'Settings', de: 'Einstellungen' }
-]
-
-const activeRoute = computed(() => {
-  const name = (route.name as string) ?? 'home'
-  // Strip subpath: 'nouns-quiz' / 'nouns-manage' / etc. map back to 'nouns'.
-  const head = name.split('-')[0]
-  return head || 'home'
-})
-
 function onSelect(target: string) {
+  openGroup.value = null
   drawerOpen.value = false
   router.push({ name: target })
 }
+
+function onDocPointerDown(e: PointerEvent) {
+  if (!openGroup.value || !navEl.value) return
+  if (e.target instanceof Node && !navEl.value.contains(e.target)) openGroup.value = null
+}
+
+// Route navigation (including within-group selections) always closes an open panel.
+watch(() => route.fullPath, () => { openGroup.value = null })
+
+onMounted(() => document.addEventListener('pointerdown', onDocPointerDown))
+onUnmounted(() => document.removeEventListener('pointerdown', onDocPointerDown))
 
 const isDark = computed(() => resolved.value === 'dark')
 const themeAriaLabel = computed(() =>
@@ -62,20 +63,63 @@ const themeAriaLabel = computed(() =>
         <span class="mark-sub">Atelier · German Trainer</span>
       </a>
 
-      <nav class="nav-links" aria-label="Primary">
-        <button
-          v-for="item in items"
-          :key="item.route"
-          class="nav-link"
-          :class="{ active: activeRoute === item.route }"
-          @click="onSelect(item.route)"
+      <nav ref="navEl" class="nav-links" aria-label="Primary" @keydown.escape="closeGroup(true)">
+        <div
+          v-for="g in NAV_GROUPS"
+          :key="g.id"
+          class="nav-group"
         >
-          {{ item.label }}
+          <button
+            type="button"
+            class="nav-link nav-trigger"
+            :class="{ active: groupActive(g) }"
+            :data-group="g.id"
+            aria-haspopup="menu"
+            :aria-expanded="openGroup === g.id"
+            @click="toggleGroup(g.id)"
+          >
+            {{ g.label }}<span class="nav-chevron" aria-hidden="true">▾</span>
+          </button>
+          <div v-if="openGroup === g.id" class="nav-panel" role="menu">
+            <button
+              v-for="leaf in g.items"
+              :key="leaf.route"
+              type="button"
+              class="nav-link"
+              role="menuitem"
+              :class="{ active: leafActive(leaf) }"
+              @click="onSelect(leaf.route)"
+            >
+              {{ leaf.label }}
+            </button>
+          </div>
+        </div>
+
+        <button
+          v-for="leaf in NAV_SINGLES"
+          :key="leaf.route"
+          type="button"
+          class="nav-link"
+          :class="{ active: leafActive(leaf) }"
+          @click="onSelect(leaf.route)"
+        >
+          {{ leaf.label }}
         </button>
       </nav>
 
       <div class="nav-actions">
         <VersionBadge variant="header" />
+        <button
+          class="icon-btn"
+          :class="{ active: leafActive(NAV_SETTINGS) }"
+          aria-label="Settings"
+          @click="onSelect(NAV_SETTINGS.route)"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
         <button
           class="icon-btn"
           :aria-label="themeAriaLabel"
@@ -128,16 +172,41 @@ const themeAriaLabel = computed(() =>
       <div class="mark-title">Grammatik</div>
       <div class="mark-sub">Atelier · German Trainer</div>
     </div>
+
+    <template v-for="g in NAV_GROUPS" :key="g.id">
+      <div class="drawer-group-label">{{ g.label }}</div>
+      <button
+        v-for="leaf in g.items"
+        :key="leaf.route"
+        class="nav-link"
+        :class="{ active: leafActive(leaf) }"
+        @click="onSelect(leaf.route)"
+      >
+        {{ leaf.label }}
+        <span v-if="leaf.de" class="drawer-de">{{ leaf.de }}</span>
+      </button>
+    </template>
+
     <button
-      v-for="item in items"
-      :key="item.route"
+      v-for="leaf in NAV_SINGLES"
+      :key="leaf.route"
       class="nav-link"
-      :class="{ active: activeRoute === item.route }"
-      @click="onSelect(item.route)"
+      :class="{ active: leafActive(leaf) }"
+      @click="onSelect(leaf.route)"
     >
-      {{ item.label }}
-      <span v-if="item.de" class="drawer-de">{{ item.de }}</span>
+      {{ leaf.label }}
+      <span v-if="leaf.de" class="drawer-de">{{ leaf.de }}</span>
     </button>
+
+    <button
+      class="nav-link"
+      :class="{ active: leafActive(NAV_SETTINGS) }"
+      @click="onSelect(NAV_SETTINGS.route)"
+    >
+      {{ NAV_SETTINGS.label }}
+      <span v-if="NAV_SETTINGS.de" class="drawer-de">{{ NAV_SETTINGS.de }}</span>
+    </button>
+
     <VersionBadge variant="drawer" />
   </aside>
 
@@ -201,7 +270,10 @@ const themeAriaLabel = computed(() =>
   display: flex;
   gap: 4px;
   margin-left: auto;
+  align-items: center;
 }
+
+.nav-group { position: relative; }
 
 .nav-link {
   font-family: var(--font-body);
@@ -226,6 +298,34 @@ const themeAriaLabel = computed(() =>
   background: var(--accent);
 }
 
+.nav-trigger { display: inline-flex; align-items: center; }
+.nav-chevron {
+  font-size: 10px;
+  margin-left: 4px;
+  color: var(--mute);
+}
+
+.nav-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 200px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .10);
+  padding: 6px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+}
+.nav-panel .nav-link {
+  text-align: left;
+  width: 100%;
+}
+.nav-panel .nav-link.active::after { display: none; }
+.nav-panel .nav-link.active { color: var(--accent); }
+
 .nav-actions {
   display: flex;
   gap: 8px;
@@ -243,9 +343,14 @@ const themeAriaLabel = computed(() =>
   justify-content: center;
   cursor: pointer;
   color: var(--ink-soft);
-  transition: background .15s, color .15s, border-color .15s;
+  transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
 }
 .icon-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+.icon-btn.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 35%, transparent);
+}
 
 .nav-burger { display: none; }
 
@@ -277,6 +382,7 @@ const themeAriaLabel = computed(() =>
   transition: transform .26s ease;
   padding: 24px 20px;
   display: flex; flex-direction: column; gap: 4px;
+  overflow-y: auto;
 }
 .drawer.open { transform: translateX(0); }
 .drawer .drawer-mark { margin-bottom: 24px; }
@@ -294,6 +400,14 @@ const themeAriaLabel = computed(() =>
   text-transform: uppercase;
   color: var(--mute);
   margin-top: 3px;
+}
+.drawer-group-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin: 14px 0 2px;
 }
 .drawer .nav-link {
   text-align: left;
