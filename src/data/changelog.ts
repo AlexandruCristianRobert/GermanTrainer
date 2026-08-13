@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.20.05'
+export const APP_VERSION = '1.20.06'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,13 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.20.06', date: '2026-08-13', kind: 'fix',
+    title: 'Dativ · Antwortreihenfolge gemischt',
+    notes: [
+      '<strong>Die richtige Antwort stand fast immer auf Knopf 1.</strong> In sieben Dativ-Drills — <em>Wer ist Subjekt?</em>, <em>Zwillingspaare</em>, <em>Welches Objekt?</em>, <em>Dativ-Adjektive</em>, <em>Freier Dativ</em>, <em>Kein persönliches Passiv</em> und <em>Reflexiver Dativ</em> — kamen die Antwort-Buttons in der Reihenfolge der Datenbank, und dort steht die richtige Antwort zuerst. Die Optionen werden jetzt beim Kartenbau gemischt, wie es die <em>Objektfolge</em> von Anfang an tat.'
+    ]
+  },
   {
     version: '1.20.05', date: '2026-08-13', kind: 'polish',
     title: 'Sätze · Fachgebiete: Tier 1 komplett',
