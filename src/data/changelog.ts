@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.20.03'
+export const APP_VERSION = '1.20.04'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.20.04', date: '2026-08-13', kind: 'polish',
+    title: 'Sätze · Fachgebiete: Big Pharma IT (Tier 1)',
+    notes: [
+      '<strong>Ein Katalog fürs Pharma-Interview.</strong> Das Fachgebiet im Satz-Quiz ist jetzt ein Katalog mit Rubriken — <em>Technik & .NET</em>, <em>Regulierte Industrie</em>, <em>HR-Gespräch</em>. Acht neue Pharma-Fachgebiete von GxP über Computersystemvalidierung, Audit-Trail und Datenintegrität bis zur Wertschöpfungskette, dazu die HR-Runde mit Gehaltsvorstellung, Kündigungsfrist und Aufenthaltsbewilligung.',
+      '<strong>Nicht alles ist eine Definition.</strong> Jedes Fachgebiet hat eine Darstellungsform: <em>erklärend</em> wie im Fachgespräch, <em>erzählend</em> als kurze STAR-Episode, <em>persönlich</em> wie in der HR-Runde — die Karten sprechen so, wie das Interview es verlangt.',
+      '<strong>Neue Themengruppe Pharma.</strong> Über 80 neue Nomen — <em>die Charge</em>, <em>der Prüfpfad</em>, <em>die Standardarbeitsanweisung</em> — stehen auch allen Nomen-Drills zur Verfügung; dazu Schweiz-Vokabular wie <em>das Arbeitspensum</em> und <em>die Pensionskasse</em>.',
+      '<strong>Die drei bestehenden Fachgebiete sind gewachsen.</strong> <em>C# & .NET</em>, <em>Datenzugriff & SQL</em> und <em>DevOps & Betrieb</em> decken jetzt auch LINQ, Migrationen, CI/CD-Pipelines und Ursachenanalysen ab.'
+    ]
+  },
   {
     version: '1.20.03', date: '2026-08-12', kind: 'polish',
     title: 'Schreiben · Aufgabenmuster am Thema',

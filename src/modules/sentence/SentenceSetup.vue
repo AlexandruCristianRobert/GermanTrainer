@@ -27,6 +27,7 @@ import {
   type PackedCategory, type PackedCounts, type PackedPools, type PackedDomainPool
 } from '../../composables/usePackedSentenceQuiz'
 import { DOMAINS, domainsByIds } from '../../data/domains'
+import { KATALOGE, type KatalogSection } from '../../data/kataloge'
 
 const STORAGE_KEY = 'sentenceSetup'
 const STASH_KEY = 'gt:lastPackedSentenceQuiz'
@@ -184,6 +185,12 @@ const domainSummary = computed(() => {
   return `${activeDomains.value.length} ${activeDomains.value.length === 1 ? 'Fachgebiet' : 'Fachgebiete'} · ${n} Nomen im Pool`
 })
 
+// Accordion state for the Katalog sections — presentation only, not persisted.
+const openSection = ref<string | null>(null)
+function sectionSelectedCount(sec: KatalogSection): number {
+  return sec.domainIds.filter(id => domains.value.includes(id)).length
+}
+
 // Guards against out-of-order completion: toggling a second Fachgebiet
 // before an earlier query resolves must never let that stale, superseded
 // result overwrite the later (current) one. Bumped synchronously at entry —
@@ -301,7 +308,7 @@ async function start() {
   if (!canStart.value) return
 
   const domainPools: PackedDomainPool[] = activeDomains.value.map(d => ({
-    id: d.id, label: d.label, scenes: d.scenes,
+    id: d.id, label: d.label, form: d.form, scenes: d.scenes,
     nouns: domainNouns.value[d.id] ?? [],
     verbs: d.verbs
   }))
@@ -378,21 +385,34 @@ function back() { router.push({ name: 'home' }) }
       <div class="sna-block">
         <div class="sna-block-h">
           <span :style="{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent)', flex: 'none' }"></span>
-          <span class="sna-name">Fachgebiet<span class="de">welchen Begriff die Karte erklärt</span></span>
+          <span class="sna-name">Fachgebiet<span class="de">worüber die Karten sprechen</span></span>
         </div>
         <div class="sna-sum">
           <span class="sna-sum-t">{{ domainSummary }}</span>
           <button v-if="domainActive" class="sna-flt" type="button" @click="domains = []">Zurücksetzen</button>
         </div>
-        <div class="chip-row">
-          <button v-for="d in DOMAINS" :key="d.id" class="chip" :class="{ selected: domains.includes(d.id) }"
-            type="button" @click="domains = toggle(domains, d.id)">{{ d.label }}</button>
+        <div v-for="kat in KATALOGE" :key="kat.id" class="kat">
+          <div class="kat-label">{{ kat.label }}</div>
+          <div v-for="sec in kat.sections" :key="sec.title" class="kat-sec">
+            <button class="kat-sec-h" type="button"
+              @click="openSection = openSection === sec.title ? null : sec.title">
+              <span class="kat-caret" :class="{ open: openSection === sec.title }">▸</span>
+              <span class="kat-sec-t">{{ sec.title }}</span>
+              <span v-if="sectionSelectedCount(sec) > 0" class="kat-sec-n">{{ sectionSelectedCount(sec) }} gewählt</span>
+            </button>
+            <div v-if="openSection === sec.title" class="chip-row kat-chips">
+              <button v-for="d in domainsByIds([...sec.domainIds])" :key="d.id" class="chip"
+                :class="{ selected: domains.includes(d.id) }"
+                type="button" @click="domains = toggle(domains, d.id)">{{ d.label }}</button>
+            </div>
+          </div>
         </div>
         <p class="grading-hint">
-          Jede Karte <em>erklärt</em> einen Begriff aus <em>genau einem</em> gewählten Fachgebiet — wie
-          im Fachgespräch: <em>der Unterschied zwischen Funktion und Stored Procedure</em>, <em>was ein
-          Index kostet</em>. Keine Geschichte aus dem Büro. Die Nomen kommen dann aus dem Fachgebiet
-          statt aus den Themengruppen, und der Verbpool wird nicht mehr gefiltert.
+          Jede Karte spricht aus <em>genau einem</em> gewählten Fachgebiet — <em>erklärend</em> wie im
+          Fachgespräch (<em>der Unterschied zwischen Funktion und Stored Procedure</em>), oder
+          <em>persönlich</em> wie in der HR-Runde (<em>meine Gehaltsvorstellung, meine Kündigungsfrist</em>).
+          Die Nomen kommen dann aus dem Fachgebiet statt aus den Themengruppen, und der Verbpool wird
+          nicht mehr gefiltert.
         </p>
       </div>
 
