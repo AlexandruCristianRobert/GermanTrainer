@@ -409,8 +409,9 @@ function back() { router.push({ name: 'home' }) }
         </div>
         <p class="grading-hint">
           Jede Karte spricht aus <em>genau einem</em> gewählten Fachgebiet — <em>erklärend</em> wie im
-          Fachgespräch (<em>der Unterschied zwischen Funktion und Stored Procedure</em>), oder
-          <em>persönlich</em> wie in der HR-Runde (<em>meine Gehaltsvorstellung, meine Kündigungsfrist</em>).
+          Fachgespräch (<em>der Unterschied zwischen Funktion und Stored Procedure</em>),
+          <em>erzählend</em> als kurze STAR-Episode (<em>Ich habe damals ein Altsystem übernommen …</em>),
+          oder <em>persönlich</em> wie in der HR-Runde (<em>meine Gehaltsvorstellung, meine Kündigungsfrist</em>).
           Die Nomen kommen dann aus dem Fachgebiet statt aus den Themengruppen, und der Verbpool wird
           nicht mehr gefiltert.
         </p>

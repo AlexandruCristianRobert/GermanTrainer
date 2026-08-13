@@ -504,6 +504,150 @@ export const DOMAINS: Domain[] = [
       'ersetzen', 'ändern', 'prüfen', 'testen', 'sichern', 'planen', 'beschreiben',
       'erkennen', 'beheben', 'verwalten', 'anpassen', 'entfernen'
     ]
+  },
+  {
+    id: 'kommunikation',
+    label: 'Stakeholder & Kommunikation',
+    form: 'erzaehlend',
+    scenes: [
+      'tell about a time you explained a technical problem to a non-technical colleague',
+      'tell about gathering requirements from business users who did not know what they wanted',
+      'tell about a time you said no to a stakeholder and offered an alternative',
+      'tell about working with an external vendor that tested your patience',
+      'tell about a misunderstanding that better communication would have prevented',
+      'tell about a time you had to deliver bad news about a project'
+    ],
+    nouns: [
+      'Kommunikation', 'Missverständnis', 'Anforderung', 'Dienstleister', 'Lieferant',
+      'Besprechung', 'Rückmeldung', 'Feedback', 'Alternative', 'Fachbegriff',
+      'Zusammenarbeit', 'Erwartung', 'Lösung', 'Problem', 'Projekt', 'Termin',
+      'Entscheidung', 'Kritik', 'Kompromiss', 'Verantwortung', 'Kollege', 'Team',
+      'Rückfrage', 'Verhandlung', 'Verzögerung'
+    ],
+    verbs: [
+      'erklären', 'beschreiben', 'fragen', 'vergleichen', 'planen', 'melden',
+      'verhandeln', 'finden', 'suchen', 'verwenden', 'anbieten', 'erwarten', 'verbessern'
+    ]
+  },
+  {
+    id: 'teamarbeit',
+    label: 'Globale Teamarbeit',
+    form: 'erzaehlend',
+    scenes: [
+      'tell about working in a cross-functional international team',
+      'tell about collaborating across time zones and what asynchronous communication changed',
+      'tell about a cultural difference that surprised you in a global company',
+      'tell about a knowledge transfer you ran for colleagues',
+      'tell about onboarding a new team member remotely',
+      'tell about a time remote collaboration broke down and how it was fixed'
+    ],
+    nouns: [
+      'Team', 'Zeitzone', 'Zusammenarbeit', 'Wissenstransfer', 'Übergabe',
+      'Verantwortung', 'Kollege', 'Besprechung', 'Kommunikation', 'Missverständnis',
+      'Einarbeitung', 'Homeoffice', 'Präsenztag', 'Dokumentation', 'Aufgabe',
+      'Projekt', 'Rolle', 'Planung', 'Fortschritt', 'Rückmeldung', 'Erwartung',
+      'Weiterbildung', 'Termin', 'Verzögerung', 'Lösung'
+    ],
+    verbs: [
+      'planen', 'beschreiben', 'erklären', 'fragen', 'melden', 'verbinden',
+      'verwalten', 'verwenden', 'vergleichen', 'finden', 'suchen', 'schreiben'
+    ]
+  },
+  {
+    id: 'konflikt',
+    label: 'Konflikt & Druck',
+    form: 'erzaehlend',
+    scenes: [
+      'tell about disagreeing with a technical decision and how you handled it',
+      'tell about receiving critical feedback on your code and what you did with it',
+      'tell about a project that failed or was cancelled and what you learned',
+      'tell about delivering under a tight deadline and what you deprioritized',
+      'tell about a conflict in the team that you helped resolve',
+      'tell about a time you were wrong in a technical argument and admitted it'
+    ],
+    nouns: [
+      'Meinungsverschiedenheit', 'Kritik', 'Misserfolg', 'Lektion', 'Konflikt',
+      'Kompromiss', 'Termindruck', 'Druck', 'Frist', 'Verzögerung', 'Priorität',
+      'Entscheidung', 'Feedback', 'Rückmeldung', 'Fehler', 'Lösung', 'Problem',
+      'Projekt', 'Team', 'Kollege', 'Verantwortung', 'Erwartung', 'Besprechung',
+      'Kommunikation', 'Aufgabe'
+    ],
+    verbs: [
+      'verhandeln', 'erklären', 'fragen', 'vergleichen', 'melden', 'beheben',
+      'erkennen', 'verbessern', 'planen', 'finden', 'beschreiben', 'erwarten'
+    ]
+  },
+  {
+    id: 'eigenverantwortung',
+    label: 'Ownership & Problemlösung',
+    form: 'erzaehlend',
+    scenes: [
+      'tell about your first week with an inherited system that had no tests and no documentation',
+      'tell about debugging a production incident under time pressure',
+      'tell about prioritizing when everything was urgent at once',
+      'tell about a slow manual process you automated',
+      'tell about a problem you fixed before anyone noticed it',
+      'tell about the proudest improvement you shipped on your own initiative'
+    ],
+    nouns: [
+      'Eigenverantwortung', 'Fehlersuche', 'Produktionsvorfall', 'Vorfall',
+      'Priorisierung', 'Priorität', 'Automatisierung', 'Prozessverbesserung',
+      'Verbesserung', 'Initiative', 'Einarbeitung', 'Ursachenanalyse', 'Altsystem',
+      'Dokumentation', 'Testfall', 'Fehlermeldung', 'Überwachung', 'Neustart',
+      'Ausfall', 'Skript', 'Werkzeug', 'Termindruck', 'Lösung', 'Prozess', 'Aufgabe'
+    ],
+    verbs: [
+      'beheben', 'erkennen', 'prüfen', 'testen', 'ändern', 'verbessern', 'planen',
+      'melden', 'ausführen', 'starten', 'überwachen', 'sichern'
+    ]
+  },
+  {
+    id: 'arbeitsweise',
+    label: 'Agile & ITIL',
+    form: 'erklaerend',
+    scenes: [
+      'explain what stays agile and what changes in a regulated environment',
+      'explain the Scrum roles and ceremonies and your place in them',
+      'explain what SAFe adds on top of Scrum and why large pharma uses it',
+      'explain a Definition of Done that includes validation documents',
+      'explain the ITIL distinction between an incident, a problem and a change',
+      'explain how you estimate work and communicate delays early'
+    ],
+    nouns: [
+      'Arbeitsweise', 'Sprint', 'Retrospektive', 'Rolle', 'Planung',
+      'Aufwandsschätzung', 'Schätzung', 'Verzögerung', 'Vorfall', 'Problem',
+      'Änderung', 'Besprechung', 'Team', 'Priorisierung', 'Priorität',
+      'Anforderung', 'Aufgabe', 'Validierung', 'Dokumentation', 'Freigabe',
+      'Prozess', 'Termin', 'Fortschritt', 'Hindernis', 'Abnahme'
+    ],
+    verbs: [
+      'planen', 'vergleichen', 'beschreiben', 'erklären', 'melden', 'prüfen',
+      'verwalten', 'erwarten', 'verhandeln', 'anpassen', 'verwenden', 'starten'
+    ]
+  },
+  {
+    id: 'motivation',
+    label: 'Motivation & Firmenwahl',
+    form: 'persoenlich',
+    scenes: [
+      'state why you want pharma rather than banking or a startup',
+      'state why this specific company attracts you — pipeline, products, recent news',
+      'state why this specific team and what they build appeals to you',
+      'state what patient impact means to you as an internal IT developer',
+      'state your five-year direction — technical expert or lead',
+      'state your relocation story — why Switzerland, why now'
+    ],
+    nouns: [
+      'Motivation', 'Branchenwechsel', 'Produktportfolio', 'Nutzen', 'Patient',
+      'Entwicklung', 'Ziel', 'Auswanderung', 'Umzug', 'Berufserfahrung', 'Stelle',
+      'Unternehmen', 'Produkt', 'Forschung', 'Arzneimittel', 'Beitrag',
+      'Schwerpunkt', 'Weiterbildung', 'Team', 'Projekt', 'Erwartung',
+      'Verantwortung', 'Wirkstoff', 'Patientensicherheit', 'Marktzugang'
+    ],
+    verbs: [
+      'erwarten', 'suchen', 'finden', 'planen', 'vergleichen', 'erklären',
+      'anbieten', 'verwenden', 'lesen', 'schreiben', 'starten', 'fragen'
+    ]
   }
 ]
 

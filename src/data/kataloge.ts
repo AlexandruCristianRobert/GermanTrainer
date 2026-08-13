@@ -37,6 +37,9 @@ export const KATALOGE: Katalog[] = [
           'qualitaetsprozesse', 'behoerden', 'wertschoepfung', 'pharma-systeme'
         ]
       },
+      { title: 'Verhaltensfragen', domainIds: ['kommunikation', 'teamarbeit', 'konflikt', 'eigenverantwortung'] },
+      { title: 'Arbeitsweise', domainIds: ['arbeitsweise'] },
+      { title: 'Motivation', domainIds: ['motivation'] },
       { title: 'HR-Gespräch', domainIds: ['hr-runde'] }
     ]
   }
