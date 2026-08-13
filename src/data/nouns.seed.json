@@ -14272,5 +14272,413 @@
     "gender": "der",
     "english": "monthly salary",
     "group": "Switzerland"
+  },
+  {
+    "german": "Deadlock",
+    "gender": "der",
+    "english": "deadlock",
+    "group": "Programming"
+  },
+  {
+    "german": "Threadsicherheit",
+    "gender": "die",
+    "english": "thread safety",
+    "group": "Programming"
+  },
+  {
+    "german": "Hintergrundprozess",
+    "gender": "der",
+    "english": "background process",
+    "group": "Programming"
+  },
+  {
+    "german": "Abbruch",
+    "gender": "der",
+    "english": "cancellation, abort",
+    "group": "Programming"
+  },
+  {
+    "german": "Berechtigung",
+    "gender": "die",
+    "english": "authorization, permission",
+    "group": "Programming"
+  },
+  {
+    "german": "Datenaustausch",
+    "gender": "der",
+    "english": "data exchange",
+    "group": "Programming"
+  },
+  {
+    "german": "Abwärtskompatibilität",
+    "gender": "die",
+    "english": "backward compatibility",
+    "group": "Programming"
+  },
+  {
+    "german": "Integration",
+    "gender": "die",
+    "english": "integration",
+    "group": "Programming"
+  },
+  {
+    "german": "Übertragung",
+    "gender": "die",
+    "english": "transmission, transfer",
+    "group": "Programming"
+  },
+  {
+    "german": "Integrationstest",
+    "gender": "der",
+    "english": "integration test",
+    "group": "Programming"
+  },
+  {
+    "german": "Umstrukturierung",
+    "gender": "die",
+    "english": "refactoring",
+    "group": "Programming"
+  },
+  {
+    "german": "Altcode",
+    "gender": "der",
+    "english": "legacy code",
+    "group": "Programming"
+  },
+  {
+    "german": "Programmierstandard",
+    "gender": "der",
+    "english": "coding standard",
+    "group": "Programming"
+  },
+  {
+    "german": "Codequalität",
+    "gender": "die",
+    "english": "code quality",
+    "group": "Programming"
+  },
+  {
+    "german": "Schichtenarchitektur",
+    "gender": "die",
+    "english": "layered architecture",
+    "group": "Programming"
+  },
+  {
+    "german": "Monolith",
+    "gender": "der",
+    "english": "monolith",
+    "group": "Programming"
+  },
+  {
+    "german": "Wartbarkeit",
+    "gender": "die",
+    "english": "maintainability",
+    "group": "Programming"
+  },
+  {
+    "german": "Architekturentscheidung",
+    "gender": "die",
+    "english": "architecture decision",
+    "group": "Programming"
+  },
+  {
+    "german": "Komponente",
+    "gender": "die",
+    "english": "component",
+    "group": "Programming"
+  },
+  {
+    "german": "Modernisierung",
+    "gender": "die",
+    "english": "modernization",
+    "group": "Programming"
+  },
+  {
+    "german": "Ablösung",
+    "gender": "die",
+    "english": "phased replacement",
+    "group": "Programming"
+  },
+  {
+    "german": "Altsystem",
+    "gender": "das",
+    "english": "legacy system",
+    "group": "Programming"
+  },
+  {
+    "german": "Fehlersuche",
+    "gender": "die",
+    "english": "debugging",
+    "group": "Programming"
+  },
+  {
+    "german": "Automatisierung",
+    "gender": "die",
+    "english": "automation",
+    "group": "Programming"
+  },
+  {
+    "german": "Kommunikation",
+    "gender": "die",
+    "english": "communication",
+    "group": "Work"
+  },
+  {
+    "german": "Missverständnis",
+    "gender": "das",
+    "english": "misunderstanding",
+    "group": "Work"
+  },
+  {
+    "german": "Anforderung",
+    "gender": "die",
+    "english": "requirement",
+    "group": "Work"
+  },
+  {
+    "german": "Dienstleister",
+    "gender": "der",
+    "english": "service provider",
+    "group": "Work"
+  },
+  {
+    "german": "Rückmeldung",
+    "gender": "die",
+    "english": "feedback, reply",
+    "group": "Work"
+  },
+  {
+    "german": "Feedback",
+    "gender": "das",
+    "english": "feedback",
+    "group": "Work"
+  },
+  {
+    "german": "Alternative",
+    "gender": "die",
+    "english": "alternative",
+    "group": "Work"
+  },
+  {
+    "german": "Fachbegriff",
+    "gender": "der",
+    "english": "technical term",
+    "group": "Work"
+  },
+  {
+    "german": "Zusammenarbeit",
+    "gender": "die",
+    "english": "collaboration",
+    "group": "Work"
+  },
+  {
+    "german": "Zeitzone",
+    "gender": "die",
+    "english": "time zone",
+    "group": "Work"
+  },
+  {
+    "german": "Wissenstransfer",
+    "gender": "der",
+    "english": "knowledge transfer",
+    "group": "Work"
+  },
+  {
+    "german": "Übergabe",
+    "gender": "die",
+    "english": "handover",
+    "group": "Work"
+  },
+  {
+    "german": "Verantwortung",
+    "gender": "die",
+    "english": "responsibility",
+    "group": "Work"
+  },
+  {
+    "german": "Meinungsverschiedenheit",
+    "gender": "die",
+    "english": "disagreement",
+    "group": "Work"
+  },
+  {
+    "german": "Kritik",
+    "gender": "die",
+    "english": "criticism",
+    "group": "Work"
+  },
+  {
+    "german": "Lektion",
+    "gender": "die",
+    "english": "lesson",
+    "group": "Work"
+  },
+  {
+    "german": "Kompromiss",
+    "gender": "der",
+    "english": "compromise",
+    "group": "Work"
+  },
+  {
+    "german": "Termindruck",
+    "gender": "der",
+    "english": "deadline pressure",
+    "group": "Work"
+  },
+  {
+    "german": "Druck",
+    "gender": "der",
+    "english": "pressure",
+    "group": "Work"
+  },
+  {
+    "german": "Verzögerung",
+    "gender": "die",
+    "english": "delay",
+    "group": "Work"
+  },
+  {
+    "german": "Priorität",
+    "gender": "die",
+    "english": "priority",
+    "group": "Work"
+  },
+  {
+    "german": "Priorisierung",
+    "gender": "die",
+    "english": "prioritization",
+    "group": "Work"
+  },
+  {
+    "german": "Eigenverantwortung",
+    "gender": "die",
+    "english": "ownership",
+    "group": "Work"
+  },
+  {
+    "german": "Produktionsvorfall",
+    "gender": "der",
+    "english": "production incident",
+    "group": "Work"
+  },
+  {
+    "german": "Prozessverbesserung",
+    "gender": "die",
+    "english": "process improvement",
+    "group": "Work"
+  },
+  {
+    "german": "Verbesserung",
+    "gender": "die",
+    "english": "improvement",
+    "group": "Work"
+  },
+  {
+    "german": "Initiative",
+    "gender": "die",
+    "english": "initiative",
+    "group": "Work"
+  },
+  {
+    "german": "Sprint",
+    "gender": "der",
+    "english": "sprint",
+    "group": "Work"
+  },
+  {
+    "german": "Arbeitsweise",
+    "gender": "die",
+    "english": "way of working",
+    "group": "Work"
+  },
+  {
+    "german": "Aufwandsschätzung",
+    "gender": "die",
+    "english": "effort estimate",
+    "group": "Work"
+  },
+  {
+    "german": "Schätzung",
+    "gender": "die",
+    "english": "estimate",
+    "group": "Work"
+  },
+  {
+    "german": "Retrospektive",
+    "gender": "die",
+    "english": "retrospective",
+    "group": "Work"
+  },
+  {
+    "german": "Rolle",
+    "gender": "die",
+    "english": "role",
+    "group": "Work"
+  },
+  {
+    "german": "Fortschritt",
+    "gender": "der",
+    "english": "progress",
+    "group": "Work"
+  },
+  {
+    "german": "Hindernis",
+    "gender": "das",
+    "english": "impediment",
+    "group": "Work"
+  },
+  {
+    "german": "Motivation",
+    "gender": "die",
+    "english": "motivation",
+    "group": "Work"
+  },
+  {
+    "german": "Nutzen",
+    "gender": "der",
+    "english": "benefit",
+    "group": "Work"
+  },
+  {
+    "german": "Produktportfolio",
+    "gender": "das",
+    "english": "product portfolio",
+    "group": "Work"
+  },
+  {
+    "german": "Schwerpunkt",
+    "gender": "der",
+    "english": "focus, emphasis",
+    "group": "Work"
+  },
+  {
+    "german": "Auswanderung",
+    "gender": "die",
+    "english": "emigration",
+    "group": "Work"
+  },
+  {
+    "german": "Entwicklung",
+    "gender": "die",
+    "english": "development",
+    "group": "Work"
+  },
+  {
+    "german": "Problem",
+    "gender": "das",
+    "english": "problem",
+    "group": "Work"
+  },
+  {
+    "german": "Entscheidung",
+    "gender": "die",
+    "english": "decision",
+    "group": "Work"
+  },
+  {
+    "german": "Änderung",
+    "gender": "die",
+    "english": "change",
+    "group": "Work"
   }
 ]
