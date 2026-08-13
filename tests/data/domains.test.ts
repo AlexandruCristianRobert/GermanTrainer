@@ -17,8 +17,12 @@ describe('Domain bank', () => {
       expect(d.label.trim().length).toBeGreaterThan(0)
     }
   })
-  test('the three shipped Domains are present', () => {
-    expect(DOMAINS.map(d => d.id).sort()).toEqual(['docker', 'dotnet', 'sql-server'])
+  test('the shipped Domains are present', () => {
+    expect(DOMAINS.map(d => d.id).sort()).toEqual([
+      'audit-trail', 'behoerden', 'datenintegritaet', 'docker', 'dotnet', 'gxp',
+      'hr-runde', 'pharma-systeme', 'qualitaetsprozesse', 'sql-server',
+      'validierung', 'wertschoepfung'
+    ])
   })
   test('every Domain noun resolves against the seeded store', () => {
     for (const d of DOMAINS) {
@@ -52,10 +56,11 @@ describe('Domain bank', () => {
   })
   // A framing asks for a DEFINITION of a concept in the field, not an anecdote
   // from it (ADR-0018) — the interview answer, not the Friday-night deployment.
-  test('every framing asks for an explanation, never a scene', () => {
+  const FORM_PREFIX = { erklaerend: /^explain\b/, erzaehlend: /^tell\b/, persoenlich: /^state\b/ } as const
+  test('every framing matches its Domain\'s Darstellungsform', () => {
     for (const d of DOMAINS) {
       for (const s of d.scenes) {
-        expect(s, `${d.id}: "${s}"`).toMatch(/^explain\b/)
+        expect(s, `${d.id}: "${s}"`).toMatch(FORM_PREFIX[d.form])
         expect(s.toLowerCase(), d.id).not.toContain('set it')
         expect(s.toLowerCase(), d.id).not.toContain('set the scene')
       }
@@ -66,8 +71,13 @@ describe('Domain bank', () => {
     expect(domainById('docker')!.scenes.join(' | ')).toContain('image and a container')
     expect(domainById('dotnet')!.scenes.join(' | ')).toContain('interface')
   })
+  test('interview-critical concepts are covered', () => {
+    expect(domainById('validierung')!.scenes.join(' | ')).toContain('GAMP')
+    expect(domainById('audit-trail')!.scenes.join(' | ')).toContain('audit trail')
+    expect(domainById('hr-runde')!.scenes.join(' | ')).toContain('salary')
+  })
   test('lookup helpers', () => {
-    expect(domainById('docker')?.label).toBe('Docker')
+    expect(domainById('docker')?.label).toBe('DevOps & Betrieb')
     expect(domainById('nope')).toBeUndefined()
     expect(domainsByIds(['sql-server', 'nope', 'dotnet']).map(d => d.id)).toEqual(['dotnet', 'sql-server'])
     expect(domainsByIds([])).toEqual([])

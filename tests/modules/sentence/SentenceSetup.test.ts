@@ -153,7 +153,7 @@ describe('Fachgebiet', () => {
 
   it('selecting a Domain disables the Themen chips and explains the verb pool', async () => {
     const { wrapper } = await mountSetup()
-    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     await openFilter(wrapper, 'Nomen')
     expect(wrapper.text()).toContain('Fachgebiet aktiv')
@@ -163,7 +163,7 @@ describe('Fachgebiet', () => {
 
   it('stashes the selected Domains and stamps every card with one', async () => {
     const { wrapper } = await mountSetup()
-    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     await wrapper.find('button.btn-accent').trigger('click')
     await flushPromises()
@@ -188,7 +188,7 @@ describe('Fachgebiet', () => {
     // regardless of Niveau/Typ/Rektion, so Start must stay enabled and the
     // empty-pool alert must be absent.
     const { wrapper } = await mountSetup()
-    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     await openFilter(wrapper, 'Verben')
     await findField(wrapper, 'Niveau').findAll('button').find(b => b.text() === 'None')!.trigger('click')
@@ -205,7 +205,7 @@ describe('Fachgebiet', () => {
     expect(plainSummary).not.toContain('Fachgebiet aktiv')
 
     const { wrapper } = await mountSetup()
-    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     const summary = findBlock(wrapper, 'Verben').find('.sna-sum-t').text()
     expect(summary).not.toContain('Typen')
@@ -222,7 +222,7 @@ describe('Fachgebiet', () => {
     // racing it still resolves and updates the pool normally. Without this
     // half, a guard that just drops every result (instead of only stale
     // ones) would also make this test pass.
-    await wrapper.findAll('button.chip').find(b => b.text() === '.NET')!.trigger('click')
+    await wrapper.findAll('button.chip').find(b => b.text() === 'C# & .NET')!.trigger('click')
     await flushPromises()
     expect(byGermanListGate.queue).toHaveLength(1)
     byGermanListGate.queue[0].resolve()
@@ -230,18 +230,18 @@ describe('Fachgebiet', () => {
     const startBaseline = wrapper.findAll('button').find(b => b.text().startsWith('Start ·'))!
     expect(startBaseline.attributes('disabled')).toBeUndefined()
     expect(wrapper.text()).not.toContain('Leerer Pool')
-    await wrapper.findAll('button.chip').find(b => b.text() === '.NET')!.trigger('click') // deselect
+    await wrapper.findAll('button.chip').find(b => b.text() === 'C# & .NET')!.trigger('click') // deselect
     await flushPromises()
 
     // Race: select Docker (its query held open), then swap to SQL Server
     // before Docker's query resolves — a later resolveDomainNouns() run
     // starts, and its own query is held open too.
-    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     const dockerCall = byGermanListGate.queue.at(-1)!
-    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click') // toggle off
+    await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click') // toggle off
     await flushPromises()
-    await wrapper.findAll('button.chip').find(b => b.text() === 'SQL Server')!.trigger('click')
+    await wrapper.findAll('button.chip').find(b => b.text() === 'Datenzugriff & SQL')!.trigger('click')
     await flushPromises()
     const sqlServerCall = byGermanListGate.queue.at(-1)!
 
@@ -264,7 +264,7 @@ describe('Fachgebiet', () => {
     byGermanListGate.active = true
     const { wrapper } = await mountSetup()
 
-    await wrapper.findAll('button.chip').find(b => b.text() === 'Docker')!.trigger('click')
+    await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     expect(byGermanListGate.queue).toHaveLength(1) // the resolution is outstanding, not yet resolved
 
