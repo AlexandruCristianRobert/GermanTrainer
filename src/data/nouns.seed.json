@@ -13774,5 +13774,503 @@
     "gender": "die",
     "english": "API specification",
     "group": "Programming"
+  },
+  {
+    "german": "Validierung",
+    "gender": "die",
+    "english": "validation",
+    "group": "Pharma"
+  },
+  {
+    "german": "Qualifizierung",
+    "gender": "die",
+    "english": "qualification (IQ/OQ/PQ)",
+    "group": "Pharma"
+  },
+  {
+    "german": "Anforderungsspezifikation",
+    "gender": "die",
+    "english": "requirements specification",
+    "group": "Pharma"
+  },
+  {
+    "german": "Rückverfolgbarkeit",
+    "gender": "die",
+    "english": "traceability",
+    "group": "Pharma"
+  },
+  {
+    "german": "Prüfpfad",
+    "gender": "der",
+    "english": "audit trail",
+    "group": "Pharma"
+  },
+  {
+    "german": "Audit-Trail",
+    "gender": "der",
+    "english": "audit trail",
+    "group": "Pharma"
+  },
+  {
+    "german": "Aufzeichnung",
+    "gender": "die",
+    "english": "record",
+    "group": "Pharma"
+  },
+  {
+    "german": "Signatur",
+    "gender": "die",
+    "english": "signature",
+    "group": "Pharma"
+  },
+  {
+    "german": "Zugriffskontrolle",
+    "gender": "die",
+    "english": "access control",
+    "group": "Pharma"
+  },
+  {
+    "german": "Rollenverwaltung",
+    "gender": "die",
+    "english": "role management",
+    "group": "Pharma"
+  },
+  {
+    "german": "Datenintegrität",
+    "gender": "die",
+    "english": "data integrity",
+    "group": "Pharma"
+  },
+  {
+    "german": "Änderungskontrolle",
+    "gender": "die",
+    "english": "change control",
+    "group": "Pharma"
+  },
+  {
+    "german": "Standardarbeitsanweisung",
+    "gender": "die",
+    "english": "standard operating procedure (SOP)",
+    "group": "Pharma"
+  },
+  {
+    "german": "Abweichung",
+    "gender": "die",
+    "english": "deviation",
+    "group": "Pharma"
+  },
+  {
+    "german": "Korrekturmaßnahme",
+    "gender": "die",
+    "english": "corrective action (CAPA)",
+    "group": "Pharma"
+  },
+  {
+    "german": "Qualitätssicherung",
+    "gender": "die",
+    "english": "quality assurance",
+    "group": "Pharma"
+  },
+  {
+    "german": "Audit",
+    "gender": "das",
+    "english": "audit",
+    "group": "Pharma"
+  },
+  {
+    "german": "Inspektion",
+    "gender": "die",
+    "english": "inspection",
+    "group": "Pharma"
+  },
+  {
+    "german": "Zulassung",
+    "gender": "die",
+    "english": "marketing authorisation",
+    "group": "Pharma"
+  },
+  {
+    "german": "Zulassungsverfahren",
+    "gender": "das",
+    "english": "drug approval process",
+    "group": "Pharma"
+  },
+  {
+    "german": "Zulassungsbehörde",
+    "gender": "die",
+    "english": "regulatory authority",
+    "group": "Pharma"
+  },
+  {
+    "german": "Behörde",
+    "gender": "die",
+    "english": "(public) authority",
+    "group": "Pharma"
+  },
+  {
+    "german": "Arzneimittel",
+    "gender": "das",
+    "english": "medicinal product",
+    "group": "Pharma"
+  },
+  {
+    "german": "Wirkstoff",
+    "gender": "der",
+    "english": "active ingredient",
+    "group": "Pharma"
+  },
+  {
+    "german": "Studie",
+    "gender": "die",
+    "english": "study, clinical trial",
+    "group": "Pharma"
+  },
+  {
+    "german": "Studienphase",
+    "gender": "die",
+    "english": "trial phase",
+    "group": "Pharma"
+  },
+  {
+    "german": "Charge",
+    "gender": "die",
+    "english": "batch",
+    "group": "Pharma"
+  },
+  {
+    "german": "Lieferkette",
+    "gender": "die",
+    "english": "supply chain",
+    "group": "Pharma"
+  },
+  {
+    "german": "Kühlkette",
+    "gender": "die",
+    "english": "cold chain",
+    "group": "Pharma"
+  },
+  {
+    "german": "Serialisierung",
+    "gender": "die",
+    "english": "serialization",
+    "group": "Pharma"
+  },
+  {
+    "german": "Arzneimittelsicherheit",
+    "gender": "die",
+    "english": "pharmacovigilance",
+    "group": "Pharma"
+  },
+  {
+    "german": "Marktzugang",
+    "gender": "der",
+    "english": "market access",
+    "group": "Pharma"
+  },
+  {
+    "german": "Laborinformationssystem",
+    "gender": "das",
+    "english": "laboratory information system (LIMS)",
+    "group": "Pharma"
+  },
+  {
+    "german": "Produktionsleitsystem",
+    "gender": "das",
+    "english": "manufacturing execution system (MES)",
+    "group": "Pharma"
+  },
+  {
+    "german": "Labor",
+    "gender": "das",
+    "english": "laboratory",
+    "group": "Pharma"
+  },
+  {
+    "german": "Dokumentenmanagement",
+    "gender": "das",
+    "english": "document management",
+    "group": "Pharma"
+  },
+  {
+    "german": "Berichtswesen",
+    "gender": "das",
+    "english": "reporting",
+    "group": "Pharma"
+  },
+  {
+    "german": "Datenlager",
+    "gender": "das",
+    "english": "data warehouse",
+    "group": "Pharma"
+  },
+  {
+    "german": "Probe",
+    "gender": "die",
+    "english": "sample",
+    "group": "Pharma"
+  },
+  {
+    "german": "Freigabe",
+    "gender": "die",
+    "english": "release, sign-off",
+    "group": "Pharma"
+  },
+  {
+    "german": "Risikobewertung",
+    "gender": "die",
+    "english": "risk assessment",
+    "group": "Pharma"
+  },
+  {
+    "german": "Risiko",
+    "gender": "das",
+    "english": "risk",
+    "group": "Pharma"
+  },
+  {
+    "german": "Nachweis",
+    "gender": "der",
+    "english": "documented proof",
+    "group": "Pharma"
+  },
+  {
+    "german": "Vorschrift",
+    "gender": "die",
+    "english": "regulation, rule",
+    "group": "Pharma"
+  },
+  {
+    "german": "Richtlinie",
+    "gender": "die",
+    "english": "guideline",
+    "group": "Pharma"
+  },
+  {
+    "german": "Abnahme",
+    "gender": "die",
+    "english": "acceptance, sign-off",
+    "group": "Pharma"
+  },
+  {
+    "german": "Prüfplan",
+    "gender": "der",
+    "english": "validation / test plan",
+    "group": "Pharma"
+  },
+  {
+    "german": "Aufbewahrungsfrist",
+    "gender": "die",
+    "english": "retention period",
+    "group": "Pharma"
+  },
+  {
+    "german": "Datenaufbewahrung",
+    "gender": "die",
+    "english": "data retention",
+    "group": "Pharma"
+  },
+  {
+    "german": "Herstellung",
+    "gender": "die",
+    "english": "manufacturing",
+    "group": "Pharma"
+  },
+  {
+    "german": "Hersteller",
+    "gender": "der",
+    "english": "manufacturer",
+    "group": "Pharma"
+  },
+  {
+    "german": "Produktion",
+    "gender": "die",
+    "english": "production",
+    "group": "Pharma"
+  },
+  {
+    "german": "Manipulation",
+    "gender": "die",
+    "english": "tampering",
+    "group": "Pharma"
+  },
+  {
+    "german": "Wirksamkeit",
+    "gender": "die",
+    "english": "efficacy",
+    "group": "Pharma"
+  },
+  {
+    "german": "Nebenwirkung",
+    "gender": "die",
+    "english": "side effect",
+    "group": "Pharma"
+  },
+  {
+    "german": "Patientensicherheit",
+    "gender": "die",
+    "english": "patient safety",
+    "group": "Pharma"
+  },
+  {
+    "german": "Genehmigung",
+    "gender": "die",
+    "english": "approval",
+    "group": "Pharma"
+  },
+  {
+    "german": "Forschung",
+    "gender": "die",
+    "english": "research",
+    "group": "Pharma"
+  },
+  {
+    "german": "Softwarekategorie",
+    "gender": "die",
+    "english": "software category (GAMP 5)",
+    "group": "Pharma"
+  },
+  {
+    "german": "Werttyp",
+    "gender": "der",
+    "english": "value type",
+    "group": "Programming"
+  },
+  {
+    "german": "Referenztyp",
+    "gender": "der",
+    "english": "reference type",
+    "group": "Programming"
+  },
+  {
+    "german": "Ausnahmebehandlung",
+    "gender": "die",
+    "english": "exception handling",
+    "group": "Programming"
+  },
+  {
+    "german": "Nullreferenz",
+    "gender": "die",
+    "english": "null reference",
+    "group": "Programming"
+  },
+  {
+    "german": "Archivierung",
+    "gender": "die",
+    "english": "archiving",
+    "group": "Programming"
+  },
+  {
+    "german": "Ursachenanalyse",
+    "gender": "die",
+    "english": "root cause analysis",
+    "group": "Programming"
+  },
+  {
+    "german": "Warnmeldung",
+    "gender": "die",
+    "english": "alert",
+    "group": "Programming"
+  },
+  {
+    "german": "Vorfall",
+    "gender": "der",
+    "english": "incident",
+    "group": "Programming"
+  },
+  {
+    "german": "Gehaltsvorstellung",
+    "gender": "die",
+    "english": "salary expectation",
+    "group": "Work"
+  },
+  {
+    "german": "Eintrittstermin",
+    "gender": "der",
+    "english": "start date",
+    "group": "Work"
+  },
+  {
+    "german": "Verhandlung",
+    "gender": "die",
+    "english": "negotiation",
+    "group": "Work"
+  },
+  {
+    "german": "Rückfrage",
+    "gender": "die",
+    "english": "follow-up question",
+    "group": "Work"
+  },
+  {
+    "german": "Berufserfahrung",
+    "gender": "die",
+    "english": "professional experience",
+    "group": "Work"
+  },
+  {
+    "german": "Einarbeitung",
+    "gender": "die",
+    "english": "onboarding",
+    "group": "Work"
+  },
+  {
+    "german": "Branchenwechsel",
+    "gender": "der",
+    "english": "change of industry",
+    "group": "Work"
+  },
+  {
+    "german": "Präsenztag",
+    "gender": "der",
+    "english": "on-site day",
+    "group": "Work"
+  },
+  {
+    "german": "Urlaubsanspruch",
+    "gender": "der",
+    "english": "vacation entitlement",
+    "group": "Work"
+  },
+  {
+    "german": "Erwartung",
+    "gender": "die",
+    "english": "expectation",
+    "group": "Work"
+  },
+  {
+    "german": "Umzug",
+    "gender": "der",
+    "english": "move, relocation",
+    "group": "Work"
+  },
+  {
+    "german": "Aufenthaltsbewilligung",
+    "gender": "die",
+    "english": "residence permit",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Personenfreizügigkeit",
+    "gender": "die",
+    "english": "free movement of persons",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Arbeitspensum",
+    "gender": "das",
+    "english": "workload percentage",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Pensionskasse",
+    "gender": "die",
+    "english": "pension fund",
+    "group": "Switzerland"
+  },
+  {
+    "german": "Monatslohn",
+    "gender": "der",
+    "english": "monthly salary",
+    "group": "Switzerland"
   }
 ]

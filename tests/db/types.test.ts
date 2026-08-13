@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, test, expect } from 'vitest'
 import { NOUN_GROUPS } from '../../src/db/types'
 
 describe('NOUN_GROUPS', () => {
@@ -13,5 +13,10 @@ describe('NOUN_GROUPS', () => {
 
   it('has no duplicate group names', () => {
     expect(new Set(NOUN_GROUPS).size).toBe(NOUN_GROUPS.length)
+  })
+
+  test('Pharma group exists and Other stays last', () => {
+    expect(NOUN_GROUPS).toContain('Pharma')
+    expect(NOUN_GROUPS[NOUN_GROUPS.length - 1]).toBe('Other')
   })
 })
