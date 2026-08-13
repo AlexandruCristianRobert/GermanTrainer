@@ -68,3 +68,61 @@ describe('card builders', () => {
     expect(cards[0].explanation).toBe(DATIVE_VERBS[T2_FORM_ITEMS[0].verb].coreIdeaExplanation)
   })
 })
+
+// ─── Pick-mode options must be shuffled at card-build time ───
+//
+// The authored banks list the correct answer first in `options` (answers[0]
+// is canonical and the options were written to match), so a builder that
+// passes options through verbatim renders the answer as button 1 on nearly
+// every card — the bug this block pins down. buildObjectOrderCards set the
+// pattern: shuffle at build time with an injectable Rng, so authoring order
+// stays irrelevant by design.
+
+import {
+  buildSubjectCards, buildTwinCards, buildDitransitiveCards, buildAdjectiveCards,
+  buildFreeCards, buildPassiveCards, buildReflexiveCards, type DativeQuizCard,
+} from '../../src/composables/useDativeDrill'
+import { EXPERIENCER_SUBJECT_ITEMS } from '../../src/data/dativeExperiencer'
+import { TWIN_ITEMS } from '../../src/data/dativeTwins'
+import { DITRANSITIVE_ITEMS } from '../../src/data/dativeDitransitive'
+import { DATIVE_ADJECTIVE_ITEMS } from '../../src/data/dativeAdjectives'
+import { FREE_DATIVE_ITEMS } from '../../src/data/dativeFree'
+import { PASSIVE_ITEMS, REFLEXIVE_ITEMS } from '../../src/data/dativeConsequences'
+
+describe('pick-mode builders shuffle their options', () => {
+  // With rng ≈ 1, the partial Fisher–Yates in data/pool.ts moves the first
+  // element on every card whose options differ — deterministic, no flake.
+  const reversing = () => 0.999999
+
+  const CASES: Array<{
+    name: string
+    build: (items: any[], rng?: () => number) => DativeQuizCard[]
+    bank: readonly { id: string; options: string[] }[]
+  }> = [
+    { name: 'T4 subject', build: buildSubjectCards, bank: EXPERIENCER_SUBJECT_ITEMS },
+    { name: 'T6 twins', build: buildTwinCards, bank: TWIN_ITEMS },
+    { name: 'T7 ditransitive', build: buildDitransitiveCards, bank: DITRANSITIVE_ITEMS },
+    { name: 'T9 adjectives', build: buildAdjectiveCards, bank: DATIVE_ADJECTIVE_ITEMS },
+    { name: 'T10 free', build: buildFreeCards, bank: FREE_DATIVE_ITEMS },
+    { name: 'T12 passive', build: buildPassiveCards, bank: PASSIVE_ITEMS },
+    { name: 'T13 reflexive', build: buildReflexiveCards, bank: REFLEXIVE_ITEMS },
+  ]
+
+  for (const { name, build, bank } of CASES) {
+    test(`${name}: options are a permutation of the authored set, not its order`, () => {
+      const authoredById = new Map(bank.map(i => [i.id, i.options]))
+      const cards = build([...bank] as any[], reversing)
+      let moved = 0
+      for (const card of cards) {
+        const authored = authoredById.get(card.key)!
+        // Never lose or invent an option — a shuffle, not a rewrite.
+        expect([...card.options].sort(), card.key).toEqual([...authored].sort())
+        // Every graded answer that was offered must still be offered.
+        if (card.options.join('¦') !== authored.join('¦')) moved++
+      }
+      // The reversing rng reorders every multi-option card; if nothing moved,
+      // the builder is passing authored order straight through — the bug.
+      expect(moved, `${name}: no card's options moved`).toBeGreaterThan(0)
+    })
+  }
+})
