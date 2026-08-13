@@ -378,6 +378,132 @@ export const DOMAINS: Domain[] = [
       'verhandeln', 'erwarten', 'anbieten', 'fragen', 'suchen', 'finden', 'planen',
       'starten', 'warten', 'melden', 'vergleichen', 'verwenden', 'lesen', 'schreiben'
     ]
+  },
+  {
+    id: 'async',
+    label: 'Async & Nebenläufigkeit',
+    form: 'erklaerend',
+    scenes: [
+      'explain what async/await does and what it does not do',
+      'explain how a classic async deadlock arises (.Result, .Wait) and how to avoid it',
+      'explain the difference between a Task and a Thread',
+      'explain what a CancellationToken is for and what a graceful shutdown involves',
+      'explain what thread safety means and what a lock costs',
+      'explain when a concurrent collection beats a lock',
+      'explain how a background job differs from a request handler'
+    ],
+    nouns: [
+      'Thread', 'Deadlock', 'Threadsicherheit', 'Nebenläufigkeit', 'Hintergrundprozess',
+      'Abbruch', 'Warteschlange', 'Sperre', 'Prozess', 'Aufgabe', 'Ausnahme',
+      'Ausnahmebehandlung', 'Methode', 'Rückgabewert', 'Anfrage', 'Antwort',
+      'Ressource', 'Auslastung', 'Server', 'Dienst', 'Ereignis', 'Fehlermeldung',
+      'Neustart', 'Ausfall', 'Überwachung', 'Speicher'
+    ],
+    verbs: [
+      'starten', 'warten', 'ausführen', 'beschleunigen', 'verbinden', 'prüfen',
+      'melden', 'reagieren', 'scheitern', 'auftreten', 'überwachen', 'beheben'
+    ]
+  },
+  {
+    id: 'web-integration',
+    label: 'Web-APIs & Integration',
+    form: 'erklaerend',
+    scenes: [
+      'explain what makes an API RESTful and why consumers care',
+      'explain the difference between authentication and authorization',
+      'explain what OAuth2 solves at a high level',
+      'explain what a message queue decouples and what it costs',
+      'explain why enterprises still use file interfaces next to APIs',
+      'explain what API versioning protects and what backward compatibility demands',
+      'explain what interfacing with an ERP system like SAP typically involves'
+    ],
+    nouns: [
+      'Schnittstelle', 'Endpunkt', 'Anfrage', 'Antwort', 'Warteschlange',
+      'Authentifizierung', 'Berechtigung', 'Zugriff', 'Zugriffskontrolle',
+      'Rollenverwaltung', 'Datenaustausch', 'Abwärtskompatibilität', 'Integration',
+      'Übertragung', 'Version', 'Netzwerk', 'Server', 'Dienst', 'Konfiguration',
+      'Anwendung', 'Fehlermeldung', 'Verbindung', 'Protokollierung', 'Datenbank',
+      'Prozess', 'Ereignis'
+    ],
+    verbs: [
+      'verbinden', 'übertragen', 'prüfen', 'sichern', 'melden', 'bereitstellen',
+      'einrichten', 'verwenden', 'ändern', 'erstellen', 'ausführen', 'laden', 'speichern'
+    ]
+  },
+  {
+    id: 'testing',
+    label: 'Testing & Codequalität',
+    form: 'erklaerend',
+    scenes: [
+      'explain the difference between a unit test and an integration test',
+      'explain what test coverage measures and what it does not',
+      'explain what a mock replaces and when mocking goes too far',
+      'explain how you give useful feedback in a code review',
+      'explain how to refactor legacy code without breaking it',
+      'explain what static analysis catches that reviews miss',
+      'explain why coding standards matter more in a team than alone'
+    ],
+    nouns: [
+      'Testfall', 'Einheitstest', 'Integrationstest', 'Testabdeckung',
+      'Codeüberprüfung', 'Umstrukturierung', 'Altcode', 'Programmierstandard',
+      'Codequalität', 'Quellcode', 'Feedback', 'Rückmeldung', 'Fehler',
+      'Fehlermeldung', 'Wartbarkeit', 'Wartung', 'Verbesserung', 'Funktion',
+      'Methode', 'Klasse', 'Zeichenkette', 'Sammlung', 'Bibliothek', 'Modul',
+      'Paket', 'Werkzeug'
+    ],
+    verbs: [
+      'testen', 'prüfen', 'überprüfen', 'verbessern', 'ändern', 'beheben',
+      'erkennen', 'schreiben', 'lesen', 'beschreiben', 'vergleichen', 'ersetzen', 'anpassen'
+    ]
+  },
+  {
+    id: 'architektur',
+    label: 'Architektur & Design',
+    form: 'erklaerend',
+    scenes: [
+      'explain what a layered architecture separates and why',
+      'explain the repository pattern and what it hides',
+      'explain the difference between the strategy and the factory pattern',
+      'explain when a monolith beats microservices in enterprise IT',
+      'explain what designing for maintainability means in practice',
+      'explain why architecture decisions should be written down and how',
+      'explain what separation of concerns buys you when requirements change'
+    ],
+    nouns: [
+      'Schichtenarchitektur', 'Entwurfsmuster', 'Monolith', 'Mikrodienst',
+      'Wartbarkeit', 'Architekturentscheidung', 'Architektur', 'Komponente',
+      'Abhängigkeit', 'Schnittstelle', 'Modul', 'Paket', 'Bibliothek', 'Klasse',
+      'Dienst', 'Anwendung', 'Datenbank', 'Dokumentation', 'Umsetzung', 'Wartung',
+      'Entscheidung', 'Anforderung', 'Verantwortung', 'Konfiguration', 'Prozess', 'Ereignis'
+    ],
+    verbs: [
+      'planen', 'beschreiben', 'vergleichen', 'ersetzen', 'anpassen', 'erstellen',
+      'verwenden', 'verbinden', 'prüfen', 'ändern', 'verwalten', 'bauen'
+    ]
+  },
+  {
+    id: 'legacy',
+    label: 'Legacy & Modernisierung',
+    form: 'erklaerend',
+    scenes: [
+      'explain how a migration from .NET Framework to modern .NET is approached',
+      'explain your first steps when taking over an undocumented system',
+      'explain the strangler pattern — replacing a system piece by piece',
+      'explain what a risk assessment before touching a running system covers',
+      'explain why a rewrite from scratch usually fails and what to do instead',
+      'explain how to build a safety net of tests around code nobody understands'
+    ],
+    nouns: [
+      'Modernisierung', 'Ablösung', 'Altsystem', 'Altcode', 'Risikobewertung',
+      'Risiko', 'Migration', 'Dokumentation', 'Umstrukturierung', 'Testfall',
+      'Einheitstest', 'Abhängigkeit', 'Quellcode', 'Version', 'Wartung',
+      'Wartbarkeit', 'Anwendung', 'Datenbank', 'Schnittstelle', 'Ausfall',
+      'Fehlermeldung', 'Neustart', 'Sicherung', 'Wiederherstellung', 'Fehlersuche'
+    ],
+    verbs: [
+      'ersetzen', 'ändern', 'prüfen', 'testen', 'sichern', 'planen', 'beschreiben',
+      'erkennen', 'beheben', 'verwalten', 'anpassen', 'entfernen'
+    ]
   }
 ]
 

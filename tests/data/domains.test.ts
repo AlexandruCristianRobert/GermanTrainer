@@ -19,9 +19,10 @@ describe('Domain bank', () => {
   })
   test('the shipped Domains are present', () => {
     expect(DOMAINS.map(d => d.id).sort()).toEqual([
-      'audit-trail', 'behoerden', 'datenintegritaet', 'docker', 'dotnet', 'gxp',
-      'hr-runde', 'pharma-systeme', 'qualitaetsprozesse', 'sql-server',
-      'validierung', 'wertschoepfung'
+      'architektur', 'async', 'audit-trail', 'behoerden', 'datenintegritaet',
+      'docker', 'dotnet', 'gxp', 'hr-runde', 'legacy', 'pharma-systeme',
+      'qualitaetsprozesse', 'sql-server', 'testing', 'validierung',
+      'web-integration', 'wertschoepfung'
     ])
   })
   test('every Domain noun resolves against the seeded store', () => {
