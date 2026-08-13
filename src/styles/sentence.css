@@ -124,6 +124,18 @@
 .sna-fam-words{margin:10px 0 4px 14px;padding-left:14px;border-left:1px dotted var(--hairline)}
 .sna-fam-words .fam-l{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:10px 0 7px}
 .sna-fam-words .fam-l:first-child{margin-top:0}
+
+/* Fachgebiet accordion (Katalog, ADR-0022) */
+.kat{display:flex;flex-direction:column;gap:2px}
+.kat-label{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;opacity:.65;margin:2px 0 4px}
+.kat-sec{border-top:1px solid var(--hairline)}
+.kat-sec-h{display:flex;align-items:center;gap:8px;width:100%;padding:8px 2px;background:none;border:none;cursor:pointer;font:inherit;color:inherit;text-align:left}
+.kat-caret{transition:transform .15s;font-size:11px;opacity:.6}
+.kat-caret.open{transform:rotate(90deg)}
+.kat-sec-t{flex:1;font-weight:500}
+.kat-sec-n{font-size:12px;opacity:.7}
+.kat-chips{padding:0 2px 10px}
+
 .sna-opts{margin-top:34px;border-top:2px solid var(--rule);padding-top:26px}
 .sna-run{max-width:860px;margin:0 auto}
 .sna-manifest{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;border-top:1px dotted var(--hairline);border-bottom:1px dotted var(--hairline);padding:9px 0;margin:20px 0 24px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--ink-soft)}

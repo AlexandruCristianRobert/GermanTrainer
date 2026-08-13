@@ -142,6 +142,13 @@ describe('Fachgebiet', () => {
   function findField(wrapper: ReturnType<typeof mount>, label: string) {
     return wrapper.findAll('.field').find(f => f.find('.field-label').text() === label)!
   }
+  // Domain chips live inside a Katalog accordion section, collapsed by
+  // default (phone-first) — the section must be expanded before its chips
+  // are in the DOM. 'dotnet', 'sql-server' and 'docker' all live under the
+  // 'Technik & .NET' section (src/data/kataloge.ts).
+  async function openKatSection(wrapper: ReturnType<typeof mount>, title: string) {
+    await wrapper.findAll('.kat-sec-h').find(b => b.text().includes(title))!.trigger('click')
+  }
 
   it('shows the block, and with no Domain the Themen chips stay live', async () => {
     const { wrapper } = await mountSetup()
@@ -153,6 +160,7 @@ describe('Fachgebiet', () => {
 
   it('selecting a Domain disables the Themen chips and explains the verb pool', async () => {
     const { wrapper } = await mountSetup()
+    await openKatSection(wrapper, 'Technik & .NET')
     await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     await openFilter(wrapper, 'Nomen')
@@ -163,6 +171,7 @@ describe('Fachgebiet', () => {
 
   it('stashes the selected Domains and stamps every card with one', async () => {
     const { wrapper } = await mountSetup()
+    await openKatSection(wrapper, 'Technik & .NET')
     await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     await wrapper.find('button.btn-accent').trigger('click')
@@ -188,6 +197,7 @@ describe('Fachgebiet', () => {
     // regardless of Niveau/Typ/Rektion, so Start must stay enabled and the
     // empty-pool alert must be absent.
     const { wrapper } = await mountSetup()
+    await openKatSection(wrapper, 'Technik & .NET')
     await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     await openFilter(wrapper, 'Verben')
@@ -205,6 +215,7 @@ describe('Fachgebiet', () => {
     expect(plainSummary).not.toContain('Fachgebiet aktiv')
 
     const { wrapper } = await mountSetup()
+    await openKatSection(wrapper, 'Technik & .NET')
     await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
     const summary = findBlock(wrapper, 'Verben').find('.sna-sum-t').text()
@@ -217,6 +228,7 @@ describe('Fachgebiet', () => {
   it('a slower, earlier Domain query cannot overwrite a faster, later one — but a normal, non-racing change still resolves', async () => {
     byGermanListGate.active = true
     const { wrapper } = await mountSetup()
+    await openKatSection(wrapper, 'Technik & .NET')
 
     // Baseline (untargeted case): a single Domain selection with nothing
     // racing it still resolves and updates the pool normally. Without this
@@ -263,6 +275,7 @@ describe('Fachgebiet', () => {
   it('does not show a false "Leerer Pool" alert or disable Start while a newly-active Domain\'s nouns are still resolving', async () => {
     byGermanListGate.active = true
     const { wrapper } = await mountSetup()
+    await openKatSection(wrapper, 'Technik & .NET')
 
     await wrapper.findAll('button.chip').find(b => b.text() === 'DevOps & Betrieb')!.trigger('click')
     await flushPromises()
