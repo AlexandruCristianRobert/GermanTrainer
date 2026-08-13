@@ -114,7 +114,7 @@ export interface DativeQuizCard {
   key: string
   prompt: string
   answers: string[]        // [0] canonical; the rest accepted alternatives (type mode)
-  options: string[]        // pick-mode buttons; [] in type-only drills
+  options: string[]        // pick-mode buttons, shuffled at build time — authored order leaks the answer; [] in type-only drills
   translation: string
   note: string | null      // teaching line revealed after grading
   ledgerKey: string | null
@@ -159,12 +159,12 @@ export function useDativeQuiz(cards: DativeQuizCard[]) {
 // ─── Phase 3, Task 3: T4 Wer ist Subjekt? (family IV) ───
 // Ledger-coupled: keyed by the dative verb (item.verb).
 
-export function buildSubjectCards(items: ExperiencerSubjectItem[]): DativeQuizCard[] {
+export function buildSubjectCards(items: ExperiencerSubjectItem[], rng: Rng = Math.random): DativeQuizCard[] {
   return items.map((item, sourceIndex) => ({
     key: item.id,
     prompt: item.kind === 'subject' ? `${item.sentence} — Was ist das Subjekt?` : item.sentence,
     answers: item.answers,
-    options: item.options,
+    options: shuffle(item.options, item.options.length, rng),
     translation: item.translation,
     note: item.explanation,
     ledgerKey: item.verb,
@@ -204,12 +204,12 @@ export function filterProductionItems(f: { levels: DativeDrillLevel[]; verbs: st
 
 const TWIN_DATIVE_BY_PAIR = new Map(TWIN_PAIRS.map(p => [p.pairId, p.dativeVerb]))
 
-export function buildTwinCards(items: TwinItem[]): DativeQuizCard[] {
+export function buildTwinCards(items: TwinItem[], rng: Rng = Math.random): DativeQuizCard[] {
   return items.map((item, sourceIndex) => ({
     key: item.id,
     prompt: item.prompt,
     answers: item.answers,
-    options: item.options,
+    options: shuffle(item.options, item.options.length, rng),
     translation: item.translation,
     note: item.explanation,
     ledgerKey: TWIN_DATIVE_BY_PAIR.get(item.pairId) ?? null,
@@ -225,12 +225,12 @@ export function filterTwinItems(f: { levels: DativeDrillLevel[]; pairs: string[]
 // ─── Phase 3, Task 8: T7 Welches Objekt? (family VI) ───
 // Rule-driven: ledgerKey is always null — band-tracked only, never in gt:dativeLedger.
 
-export function buildDitransitiveCards(items: DitransitiveItem[]): DativeQuizCard[] {
+export function buildDitransitiveCards(items: DitransitiveItem[], rng: Rng = Math.random): DativeQuizCard[] {
   return items.map((item, sourceIndex) => ({
     key: item.id,
     prompt: item.prompt,
     answers: item.answers,
-    options: item.options,
+    options: shuffle(item.options, item.options.length, rng),
     translation: item.translation,
     note: item.explanation,
     ledgerKey: null,
@@ -272,12 +272,12 @@ export function filterObjectOrderItems(f: { levels: DativeDrillLevel[]; kinds: s
 // ─── Phase 3, Task 11: T9 Dativ-Adjektive (family VII) ───
 // Ledger-coupled: keyed by the adjective LEMMA (item.adjective), not the inflected answer.
 
-export function buildAdjectiveCards(items: DativeAdjectiveItem[]): DativeQuizCard[] {
+export function buildAdjectiveCards(items: DativeAdjectiveItem[], rng: Rng = Math.random): DativeQuizCard[] {
   return items.map((item, sourceIndex) => ({
     key: item.id,
     prompt: item.prompt,
     answers: item.answers,
-    options: item.options,
+    options: shuffle(item.options, item.options.length, rng),
     translation: item.translation,
     note: item.explanation,
     ledgerKey: item.adjective,
@@ -293,14 +293,14 @@ export function filterAdjectiveItems(f: { levels: DativeDrillLevel[]; adjectives
 // ─── Phase 4, Task 2: T10 Freier Dativ (family VIII) ───
 // Rule-driven: ledgerKey is always null — band-tracked only, never in gt:dativeLedger.
 
-export function buildFreeCards(items: FreeDativeItem[]): DativeQuizCard[] {
+export function buildFreeCards(items: FreeDativeItem[], rng: Rng = Math.random): DativeQuizCard[] {
   return items.map((item, sourceIndex) => ({
     key: item.id,
     prompt: item.kind === 'drop'
       ? `${item.prompt} — Ist „${item.probePhrase}“ weglassbar?`
       : `${item.prompt} — Welche Lesart hat „${item.probePhrase}“?`,
     answers: item.answers,
-    options: item.options,
+    options: shuffle(item.options, item.options.length, rng),
     translation: item.translation,
     note: item.explanation,
     ledgerKey: null,   // rule-driven family: band-tracked only, never in the ledger
@@ -316,12 +316,12 @@ export function filterFreeItems(f: { levels: DativeDrillLevel[]; kinds: string[]
 // ─── Phase 4, Task 4: T12 Kein persönliches Passiv (family X) ───
 // Rule-driven: ledgerKey is always null — band-tracked only, never in gt:dativeLedger.
 
-export function buildPassiveCards(items: PassiveItem[]): DativeQuizCard[] {
+export function buildPassiveCards(items: PassiveItem[], rng: Rng = Math.random): DativeQuizCard[] {
   return items.map((item, sourceIndex) => ({
     key: item.id,
     prompt: item.prompt,        // authored complete per kind (question suffix / gap / constant)
     answers: item.answers,
-    options: item.options,
+    options: shuffle(item.options, item.options.length, rng),
     translation: item.translation,
     note: item.explanation,
     ledgerKey: null,   // rule-driven family: band-tracked only, never in the ledger
@@ -337,12 +337,12 @@ export function filterPassiveItems(f: { levels: DativeDrillLevel[]; kinds: strin
 // ─── Phase 4, Task 5: T13 Reflexiver Dativ (family X) ───
 // Rule-driven: ledgerKey is always null — band-tracked only, never in gt:dativeLedger.
 
-export function buildReflexiveCards(items: ReflexiveItem[]): DativeQuizCard[] {
+export function buildReflexiveCards(items: ReflexiveItem[], rng: Rng = Math.random): DativeQuizCard[] {
   return items.map((item, sourceIndex) => ({
     key: item.id,
     prompt: item.prompt,
     answers: item.answers,
-    options: item.options,
+    options: shuffle(item.options, item.options.length, rng),
     translation: item.translation,
     note: item.explanation,
     ledgerKey: null,   // rule-driven family: band-tracked only, never in the ledger
