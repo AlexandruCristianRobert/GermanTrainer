@@ -16,11 +16,20 @@
 // use them (der Container, das Repository, der Commit), German where they use
 // German (die Bereitstellung, die Abfrage, der Primärschlüssel).
 
+/** How a Domain's cards speak (CONTEXT.md → "Darstellungsform", ADR-0021):
+ *  erklaerend = explain/contrast a concept (present tense, generic subject,
+ *  no anecdote — the ADR-0018 register); erzaehlend = a 1–3-sentence STAR
+ *  story fragment (first person, past tense); persoenlich = a first-person
+ *  present-tense statement of the speaker's own position or circumstances. */
+export type Darstellungsform = 'erklaerend' | 'erzaehlend' | 'persoenlich'
+
 export interface Domain {
   /** kebab id — persisted in setup settings and in run meta as packedDomains */
   id: string
   /** chip and card-badge label */
   label: string
+  /** Declared once per Domain, never per card (ADR-0021). */
+  form: Darstellungsform
   /** English framings — the concept ONE card explains. Drawn one per card, in
    *  place of the generic scene-setters in PACKED_SCENE_ANGLES: a targeted card
    *  defines or contrasts something in the field the way a practitioner answers
@@ -37,6 +46,7 @@ export const DOMAINS: Domain[] = [
   {
     id: 'dotnet',
     label: '.NET',
+    form: 'erklaerend',
     scenes: [
       'explain the difference between an interface and an abstract class',
       'explain the difference between a value type and a reference type',
@@ -68,6 +78,7 @@ export const DOMAINS: Domain[] = [
   {
     id: 'sql-server',
     label: 'SQL Server',
+    form: 'erklaerend',
     scenes: [
       'explain the difference between a function and a stored procedure',
       'explain what an index does and when it costs more than it saves',
@@ -98,6 +109,7 @@ export const DOMAINS: Domain[] = [
   {
     id: 'docker',
     label: 'Docker',
+    form: 'erklaerend',
     scenes: [
       'explain the difference between an image and a container',
       'explain the difference between a container and a virtual machine',

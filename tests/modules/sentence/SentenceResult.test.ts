@@ -60,7 +60,7 @@ describe('SentenceResult', () => {
 
 function themedOutcome(label: string, id: string): CardOutcome {
   const base = outcome('ok')
-  return { ...base, card: { ...base.card, domain: { id, label, scene: 'set it during a failed deployment' } } }
+  return { ...base, card: { ...base.card, domain: { id, label, scene: 'set it during a failed deployment', form: 'erklaerend' } } }
 }
 
 describe('SentenceResult · Fachgebiet', () => {

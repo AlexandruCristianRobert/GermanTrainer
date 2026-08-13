@@ -6,6 +6,7 @@
 
 import { shuffle } from '../data/pool'
 import type { Verb, VerbLevel, VerbCase } from '../data/verbs'
+import type { Darstellungsform } from '../data/domains'
 import type { PrepCase } from '../data/prepositions'
 import { prepUsed, normalizeGerman, type NounRef } from './useSentenceQuiz'
 import {
@@ -39,8 +40,9 @@ export interface PackedCollocRef { id: string; word: string; english: string; pr
 /** The [Domain] (de "Fachgebiet") one card is written in, resolved at
  *  spec-build time — all randomness up front, as the rest of this file does.
  *  `scene` is the single framing drawn for this card: the concept it explains
- *  (ADR-0018), not a scene from that job. */
-export interface PackedDomainRef { id: string; label: string; scene: string }
+ *  (ADR-0018), not a scene from that job. `form` (ADR-0021) is carried
+ *  through unchanged from the Domain — never invented per card. */
+export interface PackedDomainRef { id: string; label: string; scene: string; form: Darstellungsform }
 
 /** One Domain's runtime pools, resolved by the setup screen from
  *  data/domains.ts plus the noun store. This file never imports the bank
@@ -48,6 +50,8 @@ export interface PackedDomainRef { id: string; label: string; scene: string }
 export interface PackedDomainPool {
   id: string
   label: string
+  /** ADR-0021 — declared once per Domain, never per card. */
+  form: Darstellungsform
   scenes: readonly string[]
   nouns: readonly NounRef[]
   /** German infinitives; matched against `PackedPools.verbs` by `german`. */
@@ -161,7 +165,7 @@ export function buildPackedSpecs(
     const spec: PackedCardSpec = { index, items }
     if (dom) {
       const scene = (sceneBags.get(dom.id) ?? (() => null))() ?? dom.scenes[0] ?? ''
-      spec.domain = { id: dom.id, label: dom.label, scene }
+      spec.domain = { id: dom.id, label: dom.label, scene, form: dom.form }
     }
     specs.push(spec)
   }
@@ -254,6 +258,26 @@ export const PACKED_DOMAIN_ANGLES = [
   'use a first-person plural subject (wir)',
   'frame part of it as a question',
   'put one clause in the Perfekt (past)'
+] as const
+
+/** Angles for erzählend cards — vary HOW the story is told. */
+export const PACKED_STORY_ANGLES = [
+  'tell it as one concrete incident with a result',
+  'open with the situation, end with what you learned',
+  'use the Perfekt throughout',
+  'mention one number or date to ground the story',
+  'let the outcome be a partial success with a lesson',
+  'frame part of it as what a colleague asked and how you answered'
+] as const
+
+/** Angles for persönlich cards — vary HOW the statement is delivered. */
+export const PACKED_PERSONAL_ANGLES = [
+  'state it plainly, then add one condition or qualification',
+  'give a concrete number and leave room to negotiate',
+  'frame part of it as a polite question back',
+  'add a short reason after the statement',
+  'use a hedging adverb (grundsätzlich, voraussichtlich)',
+  'mention a concrete date or timeframe'
 ] as const
 
 export const PACKED_GEN_SYSTEM =
@@ -362,27 +386,52 @@ function itemLine(it: PackedItemSpec): string {
   return `  [${it.key}] (unknown)`
 }
 
-const PACKED_DOMAIN_NOTE =
-  '\nA card that names a Fachgebiet is not a scene from that job — it is the ANSWER to the ' +
-  'explanation the card asks for, the way a practitioner would give it in a technical interview: ' +
-  'say what the thing is, or how the two named things differ, and add a consequence for practice ' +
-  'where one fits. So: general, definitional statements in the present tense (a generic subject, ' +
-  'man, or the passive), no anecdote, no named colleague, no time of day, no story, no first-person ' +
-  'account of a single incident. The vocabulary is the German practitioners in that field actually ' +
-  'use — established anglicisms where those are the normal words (der Container, das Repository, ' +
-  'der Commit) and the German term where that is (die Bereitstellung, die Abfrage, der ' +
-  'Primärschlüssel). A card without a Fachgebiet is an everyday scene as usual.'
+// Shared vocabulary note plus one register note per Darstellungsform
+// (ADR-0021) — a card's form decides HOW it speaks, the note below decides
+// nothing about vocabulary, which stays the same across all three forms.
+const PACKED_VOCAB_NOTE =
+  ' The vocabulary is the German practitioners in that field actually use — established ' +
+  'anglicisms where those are the normal words (der Container, das Repository, der Commit, ' +
+  'der Audit-Trail) and the German term where that is (die Bereitstellung, die Abfrage, der ' +
+  'Primärschlüssel, die Änderungskontrolle). A card without a Fachgebiet is an everyday scene as usual.'
+
+const PACKED_FORM_NOTES: Record<Darstellungsform, string> = {
+  erklaerend:
+    '\nA card marked (erklärend) is not a scene from that job — it is the ANSWER to the ' +
+    'explanation the card asks for, the way a practitioner would give it in a technical interview: ' +
+    'say what the thing is, or how the two named things differ, and add a consequence for practice ' +
+    'where one fits. General, definitional statements in the present tense (a generic subject, ' +
+    'man, or the passive), no anecdote, no named colleague, no time of day, no story, no ' +
+    'first-person account of a single incident.',
+  erzaehlend:
+    '\nA card marked (erzählend) is a short STAR-story fragment a behavioral interview asks for: ' +
+    'first person singular, a past tense (Perfekt or Präteritum), ONE concrete plausible incident ' +
+    'from that line of work — the situation, what the speaker did, and the result, in 1–3 ' +
+    'sentences. No definitions, no generic subject; the speaker lived it.',
+  persoenlich:
+    '\nA card marked (persönlich) is a first-person present-tense statement of the speaker\'s own ' +
+    'position or circumstances — the sentence a candidate actually says in an HR interview. ' +
+    'Concrete invented specifics (a number, a date, a percentage) are welcome. No definitions, ' +
+    'no story, no third person.'
+}
+
+const FORM_LABEL: Record<Darstellungsform, string> = {
+  erklaerend: 'erklärend', erzaehlend: 'erzählend', persoenlich: 'persönlich'
+}
 
 export function buildPackedGeneratePrompt(
   specs: readonly PackedCardSpec[], level: string, variation: { angles: string[]; seed: string }
 ): string {
   const blocks = specs.map(s => {
     const head = s.domain
-      ? `#${s.index} — Fachgebiet: ${s.domain.label} · ${s.domain.scene} — required ingredients:`
+      ? `#${s.index} — Fachgebiet: ${s.domain.label} (${FORM_LABEL[s.domain.form]}) · ${s.domain.scene} — required ingredients:`
       : `#${s.index} — required ingredients:`
     return `${head}\n${s.items.map(itemLine).join('\n')}`
   })
-  const domainNote = specs.some(s => s.domain) ? PACKED_DOMAIN_NOTE : ''
+  const formsPresent = [...new Set(specs.filter(s => s.domain).map(s => s.domain!.form))]
+  const domainNote = formsPresent.length > 0
+    ? formsPresent.map(f => PACKED_FORM_NOTES[f]).join('') + PACKED_VOCAB_NOTE
+    : ''
   return (
     `Target CEFR level: ${level}.\n` +
     `Write one packed German passage (1–2 sentences, 3–4 only if unavoidable) and its English translation for each of the following ${specs.length} item(s):\n` +
@@ -489,9 +538,13 @@ export async function generatePackedBatch(
   while (accepted.size < opts.specs.length && attempts <= maxRetries) {
     attempts++
     const remaining = opts.specs.filter(s => !accepted.has(s.index))
-    const anglePool = remaining.some(s => !s.domain)
-      ? [...PACKED_ANGLE_POOL]
-      : [...PACKED_DOMAIN_ANGLES]
+    const forms = new Set(remaining.filter(s => s.domain).map(s => s.domain!.form))
+    const anglePool = [
+      ...(remaining.some(s => !s.domain) ? PACKED_ANGLE_POOL : []),
+      ...(forms.has('erklaerend') ? PACKED_DOMAIN_ANGLES : []),
+      ...(forms.has('erzaehlend') ? PACKED_STORY_ANGLES : []),
+      ...(forms.has('persoenlich') ? PACKED_PERSONAL_ANGLES : [])
+    ]
     const angles = shuffle(anglePool, Math.max(3, Math.min(6, remaining.length)), rng)
     const prompt = buildPackedGeneratePrompt(remaining, level, { angles, seed: makeSeed(rng) })
 

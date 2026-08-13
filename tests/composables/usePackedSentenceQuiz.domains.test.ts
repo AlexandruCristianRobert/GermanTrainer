@@ -3,6 +3,7 @@ import {
   buildPackedSpecs, buildPackedGeneratePrompt, buildPackedGradePrompt, buildPackedMetaItems,
   generatePackedBatch,
   PACKED_ANGLE_POOL, PACKED_SCENE_ANGLES, PACKED_STRUCTURAL_ANGLES, PACKED_DOMAIN_ANGLES,
+  PACKED_STORY_ANGLES, PACKED_PERSONAL_ANGLES,
   type PackedPools, type PackedCounts, type PackedDomainPool, type PackedCardSpec,
   type GeneratedPackedCard, type PackedItemResult
 } from '../../src/composables/usePackedSentenceQuiz'
@@ -24,7 +25,7 @@ const BASE: PackedPools = {
 }
 
 const DOCKER: PackedDomainPool = {
-  id: 'docker', label: 'Docker',
+  id: 'docker', label: 'Docker', form: 'erklaerend',
   scenes: ['set it during a failed deployment', 'set it while a container restarts'],
   nouns: [
     { german: 'Container', article: 'der', english: 'container' },
@@ -34,7 +35,7 @@ const DOCKER: PackedDomainPool = {
   verbs: ['bereitstellen']
 }
 const SQL: PackedDomainPool = {
-  id: 'sql-server', label: 'SQL Server',
+  id: 'sql-server', label: 'SQL Server', form: 'erklaerend',
   scenes: ['set it while a query is slow'],
   nouns: [
     { german: 'Abfrage', article: 'die', english: 'query' },
@@ -136,7 +137,7 @@ describe('buildPackedGeneratePrompt — Fachgebiete', () => {
   const themed: PackedCardSpec = {
     index: 1,
     items: [{ key: 'v1', cat: 'verb', verb: { german: 'bereitstellen', english: 'provide', level: 'B2.1', case: 'accusative' } }],
-    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment' }
+    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment', form: 'erklaerend' }
   }
   const variation = { angles: ['use wir'], seed: 'abc' }
 
@@ -187,12 +188,12 @@ describe('generatePackedBatch — angle pool selection', () => {
   const themedDocker: PackedCardSpec = {
     index: 0,
     items: [{ key: 'v1', cat: 'verb', verb: { german: 'bereitstellen', english: 'provide', level: 'B2.1', case: 'accusative' } }],
-    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment' }
+    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment', form: 'erklaerend' }
   }
   const themedSql: PackedCardSpec = {
     index: 1,
     items: [{ key: 'v1', cat: 'verb', verb: { german: 'speichern', english: 'save', level: 'B2.1', case: 'accusative' } }],
-    domain: { id: 'sql-server', label: 'SQL Server', scene: 'set it while a query is slow' }
+    domain: { id: 'sql-server', label: 'SQL Server', scene: 'set it while a query is slow', form: 'erklaerend' }
   }
   const plainCard: PackedCardSpec = {
     index: 2,
@@ -267,7 +268,7 @@ describe('buildPackedGradePrompt — ADR-0018 rule 3 (metadata only)', () => {
   const themedGradeCard: GeneratedPackedCard = {
     index: 0,
     items: [{ key: 'v1', cat: 'verb', verb: { german: 'bereitstellen', english: 'provide', level: 'B2.1', case: 'accusative' } }],
-    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment' },
+    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment', form: 'erklaerend' },
     english: 'We provide the container during the deployment.',
     german: 'Wir stellen den Container während der Bereitstellung bereit.',
     sents: 1,
@@ -304,7 +305,7 @@ describe('buildPackedMetaItems — ADR-0018 rule 3 (metadata only)', () => {
   // identical unthemed copy.
   const themedCard: GeneratedPackedCard = {
     index: 0, items: baseItems,
-    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment' },
+    domain: { id: 'docker', label: 'Docker', scene: 'set it during a failed deployment', form: 'erklaerend' },
     english: 'ignored', german: 'ignored', sents: 1, spans: []
   }
   const unthemedCard: GeneratedPackedCard = {
@@ -316,5 +317,37 @@ describe('buildPackedMetaItems — ADR-0018 rule 3 (metadata only)', () => {
     const themedMeta = buildPackedMetaItems([themedCard], new Map([[0, results]]))
     const unthemedMeta = buildPackedMetaItems([unthemedCard], new Map([[0, results]]))
     expect(themedMeta).toEqual(unthemedMeta)
+  })
+})
+
+describe('Darstellungsform', () => {
+  const verbs = [{ german: 'prüfen', english: 'to check', level: 'B2.1' as const, case: 'accusative' as const }]
+  const nounRef = { german: 'Validierung', english: 'validation', article: 'die' as const }
+  function poolsWith(form: 'erklaerend' | 'erzaehlend' | 'persoenlich'): PackedPools {
+    return {
+      verbs, nouns: [], preps: [], collocs: [], conns: [],
+      domains: [{ id: 'x', label: 'X', form, scenes: ['state your salary expectation'], nouns: [nounRef], verbs: ['prüfen'] }]
+    }
+  }
+  const counts: PackedCounts = { verb: 1, noun: 1, prep: 0, dac: 0, conn: 0 }
+
+  test('spec.domain carries the form', () => {
+    const specs = buildPackedSpecs(poolsWith('persoenlich'), counts, 1, () => 0.5)
+    expect(specs[0].domain?.form).toBe('persoenlich')
+  })
+
+  test('prompt head marks the form in German and appends only the matching note', () => {
+    const specs = buildPackedSpecs(poolsWith('erzaehlend'), counts, 1, () => 0.5)
+    const prompt = buildPackedGeneratePrompt(specs, 'B2', { angles: ['a'], seed: 's' })
+    expect(prompt).toContain('(erzählend)')
+    expect(prompt).toContain('STAR')
+    expect(prompt).not.toContain('(persönlich)')
+  })
+
+  test('angle pools exist and are distinct', () => {
+    expect(PACKED_STORY_ANGLES.length).toBeGreaterThanOrEqual(5)
+    expect(PACKED_PERSONAL_ANGLES.length).toBeGreaterThanOrEqual(5)
+    expect(new Set([...PACKED_STORY_ANGLES, ...PACKED_PERSONAL_ANGLES]).size)
+      .toBe(PACKED_STORY_ANGLES.length + PACKED_PERSONAL_ANGLES.length)
   })
 })

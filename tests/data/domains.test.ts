@@ -72,4 +72,9 @@ describe('Domain bank', () => {
     expect(domainsByIds(['sql-server', 'nope', 'dotnet']).map(d => d.id)).toEqual(['dotnet', 'sql-server'])
     expect(domainsByIds([])).toEqual([])
   })
+  test('every Domain declares a Darstellungsform', () => {
+    for (const d of DOMAINS) {
+      expect(['erklaerend', 'erzaehlend', 'persoenlich']).toContain(d.form)
+    }
+  })
 })

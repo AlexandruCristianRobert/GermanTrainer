@@ -301,7 +301,7 @@ async function start() {
   if (!canStart.value) return
 
   const domainPools: PackedDomainPool[] = activeDomains.value.map(d => ({
-    id: d.id, label: d.label, scenes: d.scenes,
+    id: d.id, label: d.label, form: d.form, scenes: d.scenes,
     nouns: domainNouns.value[d.id] ?? [],
     verbs: d.verbs
   }))
