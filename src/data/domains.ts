@@ -378,6 +378,276 @@ export const DOMAINS: Domain[] = [
       'verhandeln', 'erwarten', 'anbieten', 'fragen', 'suchen', 'finden', 'planen',
       'starten', 'warten', 'melden', 'vergleichen', 'verwenden', 'lesen', 'schreiben'
     ]
+  },
+  {
+    id: 'async',
+    label: 'Async & Nebenläufigkeit',
+    form: 'erklaerend',
+    scenes: [
+      'explain what async/await does and what it does not do',
+      'explain how a classic async deadlock arises (.Result, .Wait) and how to avoid it',
+      'explain the difference between a Task and a Thread',
+      'explain what a CancellationToken is for and what a graceful shutdown involves',
+      'explain what thread safety means and what a lock costs',
+      'explain when a concurrent collection beats a lock',
+      'explain how a background job differs from a request handler'
+    ],
+    nouns: [
+      'Thread', 'Deadlock', 'Threadsicherheit', 'Nebenläufigkeit', 'Hintergrundprozess',
+      'Abbruch', 'Warteschlange', 'Sperre', 'Prozess', 'Aufgabe', 'Ausnahme',
+      'Ausnahmebehandlung', 'Methode', 'Rückgabewert', 'Anfrage', 'Antwort',
+      'Ressource', 'Auslastung', 'Server', 'Dienst', 'Ereignis', 'Fehlermeldung',
+      'Neustart', 'Ausfall', 'Überwachung', 'Speicher'
+    ],
+    verbs: [
+      'starten', 'warten', 'ausführen', 'beschleunigen', 'verbinden', 'prüfen',
+      'melden', 'reagieren', 'scheitern', 'auftreten', 'überwachen', 'beheben'
+    ]
+  },
+  {
+    id: 'web-integration',
+    label: 'Web-APIs & Integration',
+    form: 'erklaerend',
+    scenes: [
+      'explain what makes an API RESTful and why consumers care',
+      'explain the difference between authentication and authorization',
+      'explain what OAuth2 solves at a high level',
+      'explain what a message queue decouples and what it costs',
+      'explain why enterprises still use file interfaces next to APIs',
+      'explain what API versioning protects and what backward compatibility demands',
+      'explain what interfacing with an ERP system like SAP typically involves'
+    ],
+    nouns: [
+      'Schnittstelle', 'Endpunkt', 'Anfrage', 'Antwort', 'Warteschlange',
+      'Authentifizierung', 'Berechtigung', 'Zugriff', 'Zugriffskontrolle',
+      'Rollenverwaltung', 'Datenaustausch', 'Abwärtskompatibilität', 'Integration',
+      'Übertragung', 'Version', 'Netzwerk', 'Server', 'Dienst', 'Konfiguration',
+      'Anwendung', 'Fehlermeldung', 'Verbindung', 'Protokollierung', 'Datenbank',
+      'Prozess', 'Ereignis'
+    ],
+    verbs: [
+      'verbinden', 'übertragen', 'prüfen', 'sichern', 'melden', 'bereitstellen',
+      'einrichten', 'verwenden', 'ändern', 'erstellen', 'ausführen', 'laden', 'speichern'
+    ]
+  },
+  {
+    id: 'testing',
+    label: 'Testing & Codequalität',
+    form: 'erklaerend',
+    scenes: [
+      'explain the difference between a unit test and an integration test',
+      'explain what test coverage measures and what it does not',
+      'explain what a mock replaces and when mocking goes too far',
+      'explain how you give useful feedback in a code review',
+      'explain how to refactor legacy code without breaking it',
+      'explain what static analysis catches that reviews miss',
+      'explain why coding standards matter more in a team than alone'
+    ],
+    nouns: [
+      'Testfall', 'Einheitstest', 'Integrationstest', 'Testabdeckung',
+      'Codeüberprüfung', 'Umstrukturierung', 'Altcode', 'Programmierstandard',
+      'Codequalität', 'Quellcode', 'Feedback', 'Rückmeldung', 'Fehler',
+      'Fehlermeldung', 'Wartbarkeit', 'Wartung', 'Verbesserung', 'Funktion',
+      'Methode', 'Klasse', 'Zeichenkette', 'Sammlung', 'Bibliothek', 'Modul',
+      'Paket', 'Werkzeug'
+    ],
+    verbs: [
+      'testen', 'prüfen', 'überprüfen', 'verbessern', 'ändern', 'beheben',
+      'erkennen', 'schreiben', 'lesen', 'beschreiben', 'vergleichen', 'ersetzen', 'anpassen'
+    ]
+  },
+  {
+    id: 'architektur',
+    label: 'Architektur & Design',
+    form: 'erklaerend',
+    scenes: [
+      'explain what a layered architecture separates and why',
+      'explain the repository pattern and what it hides',
+      'explain the difference between the strategy and the factory pattern',
+      'explain when a monolith beats microservices in enterprise IT',
+      'explain what designing for maintainability means in practice',
+      'explain why architecture decisions should be written down and how',
+      'explain what separation of concerns buys you when requirements change'
+    ],
+    nouns: [
+      'Schichtenarchitektur', 'Entwurfsmuster', 'Monolith', 'Mikrodienst',
+      'Wartbarkeit', 'Architekturentscheidung', 'Architektur', 'Komponente',
+      'Abhängigkeit', 'Schnittstelle', 'Modul', 'Paket', 'Bibliothek', 'Klasse',
+      'Dienst', 'Anwendung', 'Datenbank', 'Dokumentation', 'Umsetzung', 'Wartung',
+      'Entscheidung', 'Anforderung', 'Verantwortung', 'Konfiguration', 'Prozess', 'Ereignis'
+    ],
+    verbs: [
+      'planen', 'beschreiben', 'vergleichen', 'ersetzen', 'anpassen', 'erstellen',
+      'verwenden', 'verbinden', 'prüfen', 'ändern', 'verwalten', 'bauen'
+    ]
+  },
+  {
+    id: 'legacy',
+    label: 'Legacy & Modernisierung',
+    form: 'erklaerend',
+    scenes: [
+      'explain how a migration from .NET Framework to modern .NET is approached',
+      'explain your first steps when taking over an undocumented system',
+      'explain the strangler pattern — replacing a system piece by piece',
+      'explain what a risk assessment before touching a running system covers',
+      'explain why a rewrite from scratch usually fails and what to do instead',
+      'explain how to build a safety net of tests around code nobody understands'
+    ],
+    nouns: [
+      'Modernisierung', 'Ablösung', 'Altsystem', 'Altcode', 'Risikobewertung',
+      'Risiko', 'Migration', 'Dokumentation', 'Umstrukturierung', 'Testfall',
+      'Einheitstest', 'Abhängigkeit', 'Quellcode', 'Version', 'Wartung',
+      'Wartbarkeit', 'Anwendung', 'Datenbank', 'Schnittstelle', 'Ausfall',
+      'Fehlermeldung', 'Neustart', 'Sicherung', 'Wiederherstellung', 'Fehlersuche'
+    ],
+    verbs: [
+      'ersetzen', 'ändern', 'prüfen', 'testen', 'sichern', 'planen', 'beschreiben',
+      'erkennen', 'beheben', 'verwalten', 'anpassen', 'entfernen'
+    ]
+  },
+  {
+    id: 'kommunikation',
+    label: 'Stakeholder & Kommunikation',
+    form: 'erzaehlend',
+    scenes: [
+      'tell about a time you explained a technical problem to a non-technical colleague',
+      'tell about gathering requirements from business users who did not know what they wanted',
+      'tell about a time you said no to a stakeholder and offered an alternative',
+      'tell about working with an external vendor that tested your patience',
+      'tell about a misunderstanding that better communication would have prevented',
+      'tell about a time you had to deliver bad news about a project'
+    ],
+    nouns: [
+      'Kommunikation', 'Missverständnis', 'Anforderung', 'Dienstleister', 'Lieferant',
+      'Besprechung', 'Rückmeldung', 'Feedback', 'Alternative', 'Fachbegriff',
+      'Zusammenarbeit', 'Erwartung', 'Lösung', 'Problem', 'Projekt', 'Termin',
+      'Entscheidung', 'Kritik', 'Kompromiss', 'Verantwortung', 'Kollege', 'Team',
+      'Rückfrage', 'Verhandlung', 'Verzögerung'
+    ],
+    verbs: [
+      'erklären', 'beschreiben', 'fragen', 'vergleichen', 'planen', 'melden',
+      'verhandeln', 'finden', 'suchen', 'verwenden', 'anbieten', 'erwarten', 'verbessern'
+    ]
+  },
+  {
+    id: 'teamarbeit',
+    label: 'Globale Teamarbeit',
+    form: 'erzaehlend',
+    scenes: [
+      'tell about working in a cross-functional international team',
+      'tell about collaborating across time zones and what asynchronous communication changed',
+      'tell about a cultural difference that surprised you in a global company',
+      'tell about a knowledge transfer you ran for colleagues',
+      'tell about onboarding a new team member remotely',
+      'tell about a time remote collaboration broke down and how it was fixed'
+    ],
+    nouns: [
+      'Team', 'Zeitzone', 'Zusammenarbeit', 'Wissenstransfer', 'Übergabe',
+      'Verantwortung', 'Kollege', 'Besprechung', 'Kommunikation', 'Missverständnis',
+      'Einarbeitung', 'Homeoffice', 'Präsenztag', 'Dokumentation', 'Aufgabe',
+      'Projekt', 'Rolle', 'Planung', 'Fortschritt', 'Rückmeldung', 'Erwartung',
+      'Weiterbildung', 'Termin', 'Verzögerung', 'Lösung'
+    ],
+    verbs: [
+      'planen', 'beschreiben', 'erklären', 'fragen', 'melden', 'verbinden',
+      'verwalten', 'verwenden', 'vergleichen', 'finden', 'suchen', 'schreiben'
+    ]
+  },
+  {
+    id: 'konflikt',
+    label: 'Konflikt & Druck',
+    form: 'erzaehlend',
+    scenes: [
+      'tell about disagreeing with a technical decision and how you handled it',
+      'tell about receiving critical feedback on your code and what you did with it',
+      'tell about a project that failed or was cancelled and what you learned',
+      'tell about delivering under a tight deadline and what you deprioritized',
+      'tell about a conflict in the team that you helped resolve',
+      'tell about a time you were wrong in a technical argument and admitted it'
+    ],
+    nouns: [
+      'Meinungsverschiedenheit', 'Kritik', 'Misserfolg', 'Lektion', 'Konflikt',
+      'Kompromiss', 'Termindruck', 'Druck', 'Frist', 'Verzögerung', 'Priorität',
+      'Entscheidung', 'Feedback', 'Rückmeldung', 'Fehler', 'Lösung', 'Problem',
+      'Projekt', 'Team', 'Kollege', 'Verantwortung', 'Erwartung', 'Besprechung',
+      'Kommunikation', 'Aufgabe'
+    ],
+    verbs: [
+      'verhandeln', 'erklären', 'fragen', 'vergleichen', 'melden', 'beheben',
+      'erkennen', 'verbessern', 'planen', 'finden', 'beschreiben', 'erwarten'
+    ]
+  },
+  {
+    id: 'eigenverantwortung',
+    label: 'Ownership & Problemlösung',
+    form: 'erzaehlend',
+    scenes: [
+      'tell about your first week with an inherited system that had no tests and no documentation',
+      'tell about debugging a production incident under time pressure',
+      'tell about prioritizing when everything was urgent at once',
+      'tell about a slow manual process you automated',
+      'tell about a problem you fixed before anyone noticed it',
+      'tell about the proudest improvement you shipped on your own initiative'
+    ],
+    nouns: [
+      'Eigenverantwortung', 'Fehlersuche', 'Produktionsvorfall', 'Vorfall',
+      'Priorisierung', 'Priorität', 'Automatisierung', 'Prozessverbesserung',
+      'Verbesserung', 'Initiative', 'Einarbeitung', 'Ursachenanalyse', 'Altsystem',
+      'Dokumentation', 'Testfall', 'Fehlermeldung', 'Überwachung', 'Neustart',
+      'Ausfall', 'Skript', 'Werkzeug', 'Termindruck', 'Lösung', 'Prozess', 'Aufgabe'
+    ],
+    verbs: [
+      'beheben', 'erkennen', 'prüfen', 'testen', 'ändern', 'verbessern', 'planen',
+      'melden', 'ausführen', 'starten', 'überwachen', 'sichern'
+    ]
+  },
+  {
+    id: 'arbeitsweise',
+    label: 'Agile & ITIL',
+    form: 'erklaerend',
+    scenes: [
+      'explain what stays agile and what changes in a regulated environment',
+      'explain the Scrum roles and ceremonies and your place in them',
+      'explain what SAFe adds on top of Scrum and why large pharma uses it',
+      'explain a Definition of Done that includes validation documents',
+      'explain the ITIL distinction between an incident, a problem and a change',
+      'explain how you estimate work and communicate delays early'
+    ],
+    nouns: [
+      'Arbeitsweise', 'Sprint', 'Retrospektive', 'Rolle', 'Planung',
+      'Aufwandsschätzung', 'Schätzung', 'Verzögerung', 'Vorfall', 'Problem',
+      'Änderung', 'Besprechung', 'Team', 'Priorisierung', 'Priorität',
+      'Anforderung', 'Aufgabe', 'Validierung', 'Dokumentation', 'Freigabe',
+      'Prozess', 'Termin', 'Fortschritt', 'Hindernis', 'Abnahme'
+    ],
+    verbs: [
+      'planen', 'vergleichen', 'beschreiben', 'erklären', 'melden', 'prüfen',
+      'verwalten', 'erwarten', 'verhandeln', 'anpassen', 'verwenden', 'starten'
+    ]
+  },
+  {
+    id: 'motivation',
+    label: 'Motivation & Firmenwahl',
+    form: 'persoenlich',
+    scenes: [
+      'state why you want pharma rather than banking or a startup',
+      'state why this specific company attracts you — pipeline, products, recent news',
+      'state why this specific team and what they build appeals to you',
+      'state what patient impact means to you as an internal IT developer',
+      'state your five-year direction — technical expert or lead',
+      'state your relocation story — why Switzerland, why now'
+    ],
+    nouns: [
+      'Motivation', 'Branchenwechsel', 'Produktportfolio', 'Nutzen', 'Patient',
+      'Entwicklung', 'Ziel', 'Auswanderung', 'Umzug', 'Berufserfahrung', 'Stelle',
+      'Unternehmen', 'Produkt', 'Forschung', 'Arzneimittel', 'Beitrag',
+      'Schwerpunkt', 'Weiterbildung', 'Team', 'Projekt', 'Erwartung',
+      'Verantwortung', 'Wirkstoff', 'Patientensicherheit', 'Marktzugang'
+    ],
+    verbs: [
+      'erwarten', 'suchen', 'finden', 'planen', 'vergleichen', 'erklären',
+      'anbieten', 'verwenden', 'lesen', 'schreiben', 'starten', 'fragen'
+    ]
   }
 ]
 

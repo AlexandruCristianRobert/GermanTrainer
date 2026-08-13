@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.20.04'
+export const APP_VERSION = '1.20.05'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.20.05', date: '2026-08-13', kind: 'polish',
+    title: 'Sätze · Fachgebiete: Tier 1 komplett',
+    notes: [
+      '<strong>Der Big-Pharma-Katalog ist vollständig.</strong> Elf neue Fachgebiete: <em>Async & Nebenläufigkeit</em>, <em>Web-APIs & Integration</em>, <em>Testing & Codequalität</em>, <em>Architektur & Design</em> und <em>Legacy & Modernisierung</em> vervollständigen die Technik-Rubrik; dazu <em>Agile & ITIL</em> und <em>Motivation & Firmenwahl</em>.',
+      '<strong>Verhaltensfragen erzählen jetzt.</strong> Vier Fachgebiete — <em>Stakeholder & Kommunikation</em>, <em>Globale Teamarbeit</em>, <em>Konflikt & Druck</em>, <em>Ownership & Problemlösung</em> — nutzen die erzählende Darstellungsform: kurze STAR-Episoden in der ersten Person, Perfekt und Präteritum inklusive. So übt man die Sätze, aus denen Interview-Geschichten bestehen.',
+      '<strong>Neues Vokabular für Beruf und Bewerbung.</strong> Wörter wie <em>die Meinungsverschiedenheit</em>, <em>der Termindruck</em>, <em>der Wissenstransfer</em> und <em>die Aufwandsschätzung</em> stehen jetzt in den Themengruppen Work und Programming — auch für alle Nomen-Drills.'
+    ]
+  },
   {
     version: '1.20.04', date: '2026-08-13', kind: 'polish',
     title: 'Sätze · Fachgebiete: Big Pharma IT (Tier 1)',

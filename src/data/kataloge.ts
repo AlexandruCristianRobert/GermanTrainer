@@ -29,7 +29,7 @@ export const KATALOGE: Katalog[] = [
     id: 'tier1-pharma',
     label: 'Big Pharma IT (Tier 1)',
     sections: [
-      { title: 'Technik & .NET', domainIds: ['dotnet', 'sql-server', 'docker'] },
+      { title: 'Technik & .NET', domainIds: ['dotnet', 'async', 'sql-server', 'web-integration', 'testing', 'architektur', 'docker', 'legacy'] },
       {
         title: 'Regulierte Industrie',
         domainIds: [
@@ -37,6 +37,9 @@ export const KATALOGE: Katalog[] = [
           'qualitaetsprozesse', 'behoerden', 'wertschoepfung', 'pharma-systeme'
         ]
       },
+      { title: 'Verhaltensfragen', domainIds: ['kommunikation', 'teamarbeit', 'konflikt', 'eigenverantwortung'] },
+      { title: 'Arbeitsweise', domainIds: ['arbeitsweise'] },
+      { title: 'Motivation', domainIds: ['motivation'] },
       { title: 'HR-Gespräch', domainIds: ['hr-runde'] }
     ]
   }

@@ -19,9 +19,11 @@ describe('Domain bank', () => {
   })
   test('the shipped Domains are present', () => {
     expect(DOMAINS.map(d => d.id).sort()).toEqual([
-      'audit-trail', 'behoerden', 'datenintegritaet', 'docker', 'dotnet', 'gxp',
-      'hr-runde', 'pharma-systeme', 'qualitaetsprozesse', 'sql-server',
-      'validierung', 'wertschoepfung'
+      'arbeitsweise', 'architektur', 'async', 'audit-trail', 'behoerden',
+      'datenintegritaet', 'docker', 'dotnet', 'eigenverantwortung', 'gxp',
+      'hr-runde', 'kommunikation', 'konflikt', 'legacy', 'motivation',
+      'pharma-systeme', 'qualitaetsprozesse', 'sql-server', 'teamarbeit',
+      'testing', 'validierung', 'web-integration', 'wertschoepfung'
     ])
   })
   test('every Domain noun resolves against the seeded store', () => {
@@ -86,5 +88,9 @@ describe('Domain bank', () => {
     for (const d of DOMAINS) {
       expect(['erklaerend', 'erzaehlend', 'persoenlich']).toContain(d.form)
     }
+  })
+  test('all three Darstellungsformen ship (ADR-0021)', () => {
+    expect(new Set(DOMAINS.map(d => d.form)))
+      .toEqual(new Set(['erklaerend', 'erzaehlend', 'persoenlich']))
   })
 })

@@ -221,6 +221,25 @@ export class GermanTrainerDb extends Dexie {
       // users never re-run seedIfEmpty. Same top-up as version(12).
       await topUpNounsFromSeed(tx)
     })
+    this.version(15).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt',
+      sprechenDiscussions: '&id, status, startedAt',
+      sprechenCorrections: '&id, kind, createdAt, topicTitle',
+      sprechenCorrectionEvents: '&id, correctionId, at',
+      sprechenArgumentBanks: 'topicId',
+      sprechenVortraege: '&id, status, startedAt',
+      schreibenBeitraege: '&id, status, startedAt',
+      schreibenArgumentBanks: 'themaId'
+    }).upgrade(async tx => {
+      // Top up the Release 2 vocabulary (behavioral/Arbeitsweise/Motivation Work
+      // nouns + the remaining technical Programming nouns) the Tier 1 Katalog's
+      // new Domains reference (ADR-0022). Same top-up as version(14).
+      await topUpNounsFromSeed(tx)
+    })
   }
 }
 
