@@ -55,13 +55,13 @@ export const ANLASS_BAUKAESTEN: Record<SchreibAnlass, NachrichtBaukasten> = {
   bitte: {
     gruende: [
       { ideaDe: 'ein familiärer Grund, etwa die Betreuung eines Kindes oder eines Angehörigen', noteEn: 'private reason — one clause is enough, stay factual' },
-      { ideaDe: 'ein fester Termin oder eine Frist, die den Zeitpunkt Ihrer Bitte erklärt', noteEn: 'a date makes the request urgent without pressure' },
-      { ideaDe: 'fehlende Angaben, die Sie für Ihre Planung oder Anmeldung dringend brauchen', noteEn: 'missing information — the standard ground for an enquiry' }
+      { ideaDe: 'ein fester Termin oder eine Frist, die den Zeitpunkt meiner Bitte erklärt', noteEn: 'a date makes the request urgent without pressure' },
+      { ideaDe: 'fehlende Angaben, die ich für meine Planung und Anmeldung dringend brauche', noteEn: 'missing information — the standard ground for an enquiry' }
     ],
     loesungen: [
       { ideaDe: 'anbieten, alle Unterlagen und Nachweise vorab zusammenzustellen und zu schicken', noteEn: 'saves the recipient work — easier to say yes' },
       { ideaDe: 'einen konkreten Termin für ein kurzes Gespräch oder eine Rückmeldung vorschlagen', noteEn: 'a named date is easier to answer than „bald"' },
-      { ideaDe: 'darlegen, wie Ihre Aufgaben während der gewünschten Änderung geregelt sind', noteEn: 'proves the request costs the team nothing' }
+      { ideaDe: 'darlegen, wie meine Aufgaben nach der gewünschten Änderung geregelt sind', noteEn: 'proves the request costs the team nothing' }
     ],
     words: [
       { de: 'das Anliegen', en: 'matter / request' }, { de: 'die Bitte', en: 'request' },
@@ -72,8 +72,8 @@ export const ANLASS_BAUKAESTEN: Record<SchreibAnlass, NachrichtBaukasten> = {
 
   beschwerde: {
     gruende: [
-      { ideaDe: 'der Zustand hat sich seit einem klaren Zeitpunkt oder Wechsel deutlich verschlechtert', noteEn: 'anchor the complaint in a date — sachlich, not emotional' },
-      { ideaDe: 'die Mängel treten regelmäßig auf und betreffen nicht nur Sie allein', noteEn: 'repetition plus affected colleagues gives it weight' },
+      { ideaDe: 'seit einigen Wochen verschlechtert sich die Lage spürbar', noteEn: 'anchor the complaint in a date — sachlich, not emotional' },
+      { ideaDe: 'die Mängel treten regelmäßig auf und betreffen nicht nur mich, sondern das ganze Team', noteEn: 'repetition plus affected colleagues gives it weight' },
       { ideaDe: 'die Störung kostet Arbeitszeit und führt zu vermeidbarem Mehraufwand', noteEn: 'name the concrete cost — that is what gets acted on' }
     ],
     loesungen: [
@@ -83,7 +83,7 @@ export const ANLASS_BAUKAESTEN: Record<SchreibAnlass, NachrichtBaukasten> = {
     ],
     words: [
       { de: 'die Beschwerde', en: 'complaint' }, { de: 'der Mangel', en: 'defect / shortcoming' },
-      { de: 'die Wartezeit', en: 'waiting time' }, { de: 'der Mehraufwand', en: 'extra work' },
+      { de: 'die Beeinträchtigung', en: 'impairment / disruption' }, { de: 'der Mehraufwand', en: 'extra work' },
       { de: 'die Nachbesserung', en: 'remedy / putting right' }, { de: 'die Abhilfe', en: 'redress' }
     ]
   },
@@ -92,7 +92,7 @@ export const ANLASS_BAUKAESTEN: Record<SchreibAnlass, NachrichtBaukasten> = {
     gruende: [
       { ideaDe: 'eine Lücke im Ablauf, die im Arbeitsalltag immer wieder Zeit und Nerven kostet', noteEn: 'name the gap first — a proposal needs a problem' },
       { ideaDe: 'ein Wunsch, den mehrere Kolleginnen und Kollegen bereits geäußert haben', noteEn: 'shared interest makes a yes easy' },
-      { ideaDe: 'ein sichtbarer Nutzen für den Betrieb: weniger Kosten, weniger Reibung', noteEn: 'benefit for the recipient, not only for you' }
+      { ideaDe: 'ein sichtbarer Nutzen für den Betrieb: weniger Kosten, weniger Reibungsverluste', noteEn: 'benefit for the recipient, not only for you' }
     ],
     loesungen: [
       { ideaDe: 'den Vorschlag zunächst als Versuch für ein halbes Jahr anlegen und dann auswerten', noteEn: 'a pilot lowers the bar for approval' },
@@ -108,9 +108,9 @@ export const ANLASS_BAUKAESTEN: Record<SchreibAnlass, NachrichtBaukasten> = {
 
   dank: {
     gruende: [
-      { ideaDe: 'die geduldige Erklärung der Abläufe, die Ihnen den Einstieg sehr erleichtert hat', noteEn: 'thanks stays vague unless you name one thing' },
-      { ideaDe: 'die Bereitschaft, zusätzliche Aufgaben oder Termine für Sie zu übernehmen', noteEn: 'name the extra effort, not just „die Hilfe"' },
-      { ideaDe: 'ein Rat oder eine Rückmeldung, die Ihre Arbeit sichtbar verändert hat', noteEn: 'shows the help actually had an effect' }
+      { ideaDe: 'die geduldige Erklärung der Abläufe, die mir den Einstieg sehr erleichtert hat', noteEn: 'thanks stays vague unless you name one thing' },
+      { ideaDe: 'die Bereitschaft, zusätzliche Aufgaben und Termine für mich zu übernehmen', noteEn: 'name the extra effort, not just „die Hilfe"' },
+      { ideaDe: 'ein Punkt, der sich künftig noch verbessern ließe — etwa mehr Zeit für offene Fragen', noteEn: 'the Anlass is Dank *and* Rückmeldung: one constructive point, politely put' }
     ],
     loesungen: [
       { ideaDe: 'anbieten, das Gelernte im Team weiterzugeben, etwa in einer kurzen Runde', noteEn: 'passes the benefit on — what a Vorgesetzter likes to read' },
@@ -135,15 +135,15 @@ export const AUFTRAG_BAUKAESTEN: Record<string, NachrichtBaukasten> = {
   // gegen einen unaufschiebbaren Arzttermin.
   'wa-besprechung-absagen': {
     gruende: [
-      { ideaDe: 'ein Facharzttermin am Freitagvormittag, auf den Sie seit Monaten warten', noteEn: 'specialist appointment with a long wait — nobody asks you to move it' },
+      { ideaDe: 'ein Facharzttermin am Freitagvormittag, auf den ich seit Monaten warte', noteEn: 'specialist appointment with a long wait — nobody asks you to move it' },
       { ideaDe: 'die Untersuchung lässt sich weder auf den Nachmittag noch auf einen anderen Tag legen', noteEn: 'say why it cannot be shifted — that is the real explanation' },
-      { ideaDe: 'einen neuen Termin bekämen Sie erst in mehreren Monaten', noteEn: 'the cost of rescheduling makes the absence reasonable' },
-      { ideaDe: 'von der Überschneidung mit der Besprechung haben Sie erst jetzt erfahren', noteEn: 'explains the short notice without sounding careless' }
+      { ideaDe: 'ein neuer Termin wäre erst in mehreren Monaten zu bekommen', noteEn: 'the cost of rescheduling makes the absence reasonable' },
+      { ideaDe: 'von der Überschneidung mit der Besprechung habe ich erst jetzt erfahren', noteEn: 'explains the short notice without sounding careless' }
     ],
     loesungen: [
       { ideaDe: 'um das Protokoll und die Unterlagen bitten und sie am Montag durcharbeiten', noteEn: 'Inhaltspunkt 4, with a date attached' },
-      { ideaDe: 'Ihre Punkte vorab schriftlich einreichen, damit sie in der Sitzung vorliegen', noteEn: 'your input still reaches the meeting' },
-      { ideaDe: 'eine Kollegin bitten, Sie in der Besprechung zu vertreten und Ihnen zu berichten', noteEn: 'a stand-in keeps your topics represented' },
+      { ideaDe: 'meine Punkte vorab schriftlich einreichen, damit sie in der Sitzung vorliegen', noteEn: 'your input still reaches the meeting' },
+      { ideaDe: 'eine Kollegin um Vertretung in der Besprechung und um einen kurzen Bericht bitten', noteEn: 'a stand-in keeps your topics represented' },
       { ideaDe: 'ein kurzes Gespräch am Montagmorgen für die offenen Fragen vorschlagen', noteEn: 'a concrete way to catch up — Inhaltspunkt 3' }
     ],
     words: [
@@ -157,19 +157,19 @@ export const AUFTRAG_BAUKAESTEN: Record<string, NachrichtBaukasten> = {
   // familiären Gründen.
   'wa-homeoffice-antrag': {
     gruende: [
-      { ideaDe: 'die Betreuung Ihres Kindes an zwei Nachmittagen, seit die Kita früher schließt', noteEn: 'concrete family reason with a cause — credible, not a plea' },
+      { ideaDe: 'die Betreuung meines Kindes am Nachmittag, seit die Kita früher schließt', noteEn: 'concrete family reason with a cause — credible, not a plea' },
       { ideaDe: 'der Weg ins Büro kostet täglich fast zwei Stunden, die der Arbeit zugutekommen könnten', noteEn: 'commute time reframed as a gain for the employer' },
-      { ideaDe: 'Ihre Aufgaben sind vor allem Recherche und Dokumentation und brauchen ruhige Zeit', noteEn: 'the work itself suits remote days' },
-      { ideaDe: 'die Pflege eines Angehörigen verlangt Ihre Anwesenheit zu festen Zeiten', noteEn: 'alternative reason if childcare does not fit your story' }
+      { ideaDe: 'meine Aufgaben sind vor allem Recherche und Dokumentation und brauchen ruhige Zeit', noteEn: 'the work itself suits remote days' },
+      { ideaDe: 'die Pflege eines Angehörigen verlangt meine Anwesenheit zu festen Zeiten', noteEn: 'alternative reason if childcare does not fit your story' }
     ],
     loesungen: [
       { ideaDe: 'eine Probephase von zwei Monaten vorschlagen und danach gemeinsam auswerten', noteEn: 'the classic de-risker: it makes a yes reversible' },
       { ideaDe: 'feste Bürotage für die Teamsitzungen zusagen, etwa Montag und Donnerstag', noteEn: 'leaves the fixed team meetings untouched' },
-      { ideaDe: 'Erreichbarkeit in der Kernzeit und einen kurzen Tagesabschluss per Mail zusagen', noteEn: 'answers the trust question before it is asked' },
+      { ideaDe: 'Erreichbarkeit in der Kernzeit und einen kurzen schriftlichen Tagesabschluss zusagen', noteEn: 'answers the trust question before it is asked' },
       { ideaDe: 'um ein kurzes Gespräch in der nächsten Woche bitten, um Einzelheiten zu klären', noteEn: 'Inhaltspunkt 4 — ask with a time frame' }
     ],
     words: [
-      { de: 'das Homeoffice', en: 'working from home' }, { de: 'die Vereinbarkeit', en: 'balancing family and work' },
+      { de: 'das Homeoffice', en: 'working from home' }, { de: 'die Vereinbarkeit von Familie und Beruf', en: 'balancing family and work' },
       { de: 'die Kernarbeitszeit', en: 'core working hours' }, { de: 'die Erreichbarkeit', en: 'availability' },
       { de: 'die Probephase', en: 'trial period' }, { de: 'die Absprache', en: 'arrangement' }
     ]
@@ -204,13 +204,13 @@ export const AUFTRAG_BAUKAESTEN: Record<string, NachrichtBaukasten> = {
       { ideaDe: 'mehrere Kolleginnen und Kollegen haben kleine Kinder und brauchen ein Ziel ohne lange Anfahrt', noteEn: 'the constraint that shapes the whole proposal' },
       { ideaDe: 'ein Ausflug in der Region lässt sich ohne Übernachtung und mit kleinem Budget planen', noteEn: 'cost and logistics — what a manager weighs first' },
       { ideaDe: 'viele im Team arbeiten erst seit kurzem zusammen und kennen sich kaum', noteEn: 'the real purpose of a team day — Inhaltspunkt 3' },
-      { ideaDe: 'ein Programm im Freien passt für alle Altersgruppen und braucht keine Vorkenntnisse', noteEn: 'inclusive by design — nobody has to sit out' }
+      { ideaDe: 'ein Programm im Freien eignet sich für alle Altersgruppen und braucht keine Vorkenntnisse', noteEn: 'inclusive by design — nobody has to sit out' }
     ],
     loesungen: [
       { ideaDe: 'eine Wanderung im Naturpark mit anschließendem Grillen an der Schutzhütte vorschlagen', noteEn: 'a destination plus an activity — Inhaltspunkt 2' },
       { ideaDe: 'den Ausflug an einem Freitag von zehn bis sechzehn Uhr planen', noteEn: 'a schedule families can plan around' },
-      { ideaDe: 'eine kurze Kennenlernrunde und eine Führung als festen Programmpunkt einplanen', noteEn: 'gives the day a structure' },
-      { ideaDe: 'anbieten, Angebote einzuholen, den Bus zu buchen und eine Abfrage im Team zu starten', noteEn: 'concrete help, three verbs — Inhaltspunkt 4' }
+      { ideaDe: 'eine kurze Kennenlernrunde und eine Führung als feste Programmpunkte einplanen', noteEn: 'gives the day a structure' },
+      { ideaDe: 'anbieten, Kostenvoranschläge einzuholen, den Bus zu buchen und eine Abfrage im Team zu starten', noteEn: 'concrete help, three verbs — Inhaltspunkt 4' }
     ],
     words: [
       { de: 'der Teamausflug', en: 'team outing' }, { de: 'das Ziel', en: 'destination' },
