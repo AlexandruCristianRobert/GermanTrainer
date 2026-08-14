@@ -99,7 +99,7 @@ export const SCHREIBEN_TEIL2_TIPPS: TippSection[] = [
       { de: 'Nach der Anrede steht ein Komma — und die nächste Zeile beginnt klein: „Sehr geehrte Frau Kling, / vielen Dank für …".' },
       { de: 'Die Grußformel steht allein auf ihrer Zeile und bekommt kein Komma und keinen Punkt.' },
       { de: 'Der Betreff ist kein Satz: drei bis sechs Wörter, die das Anliegen nennen („Absage der Besprechung am Freitag").' },
-      { de: 'Anrede und Grußformel gehören zusammen: „Sehr geehrte Frau …" verlangt „Mit freundlichen Grüßen", „Liebe Frau …" passt zu „Herzliche Grüße".' }
+      { de: 'Anrede und Grußformel gehören zusammen: „Sehr geehrte Frau …" verlangt „Mit freundlichen Grüßen", „Liebe Frau …" passt zu „Herzliche Grüße"; „Mit freundlichen Grüßen" passt ebenfalls.' }
     ]
   },
   {
