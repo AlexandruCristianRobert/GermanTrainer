@@ -247,6 +247,17 @@ const aptMoves = computed<NachrichtMove[]>(() =>
 const otherMoves = computed(() => NACHRICHT_MOVES.filter(m => !aptMoves.value.includes(m)))
 const aptBank = computed(() => SCHREIBEN_NACHRICHTENMITTEL.filter(p => aptMoves.value.includes(p.move)))
 
+/** The „weitere" group is FORCED open while the selected Move lives inside it:
+ *  collapsing it there would hide the active chip while its phrases stay listed
+ *  below, leaving the drawer showing a selection with no visible selector. Its
+ *  toggle hides for as long as that holds — picking an apt Move brings it back. */
+const otherMovesForced = computed(() =>
+  otherMoves.value.length > 0 && !aptMoves.value.includes(move.value)
+)
+const otherMovesOpen = computed(() =>
+  otherMoves.value.length > 0 && (showOtherMoves.value || otherMovesForced.value)
+)
+
 const drawerPhrases = computed(() =>
   nachrichtenmittelForMove(move.value).map(r => ({ ...r, used: usedIds.value.has(r.id) }))
 )
@@ -370,6 +381,10 @@ function insertPhrase(phraseDe: string) {
  * register (CONTEXT.md → Nachrichtenmittel). With the scaffold on it fills its
  * two slots; without it, both lines go in at the caret with the caret parked
  * in the blank line between them, where the message body belongs.
+ *
+ * Exactly ONE blank line separates them: the frame alone must not green the
+ * `absaetze` Gerüst dot, which wants two blank-line separations. That dot is
+ * earned when a real body pushes the Gruß down, never by one helper click.
  */
 function applyRahmenPaar(p: RahmenPaar) {
   if (rahmenOn.value) {
@@ -377,7 +392,7 @@ function applyRahmenPaar(p: RahmenPaar) {
     slots.value.gruss = p.grussDe
   } else {
     const head = `${p.anredeDe}\n\n`
-    insertAtCaret(`${head}\n\n${p.grussDe}`, head.length)
+    insertAtCaret(`${head}${p.grussDe}`, head.length)
   }
   logHelpAsync('phrase')
 }
@@ -679,7 +694,7 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
           <div class="spr-steps">
             <button
               v-for="g in geruest" :key="g.key" type="button" class="spr-step nf-geruest"
-              :class="{ done: g.ok }"
+              :class="{ done: g.ok }" :disabled="g.ok"
               @click="openGeruestHint = openGeruestHint === g.key ? null : g.key"
             >
               <span class="spr-step-n">{{ g.ok ? '✓' : '·' }}</span>
@@ -846,18 +861,18 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
                       @click="selectMove(m)"
                     >{{ NACHRICHT_MOVE_LABEL[m].de }}</button>
                     <button
-                      v-if="otherMoves.length > 0" type="button" class="spr-move nf-more"
+                      v-if="otherMoves.length > 0 && !otherMovesForced" type="button" class="spr-move nf-more"
                       @click="showOtherMoves = !showOtherMoves"
-                    >{{ showOtherMoves ? '− weitere' : `+ weitere (${otherMoves.length})` }}</button>
+                    >{{ otherMovesOpen ? '− weitere' : `+ weitere (${otherMoves.length})` }}</button>
                   </div>
-                  <div v-if="showOtherMoves && otherMoves.length > 0" class="spr-moverow nf-moverow-other">
+                  <div v-if="otherMovesOpen" class="spr-moverow nf-moverow-other">
                     <button
                       v-for="m in otherMoves" :key="m" type="button" class="spr-move"
                       :class="{ on: move === m, fresh: freshMoves.has(m) }"
                       @click="selectMove(m)"
                     >{{ NACHRICHT_MOVE_LABEL[m].de }}</button>
                   </div>
-                  <p v-if="showOtherMoves && otherMoves.length > 0" class="nf-more-note">
+                  <p v-if="otherMovesOpen" class="nf-more-note">
                     Diese Schritte passen nicht zum Anlass „{{ ANLASS_LABEL[nachricht.auftrag.anlass].de }}" — nur nehmen, wenn du weißt, warum.
                   </p>
 
@@ -936,6 +951,9 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
 .spr-step-dot.on { background: var(--accent); border-color: var(--accent); }
 
 .nf-geruest { width: 100%; text-align: left; background: transparent; border-left: 0; border-right: 0; border-top: 0; font: inherit; color: var(--mute); cursor: pointer; }
+/* A passing row has no hint to reveal (hintDe renders only while !ok), so it
+   is inert — no pointer, no click, nothing to tap that does nothing. */
+.nf-geruest:disabled { cursor: default; }
 .nf-geruest.done { color: var(--ink-soft); }
 .nf-geruest .spr-step-n { color: var(--mute); }
 .nf-geruest.done .spr-step-n { color: var(--success); }
