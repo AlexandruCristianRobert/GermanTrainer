@@ -5,6 +5,7 @@ import NavShell from './components/NavShell.vue'
 import LoadingOverlay from './components/LoadingOverlay.vue'
 import RouteProgress from './components/RouteProgress.vue'
 import ToastStack from './components/ToastStack.vue'
+import DailyGoalBadge from './components/DailyGoalBadge.vue'
 import { useTheme } from './composables/useTheme'
 
 const { resolved } = useTheme()
@@ -23,4 +24,5 @@ const theme = computed(() => resolved.value === 'dark' ? darkTheme : null)
   <RouteProgress />
   <LoadingOverlay />
   <ToastStack />
+  <DailyGoalBadge />
 </template>

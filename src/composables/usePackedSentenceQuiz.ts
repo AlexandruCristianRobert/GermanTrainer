@@ -5,6 +5,7 @@
 // randomness up front.
 
 import { shuffle } from '../data/pool'
+import { VERBS } from '../data/verbs'
 import type { Verb, VerbLevel, VerbCase } from '../data/verbs'
 import type { Darstellungsform } from '../data/domains'
 import type { PrepCase } from '../data/prepositions'
@@ -204,7 +205,15 @@ export function prepCaseShort(c: PrepCase): string {
 
 // ─────────────────────── Generation (prompt + validation) ───────────────────────
 
-export interface PackedSpan { key: string; en: string; pl?: string }
+export interface PackedSpan {
+  key: string
+  en: string
+  pl?: string
+  /** VERB keys only: the exact German surface form(s) of the verb as used in
+   *  the passage ("hört zu", "hat geholfen"). Hint data — kept only when its
+   *  tokens really appear in the German, never a rejection reason. */
+  deUsed?: string
+}
 /** An [Incidental noun] or verb the AI introduced, with its German dictionary
  *  form so it can be hinted — mirrors the verb quiz's extraWords. `kind:'verb'`
  *  → `de` is the infinitive; `kind:'noun'` → `de` is article + nominative
@@ -292,7 +301,7 @@ export const PACKED_GEN_SYSTEM =
   'the word order that part forces. ' +
   'Return ONLY one JSON object of exactly this shape (no prose, no markdown fences): ' +
   '{"items":[{"index":<number>,"english":"...","german":"...","sentenceCount":<1-4>,' +
-  '"spans":[{"key":"v1","en":"...","pl":"..."}],' +
+  '"spans":[{"key":"v1","en":"...","pl":"...","deUsed":"..."}],' +
   '"extras":[{"en":"...","de":"...","kind":"verb|noun","pl":"..."}]}]} — exactly one entry per ' +
   'requested index. ' +
   '"spans" = one entry per ingredient key, where "en" is the exact English word(s) expressing ' +
@@ -300,6 +309,10 @@ export const PACKED_GEN_SYSTEM =
   'a TWO-PART connector gets TWO span entries with the same key, one per part. For a NOUN key ' +
   'ONLY, also add "pl" = its bare nominative plural WITHOUT an article (e.g. "Tische"), or "" ' +
   'when that noun has no plural; omit "pl" for verb/preposition/da-compound/connector keys. ' +
+  'For a VERB key ONLY, also add "deUsed" = the exact German form(s) of that verb as they appear ' +
+  'in YOUR German passage — the finite/used form plus its separated prefix or auxiliary when the ' +
+  'verb is split (e.g. "hört zu", "hat geholfen", "würde helfen"); omit "deUsed" for all other ' +
+  'keys. ' +
   '"extras" = EVERY OTHER noun and finite verb in your English translation that is NOT already ' +
   'covered by a span entry — subjects, objects, auxiliaries, modals, incidental nouns — each ' +
   'with "en" = its exact English surface (an exact substring of your English translation), ' +
@@ -323,7 +336,7 @@ export const PACKED_GEN_SCHEMA = {
             type: 'array',
             items: {
               type: 'object',
-              properties: { key: { type: 'string' }, en: { type: 'string' }, pl: { type: 'string' } },
+              properties: { key: { type: 'string' }, en: { type: 'string' }, pl: { type: 'string' }, deUsed: { type: 'string' } },
               required: ['key', 'en']
             }
           },
@@ -439,7 +452,7 @@ export function buildPackedGeneratePrompt(
     domainNote +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.` +
-    `\nAlso return sentenceCount, spans (one per ingredient key, plus "pl" — bare plural, "" if none — for noun keys; two-part connectors get two entries with the same key) and extras (every other noun and finite verb in the English, with "en"/"de"/"kind", nouns also carrying "pl"), each "en" an exact substring of your English translation.`
+    `\nAlso return sentenceCount, spans (one per ingredient key, plus "pl" — bare plural, "" if none — for noun keys, plus "deUsed" — the exact German form(s) of the verb as used in your German passage, e.g. "hört zu" / "hat geholfen" — for verb keys; two-part connectors get two entries with the same key) and extras (every other noun and finite verb in the English, with "en"/"de"/"kind", nouns also carrying "pl"), each "en" an exact substring of your English translation.`
   )
 }
 
@@ -453,6 +466,87 @@ function countSentences(german: string): number {
   return german.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0).length
 }
 
+/** VERBS indexed by infinitive, for the verb-presence gate. */
+const VERB_BY_INFINITIVE = new Map(VERBS.map(v => [v.german, v]))
+
+/** Tokens of one candidate surface form — 'stehe auf' → ['stehe', 'auf']. */
+function formTokens(form: string): string[] {
+  return normalizeGerman(form).split(' ').filter(t => t.length > 0)
+}
+
+/**
+ * Deterministic verb-presence gate: true when `german` contains the verb in
+ * ANY recognizable shape — infinitive, Partizip II, every finite Präsens /
+ * Präteritum / Konjunktiv II / Konjunktiv I form (separable forms are stored
+ * split, "stehe auf", so each token must appear as its own word), the
+ * du-imperative, Präteritum-stem inflections when no full table exists, and
+ * for separables also the joined subordinate-clause forms ("aufsteht",
+ * "aufstand") and the zu-infinitive ("aufzustehen").
+ *
+ * Deliberately generous: an unknown verb always passes (never reject on
+ * missing data), and a false accept merely preserves today's behavior — a
+ * false rejection would cost the learner a card.
+ */
+export function verbUsedInGerman(verbGerman: string, german: string): boolean {
+  const verb = VERB_BY_INFINITIVE.get(verbGerman)
+  if (!verb) return true
+  const words = new Set(normalizeGerman(german).split(' '))
+
+  const candidates: string[][] = []
+  const add = (form: string) => {
+    const tokens = formTokens(form)
+    if (tokens.length > 0) candidates.push(tokens)
+  }
+
+  add(verb.german)
+  add(verb.partizip2)
+  for (const table of [verb.praesens, verb.praeteritum, verb.konjunktiv2, verb.konjunktiv1]) {
+    if (table) for (const form of table) add(form)
+  }
+
+  const prefix = verb.separablePrefix ? normalizeGerman(verb.separablePrefix) : ''
+
+  if (verb.imperativDu) {
+    add(verb.imperativDu)
+    if (prefix) add(`${verb.imperativDu} ${prefix}`)
+  }
+
+  // No full Präteritum table → the stem plus the regular person endings
+  // ("wartete", "hörten"); separables both split ("hörte … zu") and joined
+  // ("zuhörte"). The bare-"n" ending covers weak-verb plurals, whose stored
+  // stem already ends in -te.
+  if (!verb.praeteritum) {
+    const stem = normalizeGerman(verb.praeteritumStem)
+    if (stem.length > 0) {
+      for (const ending of ['', 'e', 'n', 'st', 't', 'en', 'et', 'est']) {
+        const f = stem + ending
+        add(f)
+        if (prefix) {
+          add(`${f} ${prefix}`)
+          add(prefix + f)
+        }
+      }
+    }
+  }
+
+  if (prefix) {
+    // Joined subordinate-clause forms — "…, dass er aufsteht / aufstand".
+    const finiteFirsts = new Set<string>()
+    for (const table of [verb.praesens, verb.praeteritum]) {
+      if (table) for (const form of table) {
+        const t = formTokens(form)[0]
+        if (t) finiteFirsts.add(t)
+      }
+    }
+    for (const t of finiteFirsts) add(prefix + t)
+    // zu-infinitive — "aufzustehen".
+    const inf = normalizeGerman(verb.german)
+    if (inf.startsWith(prefix)) add(prefix + 'zu' + inf.slice(prefix.length))
+  }
+
+  return candidates.some(tokens => tokens.every(t => words.has(t)))
+}
+
 export function validatePackedCard(raw: unknown, spec: PackedCardSpec): GeneratedPackedCard | null {
   if (!raw || typeof raw !== 'object') return null
   const e = raw as Record<string, unknown>
@@ -464,6 +558,7 @@ export function validatePackedCard(raw: unknown, spec: PackedCardSpec): Generate
   // item would grade the learner on an ingredient that is not there.
   const hay = ' ' + normalizeGerman(german) + ' '
   for (const it of spec.items) {
+    if (it.cat === 'verb' && it.verb && !verbUsedInGerman(it.verb.german, german)) return null
     if (it.cat === 'prep' && it.prep && !prepUsed(german, it.prep.german)) return null
     if (it.cat === 'dac' && it.colloc && !hay.includes(' ' + daCompoundFor(it.colloc.preposition) + ' ')) return null
     if (it.cat === 'conn' && it.conn && !connUsed(german, it.conn)) return null
@@ -483,6 +578,15 @@ export function validatePackedCard(raw: unknown, spec: PackedCardSpec): Generate
           // survive the pass-through — only a genuinely absent field leaves
           // `pl` unset.
           if (typeof s.pl === 'string') span.pl = s.pl.trim()
+          // deUsed is hint data: kept only when every one of its tokens
+          // appears as a whole word in the German, silently dropped otherwise
+          // — never a rejection reason (the verb gate above already
+          // guarantees the verb itself is present).
+          if (typeof s.deUsed === 'string') {
+            const deUsed = s.deUsed.trim()
+            const tokens = formTokens(deUsed)
+            if (tokens.length > 0 && tokens.every(t => hay.includes(' ' + t + ' '))) span.deUsed = deUsed
+          }
           return span
         })
         .filter(s => s.en.length > 0 && validKeys.has(s.key))
@@ -643,11 +747,18 @@ export function nounHintText(singularWithArticle: string, plural?: string): stri
 
 /** The German reveal for one drilled item's hint span. `plural` is the
  *  resolved plural for a noun item (stored plural wins over this card's AI
- *  guess — see buildPackedSegments); ignored for every other category. */
-export function packedHint(it: PackedItemSpec, plural?: string): PackedHintLine[] | undefined {
+ *  guess — see buildPackedSegments); `deUsed` is the exact surface form of a
+ *  verb item as it appears in the passage — shown as a muted "im Text:" note
+ *  when it differs from the dictionary form. Each is ignored for every other
+ *  category. */
+export function packedHint(it: PackedItemSpec, plural?: string, deUsed?: string): PackedHintLine[] | undefined {
   if (it.cat === 'verb' && it.verb) {
     const rekt = rektShort(it.verb.case)
-    return [{ text: rekt ? `${it.verb.german} + ${rekt}` : it.verb.german }]
+    const line: PackedHintLine = { text: rekt ? `${it.verb.german} + ${rekt}` : it.verb.german }
+    if (deUsed && normalizeGerman(deUsed) !== normalizeGerman(it.verb.german)) {
+      line.note = `im Text: ${deUsed}`
+    }
+    return [line]
   }
   if (it.cat === 'noun' && it.noun) return [{ text: nounHintText(`${it.noun.article} ${it.noun.german}`, plural) }]
   if (it.cat === 'prep' && it.prep) return [{ text: `${it.prep.german} + ${prepCaseShort(it.prep.case)}` }]
@@ -694,7 +805,8 @@ export function buildPackedSegments(english: string, card: GeneratedPackedCard):
     // Resolution order: stored plural → this card's AI guess → none (ADR-0003
     // — once the store learns a noun's plural, the AI's answer is ignored).
     const plural = it.cat === 'noun' && it.noun ? (it.noun.plural ?? span.pl) : undefined
-    found.push({ start: range[0], end: range[1], key: it.key, cat: it.cat, hint: packedHint(it, plural) })
+    const deUsed = it.cat === 'verb' ? span.deUsed : undefined
+    found.push({ start: range[0], end: range[1], key: it.key, cat: it.cat, hint: packedHint(it, plural, deUsed) })
   }
 
   // Extras claim only what the drilled spans left free.
