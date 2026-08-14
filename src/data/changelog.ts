@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.20.06'
+export const APP_VERSION = '1.20.07'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.20.07', date: '2026-08-14', kind: 'polish',
+    title: 'Dativ · Zwillingspaare 500 & Freier Dativ erklärt',
+    notes: [
+      '<strong>Der Zwillings-Drill hat jetzt 500 Karten.</strong> Aus 24 Übungssätzen wurden 500, verteilt über alle Niveaus von A2 bis C1 — Fragen, Perfekt, Präteritum, Modalverben und Nebensätze, damit dieselbe Kasusgrenze in immer neuen Kleidern erscheint.',
+      '<strong>Sechs neue Zwillingspaare.</strong> <em>ausweichen | vermeiden</em>, <em>dienen | bedienen</em>, <em>gefallen | mögen</em>, <em>zuschauen | beobachten</em>, <em>schaden | verletzen</em> und <em>zustimmen | akzeptieren</em> — vierzehn Paare insgesamt, alle auch in der Zwillingstabelle des Spickzettels.',
+      '<strong>Der Freie Dativ erklärt sich jetzt selbst.</strong> Die Einstellungsseite sagt vor dem Start, was zu tun ist: die Weglass-Probe für <em>Weglassbar?</em> und die drei Lesarten — <em>Vorteil (commodi)</em>, <em>Besitz (possessivus)</em>, <em>Anteilnahme (ethicus)</em> — für <em>Welche Lesart?</em>, jede mit Beispielsatz.'
+    ]
+  },
   {
     version: '1.20.06', date: '2026-08-13', kind: 'fix',
     title: 'Dativ · Antwortreihenfolge gemischt',
