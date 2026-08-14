@@ -37,6 +37,8 @@ export const GRUSS_FORMELN: string[] = [
   'beste grüße'
 ]
 
+// \b is ASCII word-boundary; it doesn't special-case umlauts. Per spec this is
+// accepted as-is ("simple \b(du|dich|…)\b/gi is fine") — not a bug to "fix" later.
 const DU_FORM_RE = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner|deins|euch|euer|eure)\b/gi
 const INFORMELL_RE = /\b(na ja|halt|echt|krass|mega|voll cool|super|okay|lg|mfg|hey|hi)\b/gi
 const KONJUNKTIV_II_RE = /\b(würde|würden|könnte|könnten|wäre|wären|hätte|hätten|dürfte|dürften)\b/i
@@ -136,7 +138,7 @@ export function geruestSignals(text: string, empfaengerName: string): GeruestSig
       key: 'gruss',
       ok: grussOk,
       labelDe: 'Grußformel',
-      hintDe: `Eine feste Grußformel ohne Komma oder Punkt danach, z. B. „${GRUSS_FORMELN[0]}".`
+      hintDe: 'Eine feste Grußformel ohne Komma oder Punkt danach, z. B. „Mit freundlichen Grüßen".'
     },
     {
       key: 'name',
