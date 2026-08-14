@@ -29,6 +29,7 @@ import { useSpeechRecognizer } from '../../composables/useSpeechRecognizer'
 import { useSpeechVoice } from '../../composables/useSpeechVoice'
 import { useToast } from '../../composables/useToast'
 import { useSound } from '../../composables/useSound'
+import { useDailyDomainGoal } from '../../composables/useDailyDomainGoal'
 import SentenceResult from './SentenceResult.vue'
 
 const STASH_KEY = 'gt:lastPackedSentenceQuiz'
@@ -37,6 +38,7 @@ const { settings, load: loadSettings } = useSettings()
 const { setPlural } = useNouns()
 const toast = useToast()
 const sound = useSound()
+const dailyGoal = useDailyDomainGoal()
 const recognizer = useSpeechRecognizer('de-DE')
 const voice = useSpeechVoice()
 let chimed = false
@@ -360,6 +362,10 @@ async function submit() {
   outcomes.value.set(i, entry)
   outcomes.value = new Map(outcomes.value)
   phase.value = 'graded'
+  // Daily Fachgebiet goal: every graded Fachgebiet card counts — both
+  // directions, main AND practice rounds (effort, not proficiency). Quiz
+  // HISTORY stays untouched (recordHistoryOnce/saveQuizRun below).
+  if (card.domain) dailyGoal.recordCard()
   nextTick(() => nextBtnRef.value?.focus())
 }
 
