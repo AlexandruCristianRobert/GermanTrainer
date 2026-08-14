@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.20.07'
+export const APP_VERSION = '1.20.08'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.20.08', date: '2026-08-14', kind: 'polish',
+    title: 'Sätze · Tagesziel 100 & echte Verben im Hover',
+    notes: [
+      '<strong>Tagesziel: 100 Fachgebiet-Sätze pro Tag.</strong> Unten rechts sitzt jetzt eine kleine Plakette — <em>Fachgebiete · heute · 57 / 100</em> — auf jeder Seite sichtbar, aber dezent. Jede bewertete Karte mit Fachgebiet zählt, in beiden Richtungen und auch in Übungsrunden. Um Mitternacht (Ortszeit) beginnt der Zähler neu; bei 100 wird er grün mit Haken, und ein Klick führt direkt zur Satz-Einrichtung.',
+      '<strong>Der Wort-Hover zeigt jetzt das Verb, das wirklich im Satz steht.</strong> Die Kartenprüfung kontrollierte Präpositionen, da-Komposita und Konnektoren — aber nie die Verben: schrieb die KI ein Synonym, zeigte der Hover trotzdem das bestellte Verb. Jetzt wird jede Karte verworfen, deren Deutsch das geforderte Verb in keiner Form enthält (konjugiert, Partizip, getrennte Vorsilbe wie <em>hört … zu</em>), und der Hover nennt zusätzlich die tatsächliche Form im Satz: <em>im Text: hat geholfen</em>.'
+    ]
+  },
   {
     version: '1.20.07', date: '2026-08-14', kind: 'polish',
     title: 'Dativ · Zwillingspaare 500 & Freier Dativ erklärt',
