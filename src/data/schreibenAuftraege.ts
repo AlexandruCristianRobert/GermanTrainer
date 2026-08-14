@@ -92,7 +92,7 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
     ]),
   A('wa-kurs-fehlen', 'Fehlen im Deutschkurs', 'entschuldigung',
     'Herr Roth', 'Ihr Kursleiter',
-    'Sie besuchen einen Abendkurs Deutsch B2. In der kommenden Woche müssen Sie beruflich verreisen und können an drei Kursabenden nicht teilnehmen.',
+    'Sie besuchen einen Abendkurs Deutsch auf dem Niveau B2. In der kommenden Woche müssen Sie beruflich verreisen und können an drei Kursabenden nicht teilnehmen.',
     'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihren Kursleiter, Herrn Roth, und melden Sie sich für die kommende Woche ab.',
     [
       'Teilen Sie mit, an welchen Abenden Sie fehlen werden, und entschuldigen Sie sich dafür.',
@@ -124,20 +124,20 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
     ]),
   A('wa-urlaub-verschieben', 'Bitte um Urlaubsverschiebung', 'bitte',
     'Frau Steiner', 'Ihre Teamleiterin',
-    'Ihr Urlaub ist für Juli bereits genehmigt. Weil die Hochzeit Ihrer Schwester nun auf den September fällt, möchten Sie zwei Urlaubswochen verschieben.',
+    'Ihr Urlaub ist für Juli bereits genehmigt. Weil die Hochzeit Ihrer Schwester nun in den September fällt, möchten Sie zwei Urlaubswochen verschieben.',
     'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihre Teamleiterin, Frau Steiner, und bitten Sie um eine Änderung Ihrer genehmigten Urlaubszeit.',
     [
       'Beziehen Sie sich auf Ihren bereits genehmigten Urlaub im Juli.',
       'Legen Sie dar, warum Sie die Termine gern tauschen möchten.',
       'Bitten Sie darum, zwei Wochen in den September zu verlegen.',
-      'Zeigen Sie auf, wie Ihre Arbeit während der Abwesenheit verteilt werden kann.'
+      'Zeigen Sie auf, wie Ihre Arbeit während Ihrer Abwesenheit verteilt werden kann.'
     ]),
   A('wa-empfehlung-praktikum', 'Bitte um ein Empfehlungsschreiben', 'bitte',
     'Frau Lang', 'Ihre Dozentin',
     'Sie bewerben sich um ein Praktikum in einem Verlag. Die Bewerbung verlangt eine Empfehlung, und Ihre Dozentin kennt Ihre Arbeiten aus zwei Seminaren.',
     'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihre Dozentin, Frau Lang, und bitten Sie um ein Empfehlungsschreiben für Ihre Bewerbung.',
     [
-      'Erinnern Sie daran, in welchen Seminaren Sie bei Ihrer Dozentin studiert haben.',
+      'Erinnern Sie daran, welche Seminare Sie bei ihr besucht haben.',
       'Beschreiben Sie das Praktikum, für das Sie sich bewerben.',
       'Bitten Sie höflich um das Empfehlungsschreiben und nennen Sie die Bewerbungsfrist.',
       'Bieten Sie an, Ihre Unterlagen und eine Übersicht Ihrer Seminararbeiten zu schicken.'
@@ -169,7 +169,7 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
     'In Ihrem Großraumbüro wird immer häufiger laut telefoniert, und die neuen Besprechungsinseln haben keine Trennwände. Konzentriertes Arbeiten ist kaum noch möglich.',
     'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an den Office-Manager Ihres Hauses, Herrn Fischer.',
     [
-      'Sprechen Sie die zunehmende Lärmbelastung in Ihrem Stockwerk an.',
+      'Sprechen Sie die zunehmende Lärmbelastung im Großraumbüro an.',
       'Beschreiben Sie, wie der Lärm Ihre Arbeit und die Ihrer Kolleginnen und Kollegen stört.',
       'Schlagen Sie Trennwände oder feste Zonen für Telefonate vor.',
       'Bitten Sie um ein kurzes Gespräch vor Ort und um eine Rückmeldung.'
@@ -179,7 +179,7 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
     'Ihr Kursraum in der Sprachschule ist im Winter schlecht geheizt, der Beamer fällt regelmäßig aus, und für zwanzig Teilnehmende stehen nur fünfzehn Stühle bereit.',
     'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an die Leiterin Ihrer Sprachschule, Frau Hoffmann, und weisen Sie auf die Mängel im Kursraum hin.',
     [
-      'Stellen Sie sich als Teilnehmer des Abendkurses vor und nennen Sie Ihr Anliegen.',
+      'Stellen Sie sich als Teilnehmerin oder Teilnehmer des Abendkurses vor und nennen Sie Ihr Anliegen.',
       'Führen Sie die Mängel im Kursraum einzeln auf.',
       'Erklären Sie, warum der Unterricht darunter leidet.',
       'Bitten Sie darum, die Ausstattung bis zum Kursbeginn im Januar zu verbessern.'
@@ -188,10 +188,10 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
   // — Vorschlag & Anregung —
   A('wa-teamausflug', 'Vorschlag für den Teamausflug', 'vorschlag',
     'Frau Neumann', 'Ihre Abteilungsleiterin',
-    'Ihre Abteilungsleiterin hat das Team gebeten, Ideen für den jährlichen Betriebsausflug einzureichen. Sie haben einen Vorschlag, der auch für Kolleginnen und Kollegen mit Kindern passt.',
+    'Ihre Abteilungsleiterin hat das Team gebeten, Ideen für den jährlichen Teamausflug einzureichen. Sie haben einen Vorschlag, der auch für Kolleginnen und Kollegen mit Kindern geeignet ist.',
     'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihre Abteilungsleiterin, Frau Neumann, und stellen Sie Ihren Vorschlag für den Teamausflug vor.',
     [
-      'Beziehen Sie sich auf den Aufruf, Ideen für den Betriebsausflug einzureichen.',
+      'Beziehen Sie sich auf den Aufruf, Ideen für den Teamausflug einzureichen.',
       'Stellen Sie Ihren Vorschlag für das Ziel und den Ablauf des Tages vor.',
       'Begründen Sie, warum Ihr Vorschlag zum Team passt.',
       'Bieten Sie an, bei der Organisation mitzuhelfen.'
@@ -250,7 +250,7 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
     ]),
   A('wa-dank-vertretung', 'Dank für die Vertretung', 'dank',
     'Frau Otto', 'Ihre Kollegin',
-    'Während Ihrer dreiwöchigen Krankheit hat eine Kollegin Ihre Aufgaben zusätzlich zu ihren eigenen übernommen und dabei auch zwei schwierige Kundentermine für Sie geführt.',
+    'Während Ihrer dreiwöchigen Krankheit hat eine Kollegin Ihre Aufgaben zusätzlich zu ihren eigenen übernommen und dabei auch zwei schwierige Kundentermine für Sie wahrgenommen.',
     'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihre Kollegin, Frau Otto, die Sie während Ihrer Krankheit vertreten hat.',
     [
       'Bedanken Sie sich für die Vertretung während Ihrer Abwesenheit.',
@@ -266,7 +266,7 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
       'Bedanken Sie sich für die Zusammenarbeit im abgeschlossenen Projekt.',
       'Heben Sie hervor, was Ihnen an der Organisation der Arbeit gefallen hat.',
       'Nennen Sie, was Sie bei Ihrer eigenen Teilaufgabe gelernt haben.',
-      'Sprechen Sie Ihr Interesse an einer weiteren Zusammenarbeit aus.'
+      'Bekunden Sie Ihr Interesse an einer weiteren Zusammenarbeit.'
     ])
 ]
 
