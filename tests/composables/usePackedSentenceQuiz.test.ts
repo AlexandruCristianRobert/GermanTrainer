@@ -3,7 +3,7 @@ import {
   PACKED_MAX, PACKED_BUDGET, packedTotal, buildPackedSpecs, daCompoundFor, rektShort,
   validatePackedCard, buildPackedGeneratePrompt, buildPackedSegments, connUsed, nounHintText,
   verdictOf, parsePackedGrade, localCheckPackedCard, buildPackedMetaItems, buildPackedGradePrompt,
-  pendingPluralWrites,
+  pendingPluralWrites, verbUsedInGerman, packedHint,
   type PackedPools, type PackedCounts, type PackedCardSpec, type PackedItemSpec, type PackedSpan,
   type GeneratedPackedCard, type PackedItemResult
 } from '../../src/composables/usePackedSentenceQuiz'
@@ -264,6 +264,74 @@ describe('validatePackedCard', () => {
   })
 })
 
+describe('verbUsedInGerman', () => {
+  test('Präteritum-stem inflections match when no full table exists (weak plural via bare -n)', () => {
+    expect(verbUsedInGerman('warten', 'Wir warteten gestern lange auf den Bus.')).toBe(true)
+  })
+  test('separable zu-infinitive and joined Präteritum forms match', () => {
+    expect(verbUsedInGerman('aufstehen', 'Ich versuche, jeden Tag früh aufzustehen.')).toBe(true)
+    expect(verbUsedInGerman('aufstehen', 'Als ich aufstand, war es noch dunkel.')).toBe(true)
+  })
+  test('a synonym is not the verb', () => {
+    expect(verbUsedInGerman('helfen', 'Ich unterstütze dich bei dem Projekt.')).toBe(false)
+  })
+  test('an unknown verb always passes — never reject on missing data', () => {
+    expect(verbUsedInGerman('flambieren', 'Hier steht gar nichts Passendes.')).toBe(true)
+  })
+})
+
+describe('validatePackedCard — verb-presence gate', () => {
+  function verbSpec(german: string): PackedCardSpec {
+    return { index: 0, items: [{ key: 'v1', cat: 'verb', verb: { german, english: 'x', level: 'A1', case: 'none' } }] }
+  }
+  function raw(german: string) {
+    return { index: 0, english: 'An English sentence long enough.', german, sentenceCount: 1, spans: [{ key: 'v1', en: 'English' }] }
+  }
+
+  test('rejects a card whose German uses a synonym instead of the drilled verb', () => {
+    expect(validatePackedCard(raw('Ich unterstütze dich morgen bei dem Umzug.'), verbSpec('helfen'))).toBeNull()
+  })
+  test('accepts a plain conjugated form', () => {
+    expect(validatePackedCard(raw('Er hilft mir jeden Tag im Büro.'), verbSpec('helfen'))).not.toBeNull()
+  })
+  test('accepts the Perfekt (aux + Partizip II)', () => {
+    expect(validatePackedCard(raw('Er hat mir gestern bei dem Umzug geholfen.'), verbSpec('helfen'))).not.toBeNull()
+  })
+  test('accepts a separable verb split across the clause ("hört … zu")', () => {
+    expect(validatePackedCard(raw('Er hört mir bei dem Vortrag genau zu.'), verbSpec('zuhören'))).not.toBeNull()
+  })
+  test('accepts a separable verb joined in a subordinate clause ("zuhört")', () => {
+    expect(validatePackedCard(raw('Ich weiß, dass er mir immer zuhört.'), verbSpec('zuhören'))).not.toBeNull()
+  })
+  test('accepts würde + infinitive', () => {
+    expect(validatePackedCard(raw('Er würde mir helfen, wenn er Zeit hätte.'), verbSpec('helfen'))).not.toBeNull()
+  })
+})
+
+describe('validatePackedCard — deUsed pass-through', () => {
+  function withDeUsed(deUsed: string) {
+    return { ...GOOD_RAW, spans: GOOD_RAW.spans.map(s => (s.key === 'v1' ? { ...s, deUsed } : s)) }
+  }
+
+  test('keeps deUsed when its token appears as a whole word in the German', () => {
+    const v = validatePackedCard(withDeUsed('wartet'), SPEC)!
+    expect(v.spans.find(s => s.key === 'v1')!.deUsed).toBe('wartet')
+  })
+  test('keeps a multi-token deUsed when every token appears', () => {
+    const v = validatePackedCard(withDeUsed('warte auch'), SPEC)!
+    expect(v.spans.find(s => s.key === 'v1')!.deUsed).toBe('warte auch')
+  })
+  test('strips deUsed whose token is missing from the German — card itself survives', () => {
+    const v = validatePackedCard(withDeUsed('hilft'), SPEC)
+    expect(v).not.toBeNull()
+    expect('deUsed' in v!.spans.find(s => s.key === 'v1')!).toBe(false)
+  })
+  test('strips deUsed matching only a substring, not a whole word ("wart" vs "wartet")', () => {
+    const v = validatePackedCard(withDeUsed('wart'), SPEC)!
+    expect('deUsed' in v.spans.find(s => s.key === 'v1')!).toBe(false)
+  })
+})
+
 describe('buildPackedGeneratePrompt', () => {
   test('lists every item with its key, Rektion, da-compound and behavior', () => {
     const p = buildPackedGeneratePrompt([SPEC], 'B1/B2', { angles: ['set it at the office'], seed: 'abc' })
@@ -387,6 +455,33 @@ describe('buildPackedSegments', () => {
     const withExtras: GeneratedPackedCard = { ...card, extras: [{ en: 'colleague', de: 'der Kollege', kind: 'noun' }] }
     const segs = buildPackedSegments(withExtras.english, withExtras)
     expect(segs.map(s => s.text).join('')).toBe(card.english)
+  })
+})
+
+describe('verb hover hint — exact surface form (deUsed)', () => {
+  const base: GeneratedPackedCard = { ...SPEC, ...GOOD_RAW, sents: 1, spans: GOOD_RAW.spans }
+
+  test('a verb span with deUsed carries the muted "im Text:" note', () => {
+    const card: GeneratedPackedCard = {
+      ...base,
+      spans: base.spans.map(s => (s.key === 'v1' ? { ...s, deUsed: 'wartet' } : s))
+    }
+    const segs = buildPackedSegments(card.english, card)
+    expect(segs.find(s => s.item?.key === 'v1')!.item!.hint)
+      .toEqual([{ text: 'warten + Akk', note: 'im Text: wartet' }])
+  })
+  test('without deUsed the hint keeps its current shape — no note', () => {
+    const segs = buildPackedSegments(base.english, base)
+    expect(segs.find(s => s.item?.key === 'v1')!.item!.hint).toEqual([{ text: 'warten + Akk' }])
+  })
+  test('no note when deUsed equals the dictionary form shown', () => {
+    expect(packedHint(SPEC.items[0], undefined, 'warten')).toEqual([{ text: 'warten + Akk' }])
+    // Case-insensitive: capitalization alone is not a different form.
+    expect(packedHint(SPEC.items[0], undefined, 'Warten')).toEqual([{ text: 'warten + Akk' }])
+  })
+  test('deUsed never leaks onto non-verb hints', () => {
+    expect(packedHint(SPEC.items[1], 'Berichte', 'wartet'))
+      .toEqual([{ text: 'der Bericht – die Berichte (der Berichte)' }])
   })
 })
 
