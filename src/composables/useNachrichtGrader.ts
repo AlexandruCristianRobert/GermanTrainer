@@ -317,23 +317,29 @@ export function validateNachrichtGrade(
   // scorable mistake (ADR-0020). Each entry keeps an internal `spanEnd` for
   // the Aufwertung-overlap check below, which never reaches the returned
   // `NachrichtMistake` (that type carries `spanStart` only).
-  const mistakesInternal = (r.mistakes as Array<Record<string, unknown>>).flatMap(m => {
-    if (typeof m.quote !== 'string' || m.quote.trim().length === 0) return []
-    if (typeof m.suggested !== 'string') return []
-    if (typeof m.kind !== 'string' || !ERROR_TAGS.includes(m.kind)) return []
-    if (typeof m.reasonDe !== 'string' || typeof m.reasonEn !== 'string') return []
-    const anchored = reAnchor(m.quote, n.textDe)
-    if (anchored.spanStart < 0) return []
-    return [{
-      quote: m.quote,
-      suggested: m.suggested,
-      kind: m.kind as SprechenErrorTag,
-      reasonDe: m.reasonDe,
-      reasonEn: m.reasonEn,
-      spanStart: anchored.spanStart,
-      spanEnd: anchored.spanEnd
-    }]
-  })
+  //
+  // Non-object entries are filtered out FIRST — same guard as the aufwertungen
+  // branch below. A stray `null` in the array must drop, not throw: callers of
+  // the exported validator get no retry loop to hide a TypeError behind.
+  const mistakesInternal = (r.mistakes as unknown[])
+    .filter((x): x is Record<string, unknown> => !!x && typeof x === 'object')
+    .flatMap(m => {
+      if (typeof m.quote !== 'string' || m.quote.trim().length === 0) return []
+      if (typeof m.suggested !== 'string') return []
+      if (typeof m.kind !== 'string' || !ERROR_TAGS.includes(m.kind)) return []
+      if (typeof m.reasonDe !== 'string' || typeof m.reasonEn !== 'string') return []
+      const anchored = reAnchor(m.quote, n.textDe)
+      if (anchored.spanStart < 0) return []
+      return [{
+        quote: m.quote,
+        suggested: m.suggested,
+        kind: m.kind as SprechenErrorTag,
+        reasonDe: m.reasonDe,
+        reasonEn: m.reasonEn,
+        spanStart: anchored.spanStart,
+        spanEnd: anchored.spanEnd
+      }]
+    })
 
   const mistakes: NachrichtMistake[] = mistakesInternal.map(m => ({
     quote: m.quote,

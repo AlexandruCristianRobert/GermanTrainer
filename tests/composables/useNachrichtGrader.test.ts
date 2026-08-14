@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import { validateNachrichtGrade, buildNachrichtGraderPrompt } from '../../src/composables/useNachrichtGrader'
-import type { SchreibenNachricht } from '../../src/data/schreibenNachricht'
+import { NACHRICHT_MIN_WORDS, type SchreibenNachricht } from '../../src/data/schreibenNachricht'
 
 const NACHRICHT =
   'Betreff: Absage der Besprechung am Freitag\n\n' +
@@ -59,7 +59,7 @@ function mkRaw() {
     mistakes: [
       { quote: 'das Termin', suggested: 'der Termin', kind: 'grammar', reasonDe: 'Der Termin ist maskulin.', reasonEn: 'Termin is masculine.' }
     ],
-    aufwertungen: [], strengths: [{ de: 'Höflicher Ton.', en: 'Polite tone.' }],
+    aufwertungen: [] as any[], strengths: [{ de: 'Höflicher Ton.', en: 'Polite tone.' }],
     weaknesses: [{ de: 'Wenig Variation.', en: 'Little variation.' }],
     overallDe: 'Solide.', overallEn: 'Solid.'
   }
@@ -100,6 +100,28 @@ describe('validateNachrichtGrade', () => {
     raw.mistakes[0].kind = 'spelling'
     expect(validateNachrichtGrade(raw, mkNachricht())!.mistakes[0].kind).toBe('spelling')
   })
+  test('non-object entries in mistakes drop instead of throwing', () => {
+    const raw = mkRaw()
+    raw.mistakes.push(null as any)
+    expect(validateNachrichtGrade(raw, mkNachricht())!.mistakes.length).toBe(1)
+  })
+  test('more than 5 mistakes tightens the Aufwertung cap to 2', () => {
+    const raw = mkRaw()
+    const mistake = (quote: string) =>
+      ({ quote, suggested: 'x', kind: 'grammar', reasonDe: 'x', reasonEn: 'x' } as any)
+    raw.mistakes.push(
+      mistake('vielen Dank'), mistake('Leider muss ich'), mistake('unbedingt nachholen'),
+      mistake('Montagmorgen'), mistake('Protokoll')
+    )
+    const aufwertung = (quote: string) =>
+      ({ quote, better: 'x', whyDe: 'x', whyEn: 'x' } as any)
+    raw.aufwertungen.push(
+      aufwertung('Wäre es möglich'), aufwertung('Für Ihr Verständnis'), aufwertung('Mit freundlichen Grüßen')
+    )
+    const r = validateNachrichtGrade(raw, mkNachricht())!
+    expect(r.mistakes.length).toBe(6)
+    expect(r.aufwertungen.length).toBe(2)
+  })
   test('register mistakes are accepted (du/Sie-Brüche are the Teil-2 signature error)', () => {
     const raw = mkRaw()
     raw.mistakes[0].kind = 'register'
@@ -121,6 +143,11 @@ describe('buildNachrichtGraderPrompt', () => {
       expect(user).toContain(punkt)
     }
     expect(user).toContain(NACHRICHT.slice(0, 40))
+    // UMFANG: the count is computed in the builder, never left to the model,
+    // and only `erfuellung` may be docked below the floor.
+    expect(user).toContain('111 Wörter')
+    expect(user).toContain(`Nur unter ${NACHRICHT_MIN_WORDS} Wörtern`)
+    expect(user).toContain('erfuellung')
     expect(system).toContain('mindestens 100')
     expect(system).toContain('"criteria"')
     expect(system).toContain('register')
