@@ -279,47 +279,51 @@ The subject a [Vortrag] treats, together with the task-sheet instruction that fr
 _Avoid_: Topic (that is the Teil 2 concept), Thema (ambiguous across parts), prompt, task
 
 **Correction tag**:
-A classification the post-grading analysis assigns to each marked mistake in a learner's own German — in a [Discussion], a [Vortrag] or a [Forumsbeitrag] — naming *what* went wrong. One of: `grammar` (case, conjugation, endings, agreement), `word-order` (verb-second, verb-final, separable-prefix placement), `vocabulary` (wrong word, false friend, broken collocation), `spelling`, `register` (du/Sie slips, tone). Unlike [Error tag] and [Verb error tag], exactly one kind per marked mistake — each annotation is a single span with a single explanation. `spelling` is never assigned in a `spoken` [Modality]: the spelling there is the speech recognizer's, not the learner's.
+A classification the post-grading analysis assigns to each marked mistake in a learner's own German — in a [Discussion], a [Vortrag], a [Forumsbeitrag] or a [Nachricht] — naming *what* went wrong. One of: `grammar` (case, conjugation, endings, agreement), `word-order` (verb-second, verb-final, separable-prefix placement), `vocabulary` (wrong word, false friend, broken collocation), `spelling`, `register` (du/Sie slips, tone). Unlike [Error tag] and [Verb error tag], exactly one kind per marked mistake — each annotation is a single span with a single explanation. `spelling` is never assigned in a `spoken` [Modality]: the spelling there is the speech recognizer's, not the learner's.
 _Avoid_: Sprechen error tag (the pre-Schreiben name), mistake type, error category
 
 **Move**:
-The communicative job a Redemittel does, and the group the Sprechen cheatsheet and the in-test hint panel file it under. **Disjoint sets, one per exam part**: in a [Discussion] the six Gesprächszüge — agree, disagree, partially agree, ask back, give an example, summarize (a seventh, stating an opinion, appears in the cheatsheet only); in a [Vortrag] the seven Vortragsfunktionen — open the topic, announce the structure, introduce an aspect, contrast, give evidence, summarize & close, answer a follow-up; in a [Forumsbeitrag] the seven Beitragsfunktionen — take up the topic, state an opinion, justify, give an example, concede the counter-view, suggest an alternative, draw a conclusion. A Move never spans parts, and the sets are never counted together.
+The communicative job a Redemittel does, and the group the Sprechen cheatsheet and the in-test hint panel file it under. **Disjoint sets, one per exam part**: in a [Discussion] the six Gesprächszüge — agree, disagree, partially agree, ask back, give an example, summarize (a seventh, stating an opinion, appears in the cheatsheet only); in a [Vortrag] the seven Vortragsfunktionen — open the topic, announce the structure, introduce an aspect, contrast, give evidence, summarize & close, answer a follow-up; in a [Forumsbeitrag] the seven Beitragsfunktionen — take up the topic, state an opinion, justify, give an example, concede the counter-view, suggest an alternative, draw a conclusion; in a [Nachricht] the eight Nachrichtfunktionen — refer to the occasion, explain the situation, apologize, request politely, express dissatisfaction, propose, thank, close with commitment. A Move never spans parts, and the sets are never counted together. Nachrichtfunktionen alone are **Anlass-aware**: each declares which [Schreibanlass]e it fits — Bezug, Begründung and Abschluss fit every Nachricht, the five occasion-cores map one-to-one onto the Anlässe but may be apt beyond their own (a polite request belongs in almost any Nachricht) — and the [Move nudge] suggests only apt ones, because nudging an apology into a thank-you message would coach the genre wrong.
 _Avoid_: hint category, strategy, tactic chip, section (Vortragsfunktionen outnumber the [Gliederungspunkt]s and do not map one-to-one)
 
 **Vortragsmittel**:
 The Teil 1 phrase bank: 35 stock German phrases for holding a [Vortrag], filed under the seven Vortragsfunktionen (see [Move]). A kind of Redemittel, not a rival concept — so [Redemittel yield] counts them, on their own separate tally, and the cheatsheet gives them their own tab.
 _Avoid_: Redemittel (unqualified, where the Teil 1 bank specifically is meant), presentation phrases, Wendungen
 
+**Nachrichtenmittel**:
+The Schreiben Teil 2 phrase bank: stock written-German phrases for a [Nachricht], filed under the eight Nachrichtfunktionen (see [Move]). A kind of Redemittel, like [Vortragsmittel] and [Schreibmittel] — so [Redemittel yield] counts them on their own separate tally, and the cheatsheet gives them their own surface. Includes the genre's fixed frame: matched Anrede/Grußformel pairs and Konjunktiv-II request forms live here, not in a separate bank.
+_Avoid_: Schreibmittel (Teil 1's bank), Redemittel (unqualified, where the Teil 2 bank specifically is meant), E-Mail-Floskeln, Textbausteine
+
 **Redemittel yield** (de Redemittel-Ausbeute):
-How many distinct Redemittel the learner's own words actually contained, grouped by [Move] — counted locally by text matching, never by AI, and never affecting the score. It measures *use*, not command: a phrase counts whether the learner recalled it, inserted it from the hint panel, or read it aloud from the panel mid-turn. Read at two scopes: the yield *of one [Discussion], [Vortrag] or [Forumsbeitrag]*, visible while it runs and on its result; and the learner's *lifetime* yield, which accumulates across [Run]s and is the basis for suggesting a [Move] they have not reached for. **Counted per phrase bank**: a Discussion's Redemittel, a Vortrag's Vortragsmittel and a Forumsbeitrag's [Schreibmittel] are separate tallies and are never summed, because their [Move] sets are disjoint. The lifetime figure is banked as each [Discussion], [Vortrag] or [Forumsbeitrag] is graded, because the text it was counted from is discarded immediately afterwards and can never be re-counted.
+How many distinct Redemittel the learner's own words actually contained, grouped by [Move] — counted locally by text matching, never by AI, and never affecting the score. It measures *use*, not command: a phrase counts whether the learner recalled it, inserted it from the hint panel, or read it aloud from the panel mid-turn. Read at two scopes: the yield *of one [Discussion], [Vortrag], [Forumsbeitrag] or [Nachricht]*, visible while it runs and on its result; and the learner's *lifetime* yield, which accumulates across [Run]s and is the basis for suggesting a [Move] they have not reached for. **Counted per phrase bank**: a Discussion's Redemittel, a Vortrag's Vortragsmittel, a Forumsbeitrag's [Schreibmittel] and a Nachricht's [Nachrichtenmittel] are separate tallies and are never summed, because their [Move] sets are disjoint. The lifetime figure is banked as each [Discussion], [Vortrag], [Forumsbeitrag] or [Nachricht] is graded, because the text it was counted from is discarded immediately afterwards and can never be re-counted.
 _Avoid_: Redemittel score, phrase coverage, mastery
 
 **Move nudge**:
-A single [Move] the app names to the learner mid-test — *„Diesmal: nachfragen"* in a [Discussion], *„Diesmal: gegenüberstellen"* in a [Vortrag], *„Diesmal: eine Alternative vorschlagen"* in a [Forumsbeitrag] — chosen from the Moves they have not used in this run, preferring the one their lifetime [Redemittel yield] shows they reach for least. Purely a suggestion: it is never validated against, never scored, and carries no obligation — the learner may ignore it and the run proceeds identically. Dismissible for the run, and absent when hints are off. Distinct from a [KI-Tipp], which costs an AI call and suggests *what* to argue; the nudge is free, local, and suggests *how*.
+A single [Move] the app names to the learner mid-test — *„Diesmal: nachfragen"* in a [Discussion], *„Diesmal: gegenüberstellen"* in a [Vortrag], *„Diesmal: eine Alternative vorschlagen"* in a [Forumsbeitrag], *„Diesmal: höflich bitten"* in a [Nachricht] — chosen from the Moves they have not used in this run (in a [Nachricht], only from Moves apt for its [Schreibanlass] — see [Move]), preferring the one their lifetime [Redemittel yield] shows they reach for least. Purely a suggestion: it is never validated against, never scored, and carries no obligation — the learner may ignore it and the run proceeds identically. Dismissible for the run, and absent when hints are off. Distinct from a [KI-Tipp], which costs an AI call and suggests *what* to argue; the nudge is free, local, and suggests *how*.
 _Avoid_: prompt, task, challenge, goal, required move
 
 **KI-Tipp**:
-An on-demand AI-generated suggestion during the learner's turn in a [Discussion] or mid-sitting in a [Forumsbeitrag]: a strategic direction for what to argue next, never ready-made text. Uses are counted and shown with the result, but never affect the score.
+An on-demand AI-generated suggestion during the learner's turn in a [Discussion] or mid-sitting in a [Forumsbeitrag] or a [Nachricht]: a strategic direction for what to argue or write next, never ready-made text. Uses are counted and shown with the result, but never affect the score.
 _Avoid_: AI hint, tip (unqualified)
 
 **Hilfe-Protokoll**:
-The record of which helps the learner reached for during a [Vortrag] or a [Forumsbeitrag] and when — hint-drawer opens, [Move nudge]s shown, Rettungsleinen taken (Vortrag only), [KI-Tipp]s spent — shown with the result as counts against a minute timeline. Purely descriptive: it never affects the score and imposes no obligation. Not kept for a [Discussion].
+The record of which helps the learner reached for during a [Vortrag], a [Forumsbeitrag] or a [Nachricht] and when — hint-drawer opens, [Move nudge]s shown, Rettungsleinen taken (Vortrag only), [KI-Tipp]s spent — shown with the result as counts against a minute timeline. [Radar] and [Gerüst-Check] warnings are not entries: they are pushed at the learner, not reached for. Purely descriptive: it never affects the score and imposes no obligation. Not kept for a [Discussion].
 _Avoid_: help score, usage stats, penalty, crutch count
 
 **Prädikat**:
-The Goethe grade band a graded [Discussion]'s, [Vortrag]'s or [Forumsbeitrag]'s score maps to: *sehr gut* (90+), *gut* (80+), *befriedigend* (70+), *ausreichend* (60+), *nicht bestanden* (below 60).
+The Goethe grade band a graded [Discussion]'s, [Vortrag]'s, [Forumsbeitrag]'s or [Nachricht]'s score maps to: *sehr gut* (90+), *gut* (80+), *befriedigend* (70+), *ausreichend* (60+), *nicht bestanden* (below 60).
 _Avoid_: grade, mark, rating
 
 **Aufwertung**:
-A style upgrade the analysis of a graded [Vortrag] or [Forumsbeitrag] proposes: a stretch of the learner's German that was **not wrong**, together with a more B2-like wording and why it reads better. It carries no [Correction tag], never enters the [Error archive] and is never drilled — an [Archived correction] says "you got this wrong", an Aufwertung says "this was fine and could be better". Kept in full in the [Run]'s summary, because it is the app's advice rather than the learner's own speech.
+A style upgrade the analysis of a graded [Vortrag], [Forumsbeitrag] or [Nachricht] proposes: a stretch of the learner's German that was **not wrong**, together with a more B2-like wording and why it reads better. It carries no [Correction tag], never enters the [Error archive] and is never drilled — an [Archived correction] says "you got this wrong", an Aufwertung says "this was fine and could be better". Kept in full in the [Run]'s summary, because it is the app's advice rather than the learner's own speech.
 _Avoid_: correction, improvement, suggestion, mistake, better version
 
 **Archived correction** (de Korrektur):
-One marked mistake from a graded [Discussion], [Vortrag] or [Forumsbeitrag], kept after the learner's own words are discarded: the wrong wording, the suggested fix, its [Correction tag], and enough of the surrounding sentence to make the fix intelligible. The only part of a [Discussion] or [Vortrag] that outlives it. Corrections from a `spoken` [Modality] are archived on the same terms as typed ones and are not distinguished — a mistake the recognizer invented is archived as readily as one the learner made, which is a known and accepted cost.
+One marked mistake from a graded [Discussion], [Vortrag], [Forumsbeitrag] or [Nachricht], kept after the learner's own words are discarded: the wrong wording, the suggested fix, its [Correction tag], and enough of the surrounding sentence to make the fix intelligible. The only part of a [Discussion] or [Vortrag] that outlives it. Corrections from a `spoken` [Modality] are archived on the same terms as typed ones and are not distinguished — a mistake the recognizer invented is archived as readily as one the learner made, which is a known and accepted cost.
 _Avoid_: mistake (that is the in-Discussion marking), error record, flashcard
 
 **Error archive** (de Fehlerarchiv):
-The learner's whole standing collection of [Archived correction]s — from Sprechen and Schreiben alike — grouped by [Correction tag] so that repetition becomes visible, and filterable by module and part. Cold storage: never read while a [Discussion], [Vortrag] or [Forumsbeitrag] runs, only when the learner opens it or a [Correction drill]. [Aufwertung]s are deliberately not in it.
+The learner's whole standing collection of [Archived correction]s — from Sprechen and Schreiben alike — grouped by [Correction tag] so that repetition becomes visible, and filterable by module and part. Cold storage: never read while a [Discussion], [Vortrag], [Forumsbeitrag] or [Nachricht] runs, only when the learner opens it or a [Correction drill]. [Aufwertung]s are deliberately not in it.
 _Avoid_: mistake history, error log, weak points (that term belongs to the drill modules)
 
 **Correction drill** (de Korrekturdrill):
@@ -341,7 +345,7 @@ One of the four content points printed on a [Schreibthema], all of which a [Foru
 _Avoid_: Gliederungspunkt (fixed and Sprechen's), content point, bullet, requirement
 
 **Schreibplan**:
-The four keywords the learner writes against the [Inhaltspunkt]s while preparing a [Forumsbeitrag], one per point, skippable. Carried into the sitting and matched locally against the live text, so each point can show whether its own planned keyword has been written yet — the Schreiben counterpart of a [Vortragsplan]. Never graded.
+The four keywords the learner writes against the [Inhaltspunkt]s while preparing a [Forumsbeitrag] or a [Nachricht], one per point, skippable. Carried into the sitting and matched locally against the live text, so each point can show whether its own planned keyword has been written yet — the Schreiben counterpart of a [Vortragsplan]. Never graded.
 _Avoid_: outline, Vortragsplan (Sprechen's), notes, checklist
 
 **Schreibmittel**:
@@ -349,10 +353,38 @@ The Schreiben Teil 1 phrase bank: stock written-German phrases for a [Forumsbeit
 _Avoid_: Redemittel (unqualified, where the Schreiben bank specifically is meant), Vortragsmittel (Sprechen Teil 1's bank), Textbausteine, phrase list
 
 **Aufgabenmuster**: One of five recurring shapes the four [Inhaltspunkt]s of a [Schreibthema] take — *Pro & Contra abwägen*, *Meinung + Alternative vorschlagen*, *Eigene Erfahrung als Beleg*, *Gegenmeinung entkräften*, *Maßnahme bewerten & empfehlen*. Every seeded Schreibthema is mapped to its **dominant** Aufgabenmuster (custom themes are not mapped); the mapping is a study lens that picks the right [Mustertext], never a filter, never a grading input.
-_Avoid_: Textsorte (email genres are Teil 2's world), task type, Kategorie, pattern (code-only term)
+_Avoid_: Textsorte, [Schreibanlass] (Teil 2's grouping — occasions, not genres), task type, Kategorie, pattern (code-only term)
 
 **Mustertext**: The annotated model [Forumsbeitrag] for one [Aufgabenmuster]: a hand-authored answer of exam length to one seeded [Schreibthema], marked up in three layers — Konnektoren, [Schreibmittel]-style moves, grammatische Strukturen — where every marked span carries a note explaining why the device works *at that spot*. Read-only teaching material: never graded, never counted in [Redemittel yield], never a [Run].
-_Avoid_: sample essay, Vorlage, Musterlösung (implies the one correct answer), template (that is the skeleton, the paragraph plan beside it)
+_Avoid_: sample essay, Vorlage, Musterlösung (implies the one correct answer), template (that is the skeleton, the paragraph plan beside it), Musternachricht (Teil 2's model text)
+
+**Musternachricht**:
+The annotated model [Nachricht] for one [Schreibanlass]: a hand-authored answer of exam length to one seeded [Schreibauftrag], marked up in **four** layers — Konnektoren, [Nachrichtenmittel]-style moves, grammatische Strukturen, and Höflichkeit (Konjunktiv-II request frames, softeners, Anrede/Gruß conventions — the layer that carries the genre's core skill) — where every marked span carries a note explaining why the device works *at that spot*. Read-only teaching material: never graded, never counted in [Redemittel yield], never a [Run]. Deliberately its own concept beside [Mustertext]: the same teaching mechanism, but its own layer set and its own library surface, because the two genres teach different skills.
+_Avoid_: Mustertext (Teil 1's model Forumsbeitrag), Musterbrief, sample email, Vorlage, Musterlösung
+
+**Nachricht**:
+A Goethe B2 Schreiben Teil 2 writing-practice unit: one [Schreibauftrag], one guided sitting, one grading. The learner writes the halbformelle Nachricht — an e-mail in a work or education setting, Sie-register throughout, with Anrede and Grußformel — in a single continuous take: at least 100 words covering all four of the sheet's [Inhaltspunkt]s, a live word count, an optional soft countdown defaulting to the exam's 25 minutes, and helps on demand. Always typed; [Modality] does not apply. Graded as a whole against the Goethe B2 Schreiben Teil 2 rubric, [Prädikat] included. Resumable while in progress; once graded it is recorded as a [Run] and the text is discarded — what outlives it is the Run's summary, one [Archived correction] per marked mistake, and its [Aufwertung]s. The Teil 2 counterpart of a [Forumsbeitrag].
+_Avoid_: E-Mail (the medium, not the unit), Mitteilung, Brief, message, Teil 2 (the exam part, not one practice unit)
+
+**Schreibauftrag**:
+The task sheet a [Nachricht] answers: a workplace or education situation, the Empfänger the message goes to (name and role — what the Anrede must fit), the exam-style instruction, its own four [Inhaltspunkt]s, and exactly one [Schreibanlass]. Unlike a [Schreibthema] it is not controversial and takes no sides — it is a situational assignment, which is what makes Teil 2 interaction rather than argument. Its own seeded pool and its own AI-generated custom pool, never shared with the Teil 1 pools. Resolves its own **Inhalts-Baukasten** — per-[Schreibanlass] building blocks (plausible Gründe, Lösungs- und Vorschlag-Ideen, Textwortschatz) in place of Teil 1's pro/contra argument bank, because a Nachricht argues nothing — layered like Teil 1's banks: AI-cached per Auftrag, hand-authored for flagship Aufträge, per-Anlass fallback so every Auftrag resolves offline.
+_Avoid_: Schreibthema (Teil 1's task sheet), Thema (there is no side to take), Szenario, Situation (one field of the sheet, not the sheet), Aufgabe (generic)
+
+**Schreibanlass**:
+The communicative occasion a [Schreibauftrag] is written for — why the Nachricht exists — one of five: *Entschuldigung & Absage*, *Bitte & Anfrage*, *Beschwerde & Problem melden*, *Vorschlag & Anregung*, *Dank & Rückmeldung*. Every Schreibauftrag, seeded and custom alike, carries exactly one; it picks the matching [Musternachricht], shows on the sheet as a badge, and Setup can filter the pool by it. The Teil 2 counterpart of the [Aufgabenmuster], but structural where that is a lens: an Auftrag's [Inhaltspunkt]s flow from its Anlass, so the field is authored, generated, and filtered on — though like the Aufgabenmuster it is never a grading input. Deliberately not a Textsorte: Teil 2's Textsorte is constant (always a halbformelle Nachricht); what varies is the occasion.
+_Avoid_: Textsorte (constant across Teil 2), genre, Kategorie, task type, Aufgabenmuster (Teil 1's lens)
+
+**Rahmen-Gerüst**:
+The optional compose scaffold of a [Nachricht]: labeled empty slots — Betreff, Anrede, Text, Gruß & Name — in place of the single free textarea. Nothing is prewritten: every word, the Anrede formula and its comma included, is the learner's own, so the [Gerüst-Check] judges the same things whether the scaffold is on or off. Its own help switch (default on), independent of hints; switched off, the learner writes the whole frame in one free textarea — the exam condition. The word count spans all slots.
+_Avoid_: template, form, E-Mail-Editor, structured editor
+
+**Gerüst-Check**:
+Live dots for a [Nachricht]'s communicative frame, shown beside the [Inhaltspunkt] checklist and governed by the same checklist switch: Betreff vorhanden · Anrede korrekt (fits the [Schreibauftrag]'s Empfänger, comma set) · kleingeschrieben nach der Anrede · Absätze erkennbar · Grußformel · Name darunter. Local text checks, advisory, never a grading input — the frame is graded only by the AI, inside Erfüllung.
+_Avoid_: form validation, Formalia-Check, frame check (English-only), checklist (that is the Inhaltspunkt surface)
+
+**Radar**:
+The live warning helper of a [Nachricht], under its own help switch: the **Du/Sie-Radar** flags du/dich/dein/euch forms and informal markers in what must be a Sie-register text, and the **Höflichkeits-Check** warns when a Bitte- or Beschwerde-[Schreibanlass] text contains no Konjunktiv-II form yet. Push-warnings where the hint drawer is pull-help — it interrupts with "this reads wrong" rather than waiting to be asked, which makes it the least exam-realistic help and is why it has its own switch, separate from the checklist's progress dots. Local checks, free, advisory; its warnings are never [Hilfe-Protokoll] entries.
+_Avoid_: linter, live correction, Fehlerprüfung, register checker (one of its two checks, not the helper)
 
 ### Identity & history
 
