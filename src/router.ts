@@ -206,7 +206,12 @@ export const routes: RouteRecordRaw[] = [
   { path: '/schreiben/teil1', name: 'schreiben-teil1', component: () => import('./modules/schreiben/Teil1Setup.vue') },
   { path: '/schreiben/teil1/prep', name: 'schreiben-teil1-prep', component: () => import('./modules/schreiben/Teil1Prep.vue') },
   { path: '/schreiben/teil1/run', name: 'schreiben-teil1-run', component: () => import('./modules/schreiben/Teil1Runner.vue') },
-  { path: '/schreiben/teil1/result', name: 'schreiben-teil1-result', component: () => import('./modules/schreiben/Teil1Result.vue') }
+  { path: '/schreiben/teil1/result', name: 'schreiben-teil1-result', component: () => import('./modules/schreiben/Teil1Result.vue') },
+  { path: '/schreiben/teil2', name: 'schreiben-teil2', component: () => import('./modules/schreiben/Teil2Setup.vue') },
+  { path: '/schreiben/teil2/prep', name: 'schreiben-teil2-prep', component: () => import('./modules/schreiben/Teil2Prep.vue') },
+  { path: '/schreiben/teil2/run', name: 'schreiben-teil2-run', component: () => import('./modules/schreiben/Teil2Runner.vue') },
+  { path: '/schreiben/teil2/result', name: 'schreiben-teil2-result', component: () => import('./modules/schreiben/Teil2Result.vue') },
+  { path: '/schreiben/muster-teil2', name: 'schreiben-muster-teil2', component: () => import('./modules/schreiben/NachrichtMusterView.vue') }
 ]
 
 export const router = createRouter({
