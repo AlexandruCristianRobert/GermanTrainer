@@ -84,11 +84,16 @@ const P = (
 ): Nachrichtenmittel => ({ id, move, phraseDe, noteEn, needle })
 
 export const SCHREIBEN_NACHRICHTENMITTEL: Nachrichtenmittel[] = [
+  // The Bezug phrases open the line directly after the Anrede's comma, so they
+  // start lowercase — the rule the `rahmen` Tipp teaches. Exception, and not an
+  // oversight: nm-bezug-4 begins with the Höflichkeitsform "Sie", which is
+  // capitalized everywhere, sentence-initial included. Needles are unaffected
+  // either way — normalize() lowercases before slicing.
   P('nm-bezug-1', 'bezug', 'ich wende mich an Sie, weil …', 'names why you are writing, right after the Anrede'),
-  P('nm-bezug-2', 'bezug', 'Ich beziehe mich auf Ihre Nachricht vom …', 'links back to the message you are answering'),
-  P('nm-bezug-3', 'bezug', 'Wie Sie bereits wissen, …', 'builds on what the recipient already knows'),
+  P('nm-bezug-2', 'bezug', 'ich beziehe mich auf Ihre Nachricht vom …', 'links back to the message you are answering'),
+  P('nm-bezug-3', 'bezug', 'wie Sie bereits wissen, …', 'builds on what the recipient already knows'),
   P('nm-bezug-4', 'bezug', 'Sie hatten mich gebeten, …', 'recalls a request the recipient made earlier'),
-  P('nm-bezug-5', 'bezug', 'Der Anlass meiner Nachricht ist folgender: …', 'announces the occasion before any detail'),
+  P('nm-bezug-5', 'bezug', 'der Anlass meiner Nachricht ist folgender: …', 'announces the occasion before any detail'),
 
   P('nm-situation-1', 'situation', 'Der Grund dafür ist, dass …', 'introduces the explanation'),
   P('nm-situation-2', 'situation', 'Die Situation ist folgende: …', 'opens a short account of the circumstances'),
@@ -152,6 +157,6 @@ export interface RahmenPaar {
 export const RAHMEN_PAARE: RahmenPaar[] = [
   { id: 'rp-1', anredeDe: 'Sehr geehrte Frau …, / Sehr geehrter Herr …,', grussDe: 'Mit freundlichen Grüßen', noteEn: 'the default formal pair — always safe' },
   { id: 'rp-2', anredeDe: 'Liebe Frau …, / Lieber Herr …,', grussDe: 'Herzliche Grüße', noteEn: 'warm semi-formal — colleagues you know well' },
-  { id: 'rp-3', anredeDe: 'Guten Tag, Frau …,', grussDe: 'Freundliche Grüße', noteEn: 'modern neutral — fine for most workplace mail' },
+  { id: 'rp-3', anredeDe: 'Guten Tag, Frau …,', grussDe: 'Freundliche Grüße', noteEn: 'modern neutral — fine for most workplace messages' },
   { id: 'rp-4', anredeDe: 'Sehr geehrte Damen und Herren,', grussDe: 'Mit freundlichen Grüßen', noteEn: 'when no name is known — not for these tasks, which always name one' }
 ]

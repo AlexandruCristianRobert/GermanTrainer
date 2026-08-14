@@ -99,7 +99,7 @@ export const SCHREIBEN_TEIL2_TIPPS: TippSection[] = [
       { de: 'Nach der Anrede steht ein Komma — und die nächste Zeile beginnt klein: „Sehr geehrte Frau Kling, / vielen Dank für …".' },
       { de: 'Die Grußformel steht allein auf ihrer Zeile und bekommt kein Komma und keinen Punkt.' },
       { de: 'Der Betreff ist kein Satz: drei bis sechs Wörter, die das Anliegen nennen („Absage der Besprechung am Freitag").' },
-      { de: 'Anrede und Grußformel gehören zusammen: „Sehr geehrte Frau …" verlangt „Mit freundlichen Grüßen", „Liebe Frau …" verträgt „Herzliche Grüße".' }
+      { de: 'Anrede und Grußformel gehören zusammen: „Sehr geehrte Frau …" verlangt „Mit freundlichen Grüßen", „Liebe Frau …" passt zu „Herzliche Grüße".' }
     ]
   },
   {
@@ -127,11 +127,11 @@ export const SCHREIBEN_TEIL2_TIPPS: TippSection[] = [
     id: 'hoeflichkeit',
     titleDe: 'Höflichkeit und Register',
     items: [
-      { de: 'Jede Bitte im Konjunktiv II: „Könnten Sie …", „Wäre es möglich, dass …", „Ich wäre Ihnen dankbar, wenn …" — der Indikativ klingt fordernd.', en: 'Konjunktiv II is the politeness engine.' },
+      { de: 'Jede Bitte im Konjunktiv II: „Könnten Sie …", „Wäre es möglich, dass …", „Ich wäre Ihnen sehr dankbar, wenn …" — der Indikativ klingt fordernd.', en: 'Konjunktiv II is the politeness engine.' },
       { de: 'Weichmacher einbauen: leider, gern, eventuell, vielleicht — sie nehmen einer Absage oder Beschwerde die Schärfe, ohne die Aussage zu verwässern.' },
-      { de: 'Kein Imperativ an Vorgesetzte: aus „Schicken Sie mir die Unterlagen" wird „Könnten Sie mir die Unterlagen bitte schicken?".' },
+      { de: 'Kein Imperativ an Vorgesetzte: aus „Schicken Sie mir die Unterlagen" wird „Könnten Sie mir die Unterlagen bitte schicken?"' },
       { de: 'Auch eine Beschwerde bleibt sachlich: beschreibe die Folgen („dadurch entstehen längere Wartezeiten") statt Vorwürfe zu erheben („Sie haben das vergessen").' },
-      { de: 'Der Abschluss ist verbindlich, nicht unterwürfig: um eine Rückmeldung bitten oder den nächsten Schritt zusagen — nicht ein zweites Mal entschuldigen.' }
+      { de: 'Der Abschluss ist verbindlich, nicht unterwürfig: um eine Rückmeldung bitten oder den nächsten Schritt zusagen — und sich nicht ein zweites Mal entschuldigen.' }
     ]
   },
   {
@@ -139,7 +139,7 @@ export const SCHREIBEN_TEIL2_TIPPS: TippSection[] = [
     titleDe: 'Typische Fehlerquellen',
     items: [
       { de: 'du/Sie-Mischung: Eine halbformelle Nachricht ist durchgehend Sie — ein einziges „dein" bricht das Register des ganzen Textes.', en: 'One du-form breaks the whole register.' },
-      { de: 'Sie, Ihnen, Ihr und Ihre schreibt man in der Anrede groß; das „ich" nach dem Komma der Anrede dagegen klein.' },
+      { de: 'Die Höflichkeitsform Sie, Ihnen, Ihr und Ihre schreibt man im ganzen Text groß; das „ich" nach dem Komma der Anrede dagegen klein.' },
       { de: 'Das Komma nach der Anrede ist Pflicht — ein Ausrufezeichen dort ist veraltet, und ein Doppelpunkt ist Englisch.' },
       { de: 'Abkürzungen wie LG, MfG oder VG und Smileys gehören nicht in eine Prüfungsnachricht: die Grußformel wird immer ausgeschrieben.' },
       { de: 'Der Betreff fehlt häufiger als jeder andere Baustein — und er ist das Erste, was der Prüfer sucht.' }
@@ -150,10 +150,10 @@ export const SCHREIBEN_TEIL2_TIPPS: TippSection[] = [
     titleDe: 'Die vier Bewertungskriterien',
     items: [
       { de: 'Vier Kriterien zu je 25 Punkten — Erfüllung/Inhalt, Kohärenz & Textaufbau, Wortschatz & Register, Strukturen — macht 100 Punkte, bestanden ab 60.', en: 'Four criteria, 25 points each, pass at 60.' },
-      { de: 'Erfüllung/Inhalt belohnt alle vier Inhaltspunkte mit je einem eigenen Gedanken — und den erkennbaren Nachrichtenrahmen: Betreff, Anrede, Grußformel mit Namen.' },
+      { de: 'Erfüllung/Inhalt belohnt, dass alle vier Inhaltspunkte mit je einem eigenen Gedanken behandelt werden — und dass der Nachrichtenrahmen erkennbar ist: Betreff, Anrede, Grußformel mit Namen.' },
       { de: 'Kohärenz & Textaufbau belohnt den Bogen von Bezug über Situation und Anliegen bis zum verbindlichen Abschluss, verbunden mit deshalb, daher, dennoch, außerdem.' },
       { de: 'Wortschatz & Register belohnt durchgehendes Sie und die Wendungen des Bittens, Entschuldigens und Vorschlagens — Registerbrüche kosten hier am meisten.' },
-      { de: 'Strukturen belohnt Konjunktiv II für höfliche Bitten, Nebensätze, indirekte Fragen und die Kommas um Anrede und Einschübe.' }
+      { de: 'Strukturen belohnt Konjunktiv II für höfliche Bitten, Nebensätze, indirekte Fragen, das Komma nach der Anrede und die Kommas um Einschübe.' }
     ]
   }
 ]
