@@ -121,6 +121,32 @@ function start() {
       </div>
     </div>
 
+    <!-- The drill is opaque without the drop test — spell out both card kinds and
+         the three readings right where the Aufgabe chips are chosen. -->
+    <div class="alert alert-info fd-explainer">
+      <span class="alert-label">How it works</span>
+      <p>
+        A <strong>free dative</strong> is an extra dative the verb never asked for. The test:
+        delete it, and the sentence still stands — „Ich trage <em>dir</em> den Koffer“ works
+        without <em>dir</em>. A dative <em>verb’s</em> object can’t do that: „Der Koffer gehört“
+        collapses without its dative. Every card shows a sentence, quotes one dative phrase,
+        and asks about exactly that phrase.
+      </p>
+      <p>
+        <strong>Weglassbar?</strong> — Delete the quoted phrase in your head. Sentence still
+        complete → answer <em>weglassbar</em> (a free dative). Sentence breaks →
+        <em>obligatorisch</em> (the verb’s own object).
+      </p>
+      <p>
+        <strong>Welche Lesart?</strong> — Here the quoted dative is already a free one; name
+        which of the three readings it has:
+        <em>Vorteil (commodi)</em> = for whose benefit it happens („Ich trage dir den Koffer“ ≈ für dich) ·
+        <em>Besitz (possessivus)</em> = whose body part or belonging („Wasch dir die Hände“ = deine Hände) ·
+        <em>Anteilnahme (ethicus)</em> = only the speaker’s emotional stake, almost always
+        mir/dir („Werd mir bloß nicht krank!“).
+      </p>
+    </div>
+
     <div class="field">
       <div class="field-label">Number of cards</div>
       <div class="field-row count-row">
@@ -152,3 +178,8 @@ function start() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.fd-explainer p { margin: 0 0 8px; }
+.fd-explainer p:last-child { margin-bottom: 0; }
+</style>

@@ -10,5 +10,6 @@ coverage
 !.vscode/extensions.json
 *.log
 *.tsbuildinfo
+.playwright-mcp/
 
 .claude/settings.local.json

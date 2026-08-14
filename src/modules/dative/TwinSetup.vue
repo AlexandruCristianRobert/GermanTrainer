@@ -10,9 +10,8 @@ const router = useRouter()
 
 const PAIR_IDS = TWIN_PAIRS.map(p => p.pairId)
 
-// The bank is B1/B2 only (see dativeTwins.ts) — A2/C1 chips exist for
-// forward-compatibility with future items but start unselected.
-const levels = ref<DativeDrillLevel[]>(['B1', 'B2'])
+// The bank spans A2–C1 (see dativeTwins.ts), so every level chip starts selected.
+const levels = ref<DativeDrillLevel[]>([...DATIVE_DRILL_LEVELS])
 const pairs = ref<string[]>([...PAIR_IDS])
 
 type CountPreset = 10 | 15 | 20 | 'all'
