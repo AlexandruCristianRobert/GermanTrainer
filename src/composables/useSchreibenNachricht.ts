@@ -81,11 +81,11 @@ export async function logNachrichtHelp(id: string, kind: HelpKind, at = Date.now
   }
 }
 
-export async function incrementNachrichtKiTipp(id: string): Promise<void> {
+export async function incrementNachrichtKiTipp(id: string, tipText: string): Promise<void> {
   await db.transaction('rw', db.schreibenNachrichten, async () => {
     const row = await db.schreibenNachrichten.get(id)
     if (!row) throw new Error(`Nachricht ${id} not found`)
-    await db.schreibenNachrichten.update(id, { kiTippCount: row.kiTippCount + 1 })
+    await db.schreibenNachrichten.update(id, { kiTippCount: row.kiTippCount + 1, kiTippText: tipText })
   })
 }
 
