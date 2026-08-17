@@ -159,6 +159,7 @@ export function validateGeneratedAuftrag(
     const p = item.trim()
     if (p.length < 15 || p.length > 140) return null
     if (p.includes('?')) return null
+    if (!p.endsWith('.')) return null
     inhaltspunkte.push(p)
   }
   if (new Set(inhaltspunkte).size !== inhaltspunkte.length) return null
@@ -193,11 +194,14 @@ export function buildAuftragGeneratorPrompt(
     `- "taskDe": beginnt IMMER exakt mit "${NACHRICHT_TASK_PREFIX}" und nennt ` +
     'ausdrücklich "mindestens 100 Wörter" sowie den Nachnamen des ' +
     'Empfängers — niemals als Frage formuliert, niemals mit einem ' +
-    'Fragezeichen.\n' +
+    'Fragezeichen — nennt dabei zuerst die Rolle und dann den Namen, nach ' +
+    'dem Muster "… an Ihre Teamleiterin, Frau Steiner."\n' +
     '- "inhaltspunkte": genau vier situationsbezogene Punkte nach diesem ' +
     'Muster: (1) Bezug auf die Situation nehmen und das Anliegen nennen, ' +
     '(2) den Grund erklären, (3) eine Bitte, einen Vorschlag oder eine ' +
-    'Forderung äußern, (4) einen Ausblick geben oder um Rückmeldung bitten.\n' +
+    'Forderung äußern, (4) einen Ausblick geben oder um Rückmeldung bitten. ' +
+    'Jeder Punkt ist ein vollständiger Imperativsatz mit "Sie" und endet ' +
+    'mit einem Punkt.\n' +
     '- "anlass": exakt einer der Werte ' +
     `${SCHREIB_ANLAESSE.map(a => `"${a}"`).join(', ')} — pro Auftrag ein ` +
     'anderer, sodass alle fünf Anlässe genau einmal vorkommen.\n' +

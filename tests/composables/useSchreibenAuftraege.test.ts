@@ -27,6 +27,10 @@ describe('validateGeneratedAuftrag', () => {
     expect(validateGeneratedAuftrag({ ...good, inhaltspunkte: good.inhaltspunkte.slice(0, 3) })).toBeNull()
     expect(validateGeneratedAuftrag({ ...good, empfaengerName: 'Kling' })).toBeNull()
   })
+  test('rejects an Inhaltspunkt without a trailing period', () => {
+    const raw = { ...good, inhaltspunkte: [...good.inhaltspunkte.slice(0, 3), 'Bitten Sie um eine Antwort'] }
+    expect(validateGeneratedAuftrag(raw)).toBeNull()
+  })
 })
 
 describe('buildAuftragGeneratorPrompt', () => {
@@ -38,6 +42,11 @@ describe('buildAuftragGeneratorPrompt', () => {
     expect(p).toContain('mindestens 100 Wörter')
     expect(p).toContain('genau vier')
     for (const a of ['entschuldigung', 'bitte', 'beschwerde', 'vorschlag', 'dank']) expect(p).toContain(a)
+  })
+  test('prompt names the trailing-period and Rolle-then-Name rules', () => {
+    const prompt = buildAuftragGeneratorPrompt([], new Set())
+    expect(prompt).toContain('endet mit einem Punkt')
+    expect(prompt).toContain('zuerst die Rolle')
   })
 })
 
