@@ -55,8 +55,9 @@ function everUsedNm(id: string): boolean {
         <div class="breadcrumb">Spickzettel · Cheatsheet</div>
         <h1 class="section-title">Schreiben<em>.</em></h1>
         <p class="section-subtitle">
-          Ein Schreibmittel pro Beitragsfunktion reicht nicht — such dir für jeden Absatz des
-          Forumsbeitrags das passende aus, statt immer dieselbe Wendung zu wiederholen.
+          Ein Schreibmittel oder Nachrichtenmittel pro Funktion reicht nicht — such dir für jeden
+          Absatz des Forumsbeitrags oder jede Zeile der Nachricht das passende aus, statt immer
+          dieselbe Wendung zu wiederholen.
         </p>
       </div>
       <router-link :to="{ name: 'schreiben' }" class="btn btn-ghost back-link">← Schreiben</router-link>
@@ -160,18 +161,23 @@ function everUsedNm(id: string): boolean {
             <span class="plate-de">Anrede &amp; Grußformel</span>
           </div>
           <div class="plate-b">
-            <table class="mini-table">
-              <thead>
-                <tr><th>Anrede</th><th>Grußformel</th><th>Bedeutung</th></tr>
-              </thead>
-              <tbody>
-                <tr v-for="rp in RAHMEN_PAARE" :key="rp.id">
-                  <td class="t-de">{{ rp.anredeDe }}</td>
-                  <td class="t-de">{{ rp.grussDe }}</td>
-                  <td class="t-it">{{ rp.noteEn }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <!-- Two nowrap .t-de cells plus a note column can outrun the
+                 phone-width .plate (overflow: hidden) — scroll this table
+                 horizontally instead of letting a column go unreachable. -->
+            <div class="rahmen-scroll">
+              <table class="mini-table">
+                <thead>
+                  <tr><th>Anrede</th><th>Grußformel</th><th>Bedeutung</th></tr>
+                </thead>
+                <tbody>
+                  <tr v-for="rp in RAHMEN_PAARE" :key="rp.id">
+                    <td class="t-de">{{ rp.anredeDe }}</td>
+                    <td class="t-de">{{ rp.grussDe }}</td>
+                    <td class="t-it">{{ rp.noteEn }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -264,4 +270,9 @@ function everUsedNm(id: string): boolean {
    .spr-note, which annotates a whole plate, not a single list item). */
 .schr-tipplist { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.6; }
 .schr-tipp-en { font-style: italic; font-size: 13px; color: var(--mute); margin-left: 8px; }
+
+/* The Rahmen table carries two nowrap .t-de columns plus a note column —
+   wider than .plate's phone-width box, which clips overflow: without this,
+   the note column goes unreachable instead of just scrolling into view. */
+.rahmen-scroll { overflow-x: auto; }
 </style>

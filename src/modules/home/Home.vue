@@ -121,7 +121,7 @@ const modules: ModuleCard[] = [
     numeral: 'XIV',
     route: 'schreiben',
     de: 'Goethe B2 · Schreiben',
-    title: 'Forumsbeitrag',
+    title: 'Forumsbeitrag & Nachricht',
     desc: 'Teil 1 der B2-Prüfung trainieren: ein Schreibthema, vier Inhaltspunkte, mindestens 150 Wörter — mit Schreibplan, Redemittel-Drawer und Bewertung nach der offiziellen Rubrik. Teil 2: die halbformelle Nachricht mit Rahmen-Gerüst und Radar.',
     meta: 'Teil 1 & 2 live · AI-graded'
   }

@@ -10,10 +10,13 @@
 //     into four labeled slots (Betreff · Anrede · Text · Gruß & Name) or into
 //     one free textarea — the exam condition. Nothing is ever prewritten: the
 //     Anrede formula and its comma are the learner's own words either way
-//     (CONTEXT.md → Rahmen-Gerüst), which is exactly what lets the Gerüst-Check
-//     judge the same six things in both modes. `fullText` — the assembled
-//     scaffold or the raw draft — is the single source every meter, check,
-//     matcher, save and grade reads. There is no second notion of "the text".
+//     (CONTEXT.md → Rahmen-Gerüst), which lets the Gerüst-Check run the same
+//     six checks in both modes — though `absaetze` is trivially satisfied by
+//     the assembled frame whenever the scaffold is on (betreff/anrede-text/
+//     gruss already join on blank lines); that check truly bites only in
+//     free-text mode. `fullText` — the assembled scaffold or the raw draft —
+//     is the single source every meter, check, matcher, save and grade
+//     reads. There is no second notion of "the text".
 //  2. The GERÜST-CHECK, six live frame dots under the Inhaltspunkt dots, under
 //     the same checklist switch. Local, advisory, never a grading input.
 //  3. The RADAR (own switch): push-warnings for du-Formen, Umgangssprache and
@@ -389,7 +392,10 @@ function insertPhrase(phraseDe: string) {
 function applyRahmenPaar(p: RahmenPaar) {
   if (rahmenOn.value) {
     slots.value.anrede = p.anredeDe
-    slots.value.gruss = p.grussDe
+    // `gruss` is two rows: the Grußformel on the first, the learner's typed
+    // name on the second — never the helper's to overwrite.
+    const tail = slots.value.gruss.split('\n').slice(1).join('\n')
+    slots.value.gruss = tail ? `${p.grussDe}\n${tail}` : p.grussDe
   } else {
     const head = `${p.anredeDe}\n\n`
     insertAtCaret(`${head}${p.grussDe}`, head.length)

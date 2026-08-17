@@ -4,8 +4,9 @@
 // Teil 2 (halbformelle Nachricht) each get their own live panel with their
 // own stats. The shared rows/bands below (cheatsheet, Muster libraries,
 // Fehlerarchiv, Korrekturdrill, Letzte Bewertung, Schreibmittel-Ausbeute)
-// still read off 'schreiben-teil1' Runs and the Schreibmittel bank only —
-// Teil 2's own yield/archive bands are wired in later tasks.
+// read off 'schreiben-teil1' Runs and the Schreibmittel bank only, by
+// design — Teil 2's own stats live in its panel above, not in these
+// shared bands.
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadHistory } from '../../composables/useQuizHistory'
@@ -144,7 +145,7 @@ function metaFor(route: string): string[] {
     <header class="section-header">
       <div>
         <div class="breadcrumb">Kapitel · Goethe B2 · Schreiben</div>
-        <h1 class="section-title">Forumsbeitrag<em>.</em></h1>
+        <h1 class="section-title">Schreiben<em>.</em></h1>
         <p class="section-subtitle">
           Die schriftliche B2-Prüfung, beide Teile: Teil 1 der Forumsbeitrag mit vier
           Inhaltspunkten und mindestens 150 Wörtern, Teil 2 die halbformelle Nachricht mit

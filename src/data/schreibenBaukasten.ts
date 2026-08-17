@@ -14,8 +14,8 @@
 // Three-layer resolution, cheapest-first (mirrors resolveArgumentBank in
 // sprechenArguments.ts):
 //   1. `cached`             — an AI-generated bank already saved for this
-//                             exact Auftrag (Dexie table `schreibenBaukaesten`;
-//                             the caching layer arrives in a later task).
+//                             exact Auftrag (Dexie table `schreibenBaukaesten`,
+//                             read/written by useSchreibenBaukasten.ts).
 //   2. AUFTRAG_BAUKAESTEN   — hand-authored, richer banks for the five
 //                             flagship Aufträge (4 Gründe / 4 Lösungen / 6 words).
 //   3. ANLASS_BAUKAESTEN    — one bank per Schreibanlass (3/3/6) — the
