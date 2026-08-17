@@ -25,11 +25,18 @@ import { ANLASS_LABEL } from '../../data/schreibenAuftraege'
 import { NACHRICHT_MUSTER_TITLE } from '../../data/schreibenMusterNachrichten'
 import type { HelpKind } from '../../data/sprechen'
 import SchrNachrichtYield from '../../components/schreiben/SchrNachrichtYield.vue'
+import { takeNachbessernText } from '../../composables/useNachbessern'
+import NachbessernPanel from '../../components/schreiben/NachbessernPanel.vue'
 
 const router = useRouter()
 const data = ref<NachrichtResultStash | null>(null)
 const error = ref<string | null>(null)
 const lang = ref<'de' | 'en'>('de')
+
+// ADR-0024: consumed exactly once — a reload or revisit finds null and the
+// page degrades to the plain result with no conditional debt.
+const nachbessernText = ref<string | null>(null)
+const nachbessernOpen = ref(false)
 
 const SETUP_KEY = 'schreibenTeil2Setup'
 
@@ -43,12 +50,19 @@ onMounted(() => {
       return
     }
     data.value = JSON.parse(raw) as NachrichtResultStash
+    nachbessernText.value = takeNachbessernText()
     const setup = JSON.parse(localStorage.getItem(SETUP_KEY) ?? '{}') as { lang?: 'de' | 'en' }
     if (setup.lang === 'en' || setup.lang === 'de') lang.value = setup.lang
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Auswertung konnte nicht geladen werden.'
   }
 })
+
+/** Fired by NachbessernPanel's 'done' — the draft dies here (ADR-0024). */
+function finishNachbessern() {
+  nachbessernText.value = null
+  nachbessernOpen.value = false
+}
 
 // Task 12's Setup owns `schreibenTeil2Setup` — the same merge-write
 // discipline as Teil1Result.vue's setLang(): read whatever is already there,
@@ -292,6 +306,17 @@ function openMuster() {
         <div class="spr-mk-l"><span class="spr-mk-k">Warum</span><span class="spr-mk-why">{{ lang === 'de' ? m.reasonDe : m.reasonEn }}</span></div>
       </div>
 
+      <template v-if="mistakes.length > 0 && nachbessernText !== null">
+        <button
+          v-if="!nachbessernOpen" class="btn btn-accent nb-open" type="button"
+          @click="nachbessernOpen = true"
+        >Korrekturen einarbeiten <span aria-hidden="true">→</span></button>
+        <NachbessernPanel
+          v-else :text="nachbessernText" :mistakes="mistakes"
+          @done="finishNachbessern"
+        />
+      </template>
+
       <div v-if="mistakes.length > 0" class="chip-row spr-counts">
         <span v-for="[kind, n] in mistakeCounts" :key="kind" class="chip">{{ KIND_LABEL[kind] ?? kind }} · {{ n }}</span>
       </div>
@@ -325,7 +350,7 @@ function openMuster() {
         <h2 class="spr-block-t">Nachrichtenmittel-Ausbeute</h2>
         <span class="spr-block-n">{{ yieldIds.length }} von {{ SCHREIBEN_NACHRICHTENMITTEL.length }} · lokal gezählt</span>
       </div>
-      <SchrNachrichtYield :used-ids="yieldIds" note="In dieser Nachricht nicht vorgekommen." />
+      <SchrNachrichtYield :used-ids="yieldIds" note="In dieser Nachricht nicht wörtlich verwendet." />
       <div class="chip-row spr-counts">
         <span v-for="r in moveCounts" :key="r.move" class="chip">{{ r.labelDe }} · {{ r.hit }}/{{ r.total }}</span>
       </div>
@@ -404,6 +429,8 @@ function openMuster() {
   font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--mute);
 }
+
+.nb-open { margin-top: 16px; }
 
 .spr-archive-cta { margin-top: 20px; }
 .spr-archive-actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
