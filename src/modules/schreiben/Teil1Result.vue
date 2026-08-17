@@ -295,7 +295,7 @@ function openDrill() { router.push({ name: 'sprechen-drill' }) }
         <h2 class="spr-block-t">Schreibmittel-Ausbeute</h2>
         <span class="spr-block-n">{{ yieldIds.length }} von {{ SCHREIBEN_SCHREIBMITTEL.length }} · lokal gezählt</span>
       </div>
-      <SchrYield :used-ids="yieldIds" note="In diesem Beitrag nicht vorgekommen." />
+      <SchrYield :used-ids="yieldIds" note="In diesem Beitrag nicht wörtlich verwendet." />
       <div class="chip-row spr-counts">
         <span v-for="r in moveCounts" :key="r.move" class="chip">{{ r.labelDe }} · {{ r.hit }}/{{ r.total }}</span>
       </div>

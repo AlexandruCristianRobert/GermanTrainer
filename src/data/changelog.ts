@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.21.00'
+export const APP_VERSION = '1.21.01'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,17 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.21.01', date: '2026-08-17', kind: 'polish',
+    title: 'Schreiben · Teil 2 Review-Runde',
+    notes: [
+      '<strong>Nachbessern: Korrekturen einarbeiten, bevor der Text verschwindet.</strong> Direkt nach der Bewertung öffnet sich die Nachricht auf Wunsch ein letztes Mal — die markierten Fehler daneben, lokale Häkchen zeigen je Korrektur <em>offen</em>, <em>geändert</em> oder <em>behoben</em>, dann wird der Text wie immer verworfen. Nichts wird gespeichert, nichts erneut bewertet; nach einem Reload ist das Angebot weg — mit Absicht.',
+      '<strong>Die Live-Checks sagen jetzt die Wahrheit.</strong> Die Anrede-Prüfung erkennt Herr/Frau samt Endung — <em>„Sehr geehrte Herr Semder,"</em> leuchtet nicht mehr grün —, der Absätze-Punkt schaut in den Haupttext zwischen Anrede und Gruß statt auf den Rahmen, der Höflichkeits-Check meldet sich erst ab 40 Wörtern statt beim leeren Blatt, und mehrwortige Stichwörter leuchten, sobald alle ihre Wörter im Text stehen — die Planung sagt das jetzt ehrlich dazu.',
+      '<strong>Mehr Hilfe im Runner.</strong> Ein dritter Drawer-Tab <em>Wann · Aufbau</em> zeigt den Bauplan des Anlasses in sieben Schritten. Die Anrede-Gruß-Paare fügen sich mit dem echten Empfängernamen ein — <em>„Sehr geehrte Frau Hoffmann,"</em> statt Platzhalter. Zur Prüfzeit erinnert eine dezente Notiz an Inhaltspunkte, Konjunktiv II und die Großschreibung von Sie/Ihnen/Ihr. Und der KI-Tipp überlebt jetzt einen Reload.',
+      '<strong>Jeder eingebaute Auftrag hat seinen eigenen Baukasten.</strong> 15 neue handgeschriebene Ideen-Banken — Gründe, Lösungen und Textwortschatz passgenau zum Szenario, von der Messe in Hannover bis zum Empfehlungsschreiben, statt generischer Anlass-Ideen. KI-generierte Aufträge werden sauberer: Inhaltspunkte enden mit Punkt, die Aufgabenzeile nennt Rolle und Name.',
+      '<strong>Teil 2 ist überall angekommen.</strong> Der Schreiben-Hub zeigt Kriterien-Balken und Nachrichtenmittel-Ausbeute jetzt auch für Teil 2 und mischt beide Teile unter <em>Letzte Bewertungen</em>. Das Fehlerarchiv heißt neutral <em>Fehlerarchiv</em>, zählt die Nachrichten mit und öffnet aus dem Schreiben-Hub vorgefiltert. Der Verlauf nennt bei Prüfungs-Runs den Auftrag statt „100 asked".'
+    ]
+  },
   {
     version: '1.21.00', date: '2026-08-17', kind: 'module',
     title: 'Schreiben · Teil 2 Nachricht',

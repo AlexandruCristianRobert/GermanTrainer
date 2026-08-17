@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import {
   NACHRICHT_MOVES, NACHRICHT_MOVE_LABEL, NACHRICHT_MOVE_ANLAESSE, movesForAnlass,
-  SCHREIBEN_NACHRICHTENMITTEL, nachrichtenmittelForMove, RAHMEN_PAARE
+  SCHREIBEN_NACHRICHTENMITTEL, nachrichtenmittelForMove, RAHMEN_PAARE, resolveRahmenPaar
 } from '../../src/data/schreibenNachrichtenMittel'
 import { SCHREIB_ANLAESSE } from '../../src/data/schreibenAuftraege'
 import { SCHREIBEN_TEIL2_TIPPS } from '../../src/data/schreibenTipps'
@@ -60,6 +60,23 @@ describe('Nachrichtenmittel bank', () => {
       expect(rp.grussDe.trim()).toMatch(/[a-zä]$/i)
       expect(rp.noteEn.trim().length).toBeGreaterThan(0)
     }
+  })
+})
+
+describe('resolveRahmenPaar', () => {
+  const rp1 = RAHMEN_PAARE.find(p => p.id === 'rp-1')!
+  const rp3 = RAHMEN_PAARE.find(p => p.id === 'rp-3')!
+  const rp4 = RAHMEN_PAARE.find(p => p.id === 'rp-4')!
+  it('resolves the template to the actual Empfänger, title-aware', () => {
+    expect(resolveRahmenPaar(rp1, 'Frau Hoffmann').anredeDe).toBe('Sehr geehrte Frau Hoffmann,')
+    expect(resolveRahmenPaar(rp1, 'Herr Semder').anredeDe).toBe('Sehr geehrter Herr Semder,')
+    expect(resolveRahmenPaar(rp3, 'Herr Roth').anredeDe).toBe('Guten Tag, Herr Roth,')
+  })
+  it('leaves the Damen-und-Herren pair untouched', () => {
+    expect(resolveRahmenPaar(rp4, 'Frau Kling').anredeDe).toBe('Sehr geehrte Damen und Herren,')
+  })
+  it('never changes the Grußformel', () => {
+    expect(resolveRahmenPaar(rp1, 'Frau Kling').grussDe).toBe(rp1.grussDe)
   })
 })
 

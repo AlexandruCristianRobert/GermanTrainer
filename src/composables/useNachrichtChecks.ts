@@ -52,6 +52,20 @@ function lastToken(name: string): string {
   return parts[parts.length - 1] ?? ''
 }
 
+// absaetze: the body between Anrede and Gruß must itself break into
+// paragraphs — the assembled scaffold frame alone earns nothing (the old
+// whole-text rule was trivially satisfied there; see the grilled review).
+// While either anchor is missing, fall back to the whole-text rule so a
+// half-written draft is not scolded for a frame it does not have yet.
+function bodyHasParagraphBreak(raw: string, anredeLine: string, grussLine: string): boolean {
+  const phys = raw.split('\n')
+  const aIdx = phys.findIndex(l => l.trim() === anredeLine)
+  const gIdx = phys.findIndex((l, i) => i > aIdx && l.trim() === grussLine)
+  if (aIdx === -1 || gIdx === -1) return false
+  const body = phys.slice(aIdx + 1, gIdx).join('\n')
+  return /\S[^]*?\n[ \t]*\n[^]*?\S/.test(body)
+}
+
 /** Six frame checks against the raw text (works identically on assembled scaffold output). */
 export function geruestSignals(text: string, empfaengerName: string): GeruestSignal[] {
   const lines = nonEmptyLines(text)
@@ -59,14 +73,21 @@ export function geruestSignals(text: string, empfaengerName: string): GeruestSig
   // betreff: among the first two non-empty lines
   const betreffOk = lines.slice(0, 2).some(l => /^betreff\s*:\s*\S{3,}/i.test(l))
 
-  // anrede: among the first five non-empty lines
+  // anrede: among the first five non-empty lines, resolved against the
+  // Empfänger's own title — the six-stem whitelist catches both the wrong
+  // Herr/Frau and the wrong adjective ending (Sehr geehrte Herr …). Not
+  // grammar analysis: a closed class of two formulas × two titles, plus
+  // Guten Tag, which takes no ending.
+  const title = empfaengerName.trim().toLowerCase().startsWith('frau') ? 'Frau' : 'Herr'
+  const stems = title === 'Frau'
+    ? ['sehr geehrte frau', 'liebe frau', 'guten tag frau']
+    : ['sehr geehrter herr', 'lieber herr', 'guten tag herr']
   const surname = lastToken(empfaengerName).toLowerCase()
-  const anredeStarts = ['sehr geehrte', 'liebe', 'guten tag']
   let anredeIdx = -1
   const first5 = lines.slice(0, 5)
   for (let i = 0; i < first5.length; i++) {
-    const lower = first5[i].toLowerCase()
-    const startsOk = anredeStarts.some(s => lower.startsWith(s))
+    const lower = first5[i].toLowerCase().replace(/,/g, ' ').replace(/\s+/g, ' ')
+    const startsOk = stems.some(s => lower.startsWith(s))
     const containsSurname = surname.length > 0 && lower.includes(surname)
     const endsWithComma = first5[i].endsWith(',')
     if (startsOk && containsSurname && endsWithComma) {
@@ -75,6 +96,9 @@ export function geruestSignals(text: string, empfaengerName: string): GeruestSig
     }
   }
   const anredeOk = anredeIdx !== -1
+  const resolvedAnrede = title === 'Frau'
+    ? `Sehr geehrte ${empfaengerName.trim()},`
+    : `Sehr geehrter ${empfaengerName.trim()},`
 
   // kleinschreibung: only evaluated when anrede is ok; otherwise neutral (ok: true)
   let kleinschreibungOk = true
@@ -91,11 +115,8 @@ export function geruestSignals(text: string, empfaengerName: string): GeruestSig
     }
   }
 
-  // absaetze: at least two blank-line separations
-  const blankLineSeps = text.match(/\n[ \t]*\n/g) ?? []
-  const absaetzeOk = blankLineSeps.length >= 2
-
   // gruss: among the last five non-empty lines, equals a Grußformel exactly (no trailing punctuation)
+  // (computed before absaetze — absaetze needs grussIdx to scope the body)
   const last5 = lines.slice(-5)
   let grussIdx = -1
   for (let i = 0; i < last5.length; i++) {
@@ -105,6 +126,11 @@ export function geruestSignals(text: string, empfaengerName: string): GeruestSig
     }
   }
   const grussOk = grussIdx !== -1
+
+  // absaetze: body-scoped when both anchors are found, else the whole-text fallback
+  const absaetzeOk = anredeOk && grussOk
+    ? bodyHasParagraphBreak(text, lines[anredeIdx], lines[grussIdx])
+    : (text.match(/\n[ \t]*\n/g) ?? []).length >= 2
 
   // name: at least one non-empty line after the Gruß line (only evaluated when gruss ok)
   const nameOk = grussOk ? grussIdx < lines.length - 1 : false
@@ -120,7 +146,7 @@ export function geruestSignals(text: string, empfaengerName: string): GeruestSig
       key: 'anrede',
       ok: anredeOk,
       labelDe: 'Anrede',
-      hintDe: 'Die Anrede nennt den Nachnamen des Empfängers (z. B. „Sehr geehrter Herr Semder,") und endet mit einem Komma.'
+      hintDe: `Die Anrede nennt den Empfänger mit passender Endung — „${resolvedAnrede}" — und endet mit einem Komma.`
     },
     {
       key: 'kleinschreibung',
@@ -132,7 +158,7 @@ export function geruestSignals(text: string, empfaengerName: string): GeruestSig
       key: 'absaetze',
       ok: absaetzeOk,
       labelDe: 'Absätze',
-      hintDe: 'Mindestens zwei Leerzeilen trennen Anrede, Haupttext und Gruß in eigene Absätze.'
+      hintDe: 'Gliedere den Haupttext in mindestens zwei Absätze — eine Leerzeile trennt sie.'
     },
     {
       key: 'gruss',
@@ -149,8 +175,9 @@ export function geruestSignals(text: string, empfaengerName: string): GeruestSig
   ]
 }
 
+// The absence-based check waits for 40 words (the codebase's nudge-band rhythm): an empty draft has no Bitte to scold, and at the 120-word target the Bitte empirically lives in the final third — 40 leaves ~80 words of runway. Presence-based checks (du-form, informell) stay instant.
 /** Empty array = nothing to warn about. `hoeflichkeit` fires only for bitte/beschwerde. */
-export function radarWarnungen(text: string, anlass: SchreibAnlass): RadarWarnung[] {
+export function radarWarnungen(text: string, anlass: SchreibAnlass, words: number): RadarWarnung[] {
   const warnungen: RadarWarnung[] = []
 
   const duMatches = text.match(DU_FORM_RE) ?? []
@@ -173,7 +200,7 @@ export function radarWarnungen(text: string, anlass: SchreibAnlass): RadarWarnun
     })
   }
 
-  if (anlass === 'bitte' || anlass === 'beschwerde') {
+  if ((anlass === 'bitte' || anlass === 'beschwerde') && words >= 40) {
     if (!KONJUNKTIV_II_RE.test(text)) {
       warnungen.push({
         key: 'hoeflichkeit',

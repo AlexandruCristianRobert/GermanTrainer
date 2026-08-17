@@ -117,6 +117,12 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'dat-reflexive':    { label: 'Dative · reflexive', de: 'Dativ · Reflexiv', module: 'Dativ' }
 }
 
+// The count column shows `it.count` as a raw question tally, but for these
+// four exam-trainer types `count` is the 100-point grading scale, not a
+// number of questions — showing it as "N asked" is misleading, so the count
+// cell (desktop table + mobile card) shows the topic instead.
+const EXAM_TRAINER_TYPES = new Set(['sprechen-teil1', 'sprechen-teil2', 'schreiben-teil1', 'schreiben-teil2'])
+
 const typeOrder: QuizHistoryType[] = [
   'noun-gender', 'noun-translation', 'adjective',
   'verb-translation', 'verb-conjugation',
@@ -522,8 +528,13 @@ function summariseMeta(it: QuizHistoryEntry): string {
             <span class="mono hist-dur">{{ fmtDuration(it.durationMs) }}</span>
           </td>
           <td>
-            <span class="mono">{{ it.count }}</span>
-            <span class="hist-asked">asked</span>
+            <template v-if="EXAM_TRAINER_TYPES.has(it.type)">
+              <span class="hist-topic">{{ it.meta.topicTitle ?? '—' }}</span>
+            </template>
+            <template v-else>
+              <span class="mono">{{ it.count }}</span>
+              <span class="hist-asked">asked</span>
+            </template>
           </td>
           <td>
             <div v-if="it.type === 'writing-grade' || it.type === 'simulator-c1'" class="hist-score-row">
@@ -588,7 +599,12 @@ function summariseMeta(it: QuizHistoryEntry): string {
           <span>·</span>
           <span class="mono">{{ fmtDuration(it.durationMs) }}</span>
           <span>·</span>
-          <span class="mono">{{ it.count }} q</span>
+          <template v-if="EXAM_TRAINER_TYPES.has(it.type)">
+            <span class="hist-topic">{{ it.meta.topicTitle ?? '—' }}</span>
+          </template>
+          <template v-else>
+            <span class="mono">{{ it.count }} q</span>
+          </template>
         </div>
         <div class="hist-card-filters">{{ summariseMeta(it) }}</div>
       </div>
@@ -632,6 +648,8 @@ function summariseMeta(it: QuizHistoryEntry): string {
   margin-left: 4px;
   font-size: 13px;
 }
+
+.hist-topic { font-size: 13px; font-style: italic; color: var(--ink-soft); }
 
 .hist-score-row {
   display: flex;

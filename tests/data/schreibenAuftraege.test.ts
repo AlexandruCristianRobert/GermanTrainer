@@ -61,4 +61,9 @@ describe('schreibenAuftraege seed pool', () => {
     const req = (SCHREIBAUFTRAG_GENERATOR_SCHEMA as any).properties.auftraege.items.required
     expect(req).toEqual(['titleDe', 'situationDe', 'empfaengerName', 'empfaengerRolleDe', 'taskDe', 'inhaltspunkte', 'anlass'])
   })
+  test('every seeded Inhaltspunkt is a full sentence ending with a period', () => {
+    for (const a of SCHREIBEN_AUFTRAEGE) {
+      for (const p of a.inhaltspunkte) expect(p.endsWith('.'), `${a.id}: "${p}"`).toBe(true)
+    }
+  })
 })

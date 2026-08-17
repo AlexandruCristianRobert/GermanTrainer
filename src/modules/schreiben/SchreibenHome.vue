@@ -2,11 +2,10 @@
 // Schreiben hub — Goethe B2 exam trainer (CONTEXT.md → "Forumsbeitrag").
 // Mirrors SprechenHome.vue's band structure: Teil 1 (Forumsbeitrag) and
 // Teil 2 (halbformelle Nachricht) each get their own live panel with their
-// own stats. The shared rows/bands below (cheatsheet, Muster libraries,
-// Fehlerarchiv, Korrekturdrill, Letzte Bewertung, Schreibmittel-Ausbeute)
-// read off 'schreiben-teil1' Runs and the Schreibmittel bank only, by
-// design — Teil 2's own stats live in its panel above, not in these
-// shared bands.
+// own stats. Below that, "Letzte Bewertung" and the Ausbeute band are now
+// per-Teil pairs (each Teil's own criteria bars, each Teil's own phrase
+// bank) rather than a single Teil-1-only band, and the recents list and
+// archive row are module-wide, spanning both Teils.
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadHistory } from '../../composables/useQuizHistory'
@@ -17,12 +16,21 @@ import { allAuftraege, doneAuftragTitles } from '../../composables/useSchreibenA
 import { SCHREIBEN_SCHREIBMITTEL } from '../../data/schreibenMittel'
 import { SCHREIBEN_MUSTER } from '../../data/schreibenMuster'
 import { SCHREIBEN_MUSTER_NACHRICHTEN } from '../../data/schreibenMusterNachrichten'
+import { SCHREIBEN_NACHRICHTENMITTEL } from '../../data/schreibenNachrichtenMittel'
 import SchrYield from '../../components/schreiben/SchrYield.vue'
+import SchrNachrichtYield from '../../components/schreiben/SchrNachrichtYield.vue'
 import SprCriterionBars, { type CriterionScore } from '../../components/sprechen/SprCriterionBars.vue'
-import { SCHREIBEN_B2_TEIL1 } from '../../data/rubrics'
+import { SCHREIBEN_B2_TEIL1, SCHREIBEN_B2_TEIL2 } from '../../data/rubrics'
 
 const router = useRouter()
 function go(name: string) { router.push({ name }) }
+
+// The Fehlerarchiv row is module-wide (both Teils) below, but arrival should
+// still land pre-filtered to Schreiben — every other row keeps plain go().
+function openRow(route: string) {
+  if (route === 'sprechen-archive') { router.push({ name: route, query: { module: 'schreiben' } }); return }
+  go(route)
+}
 
 const allRuns = computed(() => loadHistory())
 const teil1Runs = computed(() => allRuns.value.filter(h => h.type === 'schreiben-teil1'))
@@ -34,6 +42,14 @@ const latestCriteria = computed<CriterionScore[] | null>(() => {
   const cs = teil1Runs.value[0]?.meta.sprechenCriteria
   return Array.isArray(cs) && cs.length > 0 ? (cs as CriterionScore[]) : null
 })
+
+/** Teil 2's counterpart of latestCriteria above — same "newest, not best"
+ *  rule, over 'schreiben-teil2' Runs. */
+const latestTeil2Criteria = computed<CriterionScore[] | null>(() => {
+  const cs = teil2Runs.value[0]?.meta.sprechenCriteria
+  return Array.isArray(cs) && cs.length > 0 ? (cs as CriterionScore[]) : null
+})
+const usedNachrichtenmittelIds = computed(() => Object.keys(lifetimeCounts(SCHREIBEN_NACHRICHTENMITTEL)))
 
 // doneThemaTitles()/allThemen() already perform exactly this computation and
 // are the same functions drawThema() uses to prefer an undone Schreibthema —
@@ -51,8 +67,8 @@ const lastTeil2Score = computed(() => teil2Runs.value[0]?.meta.sprechenScore ?? 
 const usedSchreibmittelIds = computed(() => Object.keys(lifetimeCounts(SCHREIBEN_SCHREIBMITTEL)))
 const usedSchreibmittelCount = computed(() => usedSchreibmittelIds.value.length)
 
-// Live archive counts, scoped to Schreiben Teil 1 only (part 1, module
-// 'schreiben') — a nice-to-have, never a blocker. THREE states, kept
+// Live archive counts, scoped to the whole Schreiben module (both Teils,
+// no `part` filter) — a nice-to-have, never a blocker. THREE states, kept
 // distinguishable on purpose: `null` alone would make a failed read look
 // identical to a still-loading one, so the row would read "wird geladen"
 // forever.
@@ -61,8 +77,8 @@ const archiveState = ref<'loading' | 'ready' | 'failed'>('loading')
 onMounted(async () => {
   try {
     const [counts, open] = await Promise.all([
-      countsByKind(1, 'schreiben'),
-      openCorrections(undefined, 1, 'schreiben')
+      countsByKind(undefined, 'schreiben'),
+      openCorrections(undefined, undefined, 'schreiben')
     ])
     archive.value = {
       total: Object.values(counts).reduce((a, b) => a + b, 0),
@@ -75,16 +91,20 @@ onMounted(async () => {
   }
 })
 
-/** Last 5 Forumsbeiträge, newest first — loadHistory() is already sorted, so
- *  filtering preserves order and no extra sort is needed. */
+/** Last 5 graded Schreiben texts across both Teils, newest first —
+ *  loadHistory() is already sorted, so filtering preserves order. */
 const recents = computed(() =>
-  teil1Runs.value.slice(0, 5).map(r => ({
-    id: r.id,
-    date: new Date(r.startedAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }),
-    topic: r.meta.topicTitle ?? '—',
-    score: r.meta.sprechenScore ?? r.correct,
-    praedikat: r.meta.sprechenPraedikat ?? '—'
-  }))
+  allRuns.value
+    .filter(h => h.type === 'schreiben-teil1' || h.type === 'schreiben-teil2')
+    .slice(0, 5)
+    .map(r => ({
+      id: r.id,
+      teil: r.type === 'schreiben-teil1' ? 'Teil 1' : 'Teil 2',
+      date: new Date(r.startedAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }),
+      topic: r.meta.topicTitle ?? '—',
+      score: r.meta.sprechenScore ?? r.correct,
+      praedikat: r.meta.sprechenPraedikat ?? '—'
+    }))
 )
 
 // Cheatsheet / Fehlerarchiv / Korrekturdrill — the three shared rows below the
@@ -111,7 +131,7 @@ const rows = [
   {
     n: 'IV', route: 'sprechen-archive', title: 'Fehlerarchiv',
     de: 'Wiederkehrende Fehler',
-    desc: 'Deine eigenen falschen Stellen aus den Forumsbeiträgen, nach Fehlerart sortiert. Der Text selbst wird verworfen — diese Sätze nicht.'
+    desc: 'Deine eigenen falschen Stellen aus Forumsbeiträgen und Nachrichten, nach Fehlerart sortiert. Der Text selbst wird verworfen — diese Sätze nicht.'
   },
   {
     n: 'V', route: 'sprechen-drill', title: 'Korrekturdrill',
@@ -181,7 +201,7 @@ function metaFor(route: string): string[] {
             <b>{{ lastScore === null ? 'noch keine' : `zuletzt ${lastScore}` }}</b>
             <span>{{ lastScore === null ? 'Bewertung' : '/ 100' }}</span>
           </div>
-          <div><b>{{ teil1Runs.length }} Beiträge</b><span>bisher</span></div>
+          <div><b>{{ teil1Runs.length }} {{ teil1Runs.length === 1 ? 'Beitrag' : 'Beiträge' }}</b><span>bisher</span></div>
         </div>
         <div class="spr-part-go">Starten <span aria-hidden="true">→</span></div>
       </button>
@@ -206,7 +226,7 @@ function metaFor(route: string): string[] {
             <b>{{ lastTeil2Score === null ? 'noch keine' : `zuletzt ${lastTeil2Score}` }}</b>
             <span>{{ lastTeil2Score === null ? 'Bewertung' : '/ 100' }}</span>
           </div>
-          <div><b>{{ teil2Runs.length }} Nachrichten</b><span>bisher</span></div>
+          <div><b>{{ teil2Runs.length }} {{ teil2Runs.length === 1 ? 'Nachricht' : 'Nachrichten' }}</b><span>bisher</span></div>
         </div>
         <div class="spr-part-go">Starten <span aria-hidden="true">→</span></div>
       </button>
@@ -214,7 +234,7 @@ function metaFor(route: string): string[] {
 
     <!-- 02 · Shared rows -->
     <div class="spr-rows spr-rows-shared">
-      <button v-for="r in rows" :key="r.route" class="spr-row" type="button" @click="go(r.route)">
+      <button v-for="r in rows" :key="r.route" class="spr-row" type="button" @click="openRow(r.route)">
         <span class="spr-row-n">{{ r.n }}</span>
         <span>
           <span class="spr-row-t">{{ r.title }}<span class="spr-row-de">{{ r.de }}</span></span>
@@ -227,19 +247,28 @@ function metaFor(route: string): string[] {
       </button>
     </div>
 
-    <!-- 03 · Letzte Bewertung -->
+    <!-- 03 · Letzte Bewertung Teil 1 -->
     <section class="spr-block">
       <div class="spr-block-h">
-        <h2 class="spr-block-t">Letzte Bewertung</h2>
+        <h2 class="spr-block-t">Letzte Bewertung · Teil 1</h2>
         <span class="spr-block-n">nach der offiziellen Rubrik · getippt</span>
       </div>
       <SprCriterionBars :typed="latestCriteria" :spoken="null" :rubric="SCHREIBEN_B2_TEIL1" />
     </section>
 
+    <!-- 03b · Letzte Bewertung Teil 2 -->
+    <section class="spr-block">
+      <div class="spr-block-h">
+        <h2 class="spr-block-t">Letzte Bewertung · Teil 2</h2>
+        <span class="spr-block-n">nach der offiziellen Rubrik · getippt</span>
+      </div>
+      <SprCriterionBars :typed="latestTeil2Criteria" :spoken="null" :rubric="SCHREIBEN_B2_TEIL2" />
+    </section>
+
     <!-- 04 · Schreibmittel-Ausbeute -->
     <section class="spr-block">
       <div class="spr-block-h">
-        <h2 class="spr-block-t">Schreibmittel-Ausbeute</h2>
+        <h2 class="spr-block-t">Schreibmittel-Ausbeute · Teil 1</h2>
         <span class="spr-block-n">lokal gezählt · ohne KI · zählt nie in die Note</span>
       </div>
       <p class="spr-sub spr-sub-tight">
@@ -250,10 +279,24 @@ function metaFor(route: string): string[] {
         note="Noch nie benutzt — der Runner wird dich darauf schubsen." />
     </section>
 
-    <!-- 04b · Letzte Beiträge -->
+    <!-- 04b · Nachrichtenmittel-Ausbeute -->
+    <section class="spr-block">
+      <div class="spr-block-h">
+        <h2 class="spr-block-t">Nachrichtenmittel-Ausbeute · Teil 2</h2>
+        <span class="spr-block-n">lokal gezählt · ohne KI · zählt nie in die Note</span>
+      </div>
+      <p class="spr-sub spr-sub-tight">
+        Was du in Nachrichten tatsächlich benutzt hast — über alle Runs hinweg. Eine
+        Nachrichtfunktion ohne Treffer ist genau die, zu der der Runner dich künftig schubst.
+      </p>
+      <SchrNachrichtYield :used-ids="usedNachrichtenmittelIds"
+        note="Noch nie benutzt — der Runner wird dich darauf schubsen." />
+    </section>
+
+    <!-- 05 · Letzte Bewertungen -->
     <section v-if="recents.length > 0" class="spr-block">
       <div class="spr-block-h">
-        <h2 class="spr-block-t">Letzte Beiträge</h2>
+        <h2 class="spr-block-t">Letzte Bewertungen</h2>
         <span class="spr-block-n">Texte werden nie gespeichert · nur die Bilanz</span>
       </div>
       <div class="spr-rows">
@@ -263,6 +306,7 @@ function metaFor(route: string): string[] {
             <span class="spr-row-t spr-row-t-sm">{{ r.topic }}</span>
           </span>
           <span class="spr-row-meta">
+            <span class="tag">{{ r.teil }}</span>
             <span class="spr-num" :class="r.score >= 60 ? 'spr-ok' : 'spr-bad'">
               {{ r.score }} / 100
             </span>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 //
-// Sprechen · Fehlerarchiv (CONTEXT.md → "Error archive", "Archived correction").
-// Every graded Discussion is discarded once it's graded — this screen is what
-// survives it: every marked mistake, forever, grouped by Sprechen error tag so
-// repetition becomes visible across runs. This is a READ-ONLY view over
+// Fehlerarchiv (CONTEXT.md → "Error archive", "Archived correction") — one
+// shared surface across Sprechen and Schreiben. Every graded Diskussion,
+// Vortrag, Forumsbeitrag, and Nachricht is discarded once it's graded — this
+// screen is what survives it: every marked mistake, forever, grouped by error
+// tag so repetition becomes visible across runs. This is a READ-ONLY view over
 // useSprechenArchive.ts, the archive's only door (ADR-0012) — nothing here
 // ever imports `db` directly, and nothing here writes to the archive.
 //
@@ -12,23 +13,24 @@
 // accumulated and, per kind, how much of it has been re-practised.
 
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {
   countsByKind, drilledIds, listCorrections, type ArchivedCorrection
 } from '../../composables/useSprechenArchive'
 import type { SprechenErrorTag } from '../../composables/useQuizHistory'
 
 const router = useRouter()
+const route = useRoute()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
 const counts = ref<Record<SprechenErrorTag, number> | null>(null)
 const drilled = ref<Set<string>>(new Set())
 const items = ref<ArchivedCorrection[]>([])
-// The unfiltered set of every correction, captured once on the initial load
-// (below, `selectedKind` is still null then so `items` IS every correction).
-// Reusing it here — rather than a second listCorrections() call — is what
-// lets `openByKind` exist without a second archive read.
+// The unfiltered set of every correction, fetched explicitly in loadAll() via
+// listCorrections({}) — kept separate from `items` (which honors whatever
+// selectedKind/selectedModule filter is active, including the route-query
+// prefilter) so openByKind and moduleCounts always see every correction.
 const allCorrections = ref<ArchivedCorrection[]>([])
 const selectedKind = ref<SprechenErrorTag | null>(null)
 // ADR-0020: the archive now holds Schreiben corrections alongside Sprechen
@@ -133,14 +135,13 @@ async function loadAll() {
   loading.value = true
   error.value = null
   try {
-    const [c, d] = await Promise.all([countsByKind(), drilledIds()])
+    const q = route.query.module
+    if (q === 'schreiben' || q === 'sprechen') selectedModule.value = q
+    const [c, d, all] = await Promise.all([countsByKind(), drilledIds(), listCorrections({})])
     counts.value = c
     drilled.value = d
-    // selectedKind and selectedModule are both still null here, so this
-    // fetches every correction — keep that copy around for openByKind and
-    // moduleCounts instead of reading again per kind/module.
+    allCorrections.value = all
     await loadList()
-    allCorrections.value = items.value
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Fehlerarchiv konnte nicht geladen werden.'
   } finally {
@@ -162,6 +163,14 @@ function selectModule(m: 'sprechen' | 'schreiben' | null) {
   })
 }
 
+// History-aware: arriving here via a link (e.g. from the hub) should return
+// there; arriving via a fresh tab/reload has no history to pop, so fall back
+// to the Sprechen home instead of leaving the back button stranded.
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push({ name: 'sprechen' })
+}
+
 onMounted(loadAll)
 </script>
 
@@ -169,11 +178,12 @@ onMounted(loadAll)
   <div class="page archive-page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Sprechen · Fehlerarchiv</div>
+        <div class="breadcrumb">Goethe B2 · Fehlerarchiv</div>
         <h1 class="section-title">Fehlerarchiv<em>.</em></h1>
         <p class="section-subtitle">
-          Jede bewertete Diskussion wird verworfen, sobald sie benotet ist — deine markierten Fehler
-          nicht. Hier stehen sie, sortiert nach Fehlerart, damit Wiederholung sichtbar wird.
+          Jede bewertete Diskussion, jeder Vortrag, jeder Forumsbeitrag und jede Nachricht wird nach
+          der Bewertung verworfen — deine markierten Fehler nicht. Hier stehen sie, sortiert nach
+          Fehlerart, damit Wiederholung sichtbar wird.
         </p>
       </div>
     </header>
@@ -199,8 +209,8 @@ onMounted(loadAll)
         <div class="empty-mark">∅</div>
         <h3>Noch nichts archiviert.</h3>
         <p>
-          Nach einer bewerteten Diskussion erscheinen deine markierten Fehler hier — sortiert nach
-          Fehlerart, damit Wiederholung sichtbar wird.
+          Nach einer bewerteten Diskussion, einem Vortrag, Forumsbeitrag oder einer Nachricht
+          erscheinen deine markierten Fehler hier.
         </p>
         <button class="btn btn-accent" type="button" @click="router.push({ name: 'sprechen-teil2' })">
           Diskussion starten <span aria-hidden="true">→</span>
@@ -298,7 +308,7 @@ onMounted(loadAll)
     </div>
 
     <div class="setup-actions">
-      <button class="btn btn-ghost" type="button" @click="router.push({ name: 'sprechen' })">← Sprechen</button>
+      <button class="btn btn-ghost" type="button" @click="goBack">← Zurück</button>
     </div>
   </div>
 </template>

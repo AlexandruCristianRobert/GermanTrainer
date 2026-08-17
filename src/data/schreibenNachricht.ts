@@ -77,6 +77,7 @@ export interface SchreibenNachricht {
   startedAt: number
   updatedAt: number
   kiTippCount: number
+  kiTippText?: string               // the latest paid tip, restored on resume — app advice, not learner text (ADR-0019 untouched)
   helpLog: HelpLogEntry[]
 }
 

@@ -160,3 +160,23 @@ export const RAHMEN_PAARE: RahmenPaar[] = [
   { id: 'rp-3', anredeDe: 'Guten Tag, Frau …,', grussDe: 'Freundliche Grüße', noteEn: 'modern neutral — fine for most workplace messages' },
   { id: 'rp-4', anredeDe: 'Sehr geehrte Damen und Herren,', grussDe: 'Mit freundlichen Grüßen', noteEn: 'when no name is known — not for these tasks, which always name one' }
 ]
+
+/**
+ * Resolve a Rahmen-Paar template to the actual Empfänger, title-aware:
+ * "Sehr geehrte Frau …, / Sehr geehrter Herr …," becomes the one line that
+ * fits THIS Auftrag ("Sehr geehrte Frau Hoffmann,"). In a tool surface,
+ * showing a template while inserting something else breaks click-what-you-
+ * see — the cheatsheet keeps the templates, the runner shows these. rp-4
+ * (Damen und Herren) carries no name slot and passes through unchanged.
+ */
+export function resolveRahmenPaar(
+  p: RahmenPaar, empfaengerName: string
+): { anredeDe: string; grussDe: string } {
+  const name = empfaengerName.trim()
+  const isFrau = name.toLowerCase().startsWith('frau')
+  let anredeDe = p.anredeDe
+  if (p.id === 'rp-1') anredeDe = isFrau ? `Sehr geehrte ${name},` : `Sehr geehrter ${name},`
+  else if (p.id === 'rp-2') anredeDe = isFrau ? `Liebe ${name},` : `Lieber ${name},`
+  else if (p.id === 'rp-3') anredeDe = `Guten Tag, ${name},`
+  return { anredeDe, grussDe: p.grussDe }
+}

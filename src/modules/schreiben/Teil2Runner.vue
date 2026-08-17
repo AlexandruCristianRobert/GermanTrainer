@@ -11,12 +11,12 @@
 //     one free textarea — the exam condition. Nothing is ever prewritten: the
 //     Anrede formula and its comma are the learner's own words either way
 //     (CONTEXT.md → Rahmen-Gerüst), which lets the Gerüst-Check run the same
-//     six checks in both modes — though `absaetze` is trivially satisfied by
-//     the assembled frame whenever the scaffold is on (betreff/anrede-text/
-//     gruss already join on blank lines); that check truly bites only in
-//     free-text mode. `fullText` — the assembled scaffold or the raw draft —
-//     is the single source every meter, check, matcher, save and grade
-//     reads. There is no second notion of "the text".
+//     six checks in both modes — and `absaetze` is body-scoped (between Anrede
+//     and Grußformel) once Anrede and Gruß are both recognised, so the
+//     assembled frame alone earns nothing there; while either is unrecognised
+//     the whole-text fallback still applies. `fullText` — the assembled
+//     scaffold or the raw draft — is the single source every meter, check,
+//     matcher, save and grade reads. There is no second notion of "the text".
 //  2. The GERÜST-CHECK, six live frame dots under the Inhaltspunkt dots, under
 //     the same checklist switch. Local, advisory, never a grading input.
 //  3. The RADAR (own switch): push-warnings for du-Formen, Umgangssprache and
@@ -70,11 +70,13 @@ import {
 import { ANLASS_LABEL } from '../../data/schreibenAuftraege'
 import {
   SCHREIBEN_NACHRICHTENMITTEL, NACHRICHT_MOVES, NACHRICHT_MOVE_LABEL,
-  movesForAnlass, nachrichtenmittelForMove, RAHMEN_PAARE,
+  movesForAnlass, nachrichtenmittelForMove, RAHMEN_PAARE, resolveRahmenPaar,
   type NachrichtMove, type RahmenPaar
 } from '../../data/schreibenNachrichtenMittel'
+import { NACHRICHT_AUFBAU } from '../../data/schreibenAufbau'
 import { resolveBaukasten } from '../../data/schreibenBaukasten'
 import { geruestSignals, radarWarnungen, type GeruestKey, type RadarKey } from '../../composables/useNachrichtChecks'
+import { keywordWritten, normalizeForMatch } from '../../composables/useSchreibplanMatch'
 import { matchRedemittel, pickMoveNudge } from '../../composables/useRedemittelMatch'
 import { bumpRedemittelYield, lifetimeCounts } from '../../composables/useRedemittelYield'
 import { loadCachedBaukasten } from '../../composables/useSchreibenBaukasten'
@@ -83,6 +85,7 @@ import {
   incrementNachrichtKiTipp, markNachrichtSubmitted, abandonNachricht, deleteNachricht
 } from '../../composables/useSchreibenNachricht'
 import { gradeNachricht, NACHRICHT_RESULT_KEY, type NachrichtResultStash } from '../../composables/useNachrichtGrader'
+import { setNachbessernText } from '../../composables/useNachbessern'
 import { generateNachrichtKiTipp } from '../../composables/useNachrichtTipp'
 import { countWords } from '../../composables/useSpeechRecognizer'
 import { appendCorrections } from '../../composables/useSprechenArchive'
@@ -111,7 +114,7 @@ const textEl = ref<HTMLTextAreaElement | null>(null)
 const rahmenOn = computed(() => nachricht.value?.helps.rahmen === true)
 const fullText = computed(() => rahmenOn.value ? assembleNachricht(slots.value) : textDraft.value)
 
-const tab = ref<'mittel' | 'baukasten'>('mittel')
+const tab = ref<'mittel' | 'baukasten' | 'aufbau'>('mittel')
 const move = ref<NachrichtMove>('bezug')
 const showOtherMoves = ref(false)
 const nudgeDismissed = ref(false)
@@ -165,17 +168,23 @@ const PHASEN: readonly { key: NachrichtPhase; labelDe: string; spanDe: string }[
 ]
 const phase = computed(() => nachrichtPhase(elapsedSeconds.value))
 
+/** One dismissible push-note when the clock reaches the prüfen phase — the same
+ *  species as the 'ueberzeit' note, tied to `helps.timer`. NOT a Radar warning
+ *  and NOT a Hilfe-Protokoll entry: it is pushed by the clock, never reached
+ *  for. Dismissal lasts the sitting. */
+const pruefzeitDismissed = ref(false)
+// Also checklist-gated: every other timer surface is, and the note's copy
+// references the checklist-surfaced Inhaltspunkte.
+const showPruefzeit = computed(() =>
+  nachricht.value?.helps.timer === true && nachricht.value.helps.checklist === true &&
+  phase.value === 'pruefen' && !pruefzeitDismissed.value && writing.value
+)
+
 interface InhaltspunktSignal {
   index: number
   punkt: string
   keyword: string
   said: boolean
-}
-
-/** Same normalisation as the Redemittel matcher / Teil1Runner's planSignals,
- *  so all of them agree on what "written" means. */
-function normalizeForMatch(s: string): string {
-  return s.replace(/[.,;:!?…]/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
 }
 
 /** One signal per Inhaltspunkt, in task-sheet order. A keywordless entry
@@ -187,12 +196,11 @@ const planSignals = computed<InhaltspunktSignal[]>(() => {
   const byIndex = new Map(n.plan.map(p => [p.index, p.keyword ?? '']))
   return n.auftrag.inhaltspunkte.map((punkt, i) => {
     const keyword = (byIndex.get(i) ?? '').trim()
-    const needle = normalizeForMatch(keyword)
     return {
       index: i,
       punkt,
       keyword,
-      said: needle.length > 0 && hay.length > 0 && hay.includes(needle)
+      said: keywordWritten(keyword, hay)
     }
   })
 })
@@ -217,7 +225,7 @@ const radarDismissed = ref(new Set<RadarKey>())
 
 const radarAll = computed(() =>
   nachricht.value?.helps.radar
-    ? radarWarnungen(checkedText.value, nachricht.value.auftrag.anlass)
+    ? radarWarnungen(checkedText.value, nachricht.value.auftrag.anlass, words.value)
     : []
 )
 
@@ -264,6 +272,17 @@ const otherMovesOpen = computed(() =>
 const drawerPhrases = computed(() =>
   nachrichtenmittelForMove(move.value).map(r => ({ ...r, used: usedIds.value.has(r.id) }))
 )
+
+/** The drawer shows what a click inserts (click-what-you-see): templates
+ *  resolved to THIS Auftrag's Empfänger. rp-4 (Damen und Herren) is
+ *  excluded here — these tasks always name a person; the cheatsheet keeps
+ *  the full template list. */
+const rahmenPaare = computed(() => {
+  const n = nachricht.value
+  if (!n) return []
+  return RAHMEN_PAARE.filter(p => p.id !== 'rp-4')
+    .map(p => ({ ...p, ...resolveRahmenPaar(p, n.auftrag.empfaengerName) }))
+})
 
 const freshMoves = computed(() => {
   const out = new Set<NachrichtMove>()
@@ -340,7 +359,7 @@ function logHelpAsync(kind: HelpKind) {
 
 /** 'drawer' logs genuine consultation only: a tab switch to a DIFFERENT
  *  tab, never a no-op re-tap of the one already open. */
-function selectTab(t: 'mittel' | 'baukasten') {
+function selectTab(t: 'mittel' | 'baukasten' | 'aufbau') {
   const changed = t !== tab.value
   tab.value = t
   if (changed) logHelpAsync('drawer')
@@ -386,8 +405,9 @@ function insertPhrase(phraseDe: string) {
  * in the blank line between them, where the message body belongs.
  *
  * Exactly ONE blank line separates them: the frame alone must not green the
- * `absaetze` Gerüst dot, which wants two blank-line separations. That dot is
- * earned when a real body pushes the Gruß down, never by one helper click.
+ * `absaetze` Gerüst dot, which — once Anrede and Gruß are both recognised —
+ * reads the body BETWEEN them. That dot is earned when a real body pushes
+ * the Gruß down, never by one helper click.
  */
 function applyRahmenPaar(p: RahmenPaar) {
   if (rahmenOn.value) {
@@ -413,8 +433,9 @@ async function fetchKiTipp() {
   try {
     const client = resolveAiClient(settings.value)
     const tip = await generateNachrichtKiTipp(client, model.value, nachricht.value)
-    await incrementNachrichtKiTipp(nachricht.value.id)
+    await incrementNachrichtKiTipp(nachricht.value.id, tip)
     nachricht.value.kiTippCount += 1
+    nachricht.value.kiTippText = tip
     logHelpAsync('kitipp')
     kiTipp.value = tip
   } catch (err) {
@@ -563,6 +584,7 @@ async function runGrading() {
     }
     sessionStorage.setItem(NACHRICHT_RESULT_KEY, JSON.stringify(stash))
     await deleteNachricht(n.id)                      // ADR-0019: the Nachricht dies here
+    setNachbessernText(n.textDe)                     // ADR-0024: volatile, consumed once by the result page
     router.push({ name: 'schreiben-teil2-result' })
   } catch (err) {
     gradeFailed.value = true                          // row stays 'submitted'; retry re-grades, latch prevents double-record
@@ -619,6 +641,13 @@ onMounted(async () => {
   }
   checkedText.value = fullText.value
   if (aptMoves.value.length > 0 && !aptMoves.value.includes(move.value)) move.value = aptMoves.value[0]
+
+  // A resumed row that already logged its Move nudge must not log a second
+  // one; the Protokoll's whole value is being descriptively true.
+  nudgeLogged.value = nachricht.value.helpLog.some(h => h.kind === 'nudge')
+  // The latest paid KI-Tipp survives a reload with its row (app advice, not
+  // learner text — ADR-0019 untouched).
+  kiTipp.value = nachricht.value.kiTippText ?? null
 
   tickElapsed()
   elapsedTimer = setInterval(tickElapsed, 1000)
@@ -821,6 +850,19 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
             </div>
           </div>
 
+          <div v-if="showPruefzeit" class="nf-radar nf-pruefzeit">
+            <div class="nf-radar-row">
+              <span class="nf-radar-l">Prüfzeit</span>
+              <div class="nf-radar-b">
+                <p class="nf-radar-d">
+                  Lies die vier Inhaltspunkte noch einmal gegen deinen Text, prüfe jede Bitte
+                  auf Konjunktiv II und Sie/Ihnen/Ihr auf Großschreibung.
+                </p>
+              </div>
+              <button class="spr-nudge-x" type="button" aria-label="Hinweis ausblenden" @click="pruefzeitDismissed = true">×</button>
+            </div>
+          </div>
+
           <div v-if="nachricht.helps.radar && radarWarnings.length > 0" class="nf-radar">
             <div v-for="w in radarWarnings" :key="w.key" class="nf-radar-row">
               <span class="nf-radar-l">{{ w.labelDe }}</span>
@@ -855,6 +897,9 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
                 </button>
                 <button class="spr-dtab" :class="{ on: tab === 'baukasten' }" type="button" @click="selectTab('baukasten')">
                   Was<span class="spr-dtab-sub">Baukasten</span>
+                </button>
+                <button class="spr-dtab" :class="{ on: tab === 'aufbau' }" type="button" @click="selectTab('aufbau')">
+                  Wann<span class="spr-dtab-sub">Aufbau</span>
                 </button>
               </div>
 
@@ -892,7 +937,7 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
                   <div class="nf-rahmen">
                     <div class="spr-was-h">Rahmen · Anrede und Gruß gehören zusammen</div>
                     <ul class="spr-phrases">
-                      <li v-for="p in RAHMEN_PAARE" :key="p.id" class="spr-phrase nf-paar">
+                      <li v-for="p in rahmenPaare" :key="p.id" class="spr-phrase nf-paar">
                         <button class="spr-phrase-t" type="button" @click="applyRahmenPaar(p)">
                           {{ p.anredeDe }} <i class="nf-paar-sep">…</i> {{ p.grussDe }}
                         </button>
@@ -902,7 +947,7 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
                   </div>
                 </template>
 
-                <div v-else class="spr-was">
+                <div v-else-if="tab === 'baukasten'" class="spr-was">
                   <div class="spr-was-h">Mögliche Gründe</div>
                   <div v-for="(a, i) in baukasten?.gruende ?? []" :key="`g${i}`" class="spr-was-i">
                     <div class="spr-was-c">{{ a.ideaDe }}</div>
@@ -919,6 +964,13 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
                       <b>{{ w.de }}</b><i>{{ w.en }}</i>
                     </span>
                   </div>
+                </div>
+
+                <div v-else class="spr-was nf-aufbau">
+                  <div class="spr-was-h">Aufbau · {{ ANLASS_LABEL[nachricht.auftrag.anlass].de }}</div>
+                  <ol class="nf-aufbau-list">
+                    <li v-for="(line, i) in NACHRICHT_AUFBAU[nachricht.auftrag.anlass]" :key="i">{{ line }}</li>
+                  </ol>
                 </div>
               </div>
             </div>
@@ -998,6 +1050,11 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
 .nf-radar-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
 .nf-radar-chip { font-family: var(--font-mono); font-size: 10.5px; padding: 2px 6px 1px; border: 1px solid color-mix(in srgb, var(--ochre) 40%, transparent); color: var(--ochre); }
 
+/* Prüfzeit borrows the Radar's shape but not its ochre: it is clock-advice,
+   not a warning about the text. */
+.nf-pruefzeit .nf-radar-row { background: color-mix(in srgb, var(--accent) 12%, transparent); border-left-color: var(--accent); }
+.nf-pruefzeit .nf-radar-l { color: var(--accent); }
+
 /* ── Drawer extras ── */
 .nf-more { font-style: italic; }
 .nf-moverow-other { margin-top: 6px; }
@@ -1005,6 +1062,7 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
 .nf-rahmen { margin-top: 18px; padding-top: 4px; border-top: 1px solid var(--hairline); }
 .nf-paar .spr-phrase-t { line-height: 1.4; }
 .nf-paar-sep { font-style: normal; color: var(--mute); margin: 0 4px; }
+.nf-aufbau-list { margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 14px; line-height: 1.5; color: var(--ink-soft); }
 .nf-words { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 6px; }
 .nf-word { display: flex; align-items: baseline; gap: 7px; }
 .nf-word b { font-family: var(--font-display); font-size: 15px; font-weight: 500; letter-spacing: -.01em; }

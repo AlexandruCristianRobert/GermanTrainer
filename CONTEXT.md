@@ -379,12 +379,16 @@ The optional compose scaffold of a [Nachricht]: labeled empty slots — Betreff,
 _Avoid_: template, form, E-Mail-Editor, structured editor
 
 **Gerüst-Check**:
-Live dots for a [Nachricht]'s communicative frame, shown beside the [Inhaltspunkt] checklist and governed by the same checklist switch: Betreff vorhanden · Anrede korrekt (fits the [Schreibauftrag]'s Empfänger, comma set) · kleingeschrieben nach der Anrede · Absätze erkennbar · Grußformel · Name darunter. Local text checks, advisory, never a grading input — the frame is graded only by the AI, inside Erfüllung.
+Live dots for a [Nachricht]'s communicative frame, shown beside the [Inhaltspunkt] checklist and governed by the same checklist switch: Betreff vorhanden · Anrede korrekt (names the [Schreibauftrag]'s Empfänger with the matching Herr/Frau title and adjective ending — *Sehr geehrte Frau …* never *Sehr geehrte Herr …* — comma set) · kleingeschrieben nach der Anrede · Absätze erkennbar (in the body, between Anrede and Grußformel — the assembled frame alone earns nothing) · Grußformel · Name darunter. Local text checks, advisory, never a grading input — the frame is graded only by the AI, inside Erfüllung.
 _Avoid_: form validation, Formalia-Check, frame check (English-only), checklist (that is the Inhaltspunkt surface)
 
 **Radar**:
 The live warning helper of a [Nachricht], under its own help switch: the **Du/Sie-Radar** flags du/dich/dein/euch forms and informal markers in what must be a Sie-register text, and the **Höflichkeits-Check** warns when a Bitte- or Beschwerde-[Schreibanlass] text contains no Konjunktiv-II form yet. Push-warnings where the hint drawer is pull-help — it interrupts with "this reads wrong" rather than waiting to be asked, which makes it the least exam-realistic help and is why it has its own switch, separate from the checklist's progress dots. Local checks, free, advisory; its warnings are never [Hilfe-Protokoll] entries.
 _Avoid_: linter, live correction, Fehlerprüfung, register checker (one of its two checks, not the helper)
+
+**Nachbessern**:
+The optional guided revision pass offered once, directly after a [Nachricht] is graded: the just-graded text reopens with the run's marked mistakes in view, the learner works the corrections in, and local text checks report each as *offen*, *geändert* or *behoben* — where *geändert* claims only that the wording changed, never that the new wording is right. A continuation of the grading moment, not access to a stored text: the text is held only for that sitting and is discarded when the pass ends or the page is left — a reload loses the offer (the ADR-0019 boundary, scoped by ADR-0024). Never a [Run], never re-graded, never persisted; it touches neither the [Error archive] nor the [Correction drill]'s queue — a fix incorporated with the correction on screen is not retrieval, so "nachgeübt" stays the Correction drill's word.
+_Avoid_: revision, draft (the C1 tutor's world), edit mode, retry, Nachbesserung in Teil 2 UI copy (taught there as Beschwerde content vocabulary — the remedy the writer demands)
 
 ### Identity & history
 

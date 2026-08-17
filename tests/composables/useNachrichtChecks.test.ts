@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, it, expect } from 'vitest'
 import { geruestSignals, radarWarnungen } from '../../src/composables/useNachrichtChecks'
 
 const GOOD =
@@ -40,21 +40,82 @@ describe('geruestSignals', () => {
 
 describe('radarWarnungen', () => {
   test('clean formal text yields no warnings', () => {
-    expect(radarWarnungen(GOOD, 'entschuldigung')).toEqual([])
+    expect(radarWarnungen(GOOD, 'entschuldigung', 40)).toEqual([])
   })
   test('du-forms are flagged with the matched words', () => {
-    const w = radarWarnungen(GOOD.replace('Könnten Sie mir', 'Kannst du mir'), 'entschuldigung')
+    const w = radarWarnungen(GOOD.replace('Könnten Sie mir', 'Kannst du mir'), 'entschuldigung', 40)
     const duW = w.find(x => x.key === 'du-form')!
     expect(duW.matches).toContain('du')
   })
   test('informal markers are flagged', () => {
-    const w = radarWarnungen(GOOD.replace('Mit freundlichen Grüßen', 'LG'), 'entschuldigung')
+    const w = radarWarnungen(GOOD.replace('Mit freundlichen Grüßen', 'LG'), 'entschuldigung', 40)
     expect(w.some(x => x.key === 'informell')).toBe(true)
   })
-  test('a Bitte without Konjunktiv II fires hoeflichkeit; with KII it does not', () => {
+  test('a Bitte without Konjunktiv II fires hoeflichkeit at 40+ words; with KII it does not', () => {
     const noKii = 'Betreff: Bitte\n\nSehr geehrte Frau Kling,\nich will zwei Tage Homeoffice. Schicken Sie mir die Formulare.\n\nMit freundlichen Grüßen\nAnna'
-    expect(radarWarnungen(noKii, 'bitte').some(x => x.key === 'hoeflichkeit')).toBe(true)
-    expect(radarWarnungen(GOOD, 'bitte').some(x => x.key === 'hoeflichkeit')).toBe(false)
-    expect(radarWarnungen(noKii, 'dank').some(x => x.key === 'hoeflichkeit')).toBe(false)
+    expect(radarWarnungen(noKii, 'bitte', 45).some(x => x.key === 'hoeflichkeit')).toBe(true)
+    expect(radarWarnungen(GOOD, 'bitte', 45).some(x => x.key === 'hoeflichkeit')).toBe(false)
+    expect(radarWarnungen(noKii, 'dank', 45).some(x => x.key === 'hoeflichkeit')).toBe(false)
+  })
+})
+
+const get = (text: string, name: string, key: string) =>
+  geruestSignals(text, name).find(g => g.key === key)!
+
+describe('anrede title + ending agreement', () => {
+  it('rejects the wrong title for the Empfängerin', () => {
+    const t = 'Betreff: Test\n\nSehr geehrter Herr Hoffmann,\n\nich schreibe…'
+    expect(get(t, 'Frau Hoffmann', 'anrede').ok).toBe(false)
+  })
+  it('rejects the wrong adjective ending', () => {
+    const t = 'Betreff: Test\n\nSehr geehrte Herr Semder,\n\nich schreibe…'
+    expect(get(t, 'Herr Semder', 'anrede').ok).toBe(false)
+  })
+  it('accepts each resolved stem for the right title', () => {
+    for (const anrede of ['Sehr geehrte Frau Hoffmann,', 'Liebe Frau Hoffmann,', 'Guten Tag, Frau Hoffmann,']) {
+      const t = `Betreff: Test\n\n${anrede}\n\nich schreibe…`
+      expect(get(t, 'Frau Hoffmann', 'anrede').ok).toBe(true)
+    }
+  })
+  it('renders the resolved target form in the hint', () => {
+    const hint = get('x', 'Frau Hoffmann', 'anrede').hintDe
+    expect(hint).toContain('Sehr geehrte Frau Hoffmann,')
+    expect(get('x', 'Herr Semder', 'anrede').hintDe).toContain('Sehr geehrter Herr Semder,')
+  })
+})
+
+describe('absaetze body-scoped', () => {
+  const frame = (body: string) =>
+    `Betreff: Test\n\nSehr geehrte Frau Hoffmann,\n${body}\n\nMit freundlichen Grüßen\nAnna`
+  it('fails when the body between Anrede and Gruß is one block', () => {
+    expect(get(frame('ein einziger langer Block ohne Absätze und so weiter'), 'Frau Hoffmann', 'absaetze').ok).toBe(false)
+  })
+  it('passes when the body itself has a blank-line paragraph break', () => {
+    expect(get(frame('erster Absatz hier.\n\nzweiter Absatz dort.'), 'Frau Hoffmann', 'absaetze').ok).toBe(true)
+  })
+  it('falls back to the whole-text rule while an anchor is missing', () => {
+    const noGruss = 'Betreff: Test\n\nSehr geehrte Frau Hoffmann,\n\nabsatz eins\n\nabsatz zwei'
+    expect(get(noGruss, 'Frau Hoffmann', 'absaetze').ok).toBe(true)
+  })
+})
+
+describe('hoeflichkeit floor', () => {
+  it('stays silent below 40 words', () => {
+    expect(radarWarnungen('Sehr geehrte Frau Kling,', 'bitte', 4).some(w => w.key === 'hoeflichkeit')).toBe(false)
+  })
+  it('fires at 40+ words without Konjunktiv II', () => {
+    expect(radarWarnungen('Geben Sie mir bitte die Unterlagen.', 'bitte', 45).some(w => w.key === 'hoeflichkeit')).toBe(true)
+  })
+  it('fires at exactly the 40-word floor', () => {
+    expect(radarWarnungen('Geben Sie mir die Unterlagen.', 'bitte', 40).some(w => w.key === 'hoeflichkeit')).toBe(true)
+  })
+  it('stays silent one word short of the floor', () => {
+    expect(radarWarnungen('Geben Sie mir die Unterlagen.', 'bitte', 39).some(w => w.key === 'hoeflichkeit')).toBe(false)
+  })
+  it('fires for beschwerde too, at 45+ words without Konjunktiv II', () => {
+    expect(radarWarnungen('Geben Sie mir die Unterlagen.', 'beschwerde', 45).some(w => w.key === 'hoeflichkeit')).toBe(true)
+  })
+  it('du-form warning stays instant', () => {
+    expect(radarWarnungen('danke dir', 'dank', 2).some(w => w.key === 'du-form')).toBe(true)
   })
 })
