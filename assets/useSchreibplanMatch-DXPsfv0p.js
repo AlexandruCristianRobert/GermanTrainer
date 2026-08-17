@@ -1,0 +1,1 @@
+function l(e){return e.replace(/[.,;:!?…]/g,"").replace(/\s+/g," ").trim().toLowerCase()}function o(e,r){const n=l(e).split(" ").filter(t=>t.length>0);return n.length===0||r.length===0?!1:n.every(t=>r.includes(t))}export{o as k,l as n};
