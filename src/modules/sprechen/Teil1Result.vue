@@ -401,7 +401,7 @@ function openDrill() { router.push({ name: 'sprechen-drill' }) }
         <h2 class="spr-block-t">Vortragsmittel-Ausbeute</h2>
         <span class="spr-block-n">{{ yieldIds.length }} von {{ SPRECHEN_VORTRAGSMITTEL.length }} · lokal gezählt</span>
       </div>
-      <SprVortragYield :used-ids="yieldIds" note="In diesem Vortrag nicht vorgekommen." />
+      <SprVortragYield :used-ids="yieldIds" note="In diesem Vortrag nicht wörtlich verwendet." />
     </section>
 
     <section class="spr-block">

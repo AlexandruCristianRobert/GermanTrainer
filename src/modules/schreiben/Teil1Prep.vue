@@ -99,6 +99,15 @@ const keywordWarnings = computed<Partial<Record<number, string>>>(() => {
     }
   }
 
+  for (const e of entries) {
+    if (e.raw.includes(' ') && raw[e.index] === undefined) {
+      raw[e.index] = {
+        msg: `„${e.raw}" hat mehrere Wörter — der Haken leuchtet erst, wenn alle im Text stehen.`,
+        requires: [e.index]
+      }
+    }
+  }
+
   for (let i = 0; i < entries.length; i++) {
     for (let j = i + 1; j < entries.length; j++) {
       const a = entries[i]

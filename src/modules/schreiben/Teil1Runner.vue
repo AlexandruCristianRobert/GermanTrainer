@@ -60,6 +60,7 @@ import {
 import { resolveSchreibArgumentBank } from '../../data/schreibenArguments'
 import type { ArgumentBank } from '../../data/sprechenArguments'
 import { matchRedemittel, pickMoveNudge } from '../../composables/useRedemittelMatch'
+import { keywordWritten, normalizeForMatch } from '../../composables/useSchreibplanMatch'
 import { bumpRedemittelYield, lifetimeCounts } from '../../composables/useRedemittelYield'
 import { loadCachedSchreibBank } from '../../composables/useSchreibenArguments'
 import {
@@ -137,12 +138,6 @@ interface InhaltspunktSignal {
   said: boolean
 }
 
-/** Same normalisation as the Redemittel matcher / useVortragCoverage.ts's
- *  planSignals, so all three agree on what "written" means. */
-function normalizeForMatch(s: string): string {
-  return s.replace(/[.,;:!?…]/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
-}
-
 /** One signal per Inhaltspunkt, in task-sheet order. A keywordless entry
  *  renders `said: false` — the rail shows a dash for it, not a false dot. */
 const planSignals = computed<InhaltspunktSignal[]>(() => {
@@ -152,12 +147,11 @@ const planSignals = computed<InhaltspunktSignal[]>(() => {
   const byIndex = new Map(b.plan.map(p => [p.index, p.keyword ?? '']))
   return b.thema.inhaltspunkte.map((punkt, i) => {
     const keyword = (byIndex.get(i) ?? '').trim()
-    const needle = normalizeForMatch(keyword)
     return {
       index: i,
       punkt,
       keyword,
-      said: needle.length > 0 && hay.length > 0 && hay.includes(needle)
+      said: keywordWritten(keyword, hay)
     }
   })
 })
