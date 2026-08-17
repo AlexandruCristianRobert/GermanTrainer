@@ -36,3 +36,6 @@ who wants both uses both.
   its own; the grader schema has to be written with that in mind.
 - Schreibmittel yield, Hilfe-Protokoll counts, and anything else derived from the essay
   must be computed and banked at grading time — there is no re-count later.
+- Scoped by ADR-0024: one optional [Nachbessern](../../CONTEXT.md) pass may hold the
+  just-graded text in volatile memory until the result page is left. Nothing survives
+  that page, and no store ever carries the text — the boundary sits at the sitting.
