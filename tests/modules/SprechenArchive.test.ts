@@ -2,7 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 
 const push = vi.fn()
-vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }))
+// Mutable so individual tests can simulate arriving with a `?module=` query
+// (read once by SprechenArchive.vue's loadAll() at setup) without needing a
+// mockReturnValueOnce dance — the factory below closes over this variable.
+let routeQuery: Record<string, string> = {}
+vi.mock('vue-router', () => ({
+  useRouter: () => ({ push }),
+  useRoute: () => ({ query: routeQuery })
+}))
 
 const row = (id: string, kind: string) => ({
   id, discussionId: 'd1', topicTitle: 'Tempolimit', modality: 'typed', kind,
@@ -26,7 +33,10 @@ vi.mock('../../src/composables/useSprechenArchive', () => ({
 
 import SprechenArchive from '../../src/modules/sprechen/SprechenArchive.vue'
 
-beforeEach(() => push.mockClear())
+beforeEach(() => {
+  push.mockClear()
+  routeQuery = {}
+})
 
 describe('SprechenArchive', () => {
   it('renders a counter tile per Sprechen error tag', async () => {
@@ -78,5 +88,12 @@ describe('SprechenArchive', () => {
     vi.mocked(mod.drilledIds).mockResolvedValueOnce(new Set(['c1', 'c2']))
     const w = mount(SprechenArchive); await flushPromises()
     expect((w.find('.btn-accent').element as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('preselects the schreiben module chip from a ?module= route query', async () => {
+    routeQuery = { module: 'schreiben' }
+    const w = mount(SprechenArchive); await flushPromises()
+    // Chip order is Alle, Sprechen, Schreiben (see template).
+    expect(w.findAll('.spr-mkind')[2].classes()).toContain('on')
   })
 })
