@@ -1,17 +1,22 @@
 <script setup lang="ts">
 // Schreiben hub — Goethe B2 exam trainer (CONTEXT.md → "Forumsbeitrag").
-// Mirrors SprechenHome.vue's band structure, but single-part: Teil 1
-// (Forumsbeitrag) is live, Teil 2 (halbformelle Nachricht) is a visually
-// disabled panel, so there is no part toggle here — every band below reads
-// straight off 'schreiben-teil1' Runs and the Schreibmittel bank.
+// Mirrors SprechenHome.vue's band structure: Teil 1 (Forumsbeitrag) and
+// Teil 2 (halbformelle Nachricht) each get their own live panel with their
+// own stats. The shared rows/bands below (cheatsheet, Muster libraries,
+// Fehlerarchiv, Korrekturdrill, Letzte Bewertung, Schreibmittel-Ausbeute)
+// read off 'schreiben-teil1' Runs and the Schreibmittel bank only, by
+// design — Teil 2's own stats live in its panel above, not in these
+// shared bands.
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadHistory } from '../../composables/useQuizHistory'
 import { countsByKind, openCorrections } from '../../composables/useSprechenArchive'
 import { lifetimeCounts } from '../../composables/useRedemittelYield'
 import { allThemen, doneThemaTitles } from '../../composables/useSchreibenThemen'
+import { allAuftraege, doneAuftragTitles } from '../../composables/useSchreibenAuftraege'
 import { SCHREIBEN_SCHREIBMITTEL } from '../../data/schreibenMittel'
 import { SCHREIBEN_MUSTER } from '../../data/schreibenMuster'
+import { SCHREIBEN_MUSTER_NACHRICHTEN } from '../../data/schreibenMusterNachrichten'
 import SchrYield from '../../components/schreiben/SchrYield.vue'
 import SprCriterionBars, { type CriterionScore } from '../../components/sprechen/SprCriterionBars.vue'
 import { SCHREIBEN_B2_TEIL1 } from '../../data/rubrics'
@@ -20,12 +25,13 @@ const router = useRouter()
 function go(name: string) { router.push({ name }) }
 
 const allRuns = computed(() => loadHistory())
-const schreibenRuns = computed(() => allRuns.value.filter(h => h.type === 'schreiben-teil1'))
+const teil1Runs = computed(() => allRuns.value.filter(h => h.type === 'schreiben-teil1'))
+const teil2Runs = computed(() => allRuns.value.filter(h => h.type === 'schreiben-teil2'))
 
 /** Newest Run's criteria, not best, not mean — same rule SprechenHome.vue
  *  applies per Modality (there is only one Modality here: typed). */
 const latestCriteria = computed<CriterionScore[] | null>(() => {
-  const cs = schreibenRuns.value[0]?.meta.sprechenCriteria
+  const cs = teil1Runs.value[0]?.meta.sprechenCriteria
   return Array.isArray(cs) && cs.length > 0 ? (cs as CriterionScore[]) : null
 })
 
@@ -34,7 +40,13 @@ const latestCriteria = computed<CriterionScore[] | null>(() => {
 // reuse them so the hub's count and the picker can never disagree.
 const doneThemen = computed(() => doneThemaTitles().size)
 const totalThemen = computed(() => allThemen().length)
-const lastScore = computed(() => schreibenRuns.value[0]?.meta.sprechenScore ?? null)
+const lastScore = computed(() => teil1Runs.value[0]?.meta.sprechenScore ?? null)
+
+// Teil 2's counterpart, one level down: doneAuftragTitles()/allAuftraege()
+// read 'schreiben-teil2' Runs only (useSchreibenAuftraege.ts).
+const doneAuftraege = computed(() => doneAuftragTitles().size)
+const totalAuftraege = computed(() => allAuftraege().length)
+const lastTeil2Score = computed(() => teil2Runs.value[0]?.meta.sprechenScore ?? null)
 
 const usedSchreibmittelIds = computed(() => Object.keys(lifetimeCounts(SCHREIBEN_SCHREIBMITTEL)))
 const usedSchreibmittelCount = computed(() => usedSchreibmittelIds.value.length)
@@ -66,7 +78,7 @@ onMounted(async () => {
 /** Last 5 Forumsbeiträge, newest first — loadHistory() is already sorted, so
  *  filtering preserves order and no extra sort is needed. */
 const recents = computed(() =>
-  schreibenRuns.value.slice(0, 5).map(r => ({
+  teil1Runs.value.slice(0, 5).map(r => ({
     id: r.id,
     date: new Date(r.startedAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }),
     topic: r.meta.topicTitle ?? '—',
@@ -91,12 +103,18 @@ const rows = [
       'grammatische Strukturen markiert, jede Stelle mit einer eigenen Begründung.'
   },
   {
-    n: 'III', route: 'sprechen-archive', title: 'Fehlerarchiv',
+    n: 'III', route: 'schreiben-muster-teil2', title: 'Musternachrichten',
+    de: 'Fünf Schreibanlässe, Satz für Satz erklärt',
+    desc: 'Eine annotierte Musternachricht je Schreibanlass: Konnektoren, Nachrichtenmittel, ' +
+      'grammatische Strukturen und Höflichkeit markiert, jede Stelle mit einer eigenen Begründung.'
+  },
+  {
+    n: 'IV', route: 'sprechen-archive', title: 'Fehlerarchiv',
     de: 'Wiederkehrende Fehler',
     desc: 'Deine eigenen falschen Stellen aus den Forumsbeiträgen, nach Fehlerart sortiert. Der Text selbst wird verworfen — diese Sätze nicht.'
   },
   {
-    n: 'IV', route: 'sprechen-drill', title: 'Korrekturdrill',
+    n: 'V', route: 'sprechen-drill', title: 'Korrekturdrill',
     de: 'Deine Sätze, noch einmal',
     desc: 'Spielt deine eigenen markierten Stellen aus — du tippst nur die Korrektur. Was du richtig hast, gilt als nachgeübt.'
   }
@@ -108,6 +126,9 @@ function metaFor(route: string): string[] {
   }
   if (route === 'schreiben-muster') {
     return [`${SCHREIBEN_MUSTER.length} Muster`]
+  }
+  if (route === 'schreiben-muster-teil2') {
+    return [`${SCHREIBEN_MUSTER_NACHRICHTEN.length} Musternachrichten`]
   }
   if (archiveState.value === 'loading') return ['Archiv wird geladen']
   if (archiveState.value === 'failed' || !archive.value) return ['Archiv nicht lesbar']
@@ -124,12 +145,13 @@ function metaFor(route: string): string[] {
     <header class="section-header">
       <div>
         <div class="breadcrumb">Kapitel · Goethe B2 · Schreiben</div>
-        <h1 class="section-title">Forumsbeitrag<em>.</em></h1>
+        <h1 class="section-title">Schreiben<em>.</em></h1>
         <p class="section-subtitle">
-          Teil 1 der schriftlichen B2-Prüfung: ein Schreibthema, vier Inhaltspunkte, mindestens
-          150 Wörter. Bewertet werden Erfüllung/Inhalt, Kohärenz &amp; Textaufbau, Wortschatz und
-          Strukturen. Der Text wird nach der Bewertung verworfen — was bleibt, sind Korrekturen
-          und Ergebnis.
+          Die schriftliche B2-Prüfung, beide Teile: Teil 1 der Forumsbeitrag mit vier
+          Inhaltspunkten und mindestens 150 Wörtern, Teil 2 die halbformelle Nachricht mit
+          vier Inhaltspunkten und mindestens 100 Wörtern. Bewertet werden Erfüllung/Inhalt,
+          Kohärenz &amp; Textaufbau, Wortschatz und Strukturen. Der Text wird nach der
+          Bewertung verworfen — was bleibt, sind Korrekturen und Ergebnis.
         </p>
       </div>
       <div class="spr-level">
@@ -159,26 +181,35 @@ function metaFor(route: string): string[] {
             <b>{{ lastScore === null ? 'noch keine' : `zuletzt ${lastScore}` }}</b>
             <span>{{ lastScore === null ? 'Bewertung' : '/ 100' }}</span>
           </div>
-          <div><b>{{ schreibenRuns.length }} Beiträge</b><span>bisher</span></div>
+          <div><b>{{ teil1Runs.length }} Beiträge</b><span>bisher</span></div>
         </div>
         <div class="spr-part-go">Starten <span aria-hidden="true">→</span></div>
       </button>
 
-      <div class="spr-part dead" aria-disabled="true">
+      <button class="spr-part" type="button" @click="go('schreiben-teil2')">
         <div class="spr-part-h">
           <span class="spr-part-n">Teil 2</span>
-          <span class="spr-lbl">halbformell</span>
+          <span class="spr-lbl">allein, ca. 25 Minuten</span>
         </div>
         <div class="spr-part-t">Halbformelle Nachricht</div>
         <p class="spr-part-claim">
-          Eine halbformelle Nachricht auf eine vorgegebene Situation hin.
+          Ein Schreibauftrag, vier Inhaltspunkte, mindestens 100 Wörter.
         </p>
         <p class="spr-part-d">
-          Reagieren auf eine Situation mit passendem Register, Anrede und Schlussformel — dieser
-          Teil folgt in einer späteren Version.
+          Du bekommst ein Aufgabenblatt zu einem von fünf Schreibanlässen — Entschuldigung,
+          Bitte, Beschwerde, Vorschlag oder Dank — und reagierst mit passender Anrede,
+          Sie-Register und Grußformel darauf.
         </p>
-        <span class="spr-part-soon">folgt</span>
-      </div>
+        <div class="spr-part-stats">
+          <div><b>{{ doneAuftraege }}/{{ totalAuftraege }}</b><span>Aufträge bearbeitet</span></div>
+          <div>
+            <b>{{ lastTeil2Score === null ? 'noch keine' : `zuletzt ${lastTeil2Score}` }}</b>
+            <span>{{ lastTeil2Score === null ? 'Bewertung' : '/ 100' }}</span>
+          </div>
+          <div><b>{{ teil2Runs.length }} Nachrichten</b><span>bisher</span></div>
+        </div>
+        <div class="spr-part-go">Starten <span aria-hidden="true">→</span></div>
+      </button>
     </div>
 
     <!-- 02 · Shared rows -->

@@ -45,7 +45,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: 'pruefung', label: 'Prüfung',
     items: [
       { route: 'sprechen', label: 'Sprechen', de: 'B2 · Vortrag & Diskussion' },
-      { route: 'schreiben', label: 'Schreiben', de: 'B2 · Forumsbeitrag' },
+      { route: 'schreiben', label: 'Schreiben', de: 'B2 · Schreiben' },
       { route: 'writing', label: 'Writing tutor', de: 'C1 · Aufsatz-Tutor' },
       { route: 'simulator-c1', label: 'Mock C1', de: 'C1 · Schreiben-Simulation', aliases: ['simulator'] }
     ]

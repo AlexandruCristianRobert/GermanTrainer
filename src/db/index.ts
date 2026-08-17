@@ -6,6 +6,7 @@ import type { SprechenDiscussion, SprechenVortrag } from '../data/sprechen'
 import type { ArchivedCorrection, CorrectionEvent } from '../composables/useSprechenArchive'
 import type { CachedArgumentBank } from '../data/sprechenArguments'
 import type { CachedSchreibArgumentBank, SchreibenBeitrag } from '../data/schreiben'
+import type { CachedNachrichtBaukasten, SchreibenNachricht } from '../data/schreibenNachricht'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
 
@@ -26,6 +27,10 @@ export class GermanTrainerDb extends Dexie {
   schreibenBeitraege!: Table<SchreibenBeitrag, string>
   /** Cached AI-generated argument bank per Schreibthema (see ../data/schreiben). */
   schreibenArgumentBanks!: Table<CachedSchreibArgumentBank, string>
+  /** Schreiben Teil 2 working state — one in-flight Nachricht at a time (see useSchreibenNachricht.ts). */
+  schreibenNachrichten!: Table<SchreibenNachricht, string>
+  /** Cached AI-generated Inhalts-Baukasten per Schreibauftrag (see ../data/schreibenNachricht). */
+  schreibenBaukaesten!: Table<CachedNachrichtBaukasten, string>
 
   constructor() {
     super('GermanTrainerDb')
@@ -239,6 +244,25 @@ export class GermanTrainerDb extends Dexie {
       // nouns + the remaining technical Programming nouns) the Tier 1 Katalog's
       // new Domains reference (ADR-0022). Same top-up as version(14).
       await topUpNounsFromSeed(tx)
+    })
+    this.version(16).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt',
+      sprechenDiscussions: '&id, status, startedAt',
+      sprechenCorrections: '&id, kind, createdAt, topicTitle',
+      sprechenCorrectionEvents: '&id, correctionId, at',
+      sprechenArgumentBanks: 'topicId',
+      sprechenVortraege: '&id, status, startedAt',
+      schreibenBeitraege: '&id, status, startedAt',
+      schreibenArgumentBanks: 'themaId',
+      // Schreiben Teil 2 working state (see useSchreibenNachricht.ts) plus its
+      // cached Inhalts-Baukasten. Purely additive — no upgrade hook, because no
+      // existing row gains a required field.
+      schreibenNachrichten: '&id, status, startedAt',
+      schreibenBaukaesten: 'auftragId'
     })
   }
 }

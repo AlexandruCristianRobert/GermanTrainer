@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.20.08'
+export const APP_VERSION = '1.21.00'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,17 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.21.00', date: '2026-08-17', kind: 'module',
+    title: 'Schreiben · Teil 2 Nachricht',
+    notes: [
+      '<strong>Die schriftliche Prüfung ist komplett: Teil 2, die halbformelle Nachricht.</strong> Ein <em>Schreibauftrag</em> wie im Prüfungsheft: eine Situation aus Arbeit oder Kurs, ein Empfänger mit Name und Rolle, vier <em>Inhaltspunkte</em> — und mindestens 100 Wörter. 20 Aufträge sind eingebaut, in fünf Anlass-Gruppen von <em>Entschuldigung & Absage</em> bis <em>Dank & Rückmeldung</em>; die KI erzeugt auf Wunsch weitere. Eine weiche 25-Minuten-Uhr zeigt die drei Phasen <em>planen · schreiben · prüfen</em> an, bricht aber nie ab — und die Nachricht lässt sich jederzeit unterbrechen und fortsetzen.',
+      '<strong>Der feste Rahmen wird trainiert, nicht vorgeschrieben.</strong> Das <em>Rahmen-Gerüst</em> gliedert die Sitzung in vier Felder — Betreff, Anrede, Text, Gruß & Name — oder man schreibt frei in ein Feld, wie in der Prüfung; vorgeschrieben ist nichts, jede Anrede samt Komma sind die eigenen Worte. Der <em>Gerüst-Check</em> hakt sechs Punkte live ab (Betreff da? Anrede an die richtige Person? Grußformel ohne Punkt?), und der <em>Radar</em> warnt beim Tippen vor du-Formen, Umgangssprache und Bitten ohne Konjunktiv II.',
+      '<strong>Die Hilfen kennen den Anlass.</strong> 40 <em>Nachrichtenmittel</em> unter acht Funktionen — der Drawer zeigt zuerst die zum Anlass passenden, und der <em>„Diesmal: …"</em>-Stups schlägt nie eine Funktion vor, die zum Auftrag nicht passt (keine Entschuldigung in einer Danknachricht). Anrede und Grußformel kommen als zusammengehörige Paare per Klick. Der <em>Inhalts-Baukasten</em> liefert je Auftrag Gründe, Lösungen und Textwortschatz — offline für jeden Anlass, auf Wunsch von der KI für den konkreten Auftrag verfeinert. Der Spickzettel hat jetzt einen Teil-1/2-Umschalter.',
+      '<strong>Fünf Musternachrichten zum Sezieren.</strong> Eine pro Anlass, jede mit vier einblendbaren Schichten: <em>Konnektoren</em>, <em>Nachrichtenmittel & Züge</em>, <em>grammatische Strukturen</em>, <em>Höflichkeit</em>. Aus der Planung und dem Ergebnis führt je ein Link zur Musternachricht des eigenen Anlasses — erst schreiben, dann am Modell nachlesen.',
+      '<strong>Bewertet wie im Zeugnis, archiviert wie gewohnt.</strong> Dieselben vier offiziellen Kriterien zu je 25 Punkten, jeder Inhaltspunkt mit eigenem Urteil, Aufwertungen für das, was <em>nicht falsch</em> war. Die Fehler wandern ins gemeinsame Fehlerarchiv — Vortrag, Diskussion, Forumsbeitrag und Nachricht schreiben jetzt zu viert hinein, der Korrekturdrill mischt alle. Der Text selbst wird nach der Bewertung verworfen.'
+    ]
+  },
   {
     version: '1.20.08', date: '2026-08-14', kind: 'polish',
     title: 'Sätze · Tagesziel 100 & echte Verben im Hover',

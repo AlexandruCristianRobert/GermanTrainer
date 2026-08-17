@@ -567,6 +567,74 @@ export const SCHREIBEN_B2_TEIL1: SprechenRubric = {
 }
 
 /**
+ * Schreiben Teil 2 · Nachricht. Same SprechenRubric shape as Teil 1 — four
+ * criteria à 25, pass at 60, same Prädikat bands. Typed-only. What Teil 2
+ * grades differently lives in the descriptors: the communicative frame
+ * (Betreff, Anrede, Grußformel), the Sie-register, and the politeness
+ * grammar of requests. Inhaltspunkt coverage is judged by the grader inside
+ * `erfuellung`, never mechanically measured (ADR-0014's logic).
+ */
+export const SCHREIBEN_B2_TEIL2: SprechenRubric = {
+  labelDe: 'Goethe-Zertifikat B2 · Schreiben Teil 2 (adaptiert)',
+  totalMax: 100,
+  passingScore: 60,
+  criteria: [
+    {
+      key: 'erfuellung',
+      labelDe: 'Erfüllung / Inhalt',
+      labelEn: 'Task fulfilment / content',
+      maxPoints: 25,
+      descriptorDe:
+        'Werden alle vier Inhaltspunkte des Aufgabenblatts behandelt — jeweils mit ' +
+        'mindestens einem eigenen Gedanken? Ist der Text eine erkennbare halbformelle ' +
+        'Nachricht an die genannte Person: Betreff, passende Anrede, Bezug auf die ' +
+        'Situation, Grußformel mit Name? Ein fehlender Inhaltspunkt oder eine fehlende ' +
+        'Anrede/Grußformel begrenzt dieses Kriterium deutlich; ebenso ein Text klar ' +
+        'unter der Mindestwortzahl.'
+    },
+    {
+      key: 'kohaerenz',
+      labelDe: 'Kohärenz & Textaufbau',
+      labelEn: 'Coherence & text structure',
+      maxPoints: 25,
+      descriptorDe:
+        'Folgt die Nachricht einem klaren Bogen — Bezug auf den Anlass, Erklärung der ' +
+        'Situation, Anliegen, verbindlicher Abschluss? Sind die Inhaltspunkte zu ' +
+        'Absätzen gebündelt statt aneinandergereiht, und verbinden Konnektoren ' +
+        '(deshalb, daher, dennoch, außerdem) die Gedanken sichtbar?'
+    },
+    {
+      key: 'wortschatz',
+      labelDe: 'Wortschatz & Register',
+      labelEn: 'Vocabulary & register',
+      maxPoints: 25,
+      descriptorDe:
+        'Ist der Wortschatz präzise und durchgehend im Sie-Register — höfliche ' +
+        'Wendungen des Bittens, Entschuldigens, Vorschlagens statt Alltagston? ' +
+        'Registerbrüche (du-Formen, mündliche Füller, saloppe Abkürzungen) und ' +
+        'unpassend distanzlose Formulierungen kosten hier.'
+    },
+    {
+      key: 'strukturen',
+      labelDe: 'Strukturen',
+      labelEn: 'Structures',
+      maxPoints: 25,
+      descriptorDe:
+        'Wie korrekt und variantenreich sind die Strukturen — Konjunktiv II für ' +
+        'höfliche Bitten (könnten Sie, wäre es möglich), Nebensätze, indirekte ' +
+        'Fragen, korrekte Kommasetzung um Anrede und Einschübe? Wie häufig und wie ' +
+        'schwerwiegend sind Fehler in Deklination, Konjugation und Rechtschreibung?'
+    }
+  ],
+  notes:
+    'Adaptierte Bewertung für getippte halbformelle Nachrichten (Schreiben Teil 2): ' +
+    'vier Kriterien zu je 25 Punkten, Bestehensgrenze 60. Die Aufgabe verlangt ' +
+    'mindestens 100 Wörter; ein deutlich kürzerer Text senkt die Erfüllung. ' +
+    'Prädikate wie im Goethe-Zeugnis: 90+ sehr gut, 80+ gut, 70+ befriedigend, ' +
+    '60+ ausreichend, darunter nicht bestanden.'
+}
+
+/**
  * Resolves the modality-appropriate descriptor for a Sprechen criterion.
  * Typed runs (and any criterion without a spoken variant) get descriptorDe
  * unchanged; spoken runs get descriptorSpokenDe where one is defined. The
