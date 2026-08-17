@@ -106,6 +106,15 @@ describe('hoeflichkeit floor', () => {
   it('fires at 40+ words without Konjunktiv II', () => {
     expect(radarWarnungen('Geben Sie mir bitte die Unterlagen.', 'bitte', 45).some(w => w.key === 'hoeflichkeit')).toBe(true)
   })
+  it('fires at exactly the 40-word floor', () => {
+    expect(radarWarnungen('Geben Sie mir die Unterlagen.', 'bitte', 40).some(w => w.key === 'hoeflichkeit')).toBe(true)
+  })
+  it('stays silent one word short of the floor', () => {
+    expect(radarWarnungen('Geben Sie mir die Unterlagen.', 'bitte', 39).some(w => w.key === 'hoeflichkeit')).toBe(false)
+  })
+  it('fires for beschwerde too, at 45+ words without Konjunktiv II', () => {
+    expect(radarWarnungen('Geben Sie mir die Unterlagen.', 'beschwerde', 45).some(w => w.key === 'hoeflichkeit')).toBe(true)
+  })
   it('du-form warning stays instant', () => {
     expect(radarWarnungen('danke dir', 'dank', 2).some(w => w.key === 'du-form')).toBe(true)
   })

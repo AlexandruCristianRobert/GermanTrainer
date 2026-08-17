@@ -51,8 +51,13 @@ onMounted(() => {
     }
     data.value = JSON.parse(raw) as NachrichtResultStash
     nachbessernText.value = takeNachbessernText()
-    const setup = JSON.parse(localStorage.getItem(SETUP_KEY) ?? '{}') as { lang?: 'de' | 'en' }
-    if (setup.lang === 'en' || setup.lang === 'de') lang.value = setup.lang
+    // Isolated from the stash parse above: a corrupted setup key must never
+    // flip an already-successful result render into the error state and
+    // burn the consumed Nachbessern handoff.
+    try {
+      const setup = JSON.parse(localStorage.getItem(SETUP_KEY) ?? '{}') as { lang?: 'de' | 'en' }
+      if (setup.lang === 'en' || setup.lang === 'de') lang.value = setup.lang
+    } catch { /* corrupt setup key — keep default lang */ }
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Auswertung konnte nicht geladen werden.'
   }

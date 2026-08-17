@@ -12,10 +12,11 @@
 //     Anrede formula and its comma are the learner's own words either way
 //     (CONTEXT.md → Rahmen-Gerüst), which lets the Gerüst-Check run the same
 //     six checks in both modes — and `absaetze` is body-scoped (between Anrede
-//     and Grußformel), so the assembled frame alone earns nothing in either
-//     mode. `fullText` — the assembled scaffold or the raw draft — is the
-//     single source every meter, check, matcher, save and grade reads. There
-//     is no second notion of "the text".
+//     and Grußformel) once Anrede and Gruß are both recognised, so the
+//     assembled frame alone earns nothing there; while either is unrecognised
+//     the whole-text fallback still applies. `fullText` — the assembled
+//     scaffold or the raw draft — is the single source every meter, check,
+//     matcher, save and grade reads. There is no second notion of "the text".
 //  2. The GERÜST-CHECK, six live frame dots under the Inhaltspunkt dots, under
 //     the same checklist switch. Local, advisory, never a grading input.
 //  3. The RADAR (own switch): push-warnings for du-Formen, Umgangssprache and
@@ -172,8 +173,11 @@ const phase = computed(() => nachrichtPhase(elapsedSeconds.value))
  *  and NOT a Hilfe-Protokoll entry: it is pushed by the clock, never reached
  *  for. Dismissal lasts the sitting. */
 const pruefzeitDismissed = ref(false)
+// Also checklist-gated: every other timer surface is, and the note's copy
+// references the checklist-surfaced Inhaltspunkte.
 const showPruefzeit = computed(() =>
-  nachricht.value?.helps.timer === true && phase.value === 'pruefen' && !pruefzeitDismissed.value && writing.value
+  nachricht.value?.helps.timer === true && nachricht.value.helps.checklist === true &&
+  phase.value === 'pruefen' && !pruefzeitDismissed.value && writing.value
 )
 
 interface InhaltspunktSignal {
@@ -401,9 +405,9 @@ function insertPhrase(phraseDe: string) {
  * in the blank line between them, where the message body belongs.
  *
  * Exactly ONE blank line separates them: the frame alone must not green the
- * `absaetze` Gerüst dot, which reads the body BETWEEN Anrede and Gruß. That
- * dot is earned when a real body pushes the Gruß down, never by one helper
- * click.
+ * `absaetze` Gerüst dot, which — once Anrede and Gruß are both recognised —
+ * reads the body BETWEEN them. That dot is earned when a real body pushes
+ * the Gruß down, never by one helper click.
  */
 function applyRahmenPaar(p: RahmenPaar) {
   if (rahmenOn.value) {
@@ -1048,7 +1052,7 @@ function backToSetup() { router.push({ name: 'schreiben-teil2' }) }
 
 /* Prüfzeit borrows the Radar's shape but not its ochre: it is clock-advice,
    not a warning about the text. */
-.nf-pruefzeit .nf-radar-row { border-left-color: var(--accent); }
+.nf-pruefzeit .nf-radar-row { background: color-mix(in srgb, var(--accent) 12%, transparent); border-left-color: var(--accent); }
 .nf-pruefzeit .nf-radar-l { color: var(--accent); }
 
 /* ── Drawer extras ── */

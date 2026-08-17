@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Nachbessern (CONTEXT.md → "Nachbessern", ADR-0024): the one guided
 // revision pass over the just-graded text. Deliberately part-agnostic —
-// props are { text, corrections } and nothing else — so a later
+// props are { text, mistakes } and nothing else — so a later
 // Forumsbeitrag adoption is wiring, not rework. Writes NOTHING: no store,
 // no emit but 'done'. The draft lives and dies in this component.
 import { computed, ref } from 'vue'
@@ -33,7 +33,7 @@ const hasAmber = computed(() => rows.value.some(r => r.status === 'geaendert'))
       Arbeite die Korrekturen in deinen Text ein — lokal geprüft, nichts wird gespeichert.
       Verlässt du die Seite, ist der Text weg.
     </p>
-    <textarea v-model="draft" class="nb-text" spellcheck="false" />
+    <textarea v-model="draft" class="nb-text" spellcheck="false" aria-label="Text nachbessern" />
     <div class="nb-rows">
       <div v-for="r in rows" :key="r.i" class="nb-row">
         <span class="nb-status" :class="r.status">{{ STATUS_LABEL[r.status] }}</span>
