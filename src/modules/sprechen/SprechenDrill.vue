@@ -10,7 +10,7 @@
 // derives drilled-ness from that table rather than a boolean on the row. The
 // session ALSO saves one Run (ADR-0013), which is why one drilled correction
 // leaves two records.
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { openCorrections, recordDrillResult } from '../../composables/useSprechenArchive'
 import { saveQuizRun } from '../../composables/useQuizHistory'
@@ -33,6 +33,8 @@ const firstTryCorrect = ref(0)
 const attempted = ref(0)
 const startedAt = Date.now()
 const finished = ref(false)
+const inputRef = ref<HTMLInputElement | null>(null)
+const nextBtnRef = ref<HTMLButtonElement | null>(null)
 
 onMounted(async () => {
   try {
@@ -41,6 +43,7 @@ onMounted(async () => {
     items.value = []
   }
   loading.value = false
+  if (items.value.length > 0) nextTick(() => inputRef.value?.focus())
 })
 
 const current = computed(() => items.value[index.value] ?? null)
@@ -73,11 +76,12 @@ function normalize(s: string): string {
 
 async function check() {
   const c = current.value
-  if (!c || verdict.value !== null) return
+  if (!c || verdict.value !== null || !answer.value.trim()) return
   const ok = normalize(answer.value) === normalize(c.suggested)
   verdict.value = ok ? 'correct' : 'wrong'
   attempted.value += 1
   if (ok) firstTryCorrect.value += 1
+  nextTick(() => nextBtnRef.value?.focus())
   // Non-fatal: a lost event costs the learner a drilled mark, nothing more.
   try { await recordDrillResult(c.id, ok) } catch { /* ignore */ }
 }
@@ -87,6 +91,7 @@ function next() {
   verdict.value = null
   if (index.value + 1 >= items.value.length) { finish(); return }
   index.value += 1
+  nextTick(() => inputRef.value?.focus())
 }
 
 function finish() {
@@ -154,7 +159,7 @@ function finish() {
         {{ parts.before }}<span class="hit">{{ parts.hit }}</span>{{ parts.after }}
       </p>
 
-      <input class="spr-remed-in" v-model="answer" :disabled="verdict !== null"
+      <input class="spr-remed-in" ref="inputRef" v-model="answer" :readonly="verdict !== null"
         placeholder="Wie muss die markierte Stelle heißen?"
         @keydown.enter.prevent="verdict === null ? check() : next()" />
 
@@ -179,7 +184,7 @@ function finish() {
           </div>
           <p class="spr-mk-r">{{ current.reasonDe }}</p>
         </div>
-        <button class="btn btn-accent drill-advance" type="button" @click="next">
+        <button class="btn btn-accent drill-advance" ref="nextBtnRef" type="button" @click="next">
           {{ index + 1 >= items.length ? 'Abschließen' : 'Weiter' }}
           <span aria-hidden="true">→</span>
         </button>

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
+import { nextTick } from 'vue'
 
 const push = vi.fn()
 vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }))
@@ -97,6 +98,41 @@ describe('SprechenDrill', () => {
     expect(run.type).toBe('sprechen-drill')
     expect(run.count).toBe(2)
     expect(run.correct).toBe(1)
+  })
+
+  it('Enter grades the answer, and Enter again presses Weiter', async () => {
+    const w = await mountDrill()
+    await w.find('.spr-remed-in').setValue('wegen des Vertrags')
+    await w.find('.spr-remed-in').trigger('keydown.enter')
+    await flushPromises()
+    expect(w.text()).toContain('Richtig')
+    // The input is readonly (not disabled) after grading, so Enter still lands there.
+    await w.find('.spr-remed-in').trigger('keydown.enter')
+    expect(w.find('.spr-remed-ctx').text()).toContain('da hast du recht')
+  })
+
+  it('Enter with an empty answer grades nothing', async () => {
+    const w = await mountDrill()
+    await w.find('.spr-remed-in').trigger('keydown.enter')
+    expect(recordDrillResult).not.toHaveBeenCalled()
+    expect(w.find('.drill-feedback').exists()).toBe(false)
+  })
+
+  it('focuses the input on load, the Weiter button after grading, the input again on the next correction', async () => {
+    const w = mount(SprechenDrill, { attachTo: document.body })
+    await flushPromises()
+    await nextTick()
+    expect(document.activeElement).toBe(w.find('.spr-remed-in').element)
+    await w.find('.spr-remed-in').setValue('wegen des Vertrags')
+    await w.find('.spr-remed-in').trigger('keydown.enter')
+    await flushPromises()
+    await nextTick()
+    // Focus moves to the Weiter button, so plain Enter activates it natively too.
+    expect(document.activeElement).toBe(w.find('button.drill-advance').element)
+    await w.find('button.drill-advance').trigger('click')
+    await nextTick()
+    expect(document.activeElement).toBe(w.find('.spr-remed-in').element)
+    w.unmount()
   })
 
   it('shows an empty state when nothing is open', async () => {
