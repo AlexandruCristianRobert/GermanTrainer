@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.21.01'
+export const APP_VERSION = '1.21.02'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.21.02', date: '2026-08-18', kind: 'fix',
+    title: 'Korrekturdrill · Tastatur & Fokus',
+    notes: [
+      '<strong>Enter führt durch den ganzen Drill.</strong> Enter prüft die Antwort, Enter geht weiter — die Hände bleiben auf der Tastatur. Bei leerem Feld prüft Enter nichts mehr.',
+      '<strong>Der Fokus ist immer da, wo getippt wird.</strong> Beim Start und nach jedem <em>Weiter</em> steht der Cursor sofort im Eingabefeld; nach dem Prüfen springt er auf den Weiter-Knopf, sodass Enter ihn direkt drückt.'
+    ]
+  },
   {
     version: '1.21.01', date: '2026-08-17', kind: 'polish',
     title: 'Schreiben · Teil 2 Review-Runde',
