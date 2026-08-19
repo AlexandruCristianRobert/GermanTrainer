@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import type { QueuedCorrection } from '../../src/composables/useSprechenArchive'
 
 const push = vi.fn()
 vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }))
@@ -14,7 +15,7 @@ vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }))
 const { recordDrillResult, saveQuizRun, drillQueue } = vi.hoisted(() => ({
   recordDrillResult: vi.fn(async () => undefined),
   saveQuizRun: vi.fn(),
-  drillQueue: vi.fn(async () => ([
+  drillQueue: vi.fn(async (): Promise<QueuedCorrection[]> => ([
     {
       id: 'c1', discussionId: 'd1', topicTitle: 'Tempolimit', modality: 'typed',
       kind: 'grammar', quote: 'wegen dem Vertrag', suggested: 'wegen des Vertrags',
