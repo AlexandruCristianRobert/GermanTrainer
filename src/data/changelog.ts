@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.21.05'
+export const APP_VERSION = '1.22.00'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.22.00', date: '2026-08-19', kind: 'module',
+    title: 'Relativsätze & N-Deklination',
+    notes: [
+      '<strong>Relativsätze — das größte Grammatikloch ist zu.</strong> 120 Karten: Genus und Numerus kommen vom Bezugswort, der Kasus aus der Rolle im Relativsatz — nie vom Hauptsatz. Drei Aufgaben: <em>Pronomen wählen</em>, <em>dessen/deren</em> und <em>Präposition + Pronomen</em> (mit, für, von …), jede Karte mit deutscher Erklärung, die Bezugswort, Rolle und Pronomen benennt.',
+      '<strong>N-Deklination — die schwachen Substantive.</strong> 40 schwache Maskulina von <em>Kollege</em> bis <em>Herr</em> samt der -ns-Sonderfälle <em>Name</em> und <em>Herz</em>. <em>Form tippen</em>: die richtige Endung in den Satz (den Kollegen, dem Zeugen, des Namens). <em>Schwach oder stark?</em>: 20 echte starke Verwechsler (Lehrer, Arzt, Chef …) gegen 20 schwache — nichts ist mit einem Knopf gewinnbar.',
+      '<strong>Beide Module komplett offline und überall eingebunden.</strong> Eigene Kapitel XV und XVI auf der Startseite, Einstellungsseiten mit Niveau- und Aufgaben-Filtern, Tastatursteuerung wie im Korrekturdrill (Ziffern wählen, Enter prüft und geht weiter) — und jede Runde landet in Verlauf, Statistik und Niveau-Einschätzung.'
+    ]
+  },
   {
     version: '1.21.05', date: '2026-08-19', kind: 'polish',
     title: 'Startseite · Tagesplan',
