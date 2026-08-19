@@ -94,16 +94,35 @@ describe('archive scheduling reads (Dexie round-trip)', () => {
   })
 
   it('dueCorrections returns fällig items most-overdue first, with schedules attached', async () => {
-    const [a, b] = await appendCorrections([{ ...base, quote: 'a' }, { ...base, quote: 'b' }])
-    await recordDrillResult(a.id, true)
-    await recordDrillResult(b.id, true)
-    // both due when read 40 days in the future; a's event is older ⇒ more overdue…
-    // events were written milliseconds apart, so force distinct dueAt via the now param only:
-    const now = Date.now() + 40 * DAY
+    // dueAt is derived from lastCorrectAt alone — `now` cannot separate two
+    // items, it only decides whether each one is fällig yet. So pin the clock
+    // and set the two up in OPPOSITE orders: a is the older correction, so
+    // listCorrections (newest-first) hands dueCorrections [b, a]; but a
+    // succeeded first, so a's dueAt is earlier and a is the more overdue one.
+    // Only the dueAt sort can turn [b, a] into [a, b] — delete it and this
+    // test fails on every run rather than one in two.
+    const nowSpy = vi.spyOn(Date, 'now')
+    let a: ArchivedCorrection, b: ArchivedCorrection
+    try {
+      nowSpy.mockReturnValue(1_000)
+      ;[a] = await appendCorrections([{ ...base, quote: 'a' }])
+      nowSpy.mockReturnValue(2_000)
+      ;[b] = await appendCorrections([{ ...base, quote: 'b' }])
+      nowSpy.mockReturnValue(3_000)
+      await recordDrillResult(a.id, true)
+      nowSpy.mockReturnValue(4_000)
+      await recordDrillResult(b.id, true)
+    } finally {
+      nowSpy.mockRestore()
+    }
+    const now = 4_000 + 40 * DAY   // both intervals elapsed ⇒ both fällig
     const due = await dueCorrections(undefined, undefined, now)
     expect(due).toHaveLength(2)
     expect(due.every(q => q.schedule.status === 'faellig')).toBe(true)
-    expect(due[0].schedule.dueAt! <= due[1].schedule.dueAt!).toBe(true)
+    expect(due.map(q => q.id)).toEqual([a.id, b.id])
+    expect(due[0].schedule.dueAt).toBe(3_000 + 3 * DAY)
+    expect(due[1].schedule.dueAt).toBe(4_000 + 3 * DAY)
+    expect(due[0].schedule.dueAt!).toBeLessThan(due[1].schedule.dueAt!)
   })
 
   it('drillQueue serves offen first (newest first), then fällig, and honors the cap', async () => {
