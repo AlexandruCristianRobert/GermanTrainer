@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.21.02'
+export const APP_VERSION = '1.21.03'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.21.03', date: '2026-08-19', kind: 'polish',
+    title: 'Dativ · Freier Dativ 500',
+    notes: [
+      '<strong>Der Freier-Dativ-Drill hat jetzt 500 Karten.</strong> Aus 24 Übungssätzen wurden 500, quer durch fünf Lebenswelten — Haushalt & Familie, Arbeit & Studium, Reisen & Stadt, Körper & Kleidung, Freizeit & Feste —, damit die Weglass-Probe in immer neuen Sätzen sitzt statt an denselben zwei Dutzend.',
+      '<strong>Beide Aufgaben, alle drei Lesarten, ausgewogen.</strong> 253 Karten fragen die Lesart ab (<em>Vorteil</em> 194 · <em>Besitz</em> 188 · <em>Anteilnahme</em> 118 Karten insgesamt), 247 die Weglass-Probe — und dort halten sich <em>weglassbar</em> (126) und <em>obligatorisch</em> (121) fast genau die Waage, damit kein Knopf blind gewinnt. Als Gegenprobe dienen weiterhin nur die sechs Dativverben, deren Objekt wirklich nicht wegfallen kann.'
+    ]
+  },
   {
     version: '1.21.02', date: '2026-08-18', kind: 'fix',
     title: 'Korrekturdrill · Tastatur & Fokus',
