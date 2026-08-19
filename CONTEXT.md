@@ -327,8 +327,16 @@ The learner's whole standing collection of [Archived correction]s — from Sprec
 _Avoid_: mistake history, error log, weak points (that term belongs to the drill modules)
 
 **Correction drill** (de Korrekturdrill):
-A practice run over the [Error archive] that replays the learner's own [Archived correction]s and asks them to rewrite just the marked wording. Unlike a [Remedial drill], its items are the learner's own recorded sentences rather than generated ones.
+A practice run over the [Error archive] that replays the learner's own [Archived correction]s and asks them to rewrite just the marked wording. Unlike a [Remedial drill], its items are the learner's own recorded sentences rather than generated ones. Its queue serves *offene* corrections first (newest first), then [Fällig]e ones — new mistakes are never crowded out by [Wiedervorlage].
 _Avoid_: remedial drill (that is the preposition/verb one), review, retry
+
+**Wiedervorlage**:
+The rule that solving a correction once is not the end of it: an [Archived correction] the learner has rewritten correctly returns to the [Correction drill] after 3, then 10, then 30 days, and only after the fourth spaced success is it retired for good. A miss at any point makes it *offen* again — the same demotion honesty as [Secured item]'s wackelig. Derived entirely from the drill's own recorded attempts; nothing is scheduled by hand and nothing extra is stored.
+_Avoid_: SRS, spaced repetition (the mechanism's genus, not its name here), review queue, resurfacing
+
+**Fällig**:
+The state of an [Archived correction] whose [Wiedervorlage] delay has elapsed: nachgeübt earlier, due for another retrieval now. One of three states shown side by side and never summed — *offen* (no current success: never solved, or missed since), *fällig*, *nachgeübt* (resting between returns, or retired after the fourth). In the drill a fällige card is labelled with its Wiederholung number so review is never mistaken for a new mistake.
+_Avoid_: open (that is offen's word), overdue, expired, drilled (pre-Wiedervorlage vocabulary)
 
 ### Schreiben
 
