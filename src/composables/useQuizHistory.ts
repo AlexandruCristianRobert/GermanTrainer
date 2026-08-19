@@ -77,6 +77,8 @@ export type QuizHistoryType =
   | 'dat-sentence'
   | 'dat-passive'
   | 'dat-reflexive'
+  | 'relativ-pronomen'
+  | 'ndekl-form'
 
 export type PrepErrorTag = 'preposition' | 'case' | 'noun' | 'typo'
 

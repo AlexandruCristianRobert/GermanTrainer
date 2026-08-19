@@ -170,6 +170,12 @@ export const routes: RouteRecordRaw[] = [
   { path: '/passiv/quiz', name: 'passiv-quiz', component: () => import('./modules/passiv/QuizSetup.vue') },
   { path: '/passiv/quiz/run', name: 'passiv-quiz-run', component: () => import('./modules/passiv/QuizRunner.vue') },
   { path: '/passiv/quiz/result', name: 'passiv-quiz-result', component: () => import('./modules/passiv/QuizResult.vue') },
+  // Relativsätze + N-Deklination: single-drill modules, so the Setup page IS
+  // the module landing (no separate Home) — hence just the setup/run pair each.
+  { path: '/relativ', name: 'relativ', component: () => import('./modules/relativ/RelativSetup.vue') },
+  { path: '/relativ/run', name: 'relativ-run', component: () => import('./modules/relativ/RelativRunner.vue') },
+  { path: '/ndekl', name: 'ndekl', component: () => import('./modules/ndekl/NDeklSetup.vue') },
+  { path: '/ndekl/run', name: 'ndekl-run', component: () => import('./modules/ndekl/NDeklRunner.vue') },
   { path: '/writing', name: 'writing', component: () => import('./modules/writing/WritingHome.vue') },
   { path: '/writing/task/:taskType', name: 'writing-task', component: () => import('./modules/writing/PromptDetail.vue') },
   { path: '/writing/prompt/:promptId', name: 'writing-prompt', component: () => import('./modules/writing/PromptDetail.vue') },

@@ -30,7 +30,9 @@ export const NAV_GROUPS: NavGroup[] = [
       { route: 'verbs', label: 'Verbs', de: 'Verben' },
       { route: 'dative', label: 'Dativ', de: 'Dativverben' },
       { route: 'konjunktiv', label: 'Konjunktiv I', de: 'Indirekte Rede' },
-      { route: 'passiv', label: 'Passiv', de: 'Passivformen' }
+      { route: 'passiv', label: 'Passiv', de: 'Passivformen' },
+      { route: 'relativ', label: 'Relativsätze', de: 'der, den, dessen' },
+      { route: 'ndekl', label: 'N-Deklination', de: 'Schwache Substantive' }
     ]
   },
   {
