@@ -56,6 +56,7 @@ describe('NDEKL_ITEMS', () => {
       return JSON.stringify(i.options) !== JSON.stringify([...NDEKL_CLASSIFY_OPTIONS])
         || i.answers.length !== 1
         || i.prompt.includes('___')
+        || !i.prompt.includes(i.noun)
         || (i.answers[0] === 'schwach (-n)') !== isWeak
     })
     expect(bad.map(i => i.id)).toEqual([])

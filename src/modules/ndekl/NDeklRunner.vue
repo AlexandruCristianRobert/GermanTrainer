@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // N-Deklination runner — same self-contained shape as RelativRunner.vue, with
 // two card kinds in one round:
-//   'form'     → typed answer, graded foldGerman(normalize) === expected
+//   'form'     → typed answer, graded by the shared checkText (drillGrading)
 //   'classify' → the fixed two-way choice (schwach / stark)
 //
 // Offline deterministic (ADR-0007 family): no AI, no ledger — one saveQuizRun
@@ -15,7 +15,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { saveQuizRun } from '../../composables/useQuizHistory'
-import { foldGerman } from '../../composables/drillGrading'
+import { checkText } from '../../composables/drillGrading'
 import { csv } from '../../composables/quizQuery'
 import { shuffle } from '../../data/pool'
 import {
@@ -39,11 +39,14 @@ const results = ref<Result[]>([])
 const finished = ref(false)
 const startedAt = Date.now()
 
+// The parsed query filters, captured at mount so the Run can record WHAT was
+// drilled (the FreeRunner.vue pattern) — History reads meta, not the URL.
+const queriedLevels = ref<NDeklLevel[]>([])
+const queriedKinds = ref<string[]>([])
+
 const cardRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
 const nextBtnRef = ref<HTMLButtonElement | null>(null)
-
-const normalize = (s: string) => foldGerman(s.trim().toLowerCase())
 
 onMounted(() => {
   const count = Math.max(1, parseInt((route.query.count as string) ?? '10', 10) || 10)
@@ -54,6 +57,8 @@ onMounted(() => {
     error.value = 'Nothing to drill — adjust your filters.'
     return
   }
+  queriedLevels.value = levels
+  queriedKinds.value = kinds
   // Classify options are shuffled ONCE per card here (a computed would reshuffle
   // on every re-render); form cards carry no options at all.
   cards.value = sampled.map(item => ({
@@ -99,11 +104,16 @@ function record(given: string, ok: boolean) {
   nextTick(() => nextBtnRef.value?.focus())
 }
 
-/** Typed cards: grade the input. Umlaut- and case-folded, punctuation-free. */
+/**
+ * Typed cards: grade the input with the shared checkText the other offline
+ * drills use — trimmed, case-folded and umlaut-folded (ä→ae, ß→ss), with
+ * '/'-separated alternatives accepted. Punctuation is NOT stripped, so the
+ * expected forms stay bare noun forms and the input row asks for exactly that.
+ */
 function check() {
   const c = current.value
   if (!c || verdict.value !== null || !answer.value.trim()) return
-  record(answer.value.trim(), normalize(answer.value) === normalize(c.item.answers[0]))
+  record(answer.value.trim(), checkText(answer.value, c.item.answers[0]))
 }
 
 /** Classify cards: a click IS the answer. */
@@ -152,7 +162,7 @@ function finish() {
     durationMs: at - startedAt,
     count: results.value.length,
     correct: correctCount.value,
-    meta: {},
+    meta: { levels: queriedLevels.value, kinds: queriedKinds.value },
   })
 }
 </script>

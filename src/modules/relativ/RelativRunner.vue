@@ -37,6 +37,11 @@ const results = ref<Result[]>([])
 const finished = ref(false)
 const startedAt = Date.now()
 
+// The parsed query filters, captured at mount so the Run can record WHAT was
+// drilled (the FreeRunner.vue pattern) — History reads meta, not the URL.
+const queriedLevels = ref<RelativLevel[]>([])
+const queriedKinds = ref<string[]>([])
+
 const cardRef = ref<HTMLElement | null>(null)
 const nextBtnRef = ref<HTMLButtonElement | null>(null)
 
@@ -49,6 +54,8 @@ onMounted(() => {
     error.value = 'Nothing to drill — adjust your filters.'
     return
   }
+  queriedLevels.value = levels
+  queriedKinds.value = kinds
   // Options are shuffled ONCE per card, here — a computed would reshuffle on
   // every re-render and move the buttons out from under the learner's cursor.
   cards.value = sampled.map(item => ({ item, options: shuffle(item.options, item.options.length) }))
@@ -132,7 +139,7 @@ function finish() {
     durationMs: at - startedAt,
     count: results.value.length,
     correct: correctCount.value,
-    meta: {},
+    meta: { levels: queriedLevels.value, kinds: queriedKinds.value },
   })
 }
 </script>

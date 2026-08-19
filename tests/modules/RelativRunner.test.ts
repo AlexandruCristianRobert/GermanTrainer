@@ -100,6 +100,10 @@ describe('RelativRunner', () => {
     expect(run.type).toBe('relativ-pronomen')
     expect(run.count).toBe(2)
     expect(run.correct).toBe(1)
+    // meta records WHAT was drilled — the parsed query filters, so History can
+    // say more than "a relativ round happened".
+    expect(run.meta.levels).toEqual(['B1'])
+    expect(run.meta.kinds).toEqual(['standard'])
     expect(w.text()).toContain('1 / 2')
     w.unmount()
   })

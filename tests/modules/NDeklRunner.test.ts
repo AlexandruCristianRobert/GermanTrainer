@@ -116,6 +116,10 @@ describe('NDeklRunner', () => {
     expect(run.type).toBe('ndekl-form')
     expect(run.count).toBe(2)
     expect(run.correct).toBe(1)
+    // meta records WHAT was drilled — the parsed query filters, so History can
+    // say more than "an ndekl round happened".
+    expect(run.meta.levels).toEqual(['B1'])
+    expect(run.meta.kinds).toEqual(['form'])
     expect(F2.kind).toBe('form')
     w.unmount()
   })
