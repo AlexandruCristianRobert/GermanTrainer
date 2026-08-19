@@ -53,4 +53,18 @@ describe('RELATIV_ITEMS', () => {
   test('no duplicate prompts', () => {
     expect(new Set(RELATIV_ITEMS.map(i => i.prompt)).size).toBe(RELATIV_ITEMS.length)
   })
+
+  test('answer position is spread across options: each index 0..3 gets 20-40 items', () => {
+    for (let k = 0; k < 4; k++) {
+      const n = RELATIV_ITEMS.filter(i => i.options.indexOf(i.answers[0]) === k).length
+      expect(n, `index ${k}`).toBeGreaterThanOrEqual(20)
+      expect(n, `index ${k}`).toBeLessThanOrEqual(40)
+    }
+  })
+
+  test('genitiv items never leak the answer\'s gender: options include both dessen and deren', () => {
+    const bad = RELATIV_ITEMS.filter(i =>
+      i.kind === 'genitiv' && (!i.options.includes('dessen') || !i.options.includes('deren')))
+    expect(bad.map(i => i.id)).toEqual([])
+  })
 })
