@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadHistory } from '../../composables/useQuizHistory'
 import { computeDrillMastery } from '../../composables/useDrillMastery'
-import { ledgerSummary, readDativeLedger, ledgerState } from '../../composables/useDativeLedger'
+import { ledgerSummary, shakyItems } from '../../composables/useDativeLedger'
 import ProgressDial from '../../components/drill/ProgressDial.vue'
 import MasteryDots from '../../components/drill/MasteryDots.vue'
 import LevelChip from '../../components/drill/LevelChip.vue'
@@ -43,12 +43,10 @@ function shipped(card: DrillCard): boolean {
 const summary = ledgerSummary()
 const pct = summary.total > 0 ? Math.round((summary.secured / summary.total) * 100) : 0
 
-const ledger = readDativeLedger()
-const shaky = Object.entries(ledger)
-  .filter(([, e]) => ledgerState(e) === 'wackelig')
-  .sort((a, b) => b[1].lastAt - a[1].lastAt)
-  .slice(0, 10)
-  .map(([k]) => k)
+// Chips come from useDativeLedger's shakyItems() — longest-unseen first, the
+// same order and the same list the Tagesplan row names, so the words the plan
+// promises are the words waiting here. Capped at 10 for the rail.
+const shaky = shakyItems().slice(0, 10)
 
 // Scroll-spy, same mechanics as DirectionWordsHome.
 const active = ref(families[0]?.id ?? '')

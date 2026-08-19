@@ -76,6 +76,10 @@ _Avoid_: weakness, problem area, trouble word
 A generated practice session aimed at the learner's weak points. Unlike the regular sentence-translation drill (random prepositions), it draws from the learner's weakest prepositions and nouns and blends several question formats — case fill-ins, noun cards, sentence translations — in proportion to the learner's recent error tags. Its own answers feed back into weak-point tracking.
 _Avoid_: practice mode, review quiz, custom quiz
 
+**Tagesplan**:
+The panel at the top of Home that gathers, read-only, everything currently asking for attention — offene and [Fällig]e corrections, wackelige Dativ-Wörter, the weakest [Weak point]s, the lowest mastery bands — each row deep-linking into the owning module. It aggregates; it never samples: no drill's card selection changes because the Tagesplan exists (weakness-drawn runs stay the [Remedial drill]'s job). When nothing asks for attention it renders nothing — advice, not obligation.
+_Avoid_: dashboard (that is the History page's world), today view, review queue, scheduler
+
 ### Verbs
 
 **Verb level**:

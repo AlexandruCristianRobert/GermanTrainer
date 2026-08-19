@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import TagesplanPanel from './TagesplanPanel.vue'
 
 const router = useRouter()
 
@@ -153,6 +154,8 @@ function onCardKey(e: KeyboardEvent, target: string) {
         <div class="niveau-value">A1 — B2</div>
       </div>
     </header>
+
+    <TagesplanPanel />
 
     <div class="module-grid">
       <article

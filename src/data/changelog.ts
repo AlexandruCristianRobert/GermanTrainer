@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.21.04'
+export const APP_VERSION = '1.21.05'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.21.05', date: '2026-08-19', kind: 'polish',
+    title: 'Startseite · Tagesplan',
+    notes: [
+      '<strong>Die Startseite sagt jetzt, was heute dran ist.</strong> Ein neuer Tagesplan über den Modulkarten sammelt alles, was gerade Aufmerksamkeit verlangt: offene und fällige Korrekturen, wackelige Dativ-Wörter, schwache Präpositionen und Verben und die Drills mit den niedrigsten Bändern — jede Zeile springt direkt ins passende Modul.',
+      '<strong>Nur Rat, keine Pflicht.</strong> Der Tagesplan liest nur — kein Drill zieht andere Karten, weil es ihn gibt; schwächengetriebene Runden bleiben Sache der Remedial-Drills. Wer nichts offen hat, sieht ihn gar nicht: Die Startseite bleibt so ruhig wie bisher.',
+      '<strong>Dativ-Hub aufgeräumt.</strong> Die Wackelig-Chips zeigen jetzt die am längsten nicht gesehenen Wörter zuerst — dieselbe Reihenfolge, die der Tagesplan nennt, aus derselben Quelle.'
+    ]
+  },
   {
     version: '1.21.04', date: '2026-08-19', kind: 'polish',
     title: 'Korrekturdrill · Wiedervorlage',

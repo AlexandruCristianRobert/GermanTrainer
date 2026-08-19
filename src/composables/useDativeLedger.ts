@@ -98,3 +98,12 @@ export function ledgerSummary(): { secured: number; shaky: number; fresh: number
   }
   return { secured, shaky, fresh: total - secured - shaky, total }
 }
+
+/** Wackelige items, longest-unseen first — the shared derivation for the
+ *  Dativ hub's chip row and the Tagesplan (single owner, single order). */
+export function shakyItems(): string[] {
+  return Object.entries(readDativeLedger())
+    .filter(([, e]) => ledgerState(e) === 'wackelig')
+    .sort((a, b) => a[1].lastAt - b[1].lastAt)
+    .map(([k]) => k)
+}
