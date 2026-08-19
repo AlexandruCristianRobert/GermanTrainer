@@ -9,7 +9,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadHistory } from '../../composables/useQuizHistory'
-import { countsByKind, openCorrections } from '../../composables/useSprechenArchive'
+import { countsByKind, openCorrections, dueCorrections } from '../../composables/useSprechenArchive'
 import { lifetimeCounts } from '../../composables/useRedemittelYield'
 import { allThemen, doneThemaTitles } from '../../composables/useSchreibenThemen'
 import { allAuftraege, doneAuftragTitles } from '../../composables/useSchreibenAuftraege'
@@ -72,17 +72,19 @@ const usedSchreibmittelCount = computed(() => usedSchreibmittelIds.value.length)
 // distinguishable on purpose: `null` alone would make a failed read look
 // identical to a still-loading one, so the row would read "wird geladen"
 // forever.
-const archive = ref<{ total: number; open: number } | null>(null)
+const archive = ref<{ total: number; open: number; due: number } | null>(null)
 const archiveState = ref<'loading' | 'ready' | 'failed'>('loading')
 onMounted(async () => {
   try {
-    const [counts, open] = await Promise.all([
+    const [counts, open, due] = await Promise.all([
       countsByKind(undefined, 'schreiben'),
-      openCorrections(undefined, undefined, 'schreiben')
+      openCorrections(undefined, undefined, 'schreiben'),
+      dueCorrections(undefined, 'schreiben')
     ])
     archive.value = {
       total: Object.values(counts).reduce((a, b) => a + b, 0),
-      open: open.length
+      open: open.length,
+      due: due.length
     }
     archiveState.value = 'ready'
   } catch {
@@ -154,7 +156,11 @@ function metaFor(route: string): string[] {
   if (archiveState.value === 'failed' || !archive.value) return ['Archiv nicht lesbar']
   if (archive.value.total === 0) return ['Noch nichts archiviert']
   if (route === 'sprechen-drill') {
-    return [`${archive.value.open} offen`, `${archive.value.total - archive.value.open} nachgeübt`]
+    return [
+      `${archive.value.open} offen`,
+      `${archive.value.due} fällig`,
+      `${archive.value.total - archive.value.open - archive.value.due} nachgeübt`
+    ]
   }
   return [`${archive.value.total} Korrekturen`, `${archive.value.open} offen`]
 }

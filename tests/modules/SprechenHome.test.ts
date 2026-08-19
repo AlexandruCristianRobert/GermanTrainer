@@ -5,11 +5,32 @@ vi.mock('../../src/composables/useSprechenArchive', () => ({
   countsByKind: vi.fn(async () => ({
     grammar: 2, 'word-order': 1, vocabulary: 0, spelling: 0, register: 0
   })),
-  openCorrections: vi.fn(async () => [{ id: 'a' }, { id: 'b' }])
+  openCorrections: vi.fn(async () => [{ id: 'a' }, { id: 'b' }]),
+  dueCorrections: vi.fn(async () => [])
 }))
 
 import SprechenHome from '../../src/modules/sprechen/SprechenHome.vue'
 import { saveQuizRun } from '../../src/composables/useQuizHistory'
+import type { ArchivedCorrection, QueuedCorrection } from '../../src/composables/useSprechenArchive'
+
+/** Minimal but complete ArchivedCorrection fixture — only `id` varies between
+ *  callers, every other field is filler that satisfies the type. */
+function makeCorrection(id: string): ArchivedCorrection {
+  return {
+    id, discussionId: 'd-1', topicTitle: 'Ehrenamt', modality: 'typed',
+    kind: 'grammar', quote: 'für die Wettkämpfe', suggested: 'zu den Wettkämpfen',
+    reasonDe: 'Ziel: zu + Dativ.', reasonEn: 'Destination takes zu.',
+    context: 'Ich bin für die Wettkämpfe gefahren.', createdAt: 0
+  }
+}
+
+/** Same fixture, plus the `schedule` a fällige QueuedCorrection carries. */
+function makeQueued(id: string): QueuedCorrection {
+  return {
+    ...makeCorrection(id),
+    schedule: { status: 'faellig', streak: 1, lastCorrectAt: 0, dueAt: 0 }
+  }
+}
 
 const push = vi.fn()
 const stubs = { RouterLink: true }
@@ -90,6 +111,21 @@ describe('SprechenHome', () => {
     await flushPromises()
     expect(w.text()).toContain('3 Korrekturen')
     expect(w.text()).toContain('2 offen')
+  })
+
+  it('the drill row splits into offen · fällig · nachgeübt', async () => {
+    const mod = await import('../../src/composables/useSprechenArchive')
+    vi.mocked(mod.countsByKind).mockResolvedValueOnce({
+      grammar: 5, 'word-order': 0, vocabulary: 0, spelling: 0, register: 0
+    })
+    vi.mocked(mod.openCorrections).mockResolvedValueOnce([makeCorrection('a'), makeCorrection('b')])
+    vi.mocked(mod.dueCorrections).mockResolvedValueOnce([makeQueued('c')])
+    const w = mount(SprechenHome, { global })
+    await flushPromises()
+    const drillRow = w.findAll('.spr-rows')[0].findAll('.spr-row')[2]
+    expect(drillRow.text()).toContain('2 offen')
+    expect(drillRow.text()).toContain('1 fällig')
+    expect(drillRow.text()).toContain('2 nachgeübt')
   })
 
   it('the part toggle switches the Ausbeute between Redemittel and Vortragsmittel', async () => {

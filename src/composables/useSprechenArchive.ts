@@ -113,9 +113,9 @@ export async function listCorrections(
 
 /**
  * Records one Correction drill attempt as a new event. Deliberately does
- * NOT touch db.sprechenCorrections — see file header. "Drilled" comes from
- * drilledIds()/openCorrections() joining against this table, not from a
- * flag on the correction row.
+ * NOT touch db.sprechenCorrections — see file header. A correction's state
+ * (offen / fällig / nachgeübt) comes from computeSchedule() replaying this
+ * table, not from a flag on the correction row.
  */
 export async function recordDrillResult(correctionId: string, correct: boolean): Promise<void> {
   const event: CorrectionEvent = {
@@ -127,34 +127,133 @@ export async function recordDrillResult(correctionId: string, correct: boolean):
   await db.sprechenCorrectionEvents.add(event)
 }
 
-/**
- * Ids of corrections with at least one event where correct === true.
- * A correction that was gotten wrong once and right later still counts as
- * drilled — order of attempts doesn't matter, only whether a success ever
- * happened. `correct` isn't an indexed field (booleans aren't valid
- * IndexedDB index keys), so this scans the (small, cold-storage) events
- * table rather than querying by it.
- */
-export async function drilledIds(): Promise<Set<string>> {
-  const events = await db.sprechenCorrectionEvents.toArray()
-  const ids = new Set<string>()
-  for (const event of events) {
-    if (event.correct) ids.add(event.correctionId)
-  }
-  return ids
+// ─── Wiedervorlage (ADR-0025) ────────────────────────────────────────────
+// Everything below is DERIVED at read time from sprechenCorrectionEvents.
+// The only state is the trailing correct streak; a wrong event resets it and
+// the correction is offen again (the wackelig demotion honesty, ADR-0017).
+
+export const WIEDERVORLAGE_INTERVALS_DAYS = [3, 10, 30] as const
+// Derived, not written as 4: the two constants are coupled — a streak below
+// the retire threshold indexes the ladder, so retire > intervals + 1 would
+// read past its end and produce a NaN dueAt. Deriving it makes that
+// impossible to get wrong when the pedagogy (the ladder) changes.
+export const WIEDERVORLAGE_RETIRE_STREAK = WIEDERVORLAGE_INTERVALS_DAYS.length + 1
+const DAY_MS = 86_400_000
+
+export type CorrectionStatus = 'offen' | 'faellig' | 'nachgeuebt'
+
+export interface CorrectionSchedule {
+  status: CorrectionStatus
+  streak: number
+  lastCorrectAt: number | null
+  dueAt: number | null
 }
 
-/** Corrections with no successful drill event yet, newest first. */
+export interface QueuedCorrection extends ArchivedCorrection {
+  schedule: CorrectionSchedule
+}
+
+const OFFEN: CorrectionSchedule = Object.freeze(
+  { status: 'offen', streak: 0, lastCorrectAt: null, dueAt: null })
+
+/**
+ * Pure ADR-0025 rule for ONE correction's events. `now` is a parameter so
+ * tests hit exact interval boundaries without mocking the clock. Events may
+ * arrive unsorted (Dexie returns primary-key order, and the keys are random
+ * UUIDs). The sort is stable, so two events sharing the same `at` keep that
+ * arbitrary primary-key order — insertion order is NOT recoverable. A learner
+ * cannot answer one correction twice inside a millisecond, so this only bites
+ * tests that append events back-to-back: those pin `Date.now` to give each
+ * event a distinct `at`.
+ */
+export function computeSchedule(events: CorrectionEvent[], now: number = Date.now()): CorrectionSchedule {
+  const sorted = [...events].sort((a, b) => a.at - b.at)
+  let streak = 0
+  let lastCorrectAt: number | null = null
+  for (const e of sorted) {
+    if (e.correct) { streak += 1; lastCorrectAt = e.at }
+    else { streak = 0; lastCorrectAt = null }
+  }
+  if (streak === 0) return OFFEN
+  if (streak >= WIEDERVORLAGE_RETIRE_STREAK) {
+    return { status: 'nachgeuebt', streak, lastCorrectAt, dueAt: null }
+  }
+  const dueAt = (lastCorrectAt as number) + WIEDERVORLAGE_INTERVALS_DAYS[streak - 1] * DAY_MS
+  return { status: now >= dueAt ? 'faellig' : 'nachgeuebt', streak, lastCorrectAt, dueAt }
+}
+
+/**
+ * One events-table scan → per-correction schedule. Corrections with no
+ * events are absent from the map; readers treat a missing id as offen.
+ * Same full-table-scan posture drilledIds() had (small, cold-storage table).
+ */
+export async function scheduleByCorrection(now: number = Date.now()): Promise<Map<string, CorrectionSchedule>> {
+  const events = await db.sprechenCorrectionEvents.toArray()
+  const byCorrection = new Map<string, CorrectionEvent[]>()
+  for (const e of events) {
+    const list = byCorrection.get(e.correctionId)
+    if (list) list.push(e)
+    else byCorrection.set(e.correctionId, [e])
+  }
+  const out = new Map<string, CorrectionSchedule>()
+  for (const [id, list] of byCorrection) out.set(id, computeSchedule(list, now))
+  return out
+}
+
+/** Offene corrections (trailing streak 0 — ADR-0025's redefinition), newest first. */
 export async function openCorrections(
   limit?: number, part?: 1 | 2, module?: 'sprechen' | 'schreiben'
 ): Promise<ArchivedCorrection[]> {
-  const drilled = await drilledIds()
+  const schedules = await scheduleByCorrection()
   const filter: { part?: 1 | 2; module?: 'sprechen' | 'schreiben' } = {}
   if (part != null) filter.part = part
   if (module != null) filter.module = module
   const all = await listCorrections(filter)
-  const open = all.filter(c => !drilled.has(c.id))
+  const open = all.filter(c => (schedules.get(c.id) ?? OFFEN).status === 'offen')
   return limit != null ? open.slice(0, limit) : open
+}
+
+/** Fällige corrections, most overdue first (dueAt ascending). */
+export async function dueCorrections(
+  part?: 1 | 2, module?: 'sprechen' | 'schreiben', now: number = Date.now()
+): Promise<QueuedCorrection[]> {
+  const schedules = await scheduleByCorrection(now)
+  const filter: { part?: 1 | 2; module?: 'sprechen' | 'schreiben' } = {}
+  if (part != null) filter.part = part
+  if (module != null) filter.module = module
+  const all = await listCorrections(filter)
+  return all
+    .map(c => ({ ...c, schedule: schedules.get(c.id) ?? OFFEN }))
+    .filter(q => q.schedule.status === 'faellig')
+    .sort((a, b) => (a.schedule.dueAt ?? 0) - (b.schedule.dueAt ?? 0))
+}
+
+/**
+ * The Korrekturdrill's queue (ADR-0025): offene first — newest first, the
+ * pre-Wiedervorlage order, so new mistakes are never crowded out — then
+ * fällige, most overdue first. `limit` caps the combined list, and when both
+ * kinds compete for that cap up to a QUARTER of it is reserved for fällige,
+ * so review still progresses behind a large offen backlog (without the
+ * reservation, more offene than the cap would starve Wiedervorlage entirely
+ * while every surface kept advertising the fällig count).
+ */
+export async function drillQueue(
+  limit?: number, part?: 1 | 2, module?: 'sprechen' | 'schreiben', now: number = Date.now()
+): Promise<QueuedCorrection[]> {
+  // openCorrections needs no `now`: offen (streak 0) is time-independent, so
+  // the two snapshots cannot disagree about openness.
+  const open = await openCorrections(undefined, part, module)
+  const due = await dueCorrections(part, module, now)
+  // offen stays first and dominant (ADR-0025: new mistakes are never crowded
+  // out) — but review must still progress, so when a cap is given, up to a
+  // quarter of it is reserved for fällige items.
+  if (limit == null) return [...open.map(c => ({ ...c, schedule: OFFEN })), ...due]
+  const reserved = Math.min(due.length, Math.floor(limit / 4))
+  const queue: QueuedCorrection[] = [
+    ...open.slice(0, limit - reserved).map(c => ({ ...c, schedule: OFFEN })),
+    ...due
+  ]
+  return queue.slice(0, limit)
 }
 
 /**

@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.21.03'
+export const APP_VERSION = '1.21.04'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.21.04', date: '2026-08-19', kind: 'polish',
+    title: 'Korrekturdrill · Wiedervorlage',
+    notes: [
+      '<strong>Einmal richtig ist nicht mehr für immer erledigt.</strong> Eine gelöste Korrektur kommt nach 3, 10 und 30 Tagen zur Wiedervorlage zurück; erst der vierte Erfolg im Abstand nimmt sie endgültig aus dem Drill. Wer eine fällige Karte verfehlt, sieht sie als <em>offen</em> wieder — dieselbe ehrliche Rückstufung wie bei wackeligen Dativ-Wörtern.',
+      '<strong>Offen · fällig · nachgeübt, überall getrennt gezählt.</strong> Das Fehlerarchiv markiert jede Korrektur mit ihrem Zustand, die Sprechen- und Schreiben-Hubs zählen alle drei nebeneinander, und fällige Karten tragen im Drill ihr <em>„fällig · n. Wiederholung"</em>-Etikett. Pro Sitzung bleibt bis zu ein Viertel der Karten für Wiedervorlagen reserviert — offene Fehler gehen immer vor.',
+      '<strong>Beim ersten Öffnen springen die Zahlen — mit Absicht.</strong> Alles bisher „Nachgeübte" wird sofort fällig (die Abstände sind längst verstrichen), und früher verfehlte Korrekturen mit altem Erfolg gelten wieder als offen. Das ist die Reparatur, kein Datenverlust: Vorher verschwand ein Fehler nach einem einzigen schnellen Treffer für immer.'
+    ]
+  },
   {
     version: '1.21.03', date: '2026-08-19', kind: 'polish',
     title: 'Dativ · Freier Dativ 500',

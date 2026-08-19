@@ -15,7 +15,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  countsByKind, drilledIds, listCorrections, type ArchivedCorrection
+  countsByKind, scheduleByCorrection, listCorrections,
+  type ArchivedCorrection, type CorrectionSchedule
 } from '../../composables/useSprechenArchive'
 import type { SprechenErrorTag } from '../../composables/useQuizHistory'
 
@@ -25,12 +26,15 @@ const route = useRoute()
 const loading = ref(true)
 const error = ref<string | null>(null)
 const counts = ref<Record<SprechenErrorTag, number> | null>(null)
-const drilled = ref<Set<string>>(new Set())
+// ADR-0025 (Task 1): corrections absent from this map are offen — see
+// statusOf() below. Every offen entry that IS present shares the composable's
+// one frozen OFFEN object, so callers must never key on schedule identity.
+const schedules = ref<Map<string, CorrectionSchedule>>(new Map())
 const items = ref<ArchivedCorrection[]>([])
 // The unfiltered set of every correction, fetched explicitly in loadAll() via
 // listCorrections({}) — kept separate from `items` (which honors whatever
 // selectedKind/selectedModule filter is active, including the route-query
-// prefilter) so openByKind and moduleCounts always see every correction.
+// prefilter) so statusByKind and moduleCounts always see every correction.
 const allCorrections = ref<ArchivedCorrection[]>([])
 const selectedKind = ref<SprechenErrorTag | null>(null)
 // ADR-0020: the archive now holds Schreiben corrections alongside Sprechen
@@ -54,7 +58,7 @@ const totalCount = computed(() =>
 )
 
 // ADR-0020: counts for the module chip row, derived from `allCorrections`
-// (the same unfiltered snapshot openByKind reuses) so this never triggers a
+// (the same unfiltered snapshot statusByKind reuses) so this never triggers a
 // second archive read. Every row here is already normalised by
 // listCorrections, so `.module` is never undefined.
 const moduleCounts = computed<{ sprechen: number; schreiben: number }>(() => {
@@ -66,27 +70,38 @@ const moduleCounts = computed<{ sprechen: number; schreiben: number }>(() => {
   return out
 })
 
-/** Open (not-yet-drilled) corrections per kind, derived from `allCorrections`
- *  joined against `drilled` — never a second read of either archive table. */
-const openByKind = computed<Record<SprechenErrorTag, number>>(() => {
-  const out: Record<SprechenErrorTag, number> = {
-    grammar: 0, 'word-order': 0, vocabulary: 0, spelling: 0, register: 0
+/** ADR-0025: a correction absent from `schedules` is offen — the composable
+ *  never writes an explicit 'offen' entry for those, so this is the one
+ *  place that fills the gap in. */
+function statusOf(id: string): 'offen' | 'faellig' | 'nachgeuebt' {
+  return schedules.value.get(id)?.status ?? 'offen'
+}
+
+/** Offen/fällig/nachgeübt counts per kind, derived from `allCorrections`
+ *  joined against `schedules` — never a second read of either archive table. */
+const statusByKind = computed(() => {
+  const zero = () => ({ offen: 0, faellig: 0, nachgeuebt: 0 })
+  const out: Record<SprechenErrorTag, { offen: number; faellig: number; nachgeuebt: number }> = {
+    grammar: zero(), 'word-order': zero(), vocabulary: zero(), spelling: zero(), register: zero()
   }
-  for (const c of allCorrections.value) {
-    if (!drilled.value.has(c.id)) out[c.kind] += 1
-  }
+  for (const c of allCorrections.value) out[c.kind][statusOf(c.id)] += 1
   return out
 })
 
 const openTotal = computed(() =>
-  Object.values(openByKind.value).reduce((a, b) => a + b, 0)
+  KIND_ORDER.reduce((a, k) => a + statusByKind.value[k].offen, 0)
+)
+const faelligTotal = computed(() =>
+  KIND_ORDER.reduce((a, k) => a + statusByKind.value[k].faellig, 0)
 )
 
-/** Five segments, so the strip reads at a glance rather than exactly. */
+/** Five segments, so the strip reads at a glance rather than exactly. Fällig
+ *  counts as work asking to be done again, not done — only nachgeuebt fills
+ *  the strip. */
 function drilledSegments(kind: SprechenErrorTag): number {
   const total = counts.value?.[kind] ?? 0
   if (total === 0) return 0
-  const done = total - openByKind.value[kind]
+  const done = statusByKind.value[kind].nachgeuebt
   return Math.round((done / total) * 5)
 }
 
@@ -96,7 +111,7 @@ interface ArchiveRow {
   match: string
   after: string
   hasMatch: boolean
-  isDrilled: boolean
+  status: 'offen' | 'faellig' | 'nachgeuebt'
 }
 
 // The repository stores the marked span as plain `quote` text, not
@@ -114,7 +129,7 @@ const rows = computed<ArchiveRow[]>(() =>
       match: hasMatch ? c.context.slice(idx, idx + c.quote.length) : '',
       after: hasMatch ? c.context.slice(idx + c.quote.length) : '',
       hasMatch,
-      isDrilled: drilled.value.has(c.id)
+      status: statusOf(c.id)
     }
   })
 )
@@ -137,9 +152,9 @@ async function loadAll() {
   try {
     const q = route.query.module
     if (q === 'schreiben' || q === 'sprechen') selectedModule.value = q
-    const [c, d, all] = await Promise.all([countsByKind(), drilledIds(), listCorrections({})])
+    const [c, s, all] = await Promise.all([countsByKind(), scheduleByCorrection(), listCorrections({})])
     counts.value = c
-    drilled.value = d
+    schedules.value = s
     allCorrections.value = all
     await loadList()
   } catch (e) {
@@ -282,8 +297,12 @@ onMounted(loadAll)
                   v-if="r.c.module === 'schreiben'" class="tag"
                   title="Aus einem Forumsbeitrag oder einer Nachricht (Schreiben) — Sprechen und Schreiben teilen sich das Fehlerarchiv."
                 >Schreiben</span>
-                <span class="tag" :class="r.isDrilled ? 'tag-success' : 'tag-ochre'">
-                  {{ r.isDrilled ? 'nachgeübt' : 'offen' }}
+                <span class="tag" :class="{
+                  'tag-success': r.status === 'nachgeuebt',
+                  'tag-ochre': r.status === 'offen',
+                  'tag-accent': r.status === 'faellig'
+                }">
+                  {{ r.status === 'nachgeuebt' ? 'nachgeübt' : r.status === 'faellig' ? 'fällig' : 'offen' }}
                 </span>
               </div>
               <p class="spr-actx">
@@ -298,10 +317,17 @@ onMounted(loadAll)
       </section>
     </template>
 
+    <!-- Its own element ABOVE .setup-actions, not inside it: that container is a
+         space-between flex row, which would strand this line at the far left on
+         desktop and drop it under the button below 720px. Gated on a finished,
+         non-empty load so it never flashes "Offen 0 · Fällig 0" while the two
+         counts are still zero-initialised. -->
+    <p v-if="!loading && !error && totalCount > 0" class="micro-mark ar-queue-note">Offen {{ openTotal }} · Fällig {{ faelligTotal }}</p>
+
     <div class="setup-actions">
       <button
         class="btn btn-accent" type="button"
-        :disabled="openTotal === 0" @click="router.push({ name: 'sprechen-drill' })"
+        :disabled="openTotal + faelligTotal === 0" @click="router.push({ name: 'sprechen-drill' })"
       >
         Korrekturdrill starten <span aria-hidden="true">→</span>
       </button>
@@ -347,6 +373,13 @@ onMounted(loadAll)
 }
 
 .ar-empty-note { color: var(--ink-soft); font-style: italic; margin: 12px 0; }
+
+/* The Offen · Fällig line reads as a caption for the Korrekturdrill CTA, so it
+   takes over .setup-actions' 40px top gap and sits tight above it — rather than
+   being a flex child of that space-between row, where it would drift to the far
+   left on desktop and slide under the button below 720px. */
+.ar-queue-note { margin: 40px 0 0; }
+.ar-queue-note + .setup-actions { margin-top: 8px; }
 
 .ar-body { min-width: 0; }
 .ar-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
