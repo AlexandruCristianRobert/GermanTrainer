@@ -7,7 +7,7 @@ retired an [Archived correction](../../CONTEXT.md) from the Korrekturdrill perma
 (`drilledIds()`: "only whether a success ever happened"). Pedagogically that is the wrong
 lenience: a single successful retrieval minutes after seeing the correction predicts almost
 nothing about retention; repeated retrieval at *expanding delays* is what does
-([ADR-0024](0024-nachbessern-review-round.md) already reasons in exactly these terms when it
+([ADR-0024](0024-nachbessern-volatile-revision-pass.md) already reasons in exactly these terms when it
 refuses to count copy-edits as *nachgeübt* — "near-zero retrieval strength"). The archive
 carried the full timestamped evidence for a scheduler all along; nothing ever read it.
 
@@ -61,3 +61,13 @@ the UI and the glossary.
   mistaken for a new mistake; hub rows split their counts into offen · fällig · nachgeübt.
 - Wiedervorlage needs the current time; `computeSchedule(events, now)` takes it as a
   parameter so tests never mock the clock.
+- **The drill cap and the quota**: with more offene than a sitting's cap, offene fill at
+  least three quarters of it; up to a quarter is reserved for fällige so review always
+  progresses. Fällige can still wait several sittings behind a large backlog — accepted:
+  new mistakes lead by design.
+- **Upgrade day**: on the first read after this ADR lands, the entire pre-existing
+  "drilled" population converts at once — items with an old success become fällig
+  immediately (their interval elapsed long ago), and items once missed after a success
+  reopen as offen. Open counts jump and the archive's per-kind progress strips (which now
+  count only resting/retired items) visibly empty out. This is the fix working, not data
+  loss.

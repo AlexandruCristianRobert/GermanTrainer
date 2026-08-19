@@ -317,8 +317,14 @@ onMounted(loadAll)
       </section>
     </template>
 
+    <!-- Its own element ABOVE .setup-actions, not inside it: that container is a
+         space-between flex row, which would strand this line at the far left on
+         desktop and drop it under the button below 720px. Gated on a finished,
+         non-empty load so it never flashes "Offen 0 · Fällig 0" while the two
+         counts are still zero-initialised. -->
+    <p v-if="!loading && !error && totalCount > 0" class="micro-mark ar-queue-note">Offen {{ openTotal }} · Fällig {{ faelligTotal }}</p>
+
     <div class="setup-actions">
-      <p class="micro-mark">Offen {{ openTotal }} · Fällig {{ faelligTotal }}</p>
       <button
         class="btn btn-accent" type="button"
         :disabled="openTotal + faelligTotal === 0" @click="router.push({ name: 'sprechen-drill' })"
@@ -367,6 +373,13 @@ onMounted(loadAll)
 }
 
 .ar-empty-note { color: var(--ink-soft); font-style: italic; margin: 12px 0; }
+
+/* The Offen · Fällig line reads as a caption for the Korrekturdrill CTA, so it
+   takes over .setup-actions' 40px top gap and sits tight above it — rather than
+   being a flex child of that space-between row, where it would drift to the far
+   left on desktop and slide under the button below 720px. */
+.ar-queue-note { margin: 40px 0 0; }
+.ar-queue-note + .setup-actions { margin-top: 8px; }
 
 .ar-body { min-width: 0; }
 .ar-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }

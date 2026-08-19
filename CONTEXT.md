@@ -327,7 +327,7 @@ The learner's whole standing collection of [Archived correction]s — from Sprec
 _Avoid_: mistake history, error log, weak points (that term belongs to the drill modules)
 
 **Correction drill** (de Korrekturdrill):
-A practice run over the [Error archive] that replays the learner's own [Archived correction]s and asks them to rewrite just the marked wording. Unlike a [Remedial drill], its items are the learner's own recorded sentences rather than generated ones. Its queue serves *offene* corrections first (newest first), then [Fällig]e ones — new mistakes are never crowded out by [Wiedervorlage].
+A practice run over the [Error archive] that replays the learner's own [Archived correction]s and asks them to rewrite just the marked wording. Unlike a [Remedial drill], its items are the learner's own recorded sentences rather than generated ones. Its queue serves *offene* corrections first (newest first), then [Fällig]e ones — new mistakes are never crowded out by [Wiedervorlage] — but a quarter of each sitting is kept free for [Fällig]e ones, so review always progresses even behind a large *offen* backlog.
 _Avoid_: remedial drill (that is the preposition/verb one), review, retry
 
 **Wiedervorlage**:

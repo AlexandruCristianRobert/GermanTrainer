@@ -156,5 +156,18 @@ describe('SprechenArchive', () => {
     ]))
     const w = mount(SprechenArchive); await flushPromises()
     expect(w.find('.micro-mark').text()).toBe('Offen 1 · Fällig 1')
+    // Its own element above the CTA row, never a flex child of it (that
+    // space-between row strands the line far left on desktop).
+    expect(w.find('.setup-actions .micro-mark').exists()).toBe(false)
+  })
+
+  it('holds the Offen/Fällig line back until the archive has loaded', async () => {
+    // Mounted but not flushed: counts are still zero-initialised, so the line
+    // must be absent rather than announcing a false "Offen 0 · Fällig 0".
+    const w = mount(SprechenArchive)
+    expect(w.find('.micro-mark').text()).toBe('Loading…')
+    await flushPromises()
+    // Default fixture: c1 nachgeuebt, c2 absent from the map ⇒ offen.
+    expect(w.find('.micro-mark').text()).toBe('Offen 1 · Fällig 0')
   })
 })

@@ -149,6 +149,51 @@ describe('archive scheduling reads (Dexie round-trip)', () => {
     expect(await drillQueue(2, undefined, undefined, now)).toHaveLength(2)
   })
 
+  it('drillQueue reserves a quarter of the cap for fällige when offene outnumber it', async () => {
+    // Six offene + two fällige against a cap of 4. Without the reserved quota
+    // the offene alone would fill every seat and Wiedervorlage would never run;
+    // reserved = min(2, floor(4 / 4)) = 1, so exactly one fälliges gets in.
+    // Distinct Date.now per write for the same reason as the test above:
+    // same-ms appends tie under the stable newest-first sort, and same-`at`
+    // events are unordered (see computeSchedule's JSDoc).
+    const nowSpy = vi.spyOn(Date, 'now')
+    const open: ArchivedCorrection[] = []
+    let dueOld: ArchivedCorrection, dueNew: ArchivedCorrection
+    try {
+      for (let i = 1; i <= 6; i += 1) {
+        nowSpy.mockReturnValue(i * 1_000)
+        const [row] = await appendCorrections([{ ...base, quote: `open-${i}` }])
+        open.push(row)
+      }
+      nowSpy.mockReturnValue(7_000)
+      ;[dueOld] = await appendCorrections([{ ...base, quote: 'due-old' }])
+      nowSpy.mockReturnValue(8_000)
+      ;[dueNew] = await appendCorrections([{ ...base, quote: 'due-new' }])
+      nowSpy.mockReturnValue(9_000)
+      await recordDrillResult(dueOld.id, true)   // dueAt 9_000 + 3d — more overdue
+      nowSpy.mockReturnValue(10_000)
+      await recordDrillResult(dueNew.id, true)   // dueAt 10_000 + 3d
+    } finally {
+      nowSpy.mockRestore()
+    }
+    const now = 10_000 + 4 * DAY   // both 3-day intervals elapsed ⇒ both fällig
+    const newestOpenFirst = [...open].reverse()
+
+    const capped = await drillQueue(4, undefined, undefined, now)
+    expect(capped.map(c => c.id)).toEqual([
+      ...newestOpenFirst.slice(0, 3).map(c => c.id),
+      dueOld.id
+    ])
+    expect(capped.slice(0, 3).every(q => q.schedule.status === 'offen')).toBe(true)
+    expect(capped[3].schedule.status).toBe('faellig')
+
+    // No cap ⇒ nothing to ration: every offenes, then both fällige.
+    const all = await drillQueue(undefined, undefined, undefined, now)
+    expect(all.map(c => c.id)).toEqual([
+      ...newestOpenFirst.map(c => c.id), dueOld.id, dueNew.id
+    ])
+  })
+
   it('module filter flows through drillQueue', async () => {
     await appendCorrections([{ ...base, module: 'sprechen', quote: 's' }, { ...base, module: 'schreiben', quote: 'w' }])
     expect(await drillQueue(undefined, undefined, 'schreiben')).toHaveLength(1)

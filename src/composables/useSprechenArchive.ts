@@ -133,7 +133,11 @@ export async function recordDrillResult(correctionId: string, correct: boolean):
 // the correction is offen again (the wackelig demotion honesty, ADR-0017).
 
 export const WIEDERVORLAGE_INTERVALS_DAYS = [3, 10, 30] as const
-export const WIEDERVORLAGE_RETIRE_STREAK = 4
+// Derived, not written as 4: the two constants are coupled — a streak below
+// the retire threshold indexes the ladder, so retire > intervals + 1 would
+// read past its end and produce a NaN dueAt. Deriving it makes that
+// impossible to get wrong when the pedagogy (the ladder) changes.
+export const WIEDERVORLAGE_RETIRE_STREAK = WIEDERVORLAGE_INTERVALS_DAYS.length + 1
 const DAY_MS = 86_400_000
 
 export type CorrectionStatus = 'offen' | 'faellig' | 'nachgeuebt'
@@ -227,18 +231,29 @@ export async function dueCorrections(
 /**
  * The Korrekturdrill's queue (ADR-0025): offene first — newest first, the
  * pre-Wiedervorlage order, so new mistakes are never crowded out — then
- * fällige, most overdue first. `limit` caps the combined list.
+ * fällige, most overdue first. `limit` caps the combined list, and when both
+ * kinds compete for that cap up to a QUARTER of it is reserved for fällige,
+ * so review still progresses behind a large offen backlog (without the
+ * reservation, more offene than the cap would starve Wiedervorlage entirely
+ * while every surface kept advertising the fällig count).
  */
 export async function drillQueue(
   limit?: number, part?: 1 | 2, module?: 'sprechen' | 'schreiben', now: number = Date.now()
 ): Promise<QueuedCorrection[]> {
+  // openCorrections needs no `now`: offen (streak 0) is time-independent, so
+  // the two snapshots cannot disagree about openness.
   const open = await openCorrections(undefined, part, module)
   const due = await dueCorrections(part, module, now)
+  // offen stays first and dominant (ADR-0025: new mistakes are never crowded
+  // out) — but review must still progress, so when a cap is given, up to a
+  // quarter of it is reserved for fällige items.
+  if (limit == null) return [...open.map(c => ({ ...c, schedule: OFFEN })), ...due]
+  const reserved = Math.min(due.length, Math.floor(limit / 4))
   const queue: QueuedCorrection[] = [
-    ...open.map(c => ({ ...c, schedule: OFFEN })),
+    ...open.slice(0, limit - reserved).map(c => ({ ...c, schedule: OFFEN })),
     ...due
   ]
-  return limit != null ? queue.slice(0, limit) : queue
+  return queue.slice(0, limit)
 }
 
 /**
