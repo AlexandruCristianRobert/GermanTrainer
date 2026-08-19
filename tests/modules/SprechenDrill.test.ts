@@ -11,34 +11,43 @@ vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }))
 // execute. An un-hoisted const throws "Cannot access ... before
 // initialization"; vi.hoisted() hoists the declaration itself alongside the
 // vi.mock calls so it is already initialized by the time they run.
-const { recordDrillResult, saveQuizRun } = vi.hoisted(() => ({
+const { recordDrillResult, saveQuizRun, drillQueue } = vi.hoisted(() => ({
   recordDrillResult: vi.fn(async () => undefined),
-  saveQuizRun: vi.fn()
-}))
-
-vi.mock('../../src/composables/useSprechenArchive', () => ({
-  openCorrections: vi.fn(async () => ([
+  saveQuizRun: vi.fn(),
+  drillQueue: vi.fn(async () => ([
     {
       id: 'c1', discussionId: 'd1', topicTitle: 'Tempolimit', modality: 'typed',
       kind: 'grammar', quote: 'wegen dem Vertrag', suggested: 'wegen des Vertrags',
       reasonDe: '„wegen" verlangt den Genitiv.', reasonEn: 'genitive',
       context: 'Ich konnte nicht kündigen, wegen dem Vertrag mit der Firma.',
-      createdAt: 1000
+      createdAt: 1000,
+      schedule: { status: 'offen', streak: 0, lastCorrectAt: null, dueAt: null }
     },
     {
       id: 'c2', discussionId: 'd1', topicTitle: 'Tempolimit', modality: 'typed',
       kind: 'register', quote: 'da hast du recht', suggested: 'da haben Sie recht',
       reasonDe: 'In der Prüfung wird gesiezt.', reasonEn: 'formal register',
-      context: 'Naja, da hast du recht.', createdAt: 2000
+      context: 'Naja, da hast du recht.', createdAt: 2000,
+      schedule: { status: 'offen', streak: 0, lastCorrectAt: null, dueAt: null }
     }
-  ])),
+  ]))
+}))
+
+vi.mock('../../src/composables/useSprechenArchive', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  drillQueue,
   recordDrillResult
 }))
 vi.mock('../../src/composables/useQuizHistory', () => ({ saveQuizRun }))
 
 import SprechenDrill from '../../src/modules/sprechen/SprechenDrill.vue'
 
-beforeEach(() => { recordDrillResult.mockClear(); saveQuizRun.mockClear(); push.mockClear() })
+beforeEach(() => {
+  recordDrillResult.mockClear()
+  saveQuizRun.mockClear()
+  drillQueue.mockClear()
+  push.mockClear()
+})
 
 async function mountDrill() {
   const w = mount(SprechenDrill)
@@ -135,11 +144,38 @@ describe('SprechenDrill', () => {
     w.unmount()
   })
 
-  it('shows an empty state when nothing is open', async () => {
-    const mod = await import('../../src/composables/useSprechenArchive')
-    vi.mocked(mod.openCorrections).mockResolvedValueOnce([])
+  it('shows an empty state when nothing is open or fällig', async () => {
+    drillQueue.mockResolvedValueOnce([])
     const w = await mountDrill()
-    expect(w.text()).toContain('Nichts offen')
+    expect(w.find('.alert-label').text()).toBe('Nichts offen oder fällig')
+    expect(w.text()).toContain('Es gibt gerade keine offenen oder fälligen Korrekturen')
+    expect(w.text()).toContain('nach 3, 10 und 30 Tagen wieder')
     expect(w.find('.spr-remed-in').exists()).toBe(false)
+  })
+
+  it('calls drillQueue with a 20-item cap to build the queue', async () => {
+    await mountDrill()
+    expect(drillQueue).toHaveBeenCalledWith(20)
+  })
+
+  it('badges a fällige item with its next repetition number', async () => {
+    drillQueue.mockResolvedValueOnce([
+      {
+        id: 'c3', discussionId: 'd1', topicTitle: 'Tempolimit', modality: 'typed',
+        kind: 'grammar', quote: 'wegen dem Vertrag', suggested: 'wegen des Vertrags',
+        reasonDe: '„wegen" verlangt den Genitiv.', reasonEn: 'genitive',
+        context: 'Ich konnte nicht kündigen, wegen dem Vertrag mit der Firma.',
+        createdAt: 1000,
+        schedule: { status: 'faellig', streak: 1, lastCorrectAt: 500, dueAt: 900 }
+      }
+    ])
+    const w = await mountDrill()
+    expect(w.find('.micro-mark .wv-badge').text()).toBe('fällig · 2. Wiederholung')
+  })
+
+  it('renders no fällig badge for an offen item', async () => {
+    const w = await mountDrill()
+    expect(w.find('.micro-mark').text()).not.toContain('fällig')
+    expect(w.find('.wv-badge').exists()).toBe(false)
   })
 })

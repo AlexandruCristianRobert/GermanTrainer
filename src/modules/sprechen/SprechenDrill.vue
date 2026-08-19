@@ -10,12 +10,15 @@
 // derives drilled-ness from that table rather than a boolean on the row. The
 // session ALSO saves one Run (ADR-0013), which is why one drilled correction
 // leaves two records.
+//
+// Wiedervorlage (ADR-0025): a solved item returns after 3/10/30 days until it
+// survives four spaced retrievals.
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { openCorrections, recordDrillResult } from '../../composables/useSprechenArchive'
+import { drillQueue, recordDrillResult } from '../../composables/useSprechenArchive'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { foldGerman } from '../../composables/drillGrading'
-import type { ArchivedCorrection } from '../../composables/useSprechenArchive'
+import type { QueuedCorrection } from '../../composables/useSprechenArchive'
 import type { SprechenErrorTag } from '../../composables/useQuizHistory'
 
 const KIND_LABEL: Record<SprechenErrorTag, string> = {
@@ -24,7 +27,7 @@ const KIND_LABEL: Record<SprechenErrorTag, string> = {
 }
 
 const router = useRouter()
-const items = ref<ArchivedCorrection[]>([])
+const items = ref<QueuedCorrection[]>([])
 const loading = ref(true)
 const index = ref(0)
 const answer = ref('')
@@ -38,7 +41,7 @@ const nextBtnRef = ref<HTMLButtonElement | null>(null)
 
 onMounted(async () => {
   try {
-    items.value = await openCorrections(20)
+    items.value = await drillQueue(20)
   } catch {
     items.value = []
   }
@@ -129,9 +132,10 @@ function finish() {
     <p v-if="loading" class="loading-state">Archiv wird geladen …</p>
 
     <div v-else-if="items.length === 0" class="alert alert-info">
-      <span class="alert-label">Nichts offen</span>
-      Es gibt gerade keine offenen Korrekturen. Führe eine Diskussion — markierte
-      Fehler landen automatisch hier.
+      <span class="alert-label">Nichts offen oder fällig</span>
+      Es gibt gerade keine offenen oder fälligen Korrekturen. Führe eine
+      Diskussion — markierte Fehler landen automatisch hier, und Nachgeübtes
+      kommt nach 3, 10 und 30 Tagen wieder.
     </div>
 
     <div v-else-if="finished" class="spr-remed">
@@ -140,7 +144,8 @@ function finish() {
         <span class="spr-block-n">{{ firstTryCorrect }} von {{ attempted }} beim ersten Versuch</span>
       </div>
       <p class="spr-sub">
-        Was du verfehlt hast, bleibt offen und kommt wieder.
+        Was du verfehlt hast, ist wieder offen; was du geschafft hast, kommt
+        zur Wiedervorlage zurück.
       </p>
       <div class="setup-actions">
         <button class="btn btn-ghost" type="button"
@@ -153,6 +158,9 @@ function finish() {
         {{ index + 1 }} / {{ items.length }} ·
         {{ KIND_LABEL[current.kind] }} ·
         {{ current.topicTitle }}
+        <template v-if="current.schedule.status === 'faellig'">
+          · <span class="wv-badge">fällig · {{ current.schedule.streak + 1 }}. Wiederholung</span>
+        </template>
       </div>
 
       <p class="spr-remed-ctx">
@@ -197,3 +205,7 @@ function finish() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.wv-badge { color: var(--accent); }
+</style>
