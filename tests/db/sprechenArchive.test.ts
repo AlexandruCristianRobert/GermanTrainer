@@ -5,7 +5,7 @@ import {
   appendCorrections,
   listCorrections,
   recordDrillResult,
-  drilledIds,
+  scheduleByCorrection,
   openCorrections,
   countsByKind,
   clearArchive,
@@ -109,7 +109,10 @@ describe('sprechenCorrections / sprechenCorrectionEvents (db version 10)', () =>
     expect(events).toHaveLength(2)
   })
 
-  it('drilledIds only counts events with correct === true', async () => {
+  // ADR-0025 replaced drilledIds() with per-correction schedules: "drilled"
+  // is now the trailing correct streak (>= 1 means re-practised at least
+  // once), so these two cases assert `streak` instead of Set membership.
+  it('scheduleByCorrection only counts events with correct === true', async () => {
     const [wrongOnly, rightOnly] = await appendCorrections([
       correctionInput({ quote: 'wrong-only' }),
       correctionInput({ quote: 'right-only' })
@@ -118,21 +121,35 @@ describe('sprechenCorrections / sprechenCorrectionEvents (db version 10)', () =>
     await recordDrillResult(wrongOnly.id, false)
     await recordDrillResult(rightOnly.id, true)
 
-    const drilled = await drilledIds()
-    expect(drilled.has(rightOnly.id)).toBe(true)
-    expect(drilled.has(wrongOnly.id)).toBe(false)
+    const schedules = await scheduleByCorrection()
+    expect(schedules.get(rightOnly.id)?.streak).toBe(1)
+    expect(schedules.get(wrongOnly.id)?.streak).toBe(0)
   })
 
-  it('a correction with one wrong then one right event IS drilled', async () => {
+  it('a correction with one wrong then one right event has a trailing streak of 1', async () => {
     const [row] = await appendCorrections([correctionInput()])
-    await recordDrillResult(row.id, false)
-    await recordDrillResult(row.id, true)
+    // Distinct `at` per event: back-to-back recordDrillResult calls land in the
+    // same millisecond, and same-`at` events keep the events table's arbitrary
+    // primary-key order (see computeSchedule's JSDoc), which would make "the
+    // success came last" a coin flip.
+    const nowSpy = vi.spyOn(Date, 'now')
+    try {
+      nowSpy.mockReturnValue(1_000)
+      await recordDrillResult(row.id, false)
+      nowSpy.mockReturnValue(2_000)
+      await recordDrillResult(row.id, true)
+    } finally {
+      nowSpy.mockRestore()
+    }
 
-    const drilled = await drilledIds()
-    expect(drilled.has(row.id)).toBe(true)
+    // This order still counts as re-practised — the trailing run ends on the
+    // success. The REVERSE order (right then wrong) no longer stays retired
+    // under ADR-0025: the miss resets the streak and reopens the correction
+    // (covered in tests/composables/wiedervorlage.test.ts).
+    expect((await scheduleByCorrection()).get(row.id)?.streak).toBe(1)
   })
 
-  it('openCorrections excludes drilled corrections', async () => {
+  it('openCorrections excludes a correction resting after a success (nachgeübt)', async () => {
     const [drilledRow, openRow1, openRow2] = await appendCorrections([
       correctionInput({ quote: 'drilled' }),
       correctionInput({ quote: 'open-1' }),
