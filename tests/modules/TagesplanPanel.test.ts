@@ -66,6 +66,35 @@ describe('TagesplanPanel', () => {
     expect(push).toHaveBeenCalledWith({ name: 'route-b' })
   })
 
+  it('clicking a row that carries a query pushes name AND query', async () => {
+    // dac-T14/T15 share route 'dacompounds-sentence' and differ only by
+    // query.direction — dropping it lands the user in the wrong drill.
+    const rows: TagesplanRow[] = [
+      { ...makeRow('t15'), route: 'dacompounds-sentence', query: { direction: 'de-en' } }
+    ]
+    vi.mocked(buildTagesplan).mockResolvedValueOnce(rows)
+    const w = mount(TagesplanPanel, { global })
+    await flushPromises()
+    await w.findAll('.tp-row')[0].trigger('click')
+    expect(push).toHaveBeenCalledWith({
+      name: 'dacompounds-sentence', query: { direction: 'de-en' }
+    })
+  })
+
+  it('names the count in the singular for one row', async () => {
+    vi.mocked(buildTagesplan).mockResolvedValueOnce([makeRow('a')])
+    const w = mount(TagesplanPanel, { global })
+    await flushPromises()
+    expect(w.find('.tp-count').text()).toBe('1 Eintrag')
+  })
+
+  it('names the count in the plural for two rows', async () => {
+    vi.mocked(buildTagesplan).mockResolvedValueOnce([makeRow('a'), makeRow('b')])
+    const w = mount(TagesplanPanel, { global })
+    await flushPromises()
+    expect(w.find('.tp-count').text()).toBe('2 Einträge')
+  })
+
   it('renders nothing when buildTagesplan rejects (fail-soft)', async () => {
     vi.mocked(buildTagesplan).mockRejectedValueOnce(new Error('archive down'))
     const w = mount(TagesplanPanel, { global })

@@ -10,7 +10,7 @@
 // is the mastery module's business, idempotent, and not Tagesplan state.
 
 import { openCorrections, dueCorrections } from './useSprechenArchive'
-import { readDativeLedger, ledgerState } from './useDativeLedger'
+import { shakyItems } from './useDativeLedger'
 import { computeWeakPoints } from './usePrepRemedial'
 import { computeVerbWeakPoints } from './useVerbSentenceStats'
 import { computeDrillMastery } from './useDrillMastery'
@@ -23,10 +23,13 @@ export interface TagesplanRow {
   detail: string
   route: string
   count: number
+  /** Route query the destination needs to disambiguate a shared route
+   *  (dac-T14/T15 both live on `dacompounds-sentence`, split by direction). */
+  query?: Record<string, string>
 }
 
 const MODULE_LABEL: Record<string, string> = {
-  dw: 'Richtungswörter',
+  dw: 'hin & her',
   dac: 'Pronominaladverbien',
   dat: 'Dativ',
 }
@@ -68,13 +71,11 @@ export async function buildTagesplan(
     }
   } catch { /* fail-soft: row omitted */ }
 
-  // 2 — Dativ ledger: wackelige items, longest-unseen first
+  // 2 — Dativ ledger: wackelige items, longest-unseen first. The order and the
+  // filter live in useDativeLedger (shakyItems) so the hub's chip row and this
+  // row can never disagree about which names are "the wackelige ones".
   try {
-    const ledger = readDativeLedger()
-    const shaky = Object.entries(ledger)
-      .filter(([, e]) => ledgerState(e) === 'wackelig')
-      .sort((a, b) => a[1].lastAt - b[1].lastAt)
-      .map(([key]) => key)
+    const shaky = shakyItems()
     if (shaky.length > 0) {
       rows.push({
         id: 'dativ-wackelig',
@@ -128,6 +129,7 @@ export async function buildTagesplan(
         detail: `Band ${m.band} · ${Math.round(m.accuracy * 100)} % · ${m.total} Fragen`,
         route: hit.card.route,
         count: 1,
+        ...(hit.card.query ? { query: hit.card.query } : {}),
       })
       added += 1
     }

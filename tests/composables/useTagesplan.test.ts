@@ -96,6 +96,34 @@ describe('buildTagesplan (ADR-0026)', () => {
     expect(bands[1].count).toBe(1)
   })
 
+  it('band rows carry the catalogue card query, so two cards sharing one route stay distinguishable', async () => {
+    // dac-T14 and dac-T15 both route to 'dacompounds-sentence' and differ ONLY
+    // by query.direction. Dropping the query would send the DE→EN row to the
+    // EN→DE drill, so the query must travel with the row.
+    localStorage.setItem('gt:drillTotals', JSON.stringify({
+      'dac-T14': { runs: 1, total: 4, correct: 1, lastAt: 1 },   // band 1, acc .25
+      'dac-T15': { runs: 1, total: 5, correct: 1, lastAt: 1 },   // band 1, acc .2
+    }))
+    localStorage.setItem('gt:drillTotalsSeeded', '1')
+    const rows = await buildTagesplan([])
+    const t14 = rows.find(r => r.id === 'band-dac-T14')!
+    const t15 = rows.find(r => r.id === 'band-dac-T15')!
+    expect(t14.route).toBe('dacompounds-sentence')
+    expect(t15.route).toBe('dacompounds-sentence')
+    expect(t14.route).toBe(t15.route)              // same route …
+    expect(t14.query).toEqual({ direction: 'en-de' })   // … different query
+    expect(t15.query).toEqual({ direction: 'de-en' })
+  })
+
+  it('a band row whose card carries no query leaves query undefined', async () => {
+    localStorage.setItem('gt:drillTotals', JSON.stringify({
+      'dat-T10': { runs: 1, total: 4, correct: 1, lastAt: 1 }
+    }))
+    localStorage.setItem('gt:drillTotalsSeeded', '1')
+    const row = (await buildTagesplan([])).find(r => r.id === 'band-dat-T10')!
+    expect(row.query).toBeUndefined()
+  })
+
   it('a rollup key with no catalogue card is skipped silently', async () => {
     localStorage.setItem('gt:drillTotals', JSON.stringify({
       'dw-T99': { runs: 1, total: 4, correct: 1, lastAt: 1 }

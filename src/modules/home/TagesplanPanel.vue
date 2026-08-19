@@ -18,7 +18,9 @@ onMounted(async () => {
   }
 })
 
-function open(row: TagesplanRow) { router.push({ name: row.route }) }
+function open(row: TagesplanRow) {
+  router.push(row.query ? { name: row.route, query: row.query } : { name: row.route })
+}
 
 function onRowKey(e: KeyboardEvent, row: TagesplanRow) {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -32,7 +34,7 @@ function onRowKey(e: KeyboardEvent, row: TagesplanRow) {
   <section v-if="rows.length > 0" class="tagesplan card">
     <div class="tp-head">
       <span class="micro-mark">Tagesplan · heute</span>
-      <span class="micro-mark tp-count">{{ rows.length }} Einträge</span>
+      <span class="micro-mark tp-count">{{ rows.length }} {{ rows.length === 1 ? 'Eintrag' : 'Einträge' }}</span>
     </div>
     <ul class="tp-rows">
       <li
