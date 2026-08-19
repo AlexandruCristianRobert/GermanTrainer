@@ -125,6 +125,22 @@ const modules: ModuleCard[] = [
     title: 'Forumsbeitrag & Nachricht',
     desc: 'Teil 1 der B2-Prüfung trainieren: ein Schreibthema, vier Inhaltspunkte, mindestens 150 Wörter — mit Schreibplan, Redemittel-Drawer und Bewertung nach der offiziellen Rubrik. Teil 2: die halbformelle Nachricht mit Rahmen-Gerüst und Radar.',
     meta: 'Teil 1 & 2 live · AI-graded'
+  },
+  {
+    numeral: 'XV',
+    route: 'relativ',
+    de: 'Relativsätze',
+    title: 'Relative pronouns',
+    desc: 'der, den, dem, dessen — the antecedent decides gender and number, the role inside the clause decides the case. Plus dessen/deren and prepositions that pull the pronoun with them.',
+    meta: '120 items · offline · B1 · B2 · C1'
+  },
+  {
+    numeral: 'XVI',
+    route: 'ndekl',
+    de: 'Schwache Substantive',
+    title: 'N-Deklination',
+    desc: 'den Kollegen, dem Studenten, des Namens — the weak masculines that take -(e)n everywhere but the Nominativ Singular, and the strong nouns learners over-inflect.',
+    meta: '100 items · 40 weak nouns · offline'
   }
 ]
 
@@ -142,7 +158,7 @@ function onCardKey(e: KeyboardEvent, target: string) {
   <div class="page">
     <header class="section-header">
       <div>
-        <div class="breadcrumb">Frontispiece · I/XIV</div>
+        <div class="breadcrumb">Frontispiece · I/XVI</div>
         <h1 class="section-title">Üben<em>.</em></h1>
         <p class="section-subtitle">
           A small workbook for German vocabulary and grammar — three drills,

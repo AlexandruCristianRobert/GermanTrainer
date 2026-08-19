@@ -72,7 +72,9 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'dat-free': 'Dative · free dative',
   'dat-sentence': 'Dative · sentence (AI)',
   'dat-passive': 'Dative · passive',
-  'dat-reflexive': 'Dative · reflexive'
+  'dat-reflexive': 'Dative · reflexive',
+  'relativ-pronomen': 'Relative pronouns',
+  'ndekl-form': 'Weak nouns'
 }
 
 export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
@@ -147,7 +149,9 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'dat-free': 'Dativ · Freier Dativ',
   'dat-sentence': 'Dativ · Satz (KI)',
   'dat-passive': 'Dativ · Passiv',
-  'dat-reflexive': 'Dativ · Reflexiv'
+  'dat-reflexive': 'Dativ · Reflexiv',
+  'relativ-pronomen': 'Relativpronomen',
+  'ndekl-form': 'N-Deklination'
 }
 
 export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
@@ -222,5 +226,7 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'dat-free',
   'dat-sentence',
   'dat-passive',
-  'dat-reflexive'
+  'dat-reflexive',
+  'relativ-pronomen',
+  'ndekl-form'
 ]

@@ -21,7 +21,8 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { route: 'nouns', label: 'Nouns', de: 'Substantive' },
       { route: 'adjectives', label: 'Adjectives', de: 'Adjektive' },
-      { route: 'declension', label: 'Declension', de: 'Deklination' }
+      { route: 'declension', label: 'Declension', de: 'Deklination' },
+      { route: 'ndekl', label: 'N-Deklination', de: 'Schwache Substantive' }
     ]
   },
   {
@@ -38,6 +39,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { route: 'prepositions', label: 'Prepositions', de: 'Präpositionen' },
       { route: 'dacompounds', label: 'Da-Compounds', de: 'Pronominaladverbien' },
+      { route: 'relativ', label: 'Relativsätze', de: 'der, den, dessen' },
       { route: 'directionwords', label: 'Direction Words', de: 'hin & her' }
     ]
   },

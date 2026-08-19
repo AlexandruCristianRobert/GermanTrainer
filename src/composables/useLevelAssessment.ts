@@ -137,6 +137,8 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'decl-article-ai': 'declension · article (AI sentences)',
   'konjunktiv-rewrite': 'Konjunktiv I — indirect speech rewrite',
   'passiv-transform': 'Passiv transformation',
+  'relativ-pronomen': 'Relative pronouns',
+  'ndekl-form': 'Weak nouns',
   'writing-grade': 'graded essay (writing tutor)',
   'simulator-c1': 'Goethe C1 simulator (mock exam)',
   'sprechen-teil1': 'Sprechen Teil 1 — a four-minute Vortrag on a task sheet with five fixed points, plus one follow-up question, typed or spoken (score 0-100, Goethe B2 rubric)',
