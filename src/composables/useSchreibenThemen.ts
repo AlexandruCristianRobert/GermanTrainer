@@ -2,7 +2,7 @@
 // Schreiben Teil 1 — the Schreibthema pool (see CONTEXT.md → "Schreibthema").
 // Structural twin of useVortragsthemen.ts, but for Teil 1's forum-post task
 // sheets rather than Teil 1 (Sprechen)'s Vortrag task sheets:
-//   - 24 seeded Schreibthemen from src/data/schreibenThemen.ts
+//   - 44 seeded Schreibthemen from src/data/schreibenThemen.ts
 //   - AI-generated Schreibthemen persisted in
 //     localStorage['gt:schreibenCustomThemen']
 //   - done-theme memory derived from Run meta via loadHistory() — Schreiben

@@ -48,7 +48,7 @@ let stashDebounce: number | undefined
 const filledCount = computed(() => plan.value.filter(p => p.keyword.trim().length > 0).length)
 
 // Mustertext cross-link (design doc, Integration) — same resolution as
-// Teil1Setup.vue's task-sheet preview: only the 24 seeded themes are mapped,
+// Teil1Setup.vue's task-sheet preview: only the 44 seeded themes are mapped,
 // so custom/AI themes fall back to the library link without a query.
 const musterId = computed(() => (stash.value ? SCHREIBTHEMA_MUSTER[stash.value.thema.id] : undefined))
 const musterLinkLabel = computed(() =>

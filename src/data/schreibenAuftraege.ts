@@ -16,7 +16,7 @@
 // the Musternachricht and the Inhalts-Baukasten fallback (ADR-0023). It is
 // never a grading input.
 //
-// This file holds the 20 seeded Aufträge only — four per Anlass, so the pool
+// This file holds the 40 seeded Aufträge only — eight per Anlass, so the pool
 // stays balanced across the five occasions; adding a seed is a code change.
 // AI-generated Aufträge are a separate, learner-owned pool that persists in
 // localStorage rather than Dexie — mirroring schreibenThemen.ts's convention —
@@ -100,6 +100,46 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
       'Bitten Sie um die Arbeitsblätter und die Hausaufgaben der versäumten Stunden.',
       'Versichern Sie, den verpassten Stoff selbstständig nachzuarbeiten.'
     ]),
+  A('wa-vorstellungsgespraech-verschieben', 'Vorstellungsgespräch verschieben', 'entschuldigung',
+    'Frau Ritter', 'die Personalreferentin des Unternehmens',
+    'Sie sind für Donnerstag zu einem Vorstellungsgespräch eingeladen, über das Sie sich sehr gefreut haben. Nun ist Ihr Kind erkrankt, und die Betreuung lässt sich an diesem Tag nicht anders organisieren.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an die Personalreferentin des Unternehmens, Frau Ritter, und bitten Sie um einen neuen Termin für das Vorstellungsgespräch.',
+    [
+      'Sagen Sie den vereinbarten Termin ab und entschuldigen Sie sich für die kurzfristige Nachricht.',
+      'Erklären Sie, warum Sie am Donnerstag verhindert sind.',
+      'Betonen Sie Ihr weiterhin großes Interesse an der Stelle.',
+      'Bitten Sie um einen Ersatztermin und nennen Sie Tage, an denen Sie verfügbar sind.'
+    ]),
+  A('wa-praesentation-absagen', 'Absage der Seminarpräsentation', 'entschuldigung',
+    'Herr Baumann', 'Ihr Dozent',
+    'In Ihrem Fachseminar sollen Sie am Dienstag Ihre Präsentation über Ihr Projekt halten. Wegen einer starken Erkältung haben Sie Ihre Stimme fast vollständig verloren und sind krankgeschrieben.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihren Dozenten, Herrn Baumann, und sagen Sie Ihre Präsentation am Dienstag ab.',
+    [
+      'Sagen Sie Ihre Präsentation ab und entschuldigen Sie sich für die kurzfristige Absage.',
+      'Schildern Sie, warum Sie am Dienstag nicht vortragen können.',
+      'Schlagen Sie einen neuen Termin oder eine Ersatzleistung vor.',
+      'Bieten Sie an, Ihre Folien vorab an die Seminargruppe zu schicken.'
+    ]),
+  A('wa-verspaetung-inventur', 'Verspätung wegen Zugausfall', 'entschuldigung',
+    'Herr Hartmann', 'Ihr Teamleiter',
+    'Morgen beginnt in Ihrer Filiale um sieben Uhr die Jahresinventur, bei der jede Hilfe gebraucht wird. Wegen eines angekündigten Bahnstreiks fährt Ihr Zug nicht, und Sie kommen frühestens gegen zehn Uhr an.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihren Teamleiter, Herrn Hartmann, und kündigen Sie Ihre Verspätung zur Inventur an.',
+    [
+      'Kündigen Sie Ihre Verspätung an und entschuldigen Sie sich dafür.',
+      'Erklären Sie, warum Sie morgen nicht pünktlich sein können.',
+      'Beschreiben Sie, wie Sie versuchen, trotzdem so früh wie möglich zu kommen.',
+      'Bieten Sie an, am Abend länger zu bleiben und die fehlende Zeit nachzuholen.'
+    ]),
+  A('wa-festkomitee-ruecktritt', 'Rückzug aus dem Festkomitee', 'entschuldigung',
+    'Frau Kaiser', 'die Organisatorin des Sommerfests',
+    'Sie haben sich freiwillig gemeldet, das Sommerfest Ihrer Firma mitzuorganisieren. Nun wurde Ihnen kurzfristig ein zeitintensives Projekt übertragen, sodass Sie die Aufgabe im Festkomitee nicht mehr zuverlässig erfüllen können.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an die Organisatorin des Sommerfests, Frau Kaiser, und ziehen Sie sich aus dem Festkomitee zurück.',
+    [
+      'Sagen Sie Ihre Mitarbeit im Festkomitee ab und entschuldigen Sie sich dafür.',
+      'Begründen Sie Ihren Rückzug mit Ihrer neuen Aufgabe.',
+      'Schlagen Sie eine Kollegin oder einen Kollegen als Ersatz vor.',
+      'Bieten Sie an, eine kleine Aufgabe am Festtag selbst zu übernehmen.'
+    ]),
 
   // — Bitte & Anfrage —
   A('wa-homeoffice-antrag', 'Bitte um Homeoffice', 'bitte',
@@ -141,6 +181,46 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
       'Beschreiben Sie das Praktikum, für das Sie sich bewerben.',
       'Bitten Sie höflich um das Empfehlungsschreiben und nennen Sie die Bewerbungsfrist.',
       'Bieten Sie an, Ihre Unterlagen und eine Übersicht Ihrer Seminararbeiten zu schicken.'
+    ]),
+  A('wa-arbeitszeugnis', 'Bitte um ein Arbeitszeugnis', 'bitte',
+    'Frau Ebert', 'die Leiterin der Personalabteilung',
+    'Sie verlassen Ihr Unternehmen zum Ende des Monats, weil Sie in eine andere Stadt ziehen. Für Ihre Bewerbungen dort benötigen Sie ein qualifiziertes Arbeitszeugnis.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an die Leiterin der Personalabteilung, Frau Ebert, und bitten Sie um ein qualifiziertes Arbeitszeugnis.',
+    [
+      'Nennen Sie Ihr Anliegen und beziehen Sie sich auf Ihren Austritt zum Monatsende.',
+      'Erinnern Sie an Ihre wichtigsten Aufgaben und Projekte im Unternehmen.',
+      'Nennen Sie den Termin, bis zu dem Sie das Zeugnis benötigen.',
+      'Bieten Sie an, eine Übersicht Ihrer Tätigkeiten zuzusenden.'
+    ]),
+  A('wa-frist-hausarbeit', 'Bitte um Fristverlängerung', 'bitte',
+    'Frau Krüger', 'Ihre Dozentin',
+    'Ihre Hausarbeit im Seminar ist bis zum 15. des Monats fällig. Sie waren zwei Wochen krank und konnten in dieser Zeit weder recherchieren noch schreiben.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihre Dozentin, Frau Krüger, und bitten Sie um eine Verlängerung der Abgabefrist für Ihre Hausarbeit.',
+    [
+      'Beziehen Sie sich auf die Abgabefrist und nennen Sie Ihr Anliegen.',
+      'Begründen Sie Ihre Bitte mit Ihrer Erkrankung.',
+      'Beschreiben Sie den aktuellen Stand Ihrer Arbeit.',
+      'Schlagen Sie einen neuen Abgabetermin vor und bieten Sie ein ärztliches Attest an.'
+    ]),
+  A('wa-ratenzahlung', 'Bitte um Ratenzahlung', 'bitte',
+    'Herr Peters', 'der Verwaltungsleiter der Sprachschule',
+    'Sie möchten nach Ihrer B2-Prüfung den C1-Kurs an Ihrer Sprachschule besuchen. Wegen einer unerwarteten Autoreparatur können Sie die Kursgebühr in diesem Monat nicht auf einmal bezahlen.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an den Verwaltungsleiter der Sprachschule, Herrn Peters, und bitten Sie um eine Ratenzahlung der Kursgebühr.',
+    [
+      'Nennen Sie Ihr Anliegen und den Kurs, für den Sie sich anmelden möchten.',
+      'Erklären Sie, warum Sie die Gebühr zurzeit nicht auf einmal zahlen können.',
+      'Schlagen Sie einen konkreten Ratenplan vor.',
+      'Bitten Sie um eine kurze schriftliche Bestätigung der Vereinbarung.'
+    ]),
+  A('wa-schichttausch', 'Bitte um einen Schichttausch', 'bitte',
+    'Herr Nowak', 'Ihr Schichtleiter',
+    'Laut Dienstplan arbeiten Sie am kommenden Samstag in der Frühschicht. An diesem Vormittag legen Sie jedoch Ihre B2-Prüfung ab, deren Termin Sie nicht beeinflussen können.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihren Schichtleiter, Herrn Nowak, und bitten Sie um einen Tausch Ihrer Samstagsschicht.',
+    [
+      'Nennen Sie Ihr Anliegen und beziehen Sie sich auf den aktuellen Dienstplan.',
+      'Begründen Sie Ihre Bitte mit Ihrem Prüfungstermin.',
+      'Teilen Sie mit, dass eine Kollegin bereit ist, die Schicht zu übernehmen.',
+      'Bitten Sie um die Genehmigung des Tauschs und um eine kurze Rückmeldung.'
     ]),
 
   // — Beschwerde & Problem melden —
@@ -184,6 +264,46 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
       'Erklären Sie, warum der Unterricht darunter leidet.',
       'Bitten Sie darum, die Ausstattung bis zum Kursbeginn im Januar zu verbessern.'
     ]),
+  A('wa-gehaltsabrechnung', 'Fehler in der Gehaltsabrechnung', 'beschwerde',
+    'Frau Schulz', 'die Leiterin der Lohnbuchhaltung',
+    'Auf Ihrer aktuellen Gehaltsabrechnung fehlen die Überstunden, die Sie im vergangenen Monat geleistet haben. Bereits im Vormonat war die Abrechnung fehlerhaft, damals wurde eine Zulage vergessen.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an die Leiterin der Lohnbuchhaltung, Frau Schulz, und melden Sie die Fehler in Ihrer Gehaltsabrechnung.',
+    [
+      'Nennen Sie den Anlass Ihrer Nachricht und beziehen Sie sich auf die aktuelle Abrechnung.',
+      'Beschreiben Sie die Fehler der letzten beiden Monate genau.',
+      'Erklären Sie, warum eine zuverlässige Abrechnung für Sie wichtig ist.',
+      'Bitten Sie um eine Korrektur bis zur nächsten Gehaltszahlung und um eine Bestätigung.'
+    ]),
+  A('wa-reisekosten', 'Verspätete Reisekostenerstattung', 'beschwerde',
+    'Frau Adler', 'die Leiterin der Buchhaltung',
+    'Vor acht Wochen haben Sie die Abrechnung Ihrer Dienstreise mit allen Belegen eingereicht. Trotz zweier freundlicher Nachfragen wurde der Betrag von mehreren Hundert Euro bis heute nicht erstattet.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an die Leiterin der Buchhaltung, Frau Adler, und beschweren Sie sich über die ausstehende Erstattung Ihrer Reisekosten.',
+    [
+      'Nennen Sie den Anlass Ihrer Beschwerde und geben Sie an, seit wann Sie auf die Erstattung warten.',
+      'Schildern Sie, was Sie bisher unternommen haben.',
+      'Machen Sie deutlich, welche finanzielle Belastung die Verzögerung für Sie bedeutet.',
+      'Bitten Sie um die Erstattung bis zum Monatsende und um eine kurze Rückmeldung.'
+    ]),
+  A('wa-lernplattform', 'Störungen der Lernplattform', 'beschwerde',
+    'Herr Stein', 'der technische Ansprechpartner der Sprachschule',
+    'Seit zwei Wochen funktioniert die Online-Lernplattform Ihrer Sprachschule nur unzuverlässig: Videos laden nicht, und hochgeladene Hausaufgaben gehen verloren. In sechs Wochen legen Sie die B2-Prüfung ab.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an den technischen Ansprechpartner Ihrer Sprachschule, Herrn Stein, und melden Sie die Störungen der Lernplattform.',
+    [
+      'Melden Sie die Störungen und geben Sie an, seit wann sie auftreten.',
+      'Beschreiben Sie genau, welche Funktionen nicht zuverlässig arbeiten.',
+      'Erklären Sie, warum die Ausfälle Ihre Prüfungsvorbereitung behindern.',
+      'Bitten Sie um eine schnelle Lösung und um eine Verlängerung der Abgabefristen.'
+    ]),
+  A('wa-parkplatz', 'Parkplatznot am Firmenstandort', 'beschwerde',
+    'Herr Wolf', 'der Facility-Manager',
+    'Wegen einer Baustelle ist die Hälfte des Mitarbeiterparkplatzes gesperrt, und eine Regelung für die verbleibenden Plätze gibt es nicht. Obwohl Sie früher losfahren, finden Sie oft keinen Platz und kommen zu spät zu Terminen.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an den Facility-Manager, Herrn Wolf, und beschweren Sie sich über die Parkplatzsituation am Standort.',
+    [
+      'Sprechen Sie die Parkplatzsituation an und nennen Sie den Auslöser.',
+      'Beschreiben Sie, wie sich die Lage auf Ihren Arbeitsbeginn auswirkt.',
+      'Bitten Sie um eine klare Regelung für die verbleibenden Plätze.',
+      'Schlagen Sie eine Übergangslösung für die Zeit der Bauarbeiten vor.'
+    ]),
 
   // — Vorschlag & Anregung —
   A('wa-teamausflug', 'Vorschlag für den Teamausflug', 'vorschlag',
@@ -226,6 +346,46 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
       'Bitten Sie um einen freien Raum und um Übungsmaterial für die Prüfungsteile.',
       'Sagen Sie zu, die Termine zu organisieren und die Gruppe zu betreuen.'
     ]),
+  A('wa-betriebssport', 'Sportangebot für Mitarbeitende', 'vorschlag',
+    'Frau Engel', 'die Personalreferentin',
+    'Viele Ihrer Kolleginnen und Kollegen klagen über Rückenschmerzen durch die Bildschirmarbeit. Die Personalabteilung hat um Ideen zur Gesundheitsförderung im Betrieb gebeten.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an die Personalreferentin, Frau Engel, und stellen Sie Ihren Vorschlag für ein Sportangebot im Betrieb vor.',
+    [
+      'Nehmen Sie Bezug auf den Aufruf der Personalabteilung.',
+      'Stellen Sie Ihren Vorschlag für ein regelmäßiges Sportangebot vor.',
+      'Begründen Sie den Nutzen für die Beschäftigten und den Betrieb.',
+      'Bieten Sie an, die Organisation der ersten Kurse zu übernehmen.'
+    ]),
+  A('wa-jobticket', 'Jobticket für die Belegschaft', 'vorschlag',
+    'Herr Franke', 'der kaufmännische Leiter',
+    'Die Parkplätze an Ihrem Standort sind knapp, und viele Beschäftigte fahren täglich allein mit dem Auto zur Arbeit. Ein vergünstigtes Jobticket für Bus und Bahn gibt es in Ihrer Firma bisher nicht.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an den kaufmännischen Leiter, Herrn Franke, und schlagen Sie die Einführung eines Jobtickets vor.',
+    [
+      'Beschreiben Sie die aktuelle Situation bei Parkplätzen und Arbeitswegen.',
+      'Stellen Sie Ihren Vorschlag eines vergünstigten Jobtickets vor.',
+      'Erläutern Sie den Nutzen für den Betrieb und für die Beschäftigten.',
+      'Bieten Sie an, das Interesse im Kollegium mit einer kurzen Umfrage zu ermitteln.'
+    ]),
+  A('wa-konversationsabend', 'Konversationsabend für Lernende', 'vorschlag',
+    'Frau Arnold', 'die Leiterin Ihrer Sprachschule',
+    'In Ihrem B2-Kurs wünschen sich viele Teilnehmende mehr Gelegenheiten, frei Deutsch zu sprechen. Außerhalb des Unterrichts gibt es an Ihrer Sprachschule bisher kein solches Angebot.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an die Leiterin Ihrer Sprachschule, Frau Arnold, und schlagen Sie einen regelmäßigen Konversationsabend vor.',
+    [
+      'Beschreiben Sie, was den Teilnehmenden Ihres Kurses bisher fehlt.',
+      'Stellen Sie Ihre Idee eines monatlichen Konversationsabends vor.',
+      'Begründen Sie, warum das Angebot auch für die Sprachschule attraktiv ist.',
+      'Bieten Sie an, den ersten Abend selbst zu organisieren.'
+    ]),
+  A('wa-ruheraum', 'Ein Ruheraum für die Pausen', 'vorschlag',
+    'Herr Lorenz', 'der Office-Manager',
+    'In Ihrem Bürogebäude gibt es keinen Ort für eine ungestörte Pause: Der Aufenthaltsraum wird ständig für spontane Besprechungen genutzt. Ein kleines Besprechungszimmer im dritten Stock steht seit Monaten leer.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an den Office-Manager, Herrn Lorenz, und schlagen Sie die Einrichtung eines Ruheraums vor.',
+    [
+      'Schildern Sie, warum eine ungestörte Pause im Gebäude derzeit kaum möglich ist.',
+      'Stellen Sie Ihren Vorschlag vor, das leere Zimmer als Ruheraum einzurichten.',
+      'Erklären Sie den Nutzen für Konzentration und Gesundheit der Beschäftigten.',
+      'Bitten Sie um eine Prüfung des Vorschlags und um eine Rückmeldung.'
+    ]),
 
   // — Dank & Rückmeldung —
   A('wa-dank-einarbeitung', 'Dank für die Einarbeitung', 'dank',
@@ -267,6 +427,46 @@ export const SCHREIBEN_AUFTRAEGE: Schreibauftrag[] = [
       'Heben Sie hervor, was Ihnen an der Organisation der Arbeit gefallen hat.',
       'Nennen Sie, was Sie bei Ihrer eigenen Teilaufgabe gelernt haben.',
       'Bekunden Sie Ihr Interesse an einer weiteren Zusammenarbeit.'
+    ]),
+  A('wa-dank-kursleiterin', 'Dank nach der bestandenen Prüfung', 'dank',
+    'Frau Seidel', 'Ihre Kursleiterin',
+    'Sie haben Ihre B2-Prüfung mit einem sehr guten Ergebnis bestanden. Ihre Kursleiterin hat Sie ein Jahr lang unterrichtet und vor der Prüfung zusätzliche Übungsstunden angeboten.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihre Kursleiterin, Frau Seidel, und bedanken Sie sich nach Ihrer bestandenen Prüfung.',
+    [
+      'Berichten Sie von Ihrem Prüfungsergebnis und bedanken Sie sich für den Unterricht.',
+      'Nennen Sie, was Ihnen in der Vorbereitung besonders geholfen hat.',
+      'Erklären Sie, was Ihnen die bestandene Prüfung nun ermöglicht.',
+      'Erkundigen Sie sich nach einem passenden C1-Kurs.'
+    ]),
+  A('wa-dank-it-hilfe', 'Dank für die schnelle IT-Hilfe', 'dank',
+    'Herr Anders', 'Ihr Kollege aus der IT-Abteilung',
+    'Kurz vor einer wichtigen Kundenpräsentation fiel Ihr Laptop aus. Ihr Kollege aus der IT-Abteilung hat alles stehen und liegen lassen, ein Ersatzgerät eingerichtet und Ihre Dateien rechtzeitig wiederhergestellt.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an Ihren Kollegen aus der IT-Abteilung, Herrn Anders, und bedanken Sie sich für seine Hilfe.',
+    [
+      'Bedanken Sie sich für die schnelle und unkomplizierte Hilfe.',
+      'Beschreiben Sie, in welcher Lage Sie ohne seine Unterstützung gewesen wären.',
+      'Berichten Sie, wie die Präsentation gelaufen ist.',
+      'Kündigen Sie an, seine Hilfe auch gegenüber seiner Vorgesetzten zu erwähnen.'
+    ]),
+  A('wa-rueckmeldung-mentoring', 'Rückmeldung zum Mentoring-Programm', 'dank',
+    'Herr Kolb', 'der Personalreferent',
+    'Sie haben sechs Monate am neuen Mentoring-Programm Ihres Unternehmens teilgenommen. Die Personalabteilung bittet alle Teilnehmenden nach dem Probelauf um eine ehrliche Rückmeldung.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an den Personalreferenten, Herrn Kolb, und geben Sie ihm Ihre Rückmeldung zum Mentoring-Programm.',
+    [
+      'Bedanken Sie sich für die Möglichkeit, am Programm teilzunehmen.',
+      'Berichten Sie, was Ihnen das Mentoring konkret gebracht hat.',
+      'Nennen Sie einen Punkt, der sich noch verbessern ließe.',
+      'Empfehlen Sie, das Programm auch künftig anzubieten.'
+    ]),
+  A('wa-rueckmeldung-betriebsausflug', 'Rückmeldung zum Betriebsausflug', 'dank',
+    'Frau Herzog', 'die Organisatorin des Betriebsausflugs',
+    'Ihre Kollegin hat den diesjährigen Betriebsausflug in den Naturpark allein organisiert und dafür viel Freizeit geopfert. Nach der Veranstaltung bittet sie alle um eine kurze Rückmeldung.',
+    'Schreiben Sie eine Nachricht (mindestens 100 Wörter) an die Organisatorin des Betriebsausflugs, Frau Herzog, und geben Sie ihr eine Rückmeldung.',
+    [
+      'Bedanken Sie sich für die Organisation des Ausflugs.',
+      'Heben Sie hervor, was Ihnen besonders gut gefallen hat.',
+      'Machen Sie eine Anregung für den nächsten Ausflug.',
+      'Bieten Sie an, bei der Organisation im kommenden Jahr mitzuhelfen.'
     ])
 ]
 

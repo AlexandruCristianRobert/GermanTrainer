@@ -14,7 +14,7 @@ describe('schreibenMuster', () => {
     expect(Object.keys(MUSTER_TITLE).sort()).toEqual([...MUSTER_IDS].sort())
     for (const m of SCHREIBEN_MUSTER) expect(MUSTER_TITLE[m.id]).toBe(m.titleDe)
   })
-  test('map covers exactly the 24 seeded themes, each pattern used at least twice', () => {
+  test('map covers exactly the 44 seeded themes, each pattern used at least twice', () => {
     const seeded = SCHREIBEN_THEMEN.map(t => t.id).sort()
     expect(Object.keys(SCHREIBTHEMA_MUSTER).sort()).toEqual(seeded)
     for (const id of MUSTER_IDS) {

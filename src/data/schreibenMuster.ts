@@ -3,7 +3,7 @@
 // Mustertexte. See CONTEXT.md → "Aufgabenmuster", "Mustertext" and
 // docs/superpowers/specs/2026-08-12-schreiben-mustertexte-design.md (Part 2).
 //
-// Each of the 24 seeded Schreibthemen (schreibenThemen.ts) maps to its
+// Each of the 44 seeded Schreibthemen (schreibenThemen.ts) maps to its
 // dominant Aufgabenmuster in SCHREIBTHEMA_MUSTER, keyed by thema id — the
 // Schreibthema interface itself is NOT extended, so custom/AI themes are
 // unaffected and simply link to the library generically. A Mustertext is a
@@ -45,12 +45,20 @@ export const SCHREIBTHEMA_MUSTER: Record<string, MusterId> = {
   'wt-vier-tage-woche': 'abwaegen',
   'wt-teilzeit-fuer-alle': 'abwaegen',
   'wt-haustiere-stadt': 'abwaegen',
+  'wt-elektroautos': 'abwaegen',
+  'wt-anonyme-bewerbung': 'abwaegen',
+  'wt-influencer-beruf': 'abwaegen',
+  'wt-schoenheitsoperationen': 'abwaegen',
 
   // alternative — point 4 literally asks to name an alternative.
   'wt-homeoffice': 'alternative',
   'wt-fast-fashion': 'alternative',
   'wt-bargeld': 'alternative',
   'wt-streaming-kino': 'alternative',
+  'wt-einwegplastik': 'alternative',
+  'wt-hausaufgaben': 'alternative',
+  'wt-taschengeld': 'alternative',
+  'wt-grosseltern-betreuung': 'alternative',
 
   // erfahrung — topics where personal experience is the natural backbone
   // of the argument, regardless of what point 4 literally asks for.
@@ -59,12 +67,20 @@ export const SCHREIBTHEMA_MUSTER: Record<string, MusterId> = {
   'wt-mehrgenerationenhaus': 'erfahrung',
   'wt-regionale-produkte': 'erfahrung',
   'wt-auswandern': 'erfahrung',
+  'wt-handwerk-statt-studium': 'erfahrung',
+  'wt-uebersetzungs-apps': 'erfahrung',
+  'wt-urlaub-ohne-smartphone': 'erfahrung',
+  'wt-allein-reisen': 'erfahrung',
 
   // gegenmeinung — point 4 (or 3) names a specific, nameable counter-claim
   // substantial enough to carry a dedicated concede-and-rebut paragraph.
   'wt-fleischkonsum': 'gegenmeinung',
   'wt-ehrenamt-pflicht': 'gegenmeinung',
   'wt-smartphone-schule': 'gegenmeinung',
+  'wt-tempolimit': 'gegenmeinung',
+  'wt-laenger-arbeiten': 'gegenmeinung',
+  'wt-schulkleidung': 'gegenmeinung',
+  'wt-videospiele': 'gegenmeinung',
 
   // vorschlag — point 4 literally asks for a Vorschlag/Regel/Maßnahme.
   'wt-ki-im-alltag': 'vorschlag',
@@ -75,7 +91,11 @@ export const SCHREIBTHEMA_MUSTER: Record<string, MusterId> = {
   'wt-werbung-kinder': 'vorschlag',
   'wt-billigfluege': 'vorschlag',
   'wt-selbstoptimierung': 'vorschlag',
-  'wt-lebenslanges-lernen': 'vorschlag'
+  'wt-lebenslanges-lernen': 'vorschlag',
+  'wt-kostenloser-nahverkehr': 'vorschlag',
+  'wt-erreichbarkeit-feierabend': 'vorschlag',
+  'wt-ferienwohnungen': 'vorschlag',
+  'wt-mehr-sport-schule': 'vorschlag'
 }
 
 export const SCHREIBEN_MUSTER: Mustertext[] = [

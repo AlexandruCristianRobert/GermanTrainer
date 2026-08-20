@@ -10,7 +10,7 @@
 // so these themes resolve the module's own writing argument bank —
 // resolveSchreibArgumentBank, authored separately in schreibenArguments.ts.
 //
-// This file holds the 24 seeded themes only: adding a seed is a code change.
+// This file holds the 44 seeded themes only: adding a seed is a code change.
 // AI-generated themes are a separate, learner-owned pool that persists in
 // localStorage rather than Dexie — mirroring useVortragsthemen.ts's
 // 'gt:sprechenCustomVortragsthemen' convention — so `source: 'custom'` marks
@@ -277,7 +277,207 @@ export const SCHREIBEN_THEMEN: Schreibthema[] = [
       'Berichten Sie von eigenen Erfahrungen mit Fortbildungen oder neu erlernten Fähigkeiten.',
       'Machen Sie einen Vorschlag, wie Arbeitgeber lebenslanges Lernen besser unterstützen könnten.'
     ],
-    ['Bildung', 'Arbeit'])
+    ['Bildung', 'Arbeit']),
+  W('wt-tempolimit', 'Tempolimit auf Autobahnen',
+    'Im Forum „Mobilität von morgen" diskutieren Nutzerinnen und Nutzer, ob auf Autobahnen ein generelles Tempolimit eingeführt werden sollte.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob auf Autobahnen ein generelles Tempolimit gelten sollte.',
+    [
+      'Äußern Sie Ihre Meinung zu einem generellen Tempolimit und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile eines Tempolimits auf Autobahnen.',
+      'Berichten Sie von eigenen Erfahrungen als Autofahrerin, Autofahrer oder Mitfahrer.',
+      'Gehen Sie auf die Gegenmeinung ein, dass ein Tempolimit die persönliche Freiheit einschränkt.'
+    ],
+    ['Umwelt', 'Gesellschaft']),
+  W('wt-kostenloser-nahverkehr', 'Kostenloser Nahverkehr',
+    'Im Forum „Stadt der Zukunft" wird diskutiert, ob Busse und Bahnen für alle kostenlos sein sollten.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob der öffentliche Nahverkehr kostenlos werden sollte.',
+    [
+      'Äußern Sie Ihre Meinung zum kostenlosen Nahverkehr und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile kostenloser Busse und Bahnen.',
+      'Berichten Sie von eigenen Erfahrungen mit dem öffentlichen Nahverkehr im Alltag.',
+      'Machen Sie einen Vorschlag, wie ein kostenloser Nahverkehr finanziert werden könnte.'
+    ],
+    ['Umwelt', 'Gesellschaft']),
+  W('wt-einwegplastik', 'Einwegplastik verbieten',
+    'Im Forum „Nachhaltig leben" diskutieren die Mitglieder, ob Einwegplastik vollständig verboten werden sollte.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob Einwegplastik komplett verboten werden sollte.',
+    [
+      'Äußern Sie Ihre Meinung zu einem Verbot von Einwegplastik und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile eines vollständigen Plastikverbots.',
+      'Berichten Sie von eigenen Erfahrungen beim Einkaufen ohne Verpackungsmüll.',
+      'Nennen Sie eine Alternative zu Verpackungen aus Einwegplastik.'
+    ],
+    ['Umwelt', 'Konsum']),
+  W('wt-elektroautos', 'Elektroautos für alle',
+    'Im Forum „Mobilität von morgen" wird diskutiert, ob das Elektroauto den Verbrennungsmotor möglichst schnell ersetzen sollte.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob alle möglichst bald auf Elektroautos umsteigen sollten.',
+    [
+      'Äußern Sie Ihre Meinung zum Umstieg auf Elektroautos und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile von Elektroautos im Alltag.',
+      'Berichten Sie von eigenen Erfahrungen oder Beobachtungen zur Elektromobilität.',
+      'Gehen Sie darauf ein, für wen sich ein Elektroauto heute schon lohnt und für wen noch nicht.'
+    ],
+    ['Umwelt', 'Technologie']),
+  W('wt-erreichbarkeit-feierabend', 'Erreichbarkeit nach Feierabend',
+    'Im Forum „Arbeitswelt heute" wird diskutiert, ob Beschäftigte nach Feierabend für den Arbeitgeber erreichbar sein müssen.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob Beschäftigte nach Feierabend erreichbar sein sollten.',
+    [
+      'Äußern Sie Ihre Meinung zur ständigen Erreichbarkeit und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile der Erreichbarkeit außerhalb der Arbeitszeit.',
+      'Berichten Sie von eigenen Erfahrungen mit dienstlichen Nachrichten in der Freizeit.',
+      'Machen Sie einen Vorschlag, wie klare Regeln für die Erreichbarkeit aussehen könnten.'
+    ],
+    ['Arbeit', 'Technologie']),
+  W('wt-anonyme-bewerbung', 'Anonyme Bewerbungen',
+    'Im Forum „Arbeitswelt heute" diskutieren Nutzerinnen und Nutzer, ob Bewerbungen ohne Foto, Name und Alter fairer sind.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob Bewerbungen anonym ablaufen sollten.',
+    [
+      'Äußern Sie Ihre Meinung zu anonymen Bewerbungen und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile von Bewerbungen ohne Foto und Namen.',
+      'Berichten Sie von eigenen Erfahrungen oder Beobachtungen aus Bewerbungsverfahren.',
+      'Gehen Sie darauf ein, ob anonyme Verfahren für alle Branchen geeignet sind.'
+    ],
+    ['Arbeit', 'Gesellschaft']),
+  W('wt-laenger-arbeiten', 'Länger arbeiten im Alter',
+    'Im Forum „Generationen im Gespräch" wird diskutiert, ob Menschen in Zukunft bis 70 arbeiten sollten.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob das Arbeitsleben bis 70 verlängert werden sollte.',
+    [
+      'Äußern Sie Ihre Meinung zu einem späteren Renteneintritt und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile eines längeren Arbeitslebens.',
+      'Berichten Sie von Beobachtungen zu älteren Kolleginnen und Kollegen im Beruf.',
+      'Gehen Sie auf die Gegenmeinung ein, dass viele Berufe im Alter körperlich nicht mehr zu schaffen sind.'
+    ],
+    ['Arbeit', 'Gesellschaft']),
+  W('wt-handwerk-statt-studium', 'Handwerk statt Studium',
+    'Im Forum „Berufswahl heute" diskutieren die Mitglieder, ob eine Ausbildung im Handwerk oft die bessere Wahl als ein Studium ist.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob eine Ausbildung im Handwerk die bessere Wahl als ein Studium sein kann.',
+    [
+      'Äußern Sie Ihre Meinung zur Wahl zwischen Ausbildung und Studium und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile einer Ausbildung gegenüber einem Studium.',
+      'Berichten Sie von eigenen Erfahrungen aus Ihrem Berufsweg.',
+      'Machen Sie einen Vorschlag, wie Schulen besser über Ausbildungsberufe informieren könnten.'
+    ],
+    ['Bildung', 'Arbeit']),
+  W('wt-hausaufgaben', 'Hausaufgaben abschaffen',
+    'Im Forum „Schule heute" wird diskutiert, ob Hausaufgaben abgeschafft werden sollten.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob Hausaufgaben abgeschafft werden sollten.',
+    [
+      'Äußern Sie Ihre Meinung zu Hausaufgaben und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile von Hausaufgaben für Schülerinnen und Schüler.',
+      'Berichten Sie von eigenen Erinnerungen an Hausaufgaben aus Ihrer Schulzeit.',
+      'Nennen Sie eine Alternative zu klassischen Hausaufgaben.'
+    ],
+    ['Bildung']),
+  W('wt-schulkleidung', 'Einheitliche Schulkleidung',
+    'Im Forum „Schule heute" diskutieren Eltern und Lehrkräfte, ob an Schulen eine einheitliche Schulkleidung eingeführt werden sollte.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob eine einheitliche Schulkleidung eingeführt werden sollte.',
+    [
+      'Äußern Sie Ihre Meinung zu einheitlicher Schulkleidung und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile einer einheitlichen Kleidung an Schulen.',
+      'Berichten Sie von Beobachtungen zu Markenkleidung und Gruppendruck unter Schülern.',
+      'Gehen Sie auf die Gegenmeinung ein, dass Kleidung ein wichtiges Mittel ist, die eigene Persönlichkeit auszudrücken.'
+    ],
+    ['Bildung', 'Gesellschaft']),
+  W('wt-uebersetzungs-apps', 'Fremdsprachen trotz Übersetzungs-Apps',
+    'Im Forum „Sprachen lernen" wird diskutiert, ob sich das Lernen von Fremdsprachen noch lohnt, wenn Apps in Sekunden übersetzen.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob sich Fremdsprachenlernen im Zeitalter der Übersetzungs-Apps noch lohnt.',
+    [
+      'Äußern Sie Ihre Meinung zum Fremdsprachenlernen trotz Übersetzungs-Apps und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile automatischer Übersetzungen.',
+      'Berichten Sie von eigenen Erfahrungen beim Sprachenlernen.',
+      'Gehen Sie darauf ein, was eine App beim Sprachenlernen nicht ersetzen kann.'
+    ],
+    ['Bildung', 'Technologie']),
+  W('wt-influencer-beruf', 'Influencer als Beruf',
+    'Im Forum „Digital leben" diskutieren Nutzerinnen und Nutzer, ob Influencer ein richtiger Beruf ist.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob Influencer ein Beruf wie jeder andere ist.',
+    [
+      'Äußern Sie Ihre Meinung zum Berufsbild Influencer und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile des Geldverdienens in sozialen Medien.',
+      'Berichten Sie von Beobachtungen zu Influencern in Ihrem Alltag.',
+      'Gehen Sie darauf ein, welche Fähigkeiten dieser Beruf tatsächlich verlangt.'
+    ],
+    ['Medien', 'Arbeit']),
+  W('wt-videospiele', 'Videospiele als Hobby',
+    'Im Forum „Freizeit und Medien" wird diskutiert, ob Videospiele ein wertvolles Hobby sind.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob Videospiele ein wertvolles Hobby sind.',
+    [
+      'Äußern Sie Ihre Meinung zu Videospielen als Freizeitbeschäftigung und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile des Spielens für Körper und Kopf.',
+      'Berichten Sie von eigenen Erfahrungen mit Computerspielen oder von Beobachtungen im Freundeskreis.',
+      'Gehen Sie auf die Gegenmeinung ein, dass Videospiele süchtig machen und einsam werden lassen.'
+    ],
+    ['Medien', 'Gesundheit']),
+  W('wt-urlaub-ohne-smartphone', 'Urlaub ohne Smartphone',
+    'Im Forum „Endlich Urlaub" wird diskutiert, ob man im Urlaub bewusst auf das Smartphone verzichten sollte.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob man im Urlaub auf das Smartphone verzichten sollte.',
+    [
+      'Äußern Sie Ihre Meinung zum digitalen Abschalten im Urlaub und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile eines Urlaubs ohne Smartphone.',
+      'Berichten Sie von eigenen Erfahrungen mit ständiger Erreichbarkeit auf Reisen.',
+      'Machen Sie einen Vorschlag, wie ein bewussterer Umgang mit dem Handy im Urlaub gelingen kann.'
+    ],
+    ['Reisen', 'Medien']),
+  W('wt-allein-reisen', 'Allein reisen',
+    'Im Forum „Endlich Urlaub" diskutieren die Mitglieder, ob Reisen allein oder in Begleitung schöner ist.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob man besser allein oder in Begleitung reist.',
+    [
+      'Äußern Sie Ihre Meinung zum Alleinreisen und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile des Reisens ohne Begleitung.',
+      'Berichten Sie von eigenen Reiseerfahrungen allein oder in der Gruppe.',
+      'Geben Sie einen Tipp, wie der erste Urlaub allein gelingen kann.'
+    ],
+    ['Reisen']),
+  W('wt-ferienwohnungen', 'Private Ferienwohnungen',
+    'Im Forum „Reisen mit Verantwortung" wird diskutiert, ob die Vermietung privater Ferienwohnungen in Großstädten eingeschränkt werden sollte.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob private Ferienwohnungen in Großstädten eingeschränkt werden sollten.',
+    [
+      'Äußern Sie Ihre Meinung zur Vermietung privater Ferienwohnungen und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile für Reisende und für die Bewohner der Städte.',
+      'Berichten Sie von eigenen Erfahrungen mit Ferienwohnungen oder Hotels.',
+      'Machen Sie einen Vorschlag, wie sich Tourismus und bezahlbarer Wohnraum vereinbaren lassen.'
+    ],
+    ['Reisen', 'Gesellschaft']),
+  W('wt-schoenheitsoperationen', 'Schönheitsoperationen',
+    'Im Forum „Besser leben" wird diskutiert, ob Schönheitsoperationen ein normaler Weg zu mehr Selbstbewusstsein sind.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob Schönheitsoperationen etwas ganz Normales geworden sind.',
+    [
+      'Äußern Sie Ihre Meinung zu Schönheitsoperationen und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile solcher Eingriffe.',
+      'Berichten Sie von Beobachtungen zu Schönheitsidealen in Medien und Alltag.',
+      'Gehen Sie darauf ein, wo für Sie die Grenze zwischen Selbstbestimmung und gefährlichem Trend liegt.'
+    ],
+    ['Gesundheit', 'Gesellschaft']),
+  W('wt-mehr-sport-schule', 'Mehr Sport in der Schule',
+    'Im Forum „Gesund aufwachsen" diskutieren Eltern und Lehrkräfte, ob Schulen täglich Sport anbieten sollten.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob es an Schulen täglich Sportunterricht geben sollte.',
+    [
+      'Äußern Sie Ihre Meinung zu täglichem Schulsport und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile von mehr Bewegung im Stundenplan.',
+      'Berichten Sie von eigenen Erinnerungen an den Sportunterricht.',
+      'Machen Sie einen Vorschlag, wie Bewegung ohne zusätzliche Sportstunden in den Schultag passen könnte.'
+    ],
+    ['Gesundheit', 'Bildung']),
+  W('wt-taschengeld', 'Taschengeld für Kinder',
+    'Im Forum „Kinder und Konsum" wird diskutiert, ob Kinder ein festes Taschengeld bekommen sollten.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Diskussion, ob Kinder ein festes Taschengeld bekommen sollten.',
+    [
+      'Äußern Sie Ihre Meinung zu festem Taschengeld für Kinder und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile eines regelmäßigen Taschengelds.',
+      'Berichten Sie von eigenen Erfahrungen mit Taschengeld aus Ihrer Kindheit.',
+      'Nennen Sie eine Alternative zum klassischen festen Taschengeld.'
+    ],
+    ['Familie', 'Konsum']),
+  W('wt-grosseltern-betreuung', 'Großeltern als Betreuung',
+    'Im Forum „Beruf und Familie" diskutieren Eltern, ob Großeltern regelmäßig die Kinderbetreuung übernehmen sollten.',
+    'Schreiben Sie einen Forumsbeitrag (mindestens 150 Wörter) zur Frage, ob Großeltern regelmäßig die Kinder betreuen sollten.',
+    [
+      'Äußern Sie Ihre Meinung zur regelmäßigen Betreuung durch Großeltern und begründen Sie sie.',
+      'Nennen Sie Vor- oder Nachteile für Kinder, Eltern und Großeltern.',
+      'Berichten Sie von eigenen Erfahrungen aus Ihrer Familie oder Ihrem Umfeld.',
+      'Nennen Sie eine Alternative für Familien, deren Großeltern nicht einspringen können.'
+    ],
+    ['Familie'])
 ]
 
 // Gemini responseSchema for the Schreibthema generator (used by a future

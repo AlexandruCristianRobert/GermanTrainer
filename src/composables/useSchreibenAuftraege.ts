@@ -2,7 +2,7 @@
 // Schreiben Teil 2 — the Schreibauftrag pool (see CONTEXT.md → "Schreibauftrag").
 // Structural twin of useSchreibenThemen.ts (Teil 1's Schreibthema pool), but
 // for Teil 2's situational message task rather than Teil 1's forum-post task:
-//   - 20 seeded Aufträge from src/data/schreibenAuftraege.ts
+//   - 40 seeded Aufträge from src/data/schreibenAuftraege.ts
 //   - AI-generated Aufträge persisted in
 //     localStorage['gt:schreibenCustomAuftraege']
 //   - done-auftrag memory derived from Run meta via loadHistory() — Schreiben

@@ -78,7 +78,7 @@ const chosen = computed<Schreibthema>(() => {
   return drawn.value
 })
 
-// Mustertext cross-link (design doc, Integration): only the 24 seeded themes
+// Mustertext cross-link (design doc, Integration): only the 44 seeded themes
 // are mapped, so custom/AI themes fall back to the library link without a
 // query — SCHREIBTHEMA_MUSTER[id] resolves to undefined at runtime for them
 // even though the Record's value type has no `| undefined` (no
