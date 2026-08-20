@@ -5,10 +5,10 @@ import {
 import { TOPIC_TAGS } from '../../src/data/sprechenTopics'
 
 describe('schreibenThemen seed pool', () => {
-  test('exactly 24 themes, unique ids and titles', () => {
-    expect(SCHREIBEN_THEMEN.length).toBe(24)
-    expect(new Set(SCHREIBEN_THEMEN.map(t => t.id)).size).toBe(24)
-    expect(new Set(SCHREIBEN_THEMEN.map(t => t.titleDe)).size).toBe(24)
+  test('exactly 44 themes, unique ids and titles', () => {
+    expect(SCHREIBEN_THEMEN.length).toBe(44)
+    expect(new Set(SCHREIBEN_THEMEN.map(t => t.id)).size).toBe(44)
+    expect(new Set(SCHREIBEN_THEMEN.map(t => t.titleDe)).size).toBe(44)
   })
   test('ids match wt- slug pattern', () => {
     for (const t of SCHREIBEN_THEMEN) expect(t.id).toMatch(/^wt-[a-z0-9-]+$/)

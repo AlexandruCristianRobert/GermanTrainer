@@ -221,6 +221,94 @@ export const AUFTRAG_BAUKAESTEN: Record<string, NachrichtBaukasten> = {
     ]
   },
 
+  // Entschuldigung — Frau Ritter, Personalreferentin; das Vorstellungsgespräch
+  // am Donnerstag kollidiert mit der Betreuung des erkrankten Kindes.
+  'wa-vorstellungsgespraech-verschieben': {
+    gruende: [
+      { ideaDe: 'mein Kind ist gestern Abend mit Fieber erkrankt und braucht Betreuung', noteEn: 'a sick child is a reason nobody argues with' },
+      { ideaDe: 'eine andere Betreuung lässt sich an diesem Tag nicht organisieren', noteEn: 'says you tried — the absence is forced, not chosen' },
+      { ideaDe: 'ich melde mich sofort, damit Sie den Termin neu planen können', noteEn: 'early notice shows respect for her calendar' },
+      { ideaDe: 'die Einladung hat mich sehr gefreut, umso mehr bedauere ich die Absage', noteEn: 'keeps the tone warm — Inhaltspunkt 3 starts here' }
+    ],
+    loesungen: [
+      { ideaDe: 'um einen Ersatztermin in der kommenden Woche bitten', noteEn: 'Inhaltspunkt 4 — name a concrete window' },
+      { ideaDe: 'zwei oder drei Tage nennen, an denen ich sicher verfügbar bin', noteEn: 'options make rescheduling a one-mail affair' },
+      { ideaDe: 'anbieten, das Gespräch notfalls auch per Video zu führen', noteEn: 'a fallback that costs the company nothing' },
+      { ideaDe: 'mein großes Interesse an der Stelle noch einmal ausdrücklich betonen', noteEn: 'Inhaltspunkt 3 — the message must not read like a retreat' }
+    ],
+    words: [
+      { de: 'das Vorstellungsgespräch', en: 'job interview' }, { de: 'die Einladung', en: 'invitation' },
+      { de: 'die Betreuung', en: 'childcare' }, { de: 'der Ersatztermin', en: 'alternative date' },
+      { de: 'das Interesse', en: 'interest' }, { de: 'die Verfügbarkeit', en: 'availability' }
+    ]
+  },
+
+  // Entschuldigung — Herr Baumann, Dozent; die Seminarpräsentation am Dienstag
+  // fällt aus, weil die Stimme weg und eine Krankschreibung da ist.
+  'wa-praesentation-absagen': {
+    gruende: [
+      { ideaDe: 'eine starke Erkältung hat mir die Stimme fast vollständig genommen', noteEn: 'the one symptom that makes presenting impossible' },
+      { ideaDe: 'ich bin bis Ende der Woche krankgeschrieben', noteEn: 'dated and documented — nobody asks for more' },
+      { ideaDe: 'ein Vortrag mit halber Stimme wäre für die Zuhörer kaum verständlich', noteEn: 'argues from the audience\'s side, not your comfort' },
+      { ideaDe: 'die Präsentation selbst ist fertig vorbereitet', noteEn: 'important: the absence is physical, not a lack of work' }
+    ],
+    loesungen: [
+      { ideaDe: 'einen neuen Termin in einer der nächsten Sitzungen vorschlagen', noteEn: 'Inhaltspunkt 3 — offer, don\'t wait to be asked' },
+      { ideaDe: 'alternativ eine schriftliche Ausarbeitung als Ersatzleistung anbieten', noteEn: 'a plan B gives the Dozent a choice' },
+      { ideaDe: 'die Folien vorab an die Seminargruppe schicken', noteEn: 'Inhaltspunkt 4 — the session still gets your content' },
+      { ideaDe: 'das ärztliche Attest auf Wunsch nachreichen', noteEn: 'offer the proof before it is demanded' }
+    ],
+    words: [
+      { de: 'die Präsentation', en: 'presentation' }, { de: 'die Erkältung', en: 'cold' },
+      { de: 'die Ersatzleistung', en: 'substitute assessment' }, { de: 'die Folien', en: 'slides' },
+      { de: 'das Seminar', en: 'seminar' }, { de: 'der Vortrag', en: 'talk' }
+    ]
+  },
+
+  // Entschuldigung — Herr Hartmann, Teamleiter; Bahnstreik am Inventurtag,
+  // Ankunft erst gegen zehn statt um sieben.
+  'wa-verspaetung-inventur': {
+    gruende: [
+      { ideaDe: 'wegen des angekündigten Bahnstreiks fällt meine Zugverbindung morgen aus', noteEn: 'the cause, dated — Inhaltspunkt 2' },
+      { ideaDe: 'die nächste fahrende Verbindung kommt erst gegen zehn Uhr an', noteEn: 'says precisely when you will be there' },
+      { ideaDe: 'eine Mitfahrgelegenheit habe ich bisher nicht finden können', noteEn: 'shows you searched for alternatives before writing' },
+      { ideaDe: 'ich sage so früh wie möglich Bescheid, damit Sie umplanen können', noteEn: 'early notice is half the apology' }
+    ],
+    loesungen: [
+      { ideaDe: 'bei Kolleginnen und Kollegen weiter nach einer Mitfahrt fragen und notfalls den Bus nehmen', noteEn: 'Inhaltspunkt 3 — every route gets tried' },
+      { ideaDe: 'anbieten, am Abend länger zu bleiben und die fehlenden Stunden nachzuarbeiten', noteEn: 'Inhaltspunkt 4 — with hours attached' },
+      { ideaDe: 'nach der Ankunft zuerst den Bereich mit dem größten Rückstand übernehmen', noteEn: 'you arrive with a plan, not excuses' },
+      { ideaDe: 'um eine kurze Nachricht bitten, wo ich um zehn Uhr am dringendsten gebraucht werde', noteEn: 'turns the delay into a question he can answer' }
+    ],
+    words: [
+      { de: 'die Inventur', en: 'stocktaking' }, { de: 'der Bahnstreik', en: 'rail strike' },
+      { de: 'die Zugverbindung', en: 'train connection' }, { de: 'die Verspätung', en: 'delay' },
+      { de: 'die Mitfahrgelegenheit', en: 'lift / ride-share' }, { de: 'der Rückstand', en: 'backlog' }
+    ]
+  },
+
+  // Entschuldigung — Frau Kaiser, Organisatorin des Sommerfests; Rückzug aus
+  // dem Festkomitee wegen eines kurzfristig übertragenen Projekts.
+  'wa-festkomitee-ruecktritt': {
+    gruende: [
+      { ideaDe: 'mir wurde kurzfristig ein zeitintensives Projekt mit festem Endtermin übertragen', noteEn: 'the reason, with the two words that matter: kurzfristig, Endtermin' },
+      { ideaDe: 'die Projektarbeit fällt genau in die heiße Phase der Festvorbereitung', noteEn: 'explains why both roles cannot coexist' },
+      { ideaDe: 'ich möchte das Komitee nicht durch halbe Zusagen aufhalten', noteEn: 'stepping back fully is more reliable than half-helping' },
+      { ideaDe: 'die Entscheidung ist mir nicht leichtgefallen, denn die Planung hat mir Freude gemacht', noteEn: 'softens the exit — Inhaltspunkt 1' }
+    ],
+    loesungen: [
+      { ideaDe: 'eine Kollegin vorschlagen, die bereits Interesse an der Mitarbeit geäußert hat', noteEn: 'Inhaltspunkt 3 — a named successor, not a vague hint' },
+      { ideaDe: 'meine bisherigen Unterlagen und Kontakte geordnet übergeben', noteEn: 'a clean handover protects the schedule' },
+      { ideaDe: 'am Festtag selbst eine kleine Aufgabe übernehmen, etwa den Aufbau am Morgen', noteEn: 'Inhaltspunkt 4 — concrete and limited' },
+      { ideaDe: 'für Rückfragen zur bisherigen Planung erreichbar bleiben', noteEn: 'the knowledge stays available' }
+    ],
+    words: [
+      { de: 'das Festkomitee', en: 'party committee' }, { de: 'das Sommerfest', en: 'summer party' },
+      { de: 'der Rückzug', en: 'withdrawal' }, { de: 'die Übergabe', en: 'handover' },
+      { de: 'der Endtermin', en: 'final deadline' }, { de: 'der Aufbau', en: 'setting up' }
+    ]
+  },
+
   // Bitte — Frau Kling, Vorgesetzte; zwei Homeoffice-Tage pro Woche aus
   // familiären Gründen.
   'wa-homeoffice-antrag': {
@@ -306,6 +394,94 @@ export const AUFTRAG_BAUKAESTEN: Record<string, NachrichtBaukasten> = {
       { de: 'das Empfehlungsschreiben', en: 'letter of recommendation' }, { de: 'die Bewerbung', en: 'application' },
       { de: 'das Praktikum', en: 'internship' }, { de: 'der Verlag', en: 'publishing house' },
       { de: 'die Seminararbeit', en: 'term paper' }, { de: 'die Bewerbungsfrist', en: 'application deadline' }
+    ]
+  },
+
+  // Bitte — Frau Ebert, Leiterin der Personalabteilung; qualifiziertes
+  // Arbeitszeugnis zum Austritt am Monatsende, Bewerbungen laufen schon.
+  'wa-arbeitszeugnis': {
+    gruende: [
+      { ideaDe: 'ich verlasse das Unternehmen zum Monatsende wegen meines Umzugs', noteEn: 'the occasion in one clause — Inhaltspunkt 1' },
+      { ideaDe: 'für meine Bewerbungen am neuen Wohnort brauche ich ein qualifiziertes Zeugnis', noteEn: '„qualifiziert" is the key word — it must assess, not just confirm' },
+      { ideaDe: 'in vier Jahren habe ich den Kundendienst und zwei Systemumstellungen betreut', noteEn: 'Inhaltspunkt 2 — name what the Zeugnis should mention' },
+      { ideaDe: 'erste Bewerbungsfristen laufen bereits Mitte nächsten Monats ab', noteEn: 'the deadline explains the urgency politely' }
+    ],
+    loesungen: [
+      { ideaDe: 'um das Zeugnis bis zu meinem letzten Arbeitstag bitten', noteEn: 'Inhaltspunkt 3 — a natural, checkable date' },
+      { ideaDe: 'eine Übersicht meiner Aufgaben und Projekte als Entwurfshilfe zusenden', noteEn: 'Inhaltspunkt 4 — saves her an hour of file-digging' },
+      { ideaDe: 'anbieten, offene Fragen kurz telefonisch zu beantworten', noteEn: 'keeps the process fast' },
+      { ideaDe: 'um eine kurze Rückmeldung bitten, wann das Zeugnis fertig sein wird', noteEn: 'a status note beats silent waiting' }
+    ],
+    words: [
+      { de: 'das Arbeitszeugnis', en: 'employment reference' }, { de: 'der Austritt', en: 'leaving the company' },
+      { de: 'die Bewerbung', en: 'application' }, { de: 'die Tätigkeit', en: 'duty / activity' },
+      { de: 'die Frist', en: 'deadline' }, { de: 'der Entwurf', en: 'draft' }
+    ]
+  },
+
+  // Bitte — Frau Krüger, Dozentin; Fristverlängerung für die Hausarbeit nach
+  // zwei Wochen Krankheit.
+  'wa-frist-hausarbeit': {
+    gruende: [
+      { ideaDe: 'ich war zwei Wochen krank und konnte weder recherchieren noch schreiben', noteEn: 'the reason, factual and dated — Inhaltspunkt 2' },
+      { ideaDe: 'ein ärztliches Attest über den Zeitraum liegt vor', noteEn: 'proof offered before it is asked for' },
+      { ideaDe: 'die Gliederung und die Literaturliste stehen bereits', noteEn: 'Inhaltspunkt 3 — the work is under way, not unbegun' },
+      { ideaDe: 'zwei der fünf Kapitel sind im Entwurf fertig', noteEn: 'a number makes the progress checkable' }
+    ],
+    loesungen: [
+      { ideaDe: 'eine Verlängerung um zwei Wochen bis zum Monatsende vorschlagen', noteEn: 'Inhaltspunkt 4 — one concrete new date' },
+      { ideaDe: 'das Attest zusammen mit dieser Nachricht oder auf Wunsch nachreichen', noteEn: 'the paperwork travels with the request' },
+      { ideaDe: 'anbieten, den aktuellen Stand der Arbeit vorab zu schicken', noteEn: 'lets her verify the claim in five minutes' },
+      { ideaDe: 'um eine kurze Bestätigung des neuen Termins bitten', noteEn: 'the extension must land in writing' }
+    ],
+    words: [
+      { de: 'die Hausarbeit', en: 'term paper' }, { de: 'die Abgabefrist', en: 'submission deadline' },
+      { de: 'die Verlängerung', en: 'extension' }, { de: 'das Attest', en: 'medical certificate' },
+      { de: 'die Gliederung', en: 'outline' }, { de: 'der Entwurf', en: 'draft' }
+    ]
+  },
+
+  // Bitte — Herr Peters, Verwaltungsleiter der Sprachschule; die
+  // C1-Kursgebühr soll wegen einer Autoreparatur in Raten fließen.
+  'wa-ratenzahlung': {
+    gruende: [
+      { ideaDe: 'eine unerwartete Autoreparatur belastet mein Budget in diesem Monat stark', noteEn: 'the reason, without oversharing' },
+      { ideaDe: 'ich möchte direkt nach der B2-Prüfung ohne Pause in den C1-Kurs starten', noteEn: 'shows the request protects the learning plan' },
+      { ideaDe: 'meine bisherigen Kursgebühren habe ich stets pünktlich bezahlt', noteEn: 'your payment history is the best argument' },
+      { ideaDe: 'die Anmeldefrist für den Kurs endet bald, deshalb schreibe ich jetzt', noteEn: 'explains the timing of the request' }
+    ],
+    loesungen: [
+      { ideaDe: 'drei gleiche Monatsraten ab Kursbeginn vorschlagen', noteEn: 'Inhaltspunkt 3 — a plan he can approve as-is' },
+      { ideaDe: 'die erste Rate sofort bei der Anmeldung überweisen', noteEn: 'money up front makes the yes easy' },
+      { ideaDe: 'um eine kurze schriftliche Bestätigung der Vereinbarung bitten', noteEn: 'Inhaltspunkt 4 — both sides are protected' },
+      { ideaDe: 'alternativ nach anderen Zahlungsmodellen der Schule fragen', noteEn: 'flexibility invites a counter-offer instead of a no' }
+    ],
+    words: [
+      { de: 'die Ratenzahlung', en: 'payment by instalments' }, { de: 'die Kursgebühr', en: 'course fee' },
+      { de: 'die Rate', en: 'instalment' }, { de: 'die Anmeldung', en: 'registration' },
+      { de: 'die Bestätigung', en: 'confirmation' }, { de: 'die Vereinbarung', en: 'agreement' }
+    ]
+  },
+
+  // Bitte — Herr Nowak, Schichtleiter; die Samstags-Frühschicht kollidiert
+  // mit der B2-Prüfung, eine Kollegin würde tauschen.
+  'wa-schichttausch': {
+    gruende: [
+      { ideaDe: 'am Samstagvormittag lege ich meine B2-Prüfung ab', noteEn: 'the reason — one sentence, no drama' },
+      { ideaDe: 'den Prüfungstermin vergibt das Prüfungszentrum, er lässt sich nicht verlegen', noteEn: 'shows the conflict is not self-made' },
+      { ideaDe: 'die Anmeldung zur Prüfung lief bereits vor dem neuen Dienstplan', noteEn: 'the collision is the plan\'s, not yours' },
+      { ideaDe: 'die Prüfung ist für meine berufliche Weiterentwicklung wichtig', noteEn: 'ties the exam to the company\'s interest' }
+    ],
+    loesungen: [
+      { ideaDe: 'Frau Lehmann hat angeboten, meine Frühschicht am Samstag zu übernehmen', noteEn: 'Inhaltspunkt 3 — the swap arrives pre-arranged' },
+      { ideaDe: 'im Gegenzug übernehme ich ihre Schicht am folgenden Wochenende', noteEn: 'a real exchange, not a favor with open end' },
+      { ideaDe: 'um die Genehmigung des Tauschs und die Änderung im Dienstplan bitten', noteEn: 'Inhaltspunkt 4 — the formal step' },
+      { ideaDe: 'um eine kurze Rückmeldung bis Donnerstag bitten, damit alle planen können', noteEn: 'a dated reply keeps three calendars safe' }
+    ],
+    words: [
+      { de: 'der Schichttausch', en: 'shift swap' }, { de: 'die Frühschicht', en: 'early shift' },
+      { de: 'der Dienstplan', en: 'duty roster' }, { de: 'der Prüfungstermin', en: 'exam date' },
+      { de: 'die Genehmigung', en: 'approval' }, { de: 'die Übernahme', en: 'taking over' }
     ]
   },
 
@@ -397,6 +573,94 @@ export const AUFTRAG_BAUKAESTEN: Record<string, NachrichtBaukasten> = {
     ]
   },
 
+  // Beschwerde — Frau Schulz, Leiterin der Lohnbuchhaltung; fehlende
+  // Überstunden auf der Abrechnung, zweiter Fehler in Folge.
+  'wa-gehaltsabrechnung': {
+    gruende: [
+      { ideaDe: 'auf der aktuellen Abrechnung fehlen zwölf Überstunden aus dem letzten Monat', noteEn: 'the defect, with a number — Inhaltspunkt 2' },
+      { ideaDe: 'schon im Vormonat fehlte eine Zulage und musste nachgezahlt werden', noteEn: 'the pattern is the point, not the single error' },
+      { ideaDe: 'meine Stundenzettel sind vollständig und von der Teamleitung bestätigt', noteEn: 'your records are in order — the error is not yours' },
+      { ideaDe: 'ich verlasse mich bei festen Ausgaben auf ein korrektes Gehalt', noteEn: 'Inhaltspunkt 3 — the consequence, stated soberly' }
+    ],
+    loesungen: [
+      { ideaDe: 'um Korrektur und Nachzahlung mit der nächsten Gehaltszahlung bitten', noteEn: 'Inhaltspunkt 4 — a dated, checkable demand' },
+      { ideaDe: 'eine kurze schriftliche Bestätigung der Korrektur erbitten', noteEn: 'closes the loop in writing' },
+      { ideaDe: 'die Stundenzettel und die alte Abrechnung als Nachweis mitschicken', noteEn: 'evidence attached — one round-trip saved' },
+      { ideaDe: 'um einen Hinweis bitten, wie sich solche Fehler künftig vermeiden lassen', noteEn: 'points at the process, not at a person' }
+    ],
+    words: [
+      { de: 'die Gehaltsabrechnung', en: 'payslip' }, { de: 'die Überstunden', en: 'overtime' },
+      { de: 'die Zulage', en: 'allowance / bonus' }, { de: 'die Nachzahlung', en: 'back payment' },
+      { de: 'der Stundenzettel', en: 'timesheet' }, { de: 'die Korrektur', en: 'correction' }
+    ]
+  },
+
+  // Beschwerde — Frau Adler, Leiterin der Buchhaltung; Reisekosten seit acht
+  // Wochen nicht erstattet, zwei Nachfragen blieben unbeantwortet.
+  'wa-reisekosten': {
+    gruende: [
+      { ideaDe: 'die Abrechnung meiner Dienstreise liegt seit acht Wochen vollständig vor', noteEn: 'the timeline starts the complaint — Inhaltspunkt 1' },
+      { ideaDe: 'auf zwei freundliche Nachfragen kam bisher keine Antwort', noteEn: 'shows patience already spent' },
+      { ideaDe: 'ich habe mehrere Hundert Euro privat vorgestreckt', noteEn: 'Inhaltspunkt 3 — the sum makes it concrete' },
+      { ideaDe: 'weitere Dienstreisen stehen an, die ich so nicht erneut vorstrecken kann', noteEn: 'the future cost of inaction' }
+    ],
+    loesungen: [
+      { ideaDe: 'um die Erstattung bis zum Ende des Monats bitten', noteEn: 'Inhaltspunkt 4 — a date, not „bald"' },
+      { ideaDe: 'um eine kurze Rückmeldung zum Stand der Bearbeitung bitten', noteEn: 'keeps the matter answerable today' },
+      { ideaDe: 'die Belege bei Bedarf ein zweites Mal einreichen', noteEn: 'removes the last excuse' },
+      { ideaDe: 'für künftige Reisen einen Vorschuss oder eine Firmenkreditkarte anregen', noteEn: 'turns the incident into a fix' }
+    ],
+    words: [
+      { de: 'die Reisekosten', en: 'travel expenses' }, { de: 'die Erstattung', en: 'reimbursement' },
+      { de: 'der Beleg', en: 'receipt' }, { de: 'die Dienstreise', en: 'business trip' },
+      { de: 'der Vorschuss', en: 'advance' }, { de: 'die Bearbeitung', en: 'processing' }
+    ]
+  },
+
+  // Beschwerde — Herr Stein, technischer Ansprechpartner der Sprachschule;
+  // die Lernplattform verliert Hausaufgaben, die B2-Prüfung naht.
+  'wa-lernplattform': {
+    gruende: [
+      { ideaDe: 'seit zwei Wochen laden die Lektionsvideos gar nicht oder nur teilweise', noteEn: 'dated and specific — Inhaltspunkte 1 and 2' },
+      { ideaDe: 'hochgeladene Hausaufgaben verschwinden, zwei musste ich doppelt einreichen', noteEn: 'a countable example beats „funktioniert nicht"' },
+      { ideaDe: 'in sechs Wochen lege ich die B2-Prüfung ab und übe hauptsächlich über die Plattform', noteEn: 'Inhaltspunkt 3 — why the outage matters now' },
+      { ideaDe: 'auch andere Teilnehmende aus meinem Kurs berichten dieselben Probleme', noteEn: 'not a single-user problem — worth prioritizing' }
+    ],
+    loesungen: [
+      { ideaDe: 'um eine Behebung der Störungen innerhalb der nächsten Tage bitten', noteEn: 'Inhaltspunkt 4 — dated, not open-ended' },
+      { ideaDe: 'um eine Verlängerung der Abgabefristen für die verlorenen Hausaufgaben bitten', noteEn: 'repairs the damage already done' },
+      { ideaDe: 'anbieten, Fehlermeldungen mit Datum und Uhrzeit zu dokumentieren', noteEn: 'gives the technician something to work with' },
+      { ideaDe: 'um eine kurze Zwischeninfo bitten, sobald die Ursache gefunden ist', noteEn: 'keeps you from asking twice' }
+    ],
+    words: [
+      { de: 'die Lernplattform', en: 'learning platform' }, { de: 'die Störung', en: 'malfunction' },
+      { de: 'die Fehlermeldung', en: 'error message' }, { de: 'die Abgabefrist', en: 'submission deadline' },
+      { de: 'die Prüfungsvorbereitung', en: 'exam preparation' }, { de: 'die Ursache', en: 'cause' }
+    ]
+  },
+
+  // Beschwerde — Herr Wolf, Facility-Manager; halbe Stellplatzfläche wegen
+  // Baustelle gesperrt, keine Regelung für den Rest.
+  'wa-parkplatz': {
+    gruende: [
+      { ideaDe: 'seit Beginn der Bauarbeiten ist die Hälfte der Stellplätze gesperrt', noteEn: 'the trigger, dated — Inhaltspunkt 1' },
+      { ideaDe: 'für die verbleibenden Plätze gibt es keine Regelung, es gilt das Zufallsprinzip', noteEn: 'names the actual problem: no rule, not no space' },
+      { ideaDe: 'trotz früherer Abfahrt finde ich mehrmals pro Woche keinen Platz', noteEn: 'you adapted first, then complained' },
+      { ideaDe: 'durch die Parkplatzsuche habe ich bereits Termine am Morgen verpasst', noteEn: 'Inhaltspunkt 2 — the business cost' }
+    ],
+    loesungen: [
+      { ideaDe: 'um eine klare Regelung bitten, etwa feste Zeiten oder eine Vergabe nach Schichten', noteEn: 'Inhaltspunkt 3 — bring two options, he picks' },
+      { ideaDe: 'für die Bauzeit eine Ausweichfläche in der Nähe vorschlagen', noteEn: 'Inhaltspunkt 4 — the transitional fix' },
+      { ideaDe: 'Plätze für Fahrgemeinschaften reservieren, um die Nachfrage zu senken', noteEn: 'reduces demand instead of just managing it' },
+      { ideaDe: 'um eine kurze Info an alle Beschäftigten zur neuen Regelung bitten', noteEn: 'a rule nobody knows is no rule' }
+    ],
+    words: [
+      { de: 'der Stellplatz', en: 'parking spot' }, { de: 'die Bauarbeiten', en: 'construction work' },
+      { de: 'die Regelung', en: 'rule / arrangement' }, { de: 'die Fahrgemeinschaft', en: 'carpool' },
+      { de: 'die Ausweichfläche', en: 'alternative area' }, { de: 'die Parkplatzsuche', en: 'search for a spot' }
+    ]
+  },
+
   // Vorschlag — Frau Neumann, Abteilungsleiterin; Ideen für den jährlichen
   // Teamausflug, auch für Kolleginnen und Kollegen mit Kindern geeignet.
   'wa-teamausflug': {
@@ -485,6 +749,94 @@ export const AUFTRAG_BAUKAESTEN: Record<string, NachrichtBaukasten> = {
     ]
   },
 
+  // Vorschlag — Frau Engel, Personalreferentin; ein Sportangebot gegen die
+  // Rückenschmerzen aus der Bildschirmarbeit, HR hat um Ideen gebeten.
+  'wa-betriebssport': {
+    gruende: [
+      { ideaDe: 'viele Kolleginnen und Kollegen klagen über Rückenschmerzen durch die Bildschirmarbeit', noteEn: 'the problem the proposal answers — Inhaltspunkt 1' },
+      { ideaDe: 'die Personalabteilung hat selbst um Ideen zur Gesundheitsförderung gebeten', noteEn: 'anchor the message in their own call' },
+      { ideaDe: 'Bewegung in der Mittagspause senkt nachweislich Verspannungen und Ausfalltage', noteEn: 'argue with the company\'s numbers, not your hobby' },
+      { ideaDe: 'mehrere Teams haben bereits Interesse an einem festen Angebot geäußert', noteEn: 'demand is already there — low risk' }
+    ],
+    loesungen: [
+      { ideaDe: 'einen wöchentlichen Rückenkurs in der Mittagspause mit einem Trainer vorschlagen', noteEn: 'Inhaltspunkt 2 — one concrete offer, not a wish list' },
+      { ideaDe: 'als Ort den großen Besprechungsraum oder die Kantine nach der Essenszeit nutzen', noteEn: 'answers the „wo denn?" before it is asked' },
+      { ideaDe: 'mit einem dreimonatigen Probelauf starten und dann auswerten', noteEn: 'a pilot lowers the bar for approval' },
+      { ideaDe: 'anbieten, die Anmeldungen und die Terminplanung der ersten Kurse zu übernehmen', noteEn: 'Inhaltspunkt 4 — you carry the work' }
+    ],
+    words: [
+      { de: 'die Gesundheitsförderung', en: 'health promotion' }, { de: 'der Rückenkurs', en: 'back-exercise class' },
+      { de: 'die Bildschirmarbeit', en: 'screen work' }, { de: 'die Verspannung', en: 'muscle tension' },
+      { de: 'der Probelauf', en: 'trial run' }, { de: 'die Mittagspause', en: 'lunch break' }
+    ]
+  },
+
+  // Vorschlag — Herr Franke, kaufmännischer Leiter; ein Jobticket gegen die
+  // Parkplatznot und die vielen Einzelfahrten mit dem Auto.
+  'wa-jobticket': {
+    gruende: [
+      { ideaDe: 'die Parkplätze am Standort reichen schon jetzt nicht für alle Beschäftigten', noteEn: 'the pressure point the proposal relieves' },
+      { ideaDe: 'viele fahren täglich allein mit dem Auto, obwohl Bus und Bahn direkt halten', noteEn: 'the alternative already exists — it only needs a push' },
+      { ideaDe: 'ein vergünstigtes Jobticket macht den Umstieg finanziell attraktiv', noteEn: 'Inhaltspunkt 2 — the mechanism in one line' },
+      { ideaDe: 'weniger Autos entlasten Parkplätze, Umwelt und das Firmenimage zugleich', noteEn: 'three benefits, one sentence — Inhaltspunkt 3' }
+    ],
+    loesungen: [
+      { ideaDe: 'bei den Verkehrsbetrieben nach Firmenkonditionen für ein Jobticket fragen', noteEn: 'the first concrete step, cheap to take' },
+      { ideaDe: 'eine kurze Umfrage im Kollegium zum erwarteten Interesse durchführen', noteEn: 'Inhaltspunkt 4 — data before budget' },
+      { ideaDe: 'das Ticket zunächst für ein Jahr testen und die Nutzung auswerten', noteEn: 'a reversible decision is an easy yes' },
+      { ideaDe: 'die Einsparungen bei Parkflächen den Ticketkosten gegenüberstellen', noteEn: 'frames the cost as a trade, not an expense' }
+    ],
+    words: [
+      { de: 'das Jobticket', en: 'subsidized transit pass' }, { de: 'die Verkehrsbetriebe', en: 'public transport company' },
+      { de: 'der Umstieg', en: 'switching over' }, { de: 'die Umfrage', en: 'survey' },
+      { de: 'der Arbeitsweg', en: 'commute' }, { de: 'die Parkfläche', en: 'parking area' }
+    ]
+  },
+
+  // Vorschlag — Frau Arnold, Leiterin der Sprachschule; ein monatlicher
+  // Konversationsabend, weil der Kurs zu wenig freies Sprechen erlaubt.
+  'wa-konversationsabend': {
+    gruende: [
+      { ideaDe: 'viele Teilnehmende möchten mehr frei sprechen, als der Unterricht erlaubt', noteEn: 'Inhaltspunkt 1 — the gap, from the learners\' mouths' },
+      { ideaDe: 'gerade vor der mündlichen Prüfung fehlt Übung im spontanen Reden', noteEn: 'ties the idea to the exam the school sells' },
+      { ideaDe: 'außerhalb des Unterrichts gibt es an der Schule bisher kein Sprechangebot', noteEn: 'states the gap without blaming anyone' },
+      { ideaDe: 'ein regelmäßiger Abend bindet Teilnehmende auch nach Kursende an die Schule', noteEn: 'Inhaltspunkt 3 — the benefit for her business' }
+    ],
+    loesungen: [
+      { ideaDe: 'einen monatlichen Konversationsabend mit wechselnden Alltagsthemen vorschlagen', noteEn: 'Inhaltspunkt 2 — rhythm and format in one line' },
+      { ideaDe: 'ehemalige Teilnehmende und Muttersprachler als Gesprächsgäste einladen', noteEn: 'free native input, no teaching hours needed' },
+      { ideaDe: 'für den Anfang einen freien Kursraum am Freitagabend nutzen', noteEn: 'names room and slot — nothing left to organize' },
+      { ideaDe: 'den ersten Abend selbst vorbereiten und moderieren', noteEn: 'Inhaltspunkt 4 — the offer that seals it' }
+    ],
+    words: [
+      { de: 'der Konversationsabend', en: 'conversation evening' }, { de: 'die Sprechpraxis', en: 'speaking practice' },
+      { de: 'der Muttersprachler', en: 'native speaker' }, { de: 'die mündliche Prüfung', en: 'oral exam' },
+      { de: 'das Angebot', en: 'offer / programme' }, { de: 'der Kursraum', en: 'classroom' }
+    ]
+  },
+
+  // Vorschlag — Herr Lorenz, Office-Manager; das leere Besprechungszimmer im
+  // dritten Stock soll Ruheraum werden.
+  'wa-ruheraum': {
+    gruende: [
+      { ideaDe: 'der Aufenthaltsraum wird ständig für spontane Besprechungen genutzt', noteEn: 'the current state — Inhaltspunkt 1' },
+      { ideaDe: 'eine wirklich ungestörte Pause ist im Gebäude derzeit nicht möglich', noteEn: 'the consequence in one sentence' },
+      { ideaDe: 'ohne echte Pause sinkt die Konzentration am Nachmittag spürbar', noteEn: 'Inhaltspunkt 3 — the cost for the company' },
+      { ideaDe: 'das kleine Besprechungszimmer im dritten Stock steht seit Monaten leer', noteEn: 'the resource is already there — the fix costs little' }
+    ],
+    loesungen: [
+      { ideaDe: 'das leere Zimmer als Ruheraum mit einfachen Regeln einrichten', noteEn: 'Inhaltspunkt 2 — the proposal itself' },
+      { ideaDe: 'klare Nutzung festlegen: keine Telefonate, keine Besprechungen', noteEn: 'rules keep the room from being recaptured' },
+      { ideaDe: 'mit gebrauchten Sesseln und einer Pflanze starten, ohne großes Budget', noteEn: 'a cheap version first — easy to approve' },
+      { ideaDe: 'nach drei Monaten kurz auswerten, ob der Raum genutzt wird', noteEn: 'a review date makes the yes risk-free' }
+    ],
+    words: [
+      { de: 'der Ruheraum', en: 'quiet room' }, { de: 'der Aufenthaltsraum', en: 'break room' },
+      { de: 'die Erholung', en: 'rest / recovery' }, { de: 'die Konzentration', en: 'concentration' },
+      { de: 'die Nutzung', en: 'use' }, { de: 'die Einrichtung', en: 'furnishing / setting up' }
+    ]
+  },
+
   // Dank — Frau Albrecht, Mentorin; Abschluss der dreimonatigen
   // Einarbeitungszeit im neuen Betrieb.
   'wa-dank-einarbeitung': {
@@ -570,6 +922,94 @@ export const AUFTRAG_BAUKAESTEN: Record<string, NachrichtBaukasten> = {
       { de: 'der Projektabschluss', en: 'completion of the project' }, { de: 'die Teilaufgabe', en: 'sub-task' },
       { de: 'die Aufgabenverteilung', en: 'division of tasks' }, { de: 'die Datenauswertung', en: 'analysis of the data' },
       { de: 'die Eigenverantwortung', en: 'own responsibility' }, { de: 'das Folgeprojekt', en: 'follow-up project' }
+    ]
+  },
+
+  // Dank — Frau Seidel, Kursleiterin; die B2-Prüfung ist mit sehr gutem
+  // Ergebnis bestanden, ein Jahr Unterricht plus Extra-Übungsstunden.
+  'wa-dank-kursleiterin': {
+    gruende: [
+      { ideaDe: 'ich habe die B2-Prüfung mit einem sehr guten Ergebnis bestanden', noteEn: 'Inhaltspunkt 1 — lead with the news' },
+      { ideaDe: 'die zusätzlichen Übungsstunden vor der Prüfung haben den Unterschied gemacht', noteEn: 'name the extra effort, not just „der Unterricht"' },
+      { ideaDe: 'Ihre Korrekturen zu meinen Texten haben mir die typischen Fehler gezeigt', noteEn: 'Inhaltspunkt 2 — one concrete method praised' },
+      { ideaDe: 'mit dem Zertifikat kann ich mich nun auf die Stelle im Krankenhaus bewerben', noteEn: 'Inhaltspunkt 3 — what the exam unlocks' }
+    ],
+    loesungen: [
+      { ideaDe: 'nach einem passenden C1-Kurs und den nächsten Terminen fragen', noteEn: 'Inhaltspunkt 4 — the thanks turns into a next step' },
+      { ideaDe: 'anbieten, im nächsten B2-Kurs von der Prüfung zu berichten', noteEn: 'gives back to the next cohort' },
+      { ideaDe: 'den Kurs im Bekanntenkreis und in der Kursbewertung weiterempfehlen', noteEn: 'the recommendation she can actually use' },
+      { ideaDe: 'in Kontakt bleiben und vom weiteren Lernweg berichten', noteEn: 'keeps the relationship warm' }
+    ],
+    words: [
+      { de: 'das Prüfungsergebnis', en: 'exam result' }, { de: 'das Zertifikat', en: 'certificate' },
+      { de: 'die Übungsstunde', en: 'practice session' }, { de: 'die Vorbereitung', en: 'preparation' },
+      { de: 'die Weiterempfehlung', en: 'recommendation' }, { de: 'der Aufbaukurs', en: 'follow-on course' }
+    ]
+  },
+
+  // Dank — Herr Anders, Kollege aus der IT; Laptop-Ausfall kurz vor der
+  // Kundenpräsentation, Ersatzgerät und Datenrettung in letzter Minute.
+  'wa-dank-it-hilfe': {
+    gruende: [
+      { ideaDe: 'mein Laptop fiel eine Stunde vor der Kundenpräsentation komplett aus', noteEn: 'the situation — makes the help measurable' },
+      { ideaDe: 'Sie haben sofort alles liegen lassen und ein Ersatzgerät eingerichtet', noteEn: 'name what he actually did — Inhaltspunkt 1' },
+      { ideaDe: 'alle Dateien waren rechtzeitig wiederhergestellt, nichts ist verloren gegangen', noteEn: 'the result of his work, stated plainly' },
+      { ideaDe: 'ohne diese Hilfe hätte ich vor dem Kunden mit leeren Händen gestanden', noteEn: 'Inhaltspunkt 2 — the counterfactual' }
+    ],
+    loesungen: [
+      { ideaDe: 'berichten, dass die Präsentation erfolgreich war und der Kunde zugesagt hat', noteEn: 'Inhaltspunkt 3 — his help had a happy ending' },
+      { ideaDe: 'seine Hilfe gegenüber seiner Vorgesetzten ausdrücklich erwähnen', noteEn: 'Inhaltspunkt 4 — praise that reaches the right desk' },
+      { ideaDe: 'sich mit einem Kaffee oder einer kleinen Aufmerksamkeit revanchieren', noteEn: 'small, concrete, human' },
+      { ideaDe: 'versprechen, Probleme künftig früher zu melden statt in letzter Minute', noteEn: 'the lesson learned, offered with a smile' }
+    ],
+    words: [
+      { de: 'der Ausfall', en: 'breakdown' }, { de: 'das Ersatzgerät', en: 'replacement device' },
+      { de: 'die Wiederherstellung', en: 'recovery of data' }, { de: 'die Kundenpräsentation', en: 'client presentation' },
+      { de: 'die Unterstützung', en: 'support' }, { de: 'die Aufmerksamkeit', en: 'small gift' }
+    ]
+  },
+
+  // Dank — Herr Kolb, Personalreferent; ehrliche Rückmeldung nach sechs
+  // Monaten Mentoring-Probelauf.
+  'wa-rueckmeldung-mentoring': {
+    gruende: [
+      { ideaDe: 'sechs Monate Mentoring haben mir den Einstieg in neue Aufgaben erleichtert', noteEn: 'Inhaltspunkt 1 — the headline of the feedback' },
+      { ideaDe: 'meine Mentorin hat mir Abläufe erklärt, die in keinem Handbuch stehen', noteEn: 'Inhaltspunkt 2 — the specific value' },
+      { ideaDe: 'durch die monatlichen Gespräche habe ich schneller Verantwortung übernommen', noteEn: 'ties the program to a business outcome' },
+      { ideaDe: 'die Treffen mussten wegen voller Kalender öfter kurzfristig verschoben werden', noteEn: 'Inhaltspunkt 3 — the honest flaw, named kindly' }
+    ],
+    loesungen: [
+      { ideaDe: 'feste, geschützte Termine für die Mentoring-Gespräche empfehlen', noteEn: 'the fix for the named flaw' },
+      { ideaDe: 'das Programm nach dem Probelauf regulär fortführen', noteEn: 'Inhaltspunkt 4 — the recommendation' },
+      { ideaDe: 'anbieten, künftig selbst als Mentorin oder Mentor mitzuwirken', noteEn: 'the strongest possible endorsement' },
+      { ideaDe: 'einen kurzen Erfahrungsbericht für die nächste Teilnehmerrunde schreiben', noteEn: 'reusable material for HR' }
+    ],
+    words: [
+      { de: 'das Mentoring-Programm', en: 'mentoring programme' }, { de: 'die Mentorin', en: 'mentor (female)' },
+      { de: 'der Erfahrungsbericht', en: 'experience report' }, { de: 'die Fortführung', en: 'continuation' },
+      { de: 'der Einstieg', en: 'getting started' }, { de: 'der Probelauf', en: 'pilot phase' }
+    ]
+  },
+
+  // Dank — Frau Herzog, Organisatorin des Betriebsausflugs; sie hat den
+  // Ausflug in den Naturpark allein und in ihrer Freizeit gestemmt.
+  'wa-rueckmeldung-betriebsausflug': {
+    gruende: [
+      { ideaDe: 'Sie haben den gesamten Ausflug allein und in Ihrer Freizeit organisiert', noteEn: 'Inhaltspunkt 1 — see the invisible work' },
+      { ideaDe: 'die Wanderung im Naturpark hat auch die weniger Sportlichen mitgenommen', noteEn: 'Inhaltspunkt 2 — praise a planning decision' },
+      { ideaDe: 'das gemeinsame Mittagessen im Gasthof war der beste Moment für Gespräche', noteEn: 'a scene, not an adjective' },
+      { ideaDe: 'selten kommen alle Abteilungen so entspannt ins Gespräch wie an diesem Tag', noteEn: 'names the actual purpose achieved' }
+    ],
+    loesungen: [
+      { ideaDe: 'für das nächste Jahr eine Regenvariante als Anregung mitgeben', noteEn: 'Inhaltspunkt 3 — one idea, lightly offered' },
+      { ideaDe: 'anbieten, im kommenden Jahr bei der Organisation mitzuhelfen', noteEn: 'Inhaltspunkt 4 — thanks that shares the load' },
+      { ideaDe: 'vorschlagen, die Fotos des Tages im Intranet zu teilen', noteEn: 'keeps the good mood visible' },
+      { ideaDe: 'die gelungene Organisation auch gegenüber der Abteilungsleitung erwähnen', noteEn: 'praise passed upward counts double' }
+    ],
+    words: [
+      { de: 'der Betriebsausflug', en: 'company outing' }, { de: 'die Organisation', en: 'organization' },
+      { de: 'die Wanderung', en: 'hike' }, { de: 'der Naturpark', en: 'nature park' },
+      { de: 'die Anregung', en: 'suggestion' }, { de: 'das Intranet', en: 'intranet' }
     ]
   }
 }

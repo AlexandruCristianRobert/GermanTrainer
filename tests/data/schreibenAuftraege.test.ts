@@ -5,12 +5,12 @@ import {
 } from '../../src/data/schreibenAuftraege'
 
 describe('schreibenAuftraege seed pool', () => {
-  test('exactly 20 Aufträge, unique ids and titles, 4 per Anlass', () => {
-    expect(SCHREIBEN_AUFTRAEGE.length).toBe(20)
-    expect(new Set(SCHREIBEN_AUFTRAEGE.map(a => a.id)).size).toBe(20)
-    expect(new Set(SCHREIBEN_AUFTRAEGE.map(a => a.titleDe)).size).toBe(20)
+  test('exactly 40 Aufträge, unique ids and titles, 8 per Anlass', () => {
+    expect(SCHREIBEN_AUFTRAEGE.length).toBe(40)
+    expect(new Set(SCHREIBEN_AUFTRAEGE.map(a => a.id)).size).toBe(40)
+    expect(new Set(SCHREIBEN_AUFTRAEGE.map(a => a.titleDe)).size).toBe(40)
     for (const anlass of SCHREIB_ANLAESSE) {
-      expect(SCHREIBEN_AUFTRAEGE.filter(a => a.anlass === anlass).length, anlass).toBe(4)
+      expect(SCHREIBEN_AUFTRAEGE.filter(a => a.anlass === anlass).length, anlass).toBe(8)
     }
   })
   test('ids match wa- slug pattern', () => {
