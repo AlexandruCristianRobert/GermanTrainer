@@ -188,10 +188,14 @@ onMounted(async () => {
   const client = resolveAiClient(settings.value)
   // Ramp 1 → 2 → 5, then batches of 10 (ADR-0008): fast first paints, efficient tail.
   const batches = planRampBatches(stash.specs, [1, 2, 5], 10)
+  // Kept so an all-batches-failed run can say WHY (e.g. expired Claude login)
+  // instead of the generic "no usable sentences".
+  let lastGenError: string | null = null
   generateProgressively<VerbSentenceSpec, GeneratedVerbSentence>({
     batches,
     runBatch: async (batch) => {
       const res = await generateVerbSentenceBatch(client, { model: settings.value.model, specs: batch, level: level.value, maxRetries: 1 })
+      if (res.lastError) lastGenError = res.lastError
       return res.sentences
     },
     onResults: (sentences) => {
@@ -203,7 +207,7 @@ onMounted(async () => {
     concurrency: 4
   }).finally(() => {
     generationDone.value = true
-    if (deck.value.length === 0) error.value = 'The model returned no usable sentences. Go back and try again.'
+    if (deck.value.length === 0) error.value = lastGenError ?? 'The model returned no usable sentences. Go back and try again.'
     if (awaitingNext.value) tryAdvance()
   })
 })

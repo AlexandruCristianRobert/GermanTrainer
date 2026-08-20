@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { spawn } from 'node:child_process'
 import {
-  extractClaudeText, buildClaudeArgs,
+  extractClaudeText, buildClaudeArgs, describeClaudeFailure,
   LOCAL_AI_HEALTH_PATH, LOCAL_AI_GENERATE_PATH
 } from '../src/composables/localClaude'
 
@@ -79,7 +79,10 @@ export function localClaudePlugin(): Plugin {
           child.stderr.on('data', d => { err += d })
           child.on('error', e => finish(500, { error: `could not start claude: ${e.message}` }))
           child.on('close', code => {
-            if (code !== 0) { finish(500, { error: err.trim() || `claude exited with code ${code}` }); return }
+            // Auth failures land in the stdout envelope with empty stderr —
+            // describeClaudeFailure reads both and maps them to 401 + a clear
+            // "run /login" message instead of "exited with code 1".
+            if (code !== 0) { const f = describeClaudeFailure(out, err, code); finish(f.status, { error: f.error }); return }
             try { finish(200, { text: extractClaudeText(out) }) }
             catch (e) { finish(500, { error: `failed to parse claude output: ${(e as Error).message}` }) }
           })

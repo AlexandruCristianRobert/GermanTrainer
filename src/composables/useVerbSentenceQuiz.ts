@@ -355,6 +355,8 @@ export interface GenerateVerbBatchResult {
   sentences: GeneratedVerbSentence[]
   rejected: number
   attempts: number
+  /** Message of the last client error, set only when an attempt threw (e.g. expired Claude login). */
+  lastError?: string
 }
 
 /** A short random-ish token for the batch seed (no Date/crypto dependency). */
@@ -378,6 +380,7 @@ export async function generateVerbSentenceBatch(
   const accepted = new Map<number, GeneratedVerbSentence>()
   let rejected = 0
   let attempts = 0
+  let lastError: string | undefined
   // Assigned Zeitformen and tense-implying angles would fight, so a tensed
   // batch draws only from the tense-neutral angles.
   const tensed = opts.specs.some(s => s.tense !== undefined)
@@ -403,7 +406,8 @@ export async function generateVerbSentenceBatch(
         }
       })
       text = res.text ?? ''
-    } catch {
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : String(e)
       continue
     }
 
@@ -423,7 +427,7 @@ export async function generateVerbSentenceBatch(
   }
 
   const sentences = opts.specs.filter(s => accepted.has(s.index)).map(s => accepted.get(s.index)!)
-  return { sentences, rejected, attempts }
+  return { sentences, rejected, attempts, ...(lastError !== undefined ? { lastError } : {}) }
 }
 
 // ─────────────────────────── Hint inputs ──────────────────────────────

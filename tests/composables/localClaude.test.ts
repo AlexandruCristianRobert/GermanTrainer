@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
-  extractClaudeText, buildClaudeArgs,
+  extractClaudeText, buildClaudeArgs, describeClaudeFailure, CLAUDE_LOGIN_ERROR,
   LOCAL_AI_HEALTH_PATH, LOCAL_AI_GENERATE_PATH,
   makeLocalClaudeClient, resolveAiClient, localClaudeAvailable, probeLocalClaude
 } from '../../src/composables/localClaude'
@@ -50,6 +50,45 @@ describe('buildClaudeArgs', () => {
   test('rejects a non-allow-listed model (gemini id or injection attempt)', () => {
     expect(buildClaudeArgs({ model: 'gemini-2.5-flash' })).not.toContain('--model')
     expect(buildClaudeArgs({ model: 'x & calc' })).not.toContain('--model')
+  })
+})
+
+describe('describeClaudeFailure', () => {
+  // Real envelope captured from `claude -p --output-format json` with an
+  // invalid OAuth token: exit 1, empty stderr, error inside the stdout JSON.
+  const authEnvelope = JSON.stringify({
+    is_error: true, api_error_status: 401, subtype: 'success', type: 'result',
+    result: 'Failed to authenticate. API Error: 401 OAuth access token is invalid.'
+  })
+
+  test('maps a 401 envelope to status 401 with the login message', () => {
+    const f = describeClaudeFailure(authEnvelope, '', 1)
+    expect(f.status).toBe(401)
+    expect(f.error).toBe(CLAUDE_LOGIN_ERROR)
+  })
+  test('login message tells the user their Claude Code login expired and how to fix it', () => {
+    expect(CLAUDE_LOGIN_ERROR).toContain('Claude Code')
+    expect(CLAUDE_LOGIN_ERROR).toContain('/login')
+  })
+  test('surfaces a non-auth envelope result as the error detail (500)', () => {
+    const f = describeClaudeFailure(JSON.stringify({ is_error: true, result: 'Overloaded, try again later.' }), '', 1)
+    expect(f.status).toBe(500)
+    expect(f.error).toBe('Overloaded, try again later.')
+  })
+  test('detects auth wording on stderr when stdout is not an envelope', () => {
+    const f = describeClaudeFailure('', 'Invalid API key · Please run /login\n', 1)
+    expect(f.status).toBe(401)
+    expect(f.error).toBe(CLAUDE_LOGIN_ERROR)
+  })
+  test('passes non-auth stderr through unchanged (500)', () => {
+    const f = describeClaudeFailure('', 'segfault somewhere\n', 1)
+    expect(f.status).toBe(500)
+    expect(f.error).toBe('segfault somewhere')
+  })
+  test('falls back to the exit code when there is no detail at all', () => {
+    const f = describeClaudeFailure('', '', 1)
+    expect(f.status).toBe(500)
+    expect(f.error).toBe('claude exited with code 1')
   })
 })
 

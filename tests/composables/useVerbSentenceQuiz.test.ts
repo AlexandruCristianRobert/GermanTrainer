@@ -221,6 +221,20 @@ describe('generateVerbSentenceBatch', () => {
     const res = await generateVerbSentenceBatch(client, { model: 'm', specs: SPECS, maxRetries: 1 })
     expect(res.sentences).toHaveLength(0)
   })
+  test('reports the last client error when every attempt throws (e.g. expired Claude login)', async () => {
+    const client: AiClient = { models: { generateContent: async () => { throw new Error('Claude Code login expired — run /login.') } } }
+    const res = await generateVerbSentenceBatch(client, { model: 'm', specs: SPECS, maxRetries: 1 })
+    expect(res.sentences).toHaveLength(0)
+    expect(res.lastError).toBe('Claude Code login expired — run /login.')
+  })
+  test('leaves lastError unset when generation succeeds', async () => {
+    const client = fakeClient(() => JSON.stringify({ items: [
+      { index: 0, english: 'I go home.', german: 'Ich gehe nach Hause.' },
+      { index: 1, english: 'I see the dog.', german: 'Ich sehe den Hund.' }
+    ] }))
+    const res = await generateVerbSentenceBatch(client, { model: 'm', specs: SPECS, maxRetries: 0 })
+    expect(res.lastError).toBeUndefined()
+  })
 })
 
 import { buildVerbHintInputs } from '../../src/composables/useVerbSentenceQuiz'

@@ -24,6 +24,34 @@ export function extractClaudeText(stdout: string): string {
   return text
 }
 
+/** User-facing message for a CLI auth failure (expired/missing Claude Code login). */
+export const CLAUDE_LOGIN_ERROR =
+  'Claude Code login expired or missing — open Claude Code, run /login, then try again.'
+
+const AUTH_MARKERS = /\b401\b|authenticat|oauth|unauthorized|invalid api key|\/login\b/i
+
+/**
+ * Turn a failed `claude -p` run into an HTTP status + user-facing message.
+ * The CLI reports most failures inside the stdout JSON envelope (is_error,
+ * api_error_status, result) and leaves stderr EMPTY — an expired login looks
+ * like exit 1 + {"is_error":true,"api_error_status":401,"result":"Failed to
+ * authenticate. ..."} — so stderr alone would yield a useless "exited with
+ * code 1".
+ */
+export function describeClaudeFailure(
+  stdout: string, stderr: string, code: number | null
+): { status: number; error: string } {
+  let envelopeText = ''
+  try {
+    const env = JSON.parse(stdout) as { api_error_status?: number; result?: unknown }
+    if (env.api_error_status === 401) return { status: 401, error: CLAUDE_LOGIN_ERROR }
+    if (typeof env.result === 'string') envelopeText = env.result.trim()
+  } catch { /* stdout is not an envelope — fall through to stderr */ }
+  const detail = envelopeText || stderr.trim()
+  if (AUTH_MARKERS.test(detail)) return { status: 401, error: CLAUDE_LOGIN_ERROR }
+  return { status: 500, error: detail || `claude exited with code ${code}` }
+}
+
 // A minimal system prompt that REPLACES Claude Code's default agentic prompt,
 // so a generation call behaves like a plain, fast LLM (no CLAUDE.md / tool /
 // agent overhead). Fixed ASCII — safe on argv even under shell:true on Windows.
