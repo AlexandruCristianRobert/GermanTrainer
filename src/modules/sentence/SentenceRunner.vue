@@ -31,6 +31,7 @@ import { useToast } from '../../composables/useToast'
 import { useSound } from '../../composables/useSound'
 import { useDailyDomainGoal } from '../../composables/useDailyDomainGoal'
 import SentenceResult from './SentenceResult.vue'
+import GermanSolutionText from '../../components/GermanSolutionText.vue'
 
 const STASH_KEY = 'gt:lastPackedSentenceQuiz'
 const router = useRouter()
@@ -676,7 +677,7 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
             </div>
             <div class="sna-st-r"><span class="sna-st-l">Quelle</span><span class="sna-st-t">{{ direction === 'de-en' ? current.german : current.english }}</span></div>
             <div class="sna-st-r"><span class="sna-st-l">Du</span><span class="sna-st-t you" :style="{ color: verdictColor(currentOutcome.verdict) }">{{ currentOutcome.answer }}</span></div>
-            <div class="sna-st-r"><span class="sna-st-l">Referenz</span><span class="sna-st-t ref">{{ direction === 'de-en' ? current.english : current.german }}</span></div>
+            <div class="sna-st-r"><span class="sna-st-l">Referenz</span><span class="sna-st-t ref"><template v-if="direction === 'de-en'">{{ current.english }}</template><GermanSolutionText v-else :text="current.german" :idiom="current.idiom" /></span></div>
           </div>
 
           <p v-if="!currentOutcome.offline" class="sna-tip">{{ currentOutcome.tip }}</p>

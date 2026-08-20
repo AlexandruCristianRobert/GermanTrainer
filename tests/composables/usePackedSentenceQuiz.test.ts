@@ -332,6 +332,27 @@ describe('validatePackedCard — deUsed pass-through', () => {
   })
 })
 
+describe('validatePackedCard — idiom (Task 1: idiom highlighting)', () => {
+  test('a valid idiom whose spans anchor in the German survives onto the card', () => {
+    const raw = { ...GOOD_RAW, idiom: { spans: ['warte', 'darauf'], form: 'auf etwas warten', gloss: 'to wait for something' } }
+    const v = validatePackedCard(raw, SPEC)!
+    expect(v.idiom).toEqual({ spans: ['warte', 'darauf'], form: 'auf etwas warten', gloss: 'to wait for something' })
+  })
+  test('a garbage/malformed idiom is dropped — never a rejection reason for the card', () => {
+    const raw = { ...GOOD_RAW, idiom: { spans: ['nicht im satz'], form: '', gloss: 'x' } }
+    const v = validatePackedCard(raw, SPEC)
+    expect(v).not.toBeNull()
+    expect(v!.idiom).toBeUndefined()
+    expect(v!.english).toBe(GOOD_RAW.english)
+    expect(v!.german).toBe(GOOD_RAW.german)
+  })
+  test('an absent idiom field leaves card.idiom unset (never coerced to a value)', () => {
+    const v = validatePackedCard(GOOD_RAW, SPEC)!
+    expect(v.idiom).toBeUndefined()
+    expect('idiom' in v).toBe(false)
+  })
+})
+
 describe('buildPackedGeneratePrompt', () => {
   test('lists every item with its key, Rektion, da-compound and behavior', () => {
     const p = buildPackedGeneratePrompt([SPEC], 'B1/B2', { angles: ['set it at the office'], seed: 'abc' })

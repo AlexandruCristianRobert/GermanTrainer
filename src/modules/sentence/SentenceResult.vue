@@ -11,6 +11,7 @@ import {
   type GeneratedPackedCard, type PackedItemSpec, type PackedItemResult, type PackedHintBadge
 } from '../../composables/usePackedSentenceQuiz'
 import { CONN_PLACEMENT, isPair } from '../../data/connectors'
+import GermanSolutionText from '../../components/GermanSolutionText.vue'
 
 const props = defineProps<{ history: CardOutcome[]; direction: 'en-de' | 'de-en' }>()
 const emit = defineEmits<{ (e: 'restart'): void; (e: 'practice', cards: GeneratedPackedCard[]): void }>()
@@ -146,7 +147,7 @@ function practice(): void {
             <div class="a-l">Deine Antwort</div>
             <div class="a-t" style="font-style: italic">{{ h.answer }}</div>
             <div class="a-l">Referenz</div>
-            <div class="a-t">{{ direction === 'de-en' ? h.card.english : h.card.german }}</div>
+            <div class="a-t"><template v-if="direction === 'de-en'">{{ h.card.english }}</template><GermanSolutionText v-else :text="h.card.german" :idiom="h.card.idiom" /></div>
             <div v-if="h.items" style="margin-top: 10px">
               <div v-for="it in h.card.items" :key="it.key" class="sna-row">
                 <span class="sn-check" :class="itemOk(h, it.key) ? 'ok' : 'no'">{{ itemOk(h, it.key) ? '✓' : '✗' }}</span>
