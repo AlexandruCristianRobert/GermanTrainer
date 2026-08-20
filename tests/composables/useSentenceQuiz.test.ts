@@ -377,6 +377,45 @@ describe('buildHintSegments', () => {
     const english = 'I work with the table.'
     expect(buildHintSegments(english, [])).toEqual([{ text: english }])
   })
+
+  // Regression: JS `\b` treats non-ASCII letters as non-word characters, so
+  // an ASCII-only word boundary never anchors at the edge of a word that
+  // starts/ends with ä/ö/ü/ß — exactly the words idiom spans over German
+  // text commonly start or end with ("über…", "…Fuß").
+  test('anchors a surface that STARTS with an umlaut ("über Nacht")', () => {
+    const german = 'Die Macht wechselte über Nacht den Besitzer.'
+    const segs = buildHintSegments(german, [{ surface: 'über Nacht', kind: 'verb', reveal: 'x' }])
+    expect(segs.map(s => s.text).join('')).toBe(german)
+    const hinted = segs.filter(s => s.hint)
+    expect(hinted).toHaveLength(1)
+    expect(hinted[0].text).toBe('über Nacht')
+  })
+
+  test('anchors a surface that ENDS with ß ("Fuß")', () => {
+    const german = 'Der Verein konnte in der Stadt endlich Fuß fassen.'
+    const segs = buildHintSegments(german, [{ surface: 'Fuß', kind: 'verb', reveal: 'x' }])
+    expect(segs.map(s => s.text).join('')).toBe(german)
+    const hinted = segs.filter(s => s.hint)
+    expect(hinted).toHaveLength(1)
+    expect(hinted[0].text).toBe('Fuß')
+  })
+
+  test('two umlaut/ß-edged spans in one discontinuous idiom both anchor, in order', () => {
+    const german = 'Er hat sie übers Ohr gehauen und musste dafür Buße zahlen.'
+    const segs = buildHintSegments(german, [
+      { surface: 'Buße', kind: 'verb', reveal: 'y' },
+      { surface: 'übers Ohr', kind: 'verb', reveal: 'x' }
+    ])
+    expect(segs.map(s => s.text).join('')).toBe(german)
+    const hinted = segs.filter(s => s.hint)
+    expect(hinted.map(h => h.text)).toEqual(['übers Ohr', 'Buße']) // position order, not input order
+  })
+
+  test('still respects word boundaries with the umlaut-aware class ("Fuß" not inside "Fußball")', () => {
+    const german = 'Wir haben zusammen Fußball gespielt.'
+    const segs = buildHintSegments(german, [{ surface: 'Fuß', kind: 'verb', reveal: 'x' }])
+    expect(segs).toEqual([{ text: german }])
+  })
 })
 
 // ── Fake AI client helpers ──

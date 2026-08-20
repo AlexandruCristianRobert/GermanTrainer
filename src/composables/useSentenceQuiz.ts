@@ -267,6 +267,15 @@ function escapeRegExp(s: string): string {
  * hint's `surface` (first case-insensitive, word-bounded match). Overlapping
  * matches are resolved greedily by start position; un-anchorable hints are
  * skipped. The joined `.text` of the result always equals `english`.
+ *
+ * The boundary is Unicode-aware (`[^\p{L}\p{N}_]`, 'u' flag) rather than
+ * ASCII `\b` — plain `\b` treats letters outside a-z/A-Z as non-word
+ * characters, so it never anchors at the edge of "über", "Fuß", etc. (this
+ * function was written for English surfaces, but idiom spans over German
+ * text hit this constantly). Deliberately NOT a lookbehind: `(?<=...)`
+ * throws at RegExp construction on iOS Safari < 16.4, which would break
+ * hint rendering everywhere on those phones — a leading capture group with
+ * an index offset is the compatible equivalent, safe wherever Vue 3 runs.
  */
 export function buildHintSegments(english: string, hints: readonly HintInput[]): HintSegment[] {
   interface Range { start: number; end: number; kind: HintKind; reveal: string }
@@ -277,13 +286,18 @@ export function buildHintSegments(english: string, hints: readonly HintInput[]):
     if (!surface) continue
     let re: RegExp
     try {
-      re = new RegExp(`\\b${escapeRegExp(surface)}\\b`, 'i')
+      re = new RegExp(`(^|[^\\p{L}\\p{N}_])(${escapeRegExp(surface)})(?=[^\\p{L}\\p{N}_]|$)`, 'iu')
     } catch {
       continue
     }
     const m = re.exec(english)
     if (!m) continue
-    found.push({ start: m.index, end: m.index + m[0].length, kind: h.kind, reveal: h.reveal })
+    // Group 1 is the leading boundary (empty at `^`, one real char
+    // otherwise) — the actual surface starts right after it. The trailing
+    // boundary is a lookahead, so it never enters m[0]/m[2] to begin with.
+    const start = m.index + m[1].length
+    const end = start + m[2].length
+    found.push({ start, end, kind: h.kind, reveal: h.reveal })
   }
 
   // Sort by start, then greedily keep non-overlapping ranges.

@@ -66,4 +66,19 @@ describe('validateIdiom', () => {
     })
     expect(idiom).toBeUndefined()
   })
+
+  // Regression: buildHintSegments' word boundary used to be ASCII-only
+  // `\b`, which never anchors at the edge of a word starting/ending in
+  // ä/ö/ü/ß — exactly the shape of many German idioms.
+  test('anchors a span that STARTS with an umlaut ("übers Ohr")', () => {
+    const german = 'Der Verkäufer hat den Kunden übers Ohr gehauen.'
+    const idiom = validateIdiom(german, { spans: ['übers Ohr'], form: 'jemanden übers Ohr hauen', gloss: 'to swindle someone' })
+    expect(idiom).toEqual({ spans: ['übers Ohr'], form: 'jemanden übers Ohr hauen', gloss: 'to swindle someone' })
+  })
+
+  test('anchors a span that ENDS with ß ("Fuß fassen")', () => {
+    const german = 'Die neue Firma konnte in der Stadt schnell Fuß fassen.'
+    const idiom = validateIdiom(german, { spans: ['Fuß fassen'], form: 'Fuß fassen', gloss: 'to gain a foothold' })
+    expect(idiom).toEqual({ spans: ['Fuß fassen'], form: 'Fuß fassen', gloss: 'to gain a foothold' })
+  })
 })
