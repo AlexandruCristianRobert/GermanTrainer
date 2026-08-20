@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.22.00'
+export const APP_VERSION = '1.22.01'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.22.01', date: '2026-08-20', kind: 'fix',
+    title: 'Local Claude · Klare Meldung bei abgelaufenem Login',
+    notes: [
+      '<strong>Abgelaufener Claude-Code-Login wird jetzt benannt.</strong> Scheitert die <code>claude</code>-CLI an der Anmeldung (Login abgelaufen oder fehlend), sagt die Fehlermeldung jetzt klar: Claude Code öffnen, <code>/login</code> ausführen, nochmal versuchen — statt eines nichtssagenden <code>claude exited with code 1</code>. Die CLI meldet solche Fehler im stdout-JSON bei leerem stderr; genau dort wird jetzt gelesen.',
+      '<strong>Der Verben-Satz-Runner zeigt den echten Grund.</strong> Liefert die Generierung gar nichts (z. B. Schwache-Verben-Drill aus dem Tagesplan), erscheint statt „The model returned no usable sentences“ jetzt der letzte tatsächliche Fehler — bei abgelaufenem Login also der /login-Hinweis.'
+    ]
+  },
   {
     version: '1.22.00', date: '2026-08-19', kind: 'module',
     title: 'Relativsätze & N-Deklination',
