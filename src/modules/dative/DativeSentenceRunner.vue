@@ -7,6 +7,7 @@ import {
   generateDatSentenceBatch, gradeDativeSentence, buildDatDrillItem,
   type GeneratedDatSentence, type DativeSentenceSpec, type DatErrorTag
 } from '../../composables/useDativeSentenceQuiz'
+import GermanSolutionText from '../../components/GermanSolutionText.vue'
 import type { DativeFamily } from '../../composables/useDativeDrill'
 import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun } from '../../composables/useQuizHistory'
@@ -250,7 +251,11 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
           </span>
         </div>
         <div class="rr-you" :class="{ 'rr-you-empty': !answers[i]?.trim() }"><span class="rr-label">You</span> {{ answers[i]?.trim() || '— (blank)' }}</div>
-        <div v-if="!verdicts.get(i)?.correct" class="rr-ref"><span class="rr-label">Answer</span> {{ verdicts.get(i)?.correction || s.german }}</div>
+        <div v-if="!verdicts.get(i)?.correct" class="rr-ref">
+          <span class="rr-label">Answer</span>
+          <template v-if="(verdicts.get(i)?.correction ?? s.german) !== s.german">{{ verdicts.get(i)?.correction || s.german }}</template>
+          <GermanSolutionText v-else :text="s.german" :idiom="s.idiom" />
+        </div>
         <div v-if="!verdicts.get(i)?.correct && verdicts.get(i)?.tip" class="rr-tip"><span class="rr-label">Tip</span> {{ verdicts.get(i)?.tip }}</div>
       </div>
     </div>
@@ -294,7 +299,10 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 
         <div v-if="phase === 'graded' && currentVerdict" class="prep-feedback">
           <span class="prep-feedback-mark" :class="currentVerdict.correct ? 'prep-feedback-ok' : 'prep-feedback-bad'">{{ currentVerdict.correct ? '✓ Richtig.' : '✗ Nicht ganz.' }}</span>
-          <span class="prep-feedback-full">{{ currentVerdict.correction || current.german }}</span>
+          <span class="prep-feedback-full">
+            <template v-if="(currentVerdict.correction ?? current.german) !== current.german">{{ currentVerdict.correction || current.german }}</template>
+            <GermanSolutionText v-else :text="current.german" :idiom="current.idiom" />
+          </span>
           <span v-if="currentVerdict.tip" class="prep-feedback-tip">💡 {{ currentVerdict.tip }}</span>
           <span v-if="currentVerdict.tags?.length" class="prep-feedback-tags">
             <span v-for="t in currentVerdict.tags" :key="t" class="tag tag-error">{{ t }}</span>

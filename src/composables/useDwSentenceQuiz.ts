@@ -28,6 +28,7 @@ import type { NounRef, HintInput } from './useSentenceQuiz'
 import type { ExtraWord, PromptVariation } from './useVerbSentenceQuiz'
 import type { AiClient } from './useClaude'
 import type { DwErrorTag, DwDrillItem } from './useQuizHistory'
+import { validateIdiom, type IdiomInfo } from './useIdiomHighlight'
 
 /** A direction-word error category the AI grader may assign (re-exported from history). */
 export type { DwErrorTag } from './useQuizHistory'
@@ -118,6 +119,10 @@ export interface GeneratedDwSentence extends DwSentenceSpec {
   nounSpansEn?: string[]
   /** Other highlighted nouns/verbs with AI-supplied German. */
   extraWords?: ExtraWord[]
+  /** Set only when `german` uses an idiom or fixed expression whose literal
+   *  wording doesn't correspond to the English — validated (Task 1: idiom
+   *  highlighting) against `german` before being stored. */
+  idiom?: IdiomInfo
 }
 
 // ───────────────────────────── Pure helpers ───────────────────────────
@@ -224,7 +229,8 @@ For each requested item you are given a TARGET compound and theme nouns. Write:
 - Use each given theme noun naturally in the sentence.
 - "nounSpansEn": the exact English word(s) you used for each theme noun, in order.
 - "extraWords": up to 3 other content words (verbs/nouns) a learner might not know, each with its German.
-Return ONLY JSON in exactly this shape: {"items":[{"index":<number>,"english":"...","german":"...","nounSpansEn":["..."],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}]}]}
+- "idiom": OPTIONAL — include it ONLY when your German sentence uses an idiom or fixed expression whose literal wording does NOT correspond to the English source (omit the field entirely for an ordinary sentence with no such idiom); "spans" = the exact words of the idiom as they appear, inflected, in your German sentence, split into 1–3 separate entries when other words interrupt the idiom (e.g. ["wechselte", "den Besitzer"]); "form" = its dictionary form (e.g. "den Besitzer wechseln"); "gloss" = its English equivalent (e.g. "to change hands").
+Return ONLY JSON in exactly this shape: {"items":[{"index":<number>,"english":"...","german":"...","nounSpansEn":["..."],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}],"idiom":{"spans":["..."],"form":"...","gloss":"..."}}]}
 No markdown fences, no commentary.`
 
 export const DW_GEN_SCHEMA = {
@@ -250,6 +256,15 @@ export const DW_GEN_SCHEMA = {
               },
               required: ['en', 'de', 'kind']
             }
+          },
+          idiom: {
+            type: 'object',
+            properties: {
+              spans: { type: 'array', items: { type: 'string' } },
+              form: { type: 'string' },
+              gloss: { type: 'string' }
+            },
+            required: ['spans', 'form', 'gloss']
           }
         },
         required: ['index', 'english', 'german', 'nounSpansEn', 'extraWords']
@@ -277,7 +292,8 @@ export function buildDwGeneratePrompt(
     lines.join('\n') +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.` +
-    `\nAlso return nounSpansEn (one per listed noun, in order) and extraWords (every other noun/verb), each surface an exact substring of your English sentence.`
+    `\nAlso return nounSpansEn (one per listed noun, in order) and extraWords (every other noun/verb), each surface an exact substring of your English sentence.` +
+    `\nInclude "idiom" ONLY when your German sentence uses a genuine idiom or fixed expression whose literal wording doesn't correspond to the English — omit it entirely otherwise.`
   )
 }
 
@@ -326,6 +342,13 @@ export function validateDwSentencePair(
       .filter(w => w.en.length > 0 && w.de.length > 0)
     if (extras.length > 0) out.extraWords = extras
   }
+
+  // Idiom hint data, same fail-safe posture as the fields above: validated
+  // against the German that was just accepted, never a reason to reject the
+  // pair itself (Task 1: idiom highlighting).
+  const idiom = validateIdiom(german, e.idiom)
+  if (idiom) out.idiom = idiom
+
   return out
 }
 

@@ -60,6 +60,31 @@ describe('validateDatSentencePair', () => {
   })
 })
 
+describe('validateDatSentencePair — idiom (Task 2: idiom highlighting)', () => {
+  const raw = { index: 0, english: GEN.english, german: GEN.german, usedForm: 'helfe', dativeObject: 'meiner Mutter' }
+
+  test('a valid idiom whose spans anchor in the German survives onto the sentence', () => {
+    const v = validateDatSentencePair(
+      { ...raw, idiom: { spans: ['helfe', 'meiner Mutter'], form: 'jemandem helfen', gloss: 'to help someone' } },
+      SPEC
+    )
+    expect(v!.idiom).toEqual({ spans: ['helfe', 'meiner Mutter'], form: 'jemandem helfen', gloss: 'to help someone' })
+  })
+  test('a garbage/malformed idiom is dropped — never a rejection reason for the pair', () => {
+    const v = validateDatSentencePair(
+      { ...raw, idiom: { spans: ['nicht im satz'], form: '', gloss: 'x' } },
+      SPEC
+    )
+    expect(v).not.toBeNull()
+    expect(v!.idiom).toBeUndefined()
+    expect(v!.german).toBe(GEN.german)
+  })
+  test('an absent idiom field leaves idiom unset', () => {
+    const v = validateDatSentencePair(raw, SPEC)
+    expect(v!.idiom).toBeUndefined()
+  })
+})
+
 describe('prompts', () => {
   test('generation prompt: target line per spec, twin ban for helfen, experiencer note for gefallen, JSON envelope in prose', () => {
     const specs: DativeSentenceSpec[] = [SPEC, { index: 1, verb: 'gefallen', family: 'experiencer' }]

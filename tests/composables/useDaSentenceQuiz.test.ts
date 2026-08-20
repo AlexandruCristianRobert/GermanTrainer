@@ -168,6 +168,33 @@ describe('validateDacSentencePair', () => {
   })
 })
 
+describe('validateDacSentencePair — idiom (Task 2: idiom highlighting)', () => {
+  const spec = { index: 0, colloc: COLLOCS_FIX[0], nouns: [{ german: 'Konzert', article: 'das' as const, english: 'concert' }] }
+
+  test('a valid idiom whose spans anchor in the German survives onto the sentence', () => {
+    const out = validateDacSentencePair({
+      index: 0, english: 'We are waiting for the concert to start.', german: 'Wir warten darauf, dass das Konzert beginnt.',
+      idiom: { spans: ['warten darauf'], form: 'auf etwas warten', gloss: 'to wait for something' }
+    }, spec)
+    expect(out!.idiom).toEqual({ spans: ['warten darauf'], form: 'auf etwas warten', gloss: 'to wait for something' })
+  })
+  test('a garbage/malformed idiom is dropped — never a rejection reason for the pair', () => {
+    const out = validateDacSentencePair({
+      index: 0, english: 'We are waiting for the concert to start.', german: 'Wir warten darauf, dass das Konzert beginnt.',
+      idiom: { spans: ['nicht im satz'], form: '', gloss: 'x' }
+    }, spec)
+    expect(out).not.toBeNull()
+    expect(out!.idiom).toBeUndefined()
+    expect(out!.german).toBe('Wir warten darauf, dass das Konzert beginnt.')
+  })
+  test('an absent idiom field leaves idiom unset', () => {
+    const out = validateDacSentencePair({
+      index: 0, english: 'We are waiting for the concert to start.', german: 'Wir warten darauf, dass das Konzert beginnt.'
+    }, spec)
+    expect(out!.idiom).toBeUndefined()
+  })
+})
+
 import { generateDacSentenceBatch } from '../../src/composables/useDaSentenceQuiz'
 import type { AiClient } from '../../src/composables/useClaude'
 

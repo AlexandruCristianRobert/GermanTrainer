@@ -14,6 +14,7 @@ import {
   CONN_PLACEMENT, CONN_PLACEMENT_EN, isPair,
   type Connector, type ConnectorPart
 } from '../data/connectors'
+import { validateIdiom, type IdiomInfo } from './useIdiomHighlight'
 import type { AiClient } from './useClaude'
 import type {
   VerbErrorTag, PrepErrorTag, DacErrorTag, ConnErrorTag,
@@ -231,6 +232,10 @@ export interface GeneratedPackedCard extends PackedCardSpec {
   /** Every non-drilled noun or finite verb in the passage, hintable with its
    *  German dictionary form. */
   extras?: PackedExtraWord[]
+  /** Set only when `german` uses an idiom or fixed expression whose literal
+   *  wording doesn't correspond to the English — validated (Task 1: idiom
+   *  highlighting) against `german` before being stored. */
+  idiom?: IdiomInfo
 }
 
 /** Scene-setters — WHERE the passage happens. A Domain replaces these with its
@@ -302,7 +307,8 @@ export const PACKED_GEN_SYSTEM =
   'Return ONLY one JSON object of exactly this shape (no prose, no markdown fences): ' +
   '{"items":[{"index":<number>,"english":"...","german":"...","sentenceCount":<1-4>,' +
   '"spans":[{"key":"v1","en":"...","pl":"...","deUsed":"..."}],' +
-  '"extras":[{"en":"...","de":"...","kind":"verb|noun","pl":"..."}]}]} — exactly one entry per ' +
+  '"extras":[{"en":"...","de":"...","kind":"verb|noun","pl":"..."}],' +
+  '"idiom":{"spans":["..."],"form":"...","gloss":"..."}}]} — exactly one entry per ' +
   'requested index. ' +
   '"spans" = one entry per ingredient key, where "en" is the exact English word(s) expressing ' +
   'that ingredient, copied verbatim from YOUR English translation (an exact substring of it); ' +
@@ -318,7 +324,13 @@ export const PACKED_GEN_SYSTEM =
   'with "en" = its exact English surface (an exact substring of your English translation), ' +
   '"de" = its German dictionary form (the INFINITIVE for a verb; article + nominative singular ' +
   'for a noun, e.g. "die Katze"), "kind" ("verb" or "noun"), and for nouns "pl" = its bare ' +
-  'nominative plural ("" when it has none); use [] when there are none.'
+  'nominative plural ("" when it has none); use [] when there are none. ' +
+  '"idiom" is OPTIONAL — include it ONLY when your German translation uses an idiom or fixed ' +
+  'expression whose literal wording does NOT correspond to the English source (omit the field ' +
+  'entirely for an ordinary sentence with no such idiom); "spans" = the exact words of the idiom ' +
+  'as they appear, inflected, in YOUR German sentence, split into 1–3 separate entries when other ' +
+  'words interrupt the idiom (e.g. ["wechselte", "den Besitzer"]); "form" = its dictionary form ' +
+  '(e.g. "den Besitzer wechseln"); "gloss" = its English equivalent (e.g. "to change hands").'
 
 export const PACKED_GEN_SCHEMA = {
   type: 'object',
@@ -352,6 +364,15 @@ export const PACKED_GEN_SCHEMA = {
               },
               required: ['en', 'de', 'kind']
             }
+          },
+          idiom: {
+            type: 'object',
+            properties: {
+              spans: { type: 'array', items: { type: 'string' } },
+              form: { type: 'string' },
+              gloss: { type: 'string' }
+            },
+            required: ['spans', 'form', 'gloss']
           }
         },
         required: ['index', 'english', 'german', 'sentenceCount', 'spans', 'extras']
@@ -452,7 +473,8 @@ export function buildPackedGeneratePrompt(
     domainNote +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.` +
-    `\nAlso return sentenceCount, spans (one per ingredient key, plus "pl" — bare plural, "" if none — for noun keys, plus "deUsed" — the exact German form(s) of the verb as used in your German passage, e.g. "hört zu" / "hat geholfen" — for verb keys; two-part connectors get two entries with the same key) and extras (every other noun and finite verb in the English, with "en"/"de"/"kind", nouns also carrying "pl"), each "en" an exact substring of your English translation.`
+    `\nAlso return sentenceCount, spans (one per ingredient key, plus "pl" — bare plural, "" if none — for noun keys, plus "deUsed" — the exact German form(s) of the verb as used in your German passage, e.g. "hört zu" / "hat geholfen" — for verb keys; two-part connectors get two entries with the same key) and extras (every other noun and finite verb in the English, with "en"/"de"/"kind", nouns also carrying "pl"), each "en" an exact substring of your English translation.` +
+    `\nInclude "idiom" ONLY when your German passage uses a genuine idiom or fixed expression whose literal wording doesn't correspond to the English — omit it entirely otherwise.`
   )
 }
 
@@ -620,7 +642,13 @@ export function validatePackedCard(raw: unknown, spec: PackedCardSpec): Generate
           : !drilledVerbs.has(normalizeGerman(w.de)))
     : []
 
-  return { ...spec, english, german, sents, spans, extras }
+  const card: GeneratedPackedCard = { ...spec, english, german, sents, spans, extras }
+  // Idiom hint data, same fail-safe posture as spans/extras above: validated
+  // against the German that was just accepted, never a reason to reject the
+  // card itself (Task 1: idiom highlighting).
+  const idiom = validateIdiom(german, e.idiom)
+  if (idiom) card.idiom = idiom
+  return card
 }
 
 function makeSeed(rng: () => number): string {

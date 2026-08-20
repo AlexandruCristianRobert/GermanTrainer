@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.22.01'
+export const APP_VERSION = '1.22.02'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.22.02', date: '2026-08-20', kind: 'polish',
+    title: 'Satzübersetzung · Idiome im deutschen Lösungssatz',
+    notes: [
+      '<strong>Deutsche Idiome werden jetzt markiert.</strong> Nutzt die deutsche Referenz ein Idiom, das nicht wörtlich dem Englischen entspricht (<em>power changed hands</em> → <em>die Macht wechselte den Besitzer</em>), werden seine Wörter farbig unterstrichen — auch wenn andere Wörter das Idiom im Satz unterbrechen. Antippen, Fokus oder Hover zeigt Grundform und englische Entsprechung: <em>den Besitzer wechseln — to change hands</em>.',
+      '<strong>In allen sechs Satz-Drills.</strong> Satz-Quiz, Verben, Präpositionen, Da-Komposita, Richtungswörter und Dativ melden das Idiom direkt aus der Generierung; markiert wird nur in EN → DE und nur, wenn die gemeldeten Wörter wortgetreu im Satz stehen — sonst erscheint der Satz unverändert wie bisher.',
+      '<strong>Wortgrenzen können jetzt Umlaute.</strong> Die Span-Verankerung der Worthinweise behandelt ä/ö/ü/ß als Buchstaben: <em>über Nacht</em> oder <em>Fuß fassen</em> verankern korrekt, und <em>Fuß</em> trifft nicht mehr fälschlich in <em>Fußball</em>.'
+    ]
+  },
   {
     version: '1.22.01', date: '2026-08-20', kind: 'fix',
     title: 'Local Claude · Klare Meldung bei abgelaufenem Login',

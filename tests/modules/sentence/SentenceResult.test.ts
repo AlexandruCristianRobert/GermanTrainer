@@ -58,6 +58,36 @@ describe('SentenceResult', () => {
   })
 })
 
+const IDIOM = { spans: ['wechselte', 'den Besitzer'], form: 'den Besitzer wechseln', gloss: 'to change hands' }
+
+function idiomOutcome(): CardOutcome {
+  const base = outcome('ok')
+  return {
+    ...base,
+    card: { ...base.card, german: 'Die Macht wechselte über Nacht den Besitzer.', idiom: IDIOM }
+  }
+}
+
+describe('SentenceResult · idiom hookup (recap Referenz line)', () => {
+  it('underlines the idiom spans in an opened card\'s Referenz line (EN→DE)', async () => {
+    const w = mount(SentenceResult, { props: { history: [idiomOutcome()], direction: 'en-de' } })
+    await w.find('.sna-resrow-h').trigger('click')
+    const idiomSpans = w.findAll('.sn-i[data-cat="idiom"]')
+    expect(idiomSpans).toHaveLength(2)
+    expect(idiomSpans[0].find('em').text()).toBe(IDIOM.form)
+    expect(idiomSpans[0].find('.sn-pop').text()).toContain(IDIOM.gloss)
+  })
+
+  it('never annotates the German source shown in DE→EN (idiom stays plain)', async () => {
+    const base = outcome('ok')
+    const deEnOutcome: CardOutcome = { ...base, items: null, card: { ...base.card, german: 'Die Macht wechselte über Nacht den Besitzer.', idiom: IDIOM } }
+    const w = mount(SentenceResult, { props: { history: [deEnOutcome], direction: 'de-en' } })
+    await w.find('.sna-resrow-h').trigger('click')
+    expect(w.findAll('.sn-i[data-cat="idiom"]')).toHaveLength(0)
+    expect(w.text()).toContain('Die Macht wechselte über Nacht den Besitzer.')
+  })
+})
+
 function themedOutcome(label: string, id: string): CardOutcome {
   const base = outcome('ok')
   return { ...base, card: { ...base.card, domain: { id, label, scene: 'set it during a failed deployment', form: 'erklaerend' } } }

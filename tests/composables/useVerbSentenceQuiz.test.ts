@@ -183,6 +183,33 @@ describe('validateVerbSentencePair', () => {
   })
 })
 
+describe('validateVerbSentencePair — idiom (Task 2: idiom highlighting)', () => {
+  const spec = { index: 0, verbs: [{ german: 'gehen', english: 'go', level: 'A1' as const }], nouns: [{ german: 'Schule', article: 'die' as const, english: 'school' }] }
+
+  test('a valid idiom whose spans anchor in the German survives onto the sentence', () => {
+    const out = validateVerbSentencePair({
+      index: 0, english: 'The children go to school in the morning.', german: 'Die Kinder gehen morgens zur Schule.',
+      idiom: { spans: ['gehen', 'zur Schule'], form: 'zur Schule gehen', gloss: 'to go to school' }
+    }, spec)
+    expect(out!.idiom).toEqual({ spans: ['gehen', 'zur Schule'], form: 'zur Schule gehen', gloss: 'to go to school' })
+  })
+  test('a garbage/malformed idiom is dropped — never a rejection reason for the pair', () => {
+    const out = validateVerbSentencePair({
+      index: 0, english: 'The children go to school in the morning.', german: 'Die Kinder gehen morgens zur Schule.',
+      idiom: { spans: ['nicht im satz'], form: '', gloss: 'x' }
+    }, spec)
+    expect(out).not.toBeNull()
+    expect(out!.idiom).toBeUndefined()
+    expect(out!.german).toBe('Die Kinder gehen morgens zur Schule.')
+  })
+  test('an absent idiom field leaves idiom unset', () => {
+    const out = validateVerbSentencePair({
+      index: 0, english: 'The children go to school in the morning.', german: 'Die Kinder gehen morgens zur Schule.'
+    }, spec)
+    expect(out!.idiom).toBeUndefined()
+  })
+})
+
 import { generateVerbSentenceBatch } from '../../src/composables/useVerbSentenceQuiz'
 import type { AiClient } from '../../src/composables/useClaude'
 

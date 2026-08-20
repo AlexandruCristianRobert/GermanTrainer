@@ -21,6 +21,7 @@ import type { NounRef, HintInput, Direction } from './useSentenceQuiz'
 import type { ExtraWord, PromptVariation } from './useVerbSentenceQuiz'
 import type { AiClient } from './useClaude'
 import type { DacErrorTag, DacDrillItem } from './useQuizHistory'
+import { validateIdiom, type IdiomInfo } from './useIdiomHighlight'
 
 // ─────────────────────────────── Types ────────────────────────────────
 
@@ -56,6 +57,10 @@ export interface GeneratedDacSentence extends DacSentenceSpec {
   nounSpansEn?: string[]
   /** Other highlighted nouns/verbs with AI-supplied German. */
   extraWords?: ExtraWord[]
+  /** Set only when `german` uses an idiom or fixed expression whose literal
+   *  wording doesn't correspond to the English — validated (Task 1: idiom
+   *  highlighting) against `german` before being stored. */
+  idiom?: IdiomInfo
 }
 
 // ───────────────────────────── Pure helpers ───────────────────────────
@@ -181,7 +186,8 @@ export const DAC_GEN_SYSTEM =
   'thing, a fact, or a clause; if the natural object is a PERSON, keep the plain preposition + noun/pronoun ' +
   '(e.g. "Ich warte auf meinen Bruder") and do NOT force a da-compound. Keep sentences concise (6–16 words). ' +
   'Return JSON {"items":[{"index":<number>,"english":"...","german":"...","collocSpanEn":"...",' +
-  '"nounSpansEn":[...],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}]}]} with exactly one entry ' +
+  '"nounSpansEn":[...],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}],' +
+  '"idiom":{"spans":["..."],"form":"...","gloss":"..."}}]} with exactly one entry ' +
   'per requested index. ' +
   '"collocSpanEn" = the exact English word(s) expressing the collocation (its headword together with the ' +
   'English preposition, e.g. "wait for", "look forward to"), copied verbatim from YOUR English sentence. ' +
@@ -191,7 +197,13 @@ export const DAC_GEN_SYSTEM =
   '(subjects, objects, auxiliaries, modals, incidental nouns), each with "en" = its exact English surface, ' +
   '"de" = its German dictionary form (the infinitive for a verb; the article + nominative singular for a ' +
   'noun, e.g. "die Katze"), and "kind". ' +
-  'All "en" surfaces MUST be exact substrings of your English sentence so they can be located.'
+  'All "en" surfaces MUST be exact substrings of your English sentence so they can be located. ' +
+  '"idiom" is OPTIONAL — include it ONLY when your German sentence uses an idiom or fixed expression whose ' +
+  'literal wording does NOT correspond to the English source (omit the field entirely for an ordinary ' +
+  'sentence with no such idiom); "spans" = the exact words of the idiom as they appear, inflected, in YOUR ' +
+  'German sentence, split into 1–3 separate entries when other words interrupt the idiom (e.g. ["wechselte", ' +
+  '"den Besitzer"]); "form" = its dictionary form (e.g. "den Besitzer wechseln"); "gloss" = its English ' +
+  'equivalent (e.g. "to change hands").'
 
 export const DAC_GEN_SCHEMA = {
   type: 'object',
@@ -217,6 +229,15 @@ export const DAC_GEN_SCHEMA = {
               },
               required: ['en', 'de', 'kind']
             }
+          },
+          idiom: {
+            type: 'object',
+            properties: {
+              spans: { type: 'array', items: { type: 'string' } },
+              form: { type: 'string' },
+              gloss: { type: 'string' }
+            },
+            required: ['spans', 'form', 'gloss']
           }
         },
         required: ['index', 'english', 'german', 'collocSpanEn', 'nounSpansEn', 'extraWords']
@@ -250,7 +271,8 @@ export function buildDacGeneratePrompt(
     `thing, a fact, or a clause — never for a person.` +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.` +
-    `\nAlso return collocSpanEn (the English words expressing the collocation), nounSpansEn (one per listed noun, in order), and extraWords (every other noun/verb) — each surface an exact substring of your English sentence.`
+    `\nAlso return collocSpanEn (the English words expressing the collocation), nounSpansEn (one per listed noun, in order), and extraWords (every other noun/verb) — each surface an exact substring of your English sentence.` +
+    `\nInclude "idiom" ONLY when your German sentence uses a genuine idiom or fixed expression whose literal wording doesn't correspond to the English — omit it entirely otherwise.`
   )
 }
 
@@ -292,6 +314,13 @@ export function validateDacSentencePair(
       .filter(w => w.en.length > 0 && w.de.length > 0)
     if (extras.length > 0) out.extraWords = extras
   }
+
+  // Idiom hint data, same fail-safe posture as the fields above: validated
+  // against the German that was just accepted, never a reason to reject the
+  // pair itself (Task 1: idiom highlighting).
+  const idiom = validateIdiom(german, e.idiom)
+  if (idiom) out.idiom = idiom
+
   return out
 }
 
