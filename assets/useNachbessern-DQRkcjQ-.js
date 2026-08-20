@@ -1,0 +1,1 @@
+let t=null;function o(e){t=e}function l(){const e=t;return t=null,e}function n(e){return e.replace(/[.,;:!?…"„“”»«]/g,"").replace(/\s+/g," ").trim()}function i(e,c,a){const r=n(e),s=n(c),u=n(a);return s.length>0&&r.includes(s)?"offen":u.length===0||r.includes(u)?"behoben":"geaendert"}export{i as k,o as s,l as t};
