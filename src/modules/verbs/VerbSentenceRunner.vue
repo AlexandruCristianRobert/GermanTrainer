@@ -22,6 +22,7 @@ import {
   buildVerbHintInputs, gradeVerbAnswer, buildVerbDrillItem, generateVerbSentenceBatch,
   type GeneratedVerbSentence, type VerbSentenceSpec, type VerbSentenceVerdict
 } from '../../composables/useVerbSentenceQuiz'
+import GermanSolutionText from '../../components/GermanSolutionText.vue'
 import { buildTenseRecipe } from '../../composables/tenseRecipe'
 import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun, type QuizHistoryType } from '../../composables/useQuizHistory'
@@ -471,7 +472,11 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
           </span>
         </div>
         <div class="rr-you" :class="{ 'rr-you-empty': !answers[i]?.trim() }"><span class="rr-label">You</span> {{ answers[i]?.trim() || '— (blank)' }}</div>
-        <div v-if="!verdicts.get(i)?.correct" class="rr-ref"><span class="rr-label">Answer</span> {{ verdicts.get(i)?.correction || s.german }}</div>
+        <div v-if="!verdicts.get(i)?.correct" class="rr-ref">
+          <span class="rr-label">Answer</span>
+          <template v-if="(verdicts.get(i)?.correction ?? s.german) !== s.german">{{ verdicts.get(i)?.correction }}</template>
+          <GermanSolutionText v-else :text="s.german" :idiom="s.idiom" />
+        </div>
         <div v-if="!verdicts.get(i)?.correct && verdicts.get(i)?.tip" class="rr-tip"><span class="rr-label">Tip</span> {{ verdicts.get(i)?.tip }}</div>
       </div>
     </div>
@@ -556,7 +561,10 @@ watch([deck, generationDone], () => { if (awaitingNext.value) tryAdvance() }, { 
 
         <div v-if="phase === 'graded' && currentVerdict" class="prep-feedback">
           <span class="prep-feedback-mark" :class="currentVerdict.correct ? 'prep-feedback-ok' : 'prep-feedback-bad'">{{ currentVerdict.correct ? '✓ Richtig.' : '✗ Nicht ganz.' }}</span>
-          <span class="prep-feedback-full">{{ currentVerdict.correction || current.german }}</span>
+          <span class="prep-feedback-full">
+            <template v-if="(currentVerdict.correction ?? current.german) !== current.german">{{ currentVerdict.correction }}</template>
+            <GermanSolutionText v-else :text="current.german" :idiom="current.idiom" />
+          </span>
           <div v-if="canHear" class="hear-row">
             <button class="btn btn-quiet hear-btn" type="button" @click="hearReference">{{ voice.speaking.value ? '● Spricht…' : '🔊 Anhören' }}</button>
             <span class="hear-hint">Leertaste hören · Enter weiter</span>

@@ -147,8 +147,12 @@ describe('DW_GEN_SYSTEM prompt-literal regression (local-claude convention)', ()
   })
   test('contains the literal JSON-shape line verbatim', () => {
     expect(DW_GEN_SYSTEM).toContain(
-      'Return ONLY JSON in exactly this shape: {"items":[{"index":<number>,"english":"...","german":"...","nounSpansEn":["..."],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}]}]}'
+      'Return ONLY JSON in exactly this shape: {"items":[{"index":<number>,"english":"...","german":"...","nounSpansEn":["..."],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}],"idiom":{"spans":["..."],"form":"...","gloss":"..."}}]}'
     )
+  })
+  test('mentions idiom as optional, only for genuine fixed expressions', () => {
+    expect(DW_GEN_SYSTEM).toContain('"idiom": OPTIONAL')
+    expect(DW_GEN_SYSTEM).toContain('omit the field entirely for an ordinary sentence')
   })
   test('forbids markdown fences/commentary', () => {
     expect(DW_GEN_SYSTEM).toContain('No markdown fences, no commentary.')
@@ -214,6 +218,36 @@ describe('validateDwSentencePair', () => {
       extraWords: [{ en: 'now', de: 'jetzt', kind: 'noun' }, { en: '', de: 'x', kind: 'noun' }, 'junk']
     }, spec)
     expect(out!.extraWords).toEqual([{ en: 'now', de: 'jetzt', kind: 'noun' }])
+  })
+})
+
+describe('validateDwSentencePair — idiom (Task 2: idiom highlighting)', () => {
+  const spec: DwSentenceSpec = { index: 0, pair: 'auf', side: 'her', target: 'herauf', nouns: [{ german: 'Treppe', article: 'die', english: 'staircase' }] }
+
+  test('a valid idiom whose spans anchor in the German survives onto the sentence', () => {
+    const out = validateDwSentencePair({
+      index: 0, english: 'Grandma calls from the top of the stairs: come up to me!',
+      german: 'Oma ruft von oben: Komm die Treppe herauf!',
+      idiom: { spans: ['Komm', 'herauf'], form: 'die Treppe heraufkommen', gloss: 'to come up the stairs' }
+    }, spec)
+    expect(out!.idiom).toEqual({ spans: ['Komm', 'herauf'], form: 'die Treppe heraufkommen', gloss: 'to come up the stairs' })
+  })
+  test('a garbage/malformed idiom is dropped — never a rejection reason for the pair', () => {
+    const out = validateDwSentencePair({
+      index: 0, english: 'Grandma calls from the top of the stairs: come up to me!',
+      german: 'Oma ruft von oben: Komm die Treppe herauf!',
+      idiom: { spans: ['nicht im satz'], form: '', gloss: 'x' }
+    }, spec)
+    expect(out).not.toBeNull()
+    expect(out!.idiom).toBeUndefined()
+    expect(out!.german).toBe('Oma ruft von oben: Komm die Treppe herauf!')
+  })
+  test('an absent idiom field leaves idiom unset', () => {
+    const out = validateDwSentencePair({
+      index: 0, english: 'Grandma calls from the top of the stairs: come up to me!',
+      german: 'Oma ruft von oben: Komm die Treppe herauf!'
+    }, spec)
+    expect(out!.idiom).toBeUndefined()
   })
 })
 

@@ -38,7 +38,7 @@ describe('GermanSolutionText', () => {
       expect(s.classes()).toContain('has-pop')
       expect(s.attributes('tabindex')).toBe('0')
     }
-    expect(spans.map(s => s.text().replace(/×.*$/, ''))).toEqual(
+    expect(spans.map(s => s.text())).toEqual(
       expect.arrayContaining([expect.stringContaining('wechselte'), expect.stringContaining('den Besitzer')])
     )
   })
@@ -86,5 +86,26 @@ describe('GermanSolutionText', () => {
     expect(span.classes()).toContain('revealed')
     await span.trigger('keydown.space')
     expect(span.classes()).not.toContain('revealed')
+  })
+
+  it('clears revealed state when `text` changes — a reused instance must not carry a stale reveal onto a new sentence', async () => {
+    const w = mount(GermanSolutionText, { props: { text: TEXT, idiom: IDIOM } })
+    const span = w.findAll('.sn-i')[0]
+    await span.trigger('click')
+    expect(span.classes()).toContain('revealed')
+
+    const otherText = 'Er hat den Besitzer gewechselt, ganz plötzlich, letzte Woche.'
+    await w.setProps({ text: otherText, idiom: { ...IDIOM, spans: ['gewechselt'] } })
+    expect(w.findAll('.sn-i')[0]?.classes()).not.toContain('revealed')
+  })
+
+  it('clears revealed state when `idiom` changes even though `text` stays the same', async () => {
+    const w = mount(GermanSolutionText, { props: { text: TEXT, idiom: IDIOM } })
+    const span = w.findAll('.sn-i')[0]
+    await span.trigger('click')
+    expect(span.classes()).toContain('revealed')
+
+    await w.setProps({ text: TEXT, idiom: { ...IDIOM, form: 'ein anderes Idiom', gloss: 'a different idiom' } })
+    expect(w.findAll('.sn-i')[0]?.classes()).not.toContain('revealed')
   })
 })

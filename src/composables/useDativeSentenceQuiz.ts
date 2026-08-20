@@ -20,6 +20,7 @@ import type { DativeFamily } from './useDativeDrill'
 import type { AiClient } from './useClaude'
 import type { DatErrorTag, DatDrillItem } from './useQuizHistory'
 import type { PromptVariation } from './useVerbSentenceQuiz'
+import { validateIdiom, type IdiomInfo } from './useIdiomHighlight'
 
 /** A Dativ error category the AI grader may assign (re-exported from history). */
 export type { DatErrorTag } from './useQuizHistory'
@@ -39,6 +40,10 @@ export interface GeneratedDatSentence extends DativeSentenceSpec {
   german: string          // reference translation containing the target verb
   usedForm: string        // the target verb's form exactly as in `german` (one token)
   dativeObject: string    // the dative NP/pronoun exactly as in `german`
+  /** Set only when `german` uses an idiom or fixed expression whose literal
+   *  wording doesn't correspond to the English — validated (Task 1: idiom
+   *  highlighting) against `german` before being stored. */
+  idiom?: IdiomInfo
 }
 
 // ───────────────────────────── Pure helpers ───────────────────────────
@@ -99,7 +104,8 @@ For each requested item you are given a TARGET verb with teaching notes. Write:
 - "german": the reference translation, natural German, using the TARGET verb and its dative object. Mostly Präsens, occasionally Perfekt.
 - "usedForm": the finite form or participle of the TARGET verb exactly as it appears in your German sentence, a single word (e.g. "hilft", "geholfen", "fällt").
 - "dativeObject": the dative noun phrase or pronoun in your German sentence, exactly as written (e.g. "meiner Mutter", "ihm").
-Return ONLY JSON in exactly this shape: {"items":[{"index":<number>,"english":"...","german":"...","usedForm":"...","dativeObject":"..."}]}
+- "idiom": OPTIONAL — include it ONLY when your German sentence uses an idiom or fixed expression whose literal wording does NOT correspond to the English source (omit the field entirely for an ordinary sentence with no such idiom); "spans" = the exact words of the idiom as they appear, inflected, in your German sentence, split into 1–3 separate entries when other words interrupt the idiom (e.g. ["wechselte", "den Besitzer"]); "form" = its dictionary form (e.g. "den Besitzer wechseln"); "gloss" = its English equivalent (e.g. "to change hands").
+Return ONLY JSON in exactly this shape: {"items":[{"index":<number>,"english":"...","german":"...","usedForm":"...","dativeObject":"...","idiom":{"spans":["..."],"form":"...","gloss":"..."}}]}
 No markdown fences, no commentary.`
 
 export const DAT_GEN_SCHEMA = {
@@ -114,7 +120,16 @@ export const DAT_GEN_SCHEMA = {
           english: { type: 'string' },
           german: { type: 'string' },
           usedForm: { type: 'string' },
-          dativeObject: { type: 'string' }
+          dativeObject: { type: 'string' },
+          idiom: {
+            type: 'object',
+            properties: {
+              spans: { type: 'array', items: { type: 'string' } },
+              form: { type: 'string' },
+              gloss: { type: 'string' }
+            },
+            required: ['spans', 'form', 'gloss']
+          }
         },
         required: ['index', 'english', 'german', 'usedForm', 'dativeObject']
       }
@@ -141,7 +156,8 @@ export function buildDatGeneratePrompt(
     `Write one English sentence and its German reference translation for each of the following ${specs.length} item(s), each built around its TARGET dative verb:\n` +
     specs.map(specLine).join('\n') +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
-    `\nBatch variation seed: ${variation.seed}.`
+    `\nBatch variation seed: ${variation.seed}.` +
+    `\nInclude "idiom" ONLY when your German sentence uses a genuine idiom or fixed expression whose literal wording doesn't correspond to the English — omit it entirely otherwise.`
   )
 }
 
@@ -178,7 +194,15 @@ export function validateDatSentencePair(
   const esc = head.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   if (new RegExp(`(^|[^a-zäöüß])${esc}($|[^a-zäöüß])`, 'i').test(english)) return null
 
-  return { ...spec, english, german, usedForm, dativeObject }
+  const out: GeneratedDatSentence = { ...spec, english, german, usedForm, dativeObject }
+
+  // Idiom hint data, same fail-safe posture as the rest of this validator's
+  // best-effort fields: validated against the German that was just accepted,
+  // never a reason to reject the pair itself (Task 1: idiom highlighting).
+  const idiom = validateIdiom(german, e.idiom)
+  if (idiom) out.idiom = idiom
+
+  return out
 }
 
 export interface GenerateDatBatchOptions {

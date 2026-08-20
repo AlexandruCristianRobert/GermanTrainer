@@ -6,13 +6,21 @@
 // with the dictionary form + English gloss, using the same `.sn-i`/`.sn-pop`
 // classes and hover/focus/tap-reveal triad as the word-hint spans in
 // SentenceRunner.vue — styled entirely by the global src/styles/sentence.css.
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { buildHintSegments, type HintInput } from '../composables/useSentenceQuiz'
 import type { IdiomInfo } from '../composables/useIdiomHighlight'
 
 const props = defineProps<{ text: string; idiom?: IdiomInfo }>()
 
 const revealedKeys = ref<Set<number>>(new Set())
+
+// A caller that reuses this component in place (no v-if remount) for a new
+// sentence must not carry a previous card's tap-reveal state forward onto the
+// new one's spans — segment index 0 on card 2 is unrelated to segment index 0
+// on card 1. Today's call sites (SentenceRunner/SentenceResult) remount via
+// v-if, which resets `revealedKeys` for free; this watcher makes that safe for
+// any future in-place caller too.
+watch([() => props.text, () => props.idiom], () => { revealedKeys.value = new Set() })
 
 // buildHintSegments' HintInput carries a `kind` and a `reveal`, neither of
 // which this component actually uses: every matched segment renders as

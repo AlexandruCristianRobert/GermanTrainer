@@ -14,6 +14,7 @@ import type { AiClient } from './useClaude'
 import type { Preposition, PrepCase } from '../data/prepositions'
 import type { Gender, Noun } from '../db/types'
 import type { PrepErrorTag, PrepDrillItem } from './useQuizHistory'
+import { validateIdiom, type IdiomInfo } from './useIdiomHighlight'
 
 // ─────────────────────────────── Types ────────────────────────────────
 
@@ -61,6 +62,10 @@ export interface GeneratedSentence extends SentenceSpec {
   prepSpanEn?: string
   /** Exact English word(s) used for each assigned noun, in the same order as `nouns`. */
   nounSpansEn?: string[]
+  /** Set only when `german` uses an idiom or fixed expression whose literal
+   *  wording doesn't correspond to the English — validated (Task 1: idiom
+   *  highlighting) against `german` before being stored. */
+  idiom?: IdiomInfo
 }
 
 export interface SentenceVerdict {
@@ -217,6 +222,12 @@ export function validateSentencePair(
       .map(x => x.trim())
   }
 
+  // Idiom hint data, same fail-safe posture as the spans above: validated
+  // against the German that was just accepted, never a reason to reject the
+  // pair itself (Task 1: idiom highlighting).
+  const idiom = validateIdiom(german, e.idiom)
+  if (idiom) out.idiom = idiom
+
   return out
 }
 
@@ -322,14 +333,22 @@ const GEN_SYSTEM =
   'sentences concise (6–14 words) and at the requested CEFR level. ' +
   'Return ONLY one JSON object of exactly this shape (no prose, no markdown fences): ' +
   '{"items":[{"index":<number>,"english":"...","german":"...","prepSpanEn":"...",' +
-  '"nounSpansEn":["..."]}]} — exactly one entry per requested index. ' +
+  '"nounSpansEn":["..."],"idiom":{"spans":["..."],"form":"...","gloss":"..."}}]} — exactly ' +
+  'one entry per requested index. ' +
   '"prepSpanEn" = the exact word(s) in YOUR English sentence that express the given ' +
   'preposition, copied verbatim from the sentence (the preposition itself, WITHOUT a ' +
   'surrounding article). "nounSpansEn" = an array with one entry per given noun in the ' +
   'SAME order, each the exact word(s) you used for that noun copied verbatim (the noun ' +
   'head, WITHOUT its article). These MUST be exact substrings of your English sentence so ' +
   'they can be located, and there must be exactly one "nounSpansEn" entry per given noun ' +
-  '(use an empty array when no nouns were given).'
+  '(use an empty array when no nouns were given). ' +
+  '"idiom" is OPTIONAL — include it ONLY when your German sentence uses an idiom or fixed ' +
+  'expression whose literal wording does NOT correspond to the English source (omit the ' +
+  'field entirely for an ordinary sentence with no such idiom); "spans" = the exact words ' +
+  'of the idiom as they appear, inflected, in YOUR German sentence, split into 1–3 separate ' +
+  'entries when other words interrupt the idiom (e.g. ["wechselte", "den Besitzer"]); ' +
+  '"form" = its dictionary form (e.g. "den Besitzer wechseln"); "gloss" = its English ' +
+  'equivalent (e.g. "to change hands").'
 
 const GEN_SCHEMA = {
   type: 'object',
@@ -343,7 +362,16 @@ const GEN_SCHEMA = {
           english: { type: 'string' },
           german: { type: 'string' },
           prepSpanEn: { type: 'string' },
-          nounSpansEn: { type: 'array', items: { type: 'string' } }
+          nounSpansEn: { type: 'array', items: { type: 'string' } },
+          idiom: {
+            type: 'object',
+            properties: {
+              spans: { type: 'array', items: { type: 'string' } },
+              form: { type: 'string' },
+              gloss: { type: 'string' }
+            },
+            required: ['spans', 'form', 'gloss']
+          }
         },
         required: ['index', 'english', 'german', 'prepSpanEn', 'nounSpansEn']
       }
@@ -363,7 +391,8 @@ export function buildGeneratePrompt(specs: readonly SentenceSpec[], level: strin
     `Target CEFR level: ${level}.\n` +
     `Write one German sentence and its English translation for each of the following ${specs.length} item(s):\n` +
     lines.join('\n') +
-    `\nAlso return prepSpanEn and nounSpansEn (one per listed noun, in order), each an exact substring of your English sentence.`
+    `\nAlso return prepSpanEn and nounSpansEn (one per listed noun, in order), each an exact substring of your English sentence.` +
+    `\nInclude "idiom" ONLY when your German sentence uses a genuine idiom or fixed expression whose literal wording doesn't correspond to the English — omit it entirely otherwise.`
   )
 }
 

@@ -241,6 +241,46 @@ describe('validateSentencePair', () => {
   })
 })
 
+describe('validateSentencePair — idiom (Task 2: idiom highlighting)', () => {
+  const spec: SentenceSpec = {
+    index: 0, prepId: 'mit', prepGerman: 'mit', prepEnglish: 'with',
+    case: 'dative', nouns: [{ german: 'Tisch', article: 'der', english: 'table' }]
+  }
+  test('a valid idiom whose spans anchor in the German survives onto the sentence', () => {
+    const got = validateSentencePair(
+      {
+        index: 0,
+        english: 'I work with the table.',
+        german: 'Ich arbeite mit dem Tisch.',
+        idiom: { spans: ['arbeite', 'mit dem Tisch'], form: 'mit etwas arbeiten', gloss: 'to work with something' }
+      },
+      spec
+    )
+    expect(got?.idiom).toEqual({ spans: ['arbeite', 'mit dem Tisch'], form: 'mit etwas arbeiten', gloss: 'to work with something' })
+  })
+  test('a garbage/malformed idiom is dropped — never a rejection reason for the pair', () => {
+    const got = validateSentencePair(
+      {
+        index: 0,
+        english: 'I work with the table.',
+        german: 'Ich arbeite mit dem Tisch.',
+        idiom: { spans: ['nicht im satz'], form: '', gloss: 'x' }
+      },
+      spec
+    )
+    expect(got).not.toBeNull()
+    expect(got?.idiom).toBeUndefined()
+    expect(got?.english).toBe('I work with the table.')
+  })
+  test('an absent idiom field leaves idiom unset', () => {
+    const got = validateSentencePair(
+      { index: 0, english: 'I work with the table.', german: 'Ich arbeite mit dem Tisch.' },
+      spec
+    )
+    expect(got?.idiom).toBeUndefined()
+  })
+})
+
 // ───────────────────────── prompt builders ────────────────────────────
 describe('prompt builders', () => {
   test('buildGeneratePrompt lists each spec with prep + nouns', () => {

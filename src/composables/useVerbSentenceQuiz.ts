@@ -13,6 +13,7 @@ import type { Verb, VerbLevel, VerbCase, VerbTense } from '../data/verbs'
 import type { NounRef, HintInput } from './useSentenceQuiz'
 import type { AiClient } from './useClaude'
 import type { VerbErrorTag, VerbDrillItem } from './useQuizHistory'
+import { validateIdiom, type IdiomInfo } from './useIdiomHighlight'
 
 // ─────────────────────────────── Types ────────────────────────────────
 
@@ -57,6 +58,10 @@ export interface GeneratedVerbSentence extends VerbSentenceSpec {
   nounSpansEn?: string[]
   /** Other highlighted nouns/verbs with AI-supplied German. */
   extraWords?: ExtraWord[]
+  /** Set only when `german` uses an idiom or fixed expression whose literal
+   *  wording doesn't correspond to the English — validated (Task 1: idiom
+   *  highlighting) against `german` before being stored. */
+  idiom?: IdiomInfo
 }
 
 export interface VerbSentenceVerdict {
@@ -221,7 +226,8 @@ const VERB_GEN_TENSE_ASSIGNED =
 const VERB_GEN_SYSTEM_TAIL =
   'Keep sentences concise (6–14 words). ' +
   'Return JSON {"items":[{"index":<number>,"english":"...","german":"...","verbSpansEn":[...],' +
-  '"nounSpansEn":[...],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}]}]} with exactly ' +
+  '"nounSpansEn":[...],"extraWords":[{"en":"...","de":"...","kind":"verb|noun"}],' +
+  '"idiom":{"spans":["..."],"form":"...","gloss":"..."}}]} with exactly ' +
   'one entry per requested index. ' +
   '"verbSpansEn" = the exact English word(s) expressing each given verb, in the SAME order, ' +
   'copied verbatim from YOUR English sentence (one entry per given verb). ' +
@@ -231,7 +237,13 @@ const VERB_GEN_SYSTEM_TAIL =
   'listed above (subjects, objects, auxiliaries, modals, incidental nouns), each with "en" = its ' +
   'exact English surface, "de" = its German dictionary form (the infinitive for a verb; the ' +
   'article + nominative singular for a noun, e.g. "die Katze"), and "kind". ' +
-  'All "en" surfaces MUST be exact substrings of your English sentence so they can be located.'
+  'All "en" surfaces MUST be exact substrings of your English sentence so they can be located. ' +
+  '"idiom" is OPTIONAL — include it ONLY when your German sentence uses an idiom or fixed ' +
+  'expression whose literal wording does NOT correspond to the English source (omit the field ' +
+  'entirely for an ordinary sentence with no such idiom); "spans" = the exact words of the idiom ' +
+  'as they appear, inflected, in YOUR German sentence, split into 1–3 separate entries when ' +
+  'other words interrupt the idiom (e.g. ["wechselte", "den Besitzer"]); "form" = its dictionary ' +
+  'form (e.g. "den Besitzer wechseln"); "gloss" = its English equivalent (e.g. "to change hands").'
 
 export function verbGenSystem(tensed: boolean): string {
   return VERB_GEN_SYSTEM_HEAD + (tensed ? VERB_GEN_TENSE_ASSIGNED : VERB_GEN_TENSE_NATURAL) + VERB_GEN_SYSTEM_TAIL
@@ -263,6 +275,15 @@ export const VERB_GEN_SCHEMA = {
               },
               required: ['en', 'de', 'kind']
             }
+          },
+          idiom: {
+            type: 'object',
+            properties: {
+              spans: { type: 'array', items: { type: 'string' } },
+              form: { type: 'string' },
+              gloss: { type: 'string' }
+            },
+            required: ['spans', 'form', 'gloss']
           }
         },
         required: ['index', 'english', 'german', 'verbSpansEn', 'nounSpansEn', 'extraWords']
@@ -297,7 +318,8 @@ export function buildVerbGeneratePrompt(
     (tensed ? '\nEvery item above names its required Zeitform — write the GERMAN sentence in exactly that form.' : '') +
     `\nVary the framing across the batch — draw inspiration from these angles (do not echo them as text): ${variation.angles.join(' · ')}.` +
     `\nBatch variation seed: ${variation.seed}.` +
-    `\nAlso return verbSpansEn, nounSpansEn (one per listed noun, in order), and extraWords (every other noun/verb), each surface an exact substring of your English sentence.`
+    `\nAlso return verbSpansEn, nounSpansEn (one per listed noun, in order), and extraWords (every other noun/verb), each surface an exact substring of your English sentence.` +
+    `\nInclude "idiom" ONLY when your German sentence uses a genuine idiom or fixed expression whose literal wording doesn't correspond to the English — omit it entirely otherwise.`
   )
 }
 
@@ -340,6 +362,13 @@ export function validateVerbSentencePair(
       .filter(w => w.en.length > 0 && w.de.length > 0)
     if (extras.length > 0) out.extraWords = extras
   }
+
+  // Idiom hint data, same fail-safe posture as the fields above: validated
+  // against the German that was just accepted, never a reason to reject the
+  // pair itself (Task 1: idiom highlighting).
+  const idiom = validateIdiom(german, e.idiom)
+  if (idiom) out.idiom = idiom
+
   return out
 }
 

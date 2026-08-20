@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { shuffle } from '../../data/pool'
 import { checkSentence, gradeAnswer, buildHintSegments, buildDrillItem, generateSentences, type GeneratedSentence, type SentenceSpec, type SentenceVerdict, type Direction, type GradingMode, type HintSegment, type HintInput } from '../../composables/useSentenceQuiz'
+import GermanSolutionText from '../../components/GermanSolutionText.vue'
 import { planRampBatches, generateProgressively } from '../../composables/useProgressiveGenerator'
 import { saveQuizRun } from '../../composables/useQuizHistory'
 import { useSettings } from '../../composables/useSettings'
@@ -332,7 +333,9 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
           <span class="rr-label">You</span> {{ answers[i]?.trim() || '— (blank)' }}
         </div>
         <div v-if="!verdicts.get(i)?.correct" class="rr-ref">
-          <span class="rr-label">Answer</span> {{ verdicts.get(i)?.correction || targetText(s) }}
+          <span class="rr-label">Answer</span>
+          <template v-if="direction === 'de-en' || (verdicts.get(i)?.correction ?? s.german) !== s.german">{{ verdicts.get(i)?.correction || targetText(s) }}</template>
+          <GermanSolutionText v-else :text="s.german" :idiom="s.idiom" />
         </div>
         <div v-if="!verdicts.get(i)?.correct && verdicts.get(i)?.tip" class="rr-tip">
           <span class="rr-label">Tip</span> {{ verdicts.get(i)?.tip }}
@@ -432,7 +435,10 @@ function endQuiz() { router.push({ name: 'prepositions' }) }
             class="prep-feedback-mark"
             :class="currentVerdict.correct ? 'prep-feedback-ok' : 'prep-feedback-bad'"
           >{{ currentVerdict.correct ? '✓ Richtig.' : '✗ Nicht ganz.' }}</span>
-          <span class="prep-feedback-full">{{ currentVerdict.correction || targetText(current) }}</span>
+          <span class="prep-feedback-full">
+            <template v-if="direction === 'de-en' || (currentVerdict.correction ?? current.german) !== current.german">{{ currentVerdict.correction || targetText(current) }}</template>
+            <GermanSolutionText v-else :text="current.german" :idiom="current.idiom" />
+          </span>
           <span v-if="currentVerdict.tip" class="prep-feedback-tip">💡 {{ currentVerdict.tip }}</span>
           <span class="prep-feedback-tags">
             <span class="tag" :class="caseTagClass(current.case)">{{ current.prepGerman }} · {{ caseHintLabel(current.case) }}</span>
