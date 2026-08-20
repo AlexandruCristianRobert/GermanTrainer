@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.22.03'
+export const APP_VERSION = '1.22.04'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.22.04', date: '2026-08-20', kind: 'polish',
+    title: 'Schreiben · 20 neue Themen und 20 neue Aufträge',
+    notes: [
+      '<strong>Teil 1 wächst von 24 auf 44 Schreibthemen.</strong> Zwanzig neue Forumsdebatten von <em>Tempolimit auf Autobahnen</em> über <em>Anonyme Bewerbungen</em> und <em>Fremdsprachen trotz Übersetzungs-Apps</em> bis <em>Taschengeld für Kinder</em> — jedes mit eigenem Forumskontext, vier Inhaltspunkten und Zuordnung zu seinem Aufgabenmuster, gleichmäßig über alle fünf Muster verteilt.',
+      '<strong>Teil 2 wächst von 20 auf 40 Schreibaufträge.</strong> Acht statt vier Aufträge pro Anlass: neue Situationen wie <em>Vorstellungsgespräch verschieben</em>, <em>Bitte um ein Arbeitszeugnis</em>, <em>Fehler in der Gehaltsabrechnung</em>, <em>Jobticket für die Belegschaft</em> und <em>Dank nach der bestandenen Prüfung</em> — jeder mit handgeschriebenem Inhalts-Baukasten (4 Gründe, 4 Lösungen, 6 Wörter), kein neuer Auftrag fällt auf den Anlass-Fallback zurück.'
+    ]
+  },
   {
     version: '1.22.03', date: '2026-08-20', kind: 'polish',
     title: 'Schreiben · Text als .txt herunterladen',
