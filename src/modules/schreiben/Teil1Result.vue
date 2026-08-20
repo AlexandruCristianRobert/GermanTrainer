@@ -16,11 +16,18 @@ import { SCHREIBEN_B2_TEIL1 } from '../../data/rubrics'
 import { SCHREIB_MOVES, SCHREIB_MOVE_LABEL, SCHREIBEN_SCHREIBMITTEL } from '../../data/schreibenMittel'
 import type { HelpKind } from '../../data/sprechen'
 import SchrYield from '../../components/schreiben/SchrYield.vue'
+import { takeNachbessernText } from '../../composables/useNachbessern'
+import { beitragExportText, downloadTxt, exportFilename } from '../../composables/useSchreibenExport'
 
 const router = useRouter()
 const data = ref<SchreibenResultStash | null>(null)
 const error = ref<string | null>(null)
 const lang = ref<'de' | 'en'>('de')
+
+// ADR-0024 handoff, consumed once on mount — Teil 1 has no Nachbessern pass,
+// so the graded text serves exactly one purpose here: the .txt-Export button.
+// A reload finds null and the button simply isn't offered.
+const gradedText = ref<string | null>(null)
 
 const SETUP_KEY = 'schreibenTeil1Setup'
 
@@ -34,6 +41,7 @@ onMounted(() => {
       return
     }
     data.value = JSON.parse(raw) as SchreibenResultStash
+    gradedText.value = takeNachbessernText()
     const setup = JSON.parse(localStorage.getItem(SETUP_KEY) ?? '{}') as { lang?: 'de' | 'en' }
     if (setup.lang === 'en' || setup.lang === 'de') lang.value = setup.lang
   } catch (e) {
@@ -177,6 +185,14 @@ const helpByMinute = computed(() => {
 
 function newRun() { router.push({ name: 'schreiben-teil1' }) }
 function home() { router.push({ name: 'schreiben' }) }
+
+function downloadExport() {
+  if (!data.value || gradedText.value === null) return
+  downloadTxt(
+    exportFilename('forumsbeitrag', data.value.thema.titleDe),
+    beitragExportText(data.value.thema, gradedText.value, data.value.wordCount)
+  )
+}
 function openArchive() { router.push({ name: 'sprechen-archive' }) }
 function openDrill() { router.push({ name: 'sprechen-drill' }) }
 </script>
@@ -203,6 +219,7 @@ function openDrill() { router.push({ name: 'sprechen-drill' }) }
           <button type="button" :class="{ active: lang === 'en' }" @click="setLang('en')">EN</button>
         </div>
         <button class="btn btn-ghost" type="button" @click="home">Zur Übersicht</button>
+        <button v-if="gradedText !== null" class="btn btn-ghost" type="button" @click="downloadExport">Als .txt herunterladen</button>
         <button class="btn btn-accent" type="button" @click="newRun">Neuer Forumsbeitrag <span aria-hidden="true">→</span></button>
       </div>
     </header>

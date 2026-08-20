@@ -6,6 +6,10 @@
 // both of which survive a reload and would breach ADR-0019's boundary. A
 // reload loses the offer; that is the boundary working, not a bug.
 //
+// The handoff has a second consumer under the same boundary: both result
+// pages' .txt-Export button (useSchreibenExport.ts). Teil 1 sets the handoff
+// for that button alone — a Forumsbeitrag has no Nachbessern pass.
+//
 // The status check is a string fact, never a judgement: no AI, no red
 // state. Case-PRESERVING normalization on purpose — lowercasing would
 // blind the check to exactly the register/orthography fixes (sie → Sie).
