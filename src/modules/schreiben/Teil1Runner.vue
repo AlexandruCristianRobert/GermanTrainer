@@ -70,6 +70,7 @@ import {
 import { gradeSchreiben, SCHREIBEN_RESULT_KEY, type SchreibenResultStash } from '../../composables/useSchreibenGrader'
 import { generateSchreibenKiTipp } from '../../composables/useSchreibenTipp'
 import { countWords } from '../../composables/useSpeechRecognizer'
+import { setNachbessernText } from '../../composables/useNachbessern'
 import { appendCorrections } from '../../composables/useSprechenArchive'
 import { saveQuizRun, type SprechenErrorTag } from '../../composables/useQuizHistory'
 import { resolveAiClient } from '../../composables/localClaude'
@@ -403,6 +404,7 @@ async function runGrading() {
     }
     sessionStorage.setItem(SCHREIBEN_RESULT_KEY, JSON.stringify(stash))
     await deleteBeitrag(b.id)                        // ADR-0019: the essay dies here
+    setNachbessernText(b.textDe)                     // ADR-0024 handoff — feeds only the result page's .txt-Export (Teil 1 has no Nachbessern pass)
     router.push({ name: 'schreiben-teil1-result' })
   } catch (err) {
     gradeFailed.value = true                          // row stays 'submitted'; retry re-grades, latch prevents double-record

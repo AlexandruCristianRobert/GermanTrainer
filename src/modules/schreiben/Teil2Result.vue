@@ -27,6 +27,7 @@ import type { HelpKind } from '../../data/sprechen'
 import SchrNachrichtYield from '../../components/schreiben/SchrNachrichtYield.vue'
 import { takeNachbessernText } from '../../composables/useNachbessern'
 import NachbessernPanel from '../../components/schreiben/NachbessernPanel.vue'
+import { nachrichtExportText, downloadTxt, exportFilename } from '../../composables/useSchreibenExport'
 
 const router = useRouter()
 const data = ref<NachrichtResultStash | null>(null)
@@ -34,9 +35,12 @@ const error = ref<string | null>(null)
 const lang = ref<'de' | 'en'>('de')
 
 // ADR-0024: consumed exactly once — a reload or revisit finds null and the
-// page degrades to the plain result with no conditional debt.
+// page degrades to the plain result with no conditional debt. The one take
+// feeds two consumers: the Nachbessern offer (dies with its 'done') and the
+// .txt-Export button (lives for the whole sitting, hence its own ref).
 const nachbessernText = ref<string | null>(null)
 const nachbessernOpen = ref(false)
+const gradedText = ref<string | null>(null)
 
 const SETUP_KEY = 'schreibenTeil2Setup'
 
@@ -51,6 +55,7 @@ onMounted(() => {
     }
     data.value = JSON.parse(raw) as NachrichtResultStash
     nachbessernText.value = takeNachbessernText()
+    gradedText.value = nachbessernText.value
     // Isolated from the stash parse above: a corrupted setup key must never
     // flip an already-successful result render into the error state and
     // burn the consumed Nachbessern handoff.
@@ -223,6 +228,14 @@ function openMuster() {
   if (!data.value) return
   router.push({ name: 'schreiben-muster-teil2', query: { muster: data.value.auftrag.anlass } })
 }
+
+function downloadExport() {
+  if (!data.value || gradedText.value === null) return
+  downloadTxt(
+    exportFilename('nachricht', data.value.auftrag.titleDe),
+    nachrichtExportText(data.value.auftrag, gradedText.value, data.value.wordCount)
+  )
+}
 </script>
 
 <template>
@@ -249,6 +262,7 @@ function openMuster() {
           <button type="button" :class="{ active: lang === 'en' }" @click="setLang('en')">EN</button>
         </div>
         <button class="btn btn-ghost" type="button" @click="home">Zur Übersicht</button>
+        <button v-if="gradedText !== null" class="btn btn-ghost" type="button" @click="downloadExport">Als .txt herunterladen</button>
         <button class="btn btn-ghost" type="button" @click="openMuster">
           Musternachricht ansehen: „{{ NACHRICHT_MUSTER_TITLE[data.auftrag.anlass] }}"
         </button>

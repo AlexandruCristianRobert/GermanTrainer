@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.22.02'
+export const APP_VERSION = '1.22.03'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.22.03', date: '2026-08-20', kind: 'polish',
+    title: 'Schreiben · Text als .txt herunterladen',
+    notes: [
+      '<strong>Der eigene Text lässt sich jetzt sichern.</strong> Direkt nach der Auswertung bieten Forumsbeitrag (Teil 1) und Nachricht (Teil 2) einen Knopf <em>Als .txt herunterladen</em>: eine Textdatei mit dem kompletten Aufgabenblatt — Thema bzw. Auftrag, Situation, Aufgabe, alle Inhaltspunkte — und darunter der eigene Text, genau wie er bewertet wurde.',
+      '<strong>Nur in der Sitzung der Auswertung.</strong> Der Text bleibt wie bisher nirgends in der App gespeichert — der Knopf lebt von derselben flüchtigen Übergabe wie <em>Korrekturen einarbeiten</em> und verschwindet mit einem Neuladen der Seite. Heruntergeladen ist heruntergeladen: die Datei gehört dir.'
+    ]
+  },
   {
     version: '1.22.02', date: '2026-08-20', kind: 'polish',
     title: 'Satzübersetzung · Idiome im deutschen Lösungssatz',
