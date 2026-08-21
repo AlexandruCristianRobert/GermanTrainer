@@ -217,7 +217,12 @@ export const routes: RouteRecordRaw[] = [
   { path: '/schreiben/teil2/prep', name: 'schreiben-teil2-prep', component: () => import('./modules/schreiben/Teil2Prep.vue') },
   { path: '/schreiben/teil2/run', name: 'schreiben-teil2-run', component: () => import('./modules/schreiben/Teil2Runner.vue') },
   { path: '/schreiben/teil2/result', name: 'schreiben-teil2-result', component: () => import('./modules/schreiben/Teil2Result.vue') },
-  { path: '/schreiben/muster-teil2', name: 'schreiben-muster-teil2', component: () => import('./modules/schreiben/NachrichtMusterView.vue') }
+  { path: '/schreiben/muster-teil2', name: 'schreiben-muster-teil2', component: () => import('./modules/schreiben/NachrichtMusterView.vue') },
+  // Wortschatz (B2 Themenwortschatz — CONTEXT.md → Themenfeld/Vokabel). Route
+  // names share the head 'wortschatz' for NavShell's name.split('-')[0] tab.
+  { path: '/wortschatz', name: 'wortschatz', component: () => import('./modules/wortschatz/WortschatzHome.vue') },
+  { path: '/wortschatz/lernen/run', name: 'wortschatz-lernen-run', component: () => import('./modules/wortschatz/LernenRunner.vue') },
+  { path: '/wortschatz/wiederholen/run', name: 'wortschatz-wiederholen-run', component: () => import('./modules/wortschatz/WiederholenRunner.vue') }
 ]
 
 export const router = createRouter({
