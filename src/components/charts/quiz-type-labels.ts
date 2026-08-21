@@ -74,7 +74,9 @@ export const QUIZ_TYPE_LABEL: Record<QuizHistoryType, string> = {
   'dat-passive': 'Dative · passive',
   'dat-reflexive': 'Dative · reflexive',
   'relativ-pronomen': 'Relative pronouns',
-  'ndekl-form': 'Weak nouns'
+  'ndekl-form': 'Weak nouns',
+  'wortschatz-lernen': 'Wortschatz · Lernen',
+  'wortschatz-wiederholen': 'Wortschatz · Wiederholen'
 }
 
 export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
@@ -151,7 +153,9 @@ export const QUIZ_TYPE_DE: Record<QuizHistoryType, string> = {
   'dat-passive': 'Dativ · Passiv',
   'dat-reflexive': 'Dativ · Reflexiv',
   'relativ-pronomen': 'Relativpronomen',
-  'ndekl-form': 'N-Deklination'
+  'ndekl-form': 'N-Deklination',
+  'wortschatz-lernen': 'Wortschatz · Lernen',
+  'wortschatz-wiederholen': 'Wortschatz · Wiederholen'
 }
 
 export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
@@ -228,5 +232,7 @@ export const QUIZ_TYPES_ORDER: QuizHistoryType[] = [
   'dat-passive',
   'dat-reflexive',
   'relativ-pronomen',
-  'ndekl-form'
+  'ndekl-form',
+  'wortschatz-lernen',
+  'wortschatz-wiederholen'
 ]

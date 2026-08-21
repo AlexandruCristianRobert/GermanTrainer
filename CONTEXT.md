@@ -77,7 +77,7 @@ A generated practice session aimed at the learner's weak points. Unlike the regu
 _Avoid_: practice mode, review quiz, custom quiz
 
 **Tagesplan**:
-The panel at the top of Home that gathers, read-only, everything currently asking for attention — offene and [Fällig]e corrections, wackelige Dativ-Wörter, the weakest [Weak point]s, the lowest mastery bands — each row deep-linking into the owning module. It aggregates; it never samples: no drill's card selection changes because the Tagesplan exists (weakness-drawn runs stay the [Remedial drill]'s job). When nothing asks for attention it renders nothing — advice, not obligation.
+The panel at the top of Home that gathers, read-only, everything currently asking for attention — offene and [Fällig]e corrections, fällige [Vokabel]n, wackelige Dativ-Wörter, the weakest [Weak point]s, the lowest mastery bands — each row deep-linking into the owning module. It aggregates; it never samples: no drill's card selection changes because the Tagesplan exists (weakness-drawn runs stay the [Remedial drill]'s job). When nothing asks for attention it renders nothing — advice, not obligation.
 _Avoid_: dashboard (that is the History page's world), today view, review queue, scheduler
 
 ### Verbs
@@ -339,7 +339,7 @@ The rule that solving a correction once is not the end of it: an [Archived corre
 _Avoid_: SRS, spaced repetition (the mechanism's genus, not its name here), review queue, resurfacing
 
 **Fällig**:
-The state of an [Archived correction] whose [Wiedervorlage] delay has elapsed: nachgeübt earlier, due for another retrieval now. One of three states shown side by side and never summed — *offen* (no current success: never solved, or missed since), *fällig*, *nachgeübt* (resting between returns, or retired after the fourth). In the drill a fällige card is labelled with its Wiederholung number so review is never mistaken for a new mistake.
+The state of an [Archived correction] whose [Wiedervorlage] delay has elapsed: nachgeübt earlier, due for another retrieval now. Also the state of a [Vokabel] whose scheduled return has passed (see [Wiederholsitzung]) — the same word because it is the same fact, *due for retrieval now*; the offen/fällig/nachgeübt triple below stays the corrections' world only. One of three states shown side by side and never summed — *offen* (no current success: never solved, or missed since), *fällig*, *nachgeübt* (resting between returns, or retired after the fourth). In the drill a fällige card is labelled with its Wiederholung number so review is never mistaken for a new mistake.
 _Avoid_: open (that is offen's word), overdue, expired, drilled (pre-Wiedervorlage vocabulary)
 
 ### Schreiben
@@ -401,6 +401,40 @@ _Avoid_: linter, live correction, Fehlerprüfung, register checker (one of its t
 **Nachbessern**:
 The optional guided revision pass offered once, directly after a [Nachricht] is graded: the just-graded text reopens with the run's marked mistakes in view, the learner works the corrections in, and local text checks report each as *offen*, *geändert* or *behoben* — where *geändert* claims only that the wording changed, never that the new wording is right. A continuation of the grading moment, not access to a stored text: the text is held only for that sitting and is discarded when the pass ends or the page is left — a reload loses the offer (the ADR-0019 boundary, scoped by ADR-0024). Never a [Run], never re-graded, never persisted; it touches neither the [Error archive] nor the [Correction drill]'s queue — a fix incorporated with the correction on screen is not retrieval, so "nachgeübt" stays the Correction drill's word.
 _Avoid_: revision, draft (the C1 tutor's world), edit mode, retry, Nachbesserung in Teil 2 UI copy (taught there as Beschwerde content vocabulary — the remedy the writer demands)
+
+### Wortschatz
+
+**Themenfeld**:
+One of the ten shared TopicTag fields (*Umwelt, Arbeit, Technologie, Bildung, Gesundheit, Medien, Gesellschaft, Reisen, Konsum, Familie*) in its vocabulary role: the field a [Vokabel] belongs to and the scope of a [Lernsitzung]. The same ten fields tag a [Topic], a [Vortragsthema], a [Schreibthema] and a [Schreibauftrag] — so vocabulary built in a Themenfeld directly serves the exam tasks tagged with it — but the Themenfeld is the fields' *vocabulary* role, not their tagging role. Deliberately not a [Domain] (the Sentence quiz's interview Fachgebiet, colleague register) and not a Themengruppe (the noun drills' vocabulary categories).
+_Avoid_: Domain (the Sentence quiz's), Themengruppe (the noun categories), tag (the tagging role), Wortfeld (implies semantic relatedness — a Themenfeld mixes word kinds on purpose)
+
+**Vokabel**:
+One vocabulary item of the Wortschatz module: exam-register German belonging to exactly one [Themenfeld], in one of two kinds — [Einzelwort] or [Wortverbindung] — carrying its English gloss, its grammar (article and plural for a noun; preposition and case where governed), two authored context sentences with marked cloze blanks, and accepted answer variants. Two pools, mirroring the theme pools: seeded (hand-authored) and AI-generated custom items cached per Themenfeld. Topic-content vocabulary only: text-organizing phrases belong to the phrase banks ([Schreibmittel], [Nachrichtenmittel], [Vortragsmittel]), never here.
+_Avoid_: word (one kind, not the unit), chunk (the other kind's genus), flashcard, card (the scheduling record, not the item), item (generic)
+
+**Einzelwort**:
+The single-word kind of [Vokabel] — a noun with article and plural, a verb, or an adjective, in [Dictionary form] plus gloss, enriched with the grammar the exam grades. What the argument banks' Textwortschatz lists hold, made drillable.
+_Avoid_: word (English UI), Wort (too generic), lemma
+
+**Wortverbindung**:
+The chunk kind of [Vokabel] — a collocation or fixed expression with its grammar packaged in (*eine Maßnahme ergreifen*, *im Hinblick auf + Akk*, *zur Verfügung stehen*). The unit writing-exam research says learners retrieve, and what makes a [Forumsbeitrag] read B2. Topic-content language, distinct from three neighbours: a [Prepositional collocation] (the Fixed prepositions drill's word+preposition+case unit), the phrase banks (Move language that organizes a text), and a [Schreibthema]'s argument-bank wording.
+_Avoid_: Kollokation (collides with [Prepositional collocation]), Wendung (on [Vortragsmittel]'s avoid list), Redemittel, phrase, idiom
+
+**Vokabelstufe**:
+The rung of the per-[Vokabel] exercise ladder, deciding which format the item is served in when it comes due: *Neu* (unseen; introduced with a guess-before-reveal intro) → *Erkennen* (brief recognition, passed after 1–2 clean reps) → *Lücke* (typed cloze in a context sentence) → *Abruf* (English cue → the full German typed) → *Anwendung* (an own sentence using the Vokabel, AI-graded, online only; offline a due Anwendung item is served as Abruf and promotion waits). A clean pass at the rung's gate promotes; any miss demotes one rung. The Stufe decides only *what* is asked — *when* the item returns is the scheduler's separate axis (ADR-0027).
+_Avoid_: level (the [Verb level] word), stage (English UI), SRS stage, mastery band
+
+**Gefestigt**:
+The retirement state of a [Vokabel] that passed *Anwendung* at a long interval — it leaves the review queue for good. Deliberately not *gesichert*, which the dative [Item ledger] owns and which demands only a last-three-correct streak; gefestigt demands the ladder's top rung, held over time.
+_Avoid_: gesichert (the dative ledger's), mastered, burned, retired (English UI), gelernt
+
+**Lernsitzung**:
+A Wortschatz sitting that introduces new [Vokabel]n: scoped to one chosen [Themenfeld], 5–8 unseen items of mixed kinds, each opened with a guess-before-reveal intro (even a wrong guess beats passive presentation) and given its first *Erkennen* reps. Introduction is deliberately field-blocked — the field supplies the context — where review is deliberately not (see [Wiederholsitzung]).
+_Avoid_: Lernen (bare UI label), lesson, learn mode
+
+**Wiederholsitzung**:
+A Wortschatz sitting that serves the due queue: every [Vokabel] whose scheduled return has passed ([Fällig] is the word here too), interleaved across all [Themenfeld]er — semantically blocked review breeds interference, so mixing fields is the point — each item served in its current [Vokabelstufe]'s format. Answers are graded locally first, strict where the exam grades (gender, endings, preposition and case); only a local miss, online, asks the AI whether the answer is an acceptable form of *this* Vokabel — a synonym is still wrong, in [Präzise]'s spirit.
+_Avoid_: review mode, Wiederholung (the [Wiedervorlage] return-number's word), due queue (English)
 
 ### Identity & history
 

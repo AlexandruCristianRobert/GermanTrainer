@@ -164,6 +164,8 @@ const TYPE_LABEL: Record<QuizHistoryType, string> = {
   'dat-sentence': 'dative · sentence translation (AI)',
   'dat-passive': 'dative verbs · no personal passive',
   'dat-reflexive': 'reflexive dative (wasche mir die Hände)',
+  'wortschatz-lernen': 'Wortschatz · learning new vocabulary (Themenfeld-based)',
+  'wortschatz-wiederholen': 'Wortschatz · reviewing due vocabulary (spaced repetition)',
 }
 
 function fmtPct(n: number): string {

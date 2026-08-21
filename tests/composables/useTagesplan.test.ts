@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { buildTagesplan } from '../../src/composables/useTagesplan'
 import { appendCorrections, recordDrillResult, clearArchive } from '../../src/composables/useSprechenArchive'
 import { LEDGER_KEY } from '../../src/composables/useDativeLedger'
+import { db } from '../../src/db'
 import type { ArchivedCorrection } from '../../src/composables/useSprechenArchive'
 import type { QuizHistoryEntry, PrepDrillItem, VerbDrillItem } from '../../src/composables/useQuizHistory'
 
@@ -35,6 +36,7 @@ function verbRun(verbSentenceItems: VerbDrillItem[]): QuizHistoryEntry {
 beforeEach(async () => {
   await clearArchive()
   localStorage.clear()
+  await db.wortschatzProgress.clear()
 })
 
 describe('buildTagesplan (ADR-0026)', () => {
@@ -73,6 +75,20 @@ describe('buildTagesplan (ADR-0026)', () => {
       helfen: { recent: [true, true, true], encounters: 3, lastAt: 1 }
     }))
     expect((await buildTagesplan([])).find(r => r.id === 'dativ-wackelig')).toBeUndefined()
+  })
+
+  it('adds the fällige-Vokabeln row when Vokabeln are due', async () => {
+    const { newProgress } = await import('../../src/composables/wortschatzScheduler')
+    const { saveProgress } = await import('../../src/composables/useWortschatzProgress')
+    const { WORTSCHATZ_VOKABELN } = await import('../../src/data/wortschatz')
+    const now = Date.now()
+    await saveProgress(newProgress(WORTSCHATZ_VOKABELN[0].id, now - 1000))
+    const rows = await buildTagesplan([], now)
+    const row = rows.find(r => r.id === 'wortschatz-faellig')
+    expect(row).toBeDefined()
+    expect(row!.route).toBe('wortschatz')
+    expect(row!.count).toBe(1)
+    expect(row!.detail).toContain('fällig')
   })
 
   it('band rows come from the mastery rollup, lowest band first, capped at three, titled from the catalogue', async () => {

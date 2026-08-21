@@ -22,7 +22,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { route: 'nouns', label: 'Nouns', de: 'Substantive' },
       { route: 'adjectives', label: 'Adjectives', de: 'Adjektive' },
       { route: 'declension', label: 'Declension', de: 'Deklination' },
-      { route: 'ndekl', label: 'N-Deklination', de: 'Schwache Substantive' }
+      { route: 'ndekl', label: 'N-Deklination', de: 'Schwache Substantive' },
+      { route: 'wortschatz', label: 'Wortschatz', de: 'B2 · Themenwortschatz' }
     ]
   },
   {

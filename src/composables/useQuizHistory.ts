@@ -79,6 +79,8 @@ export type QuizHistoryType =
   | 'dat-reflexive'
   | 'relativ-pronomen'
   | 'ndekl-form'
+  | 'wortschatz-lernen'
+  | 'wortschatz-wiederholen'
 
 export type PrepErrorTag = 'preposition' | 'case' | 'noun' | 'typo'
 
@@ -354,6 +356,9 @@ export interface QuizHistoryMeta {
   packedItemsOk?: number      // items hit across the run (for the result header)
   packedItemsTotal?: number
   packedConnItems?: ConnectorDrillItem[]
+
+  // Wortschatz module (ADR-0027) — the Themenfeld a wortschatz-lernen/-wiederholen run drilled.
+  wortschatzFeld?: string
 }
 
 export interface QuizHistoryEntry {

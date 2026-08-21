@@ -5,7 +5,7 @@
 //
 // Bump rule: prepend the new entry to CHANGELOG, set APP_VERSION to its version.
 
-export const APP_VERSION = '1.22.04'
+export const APP_VERSION = '1.23.00'
 
 export type ChangelogKind = 'major' | 'module' | 'polish' | 'fix'
 
@@ -18,6 +18,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.23.00', date: '2026-08-21', kind: 'module',
+    title: 'Wortschatz — produktiver B2-Themenwortschatz',
+    notes: [
+      '<strong>200 Vokabeln in zehn Themenfeldern.</strong> Von <em>Umwelt</em> bis <em>Familie</em>: je 20 handgeschriebene Vokabeln — Einzelwörter mit Artikel und Plural, Wortverbindungen mit ihrer Rektion (<em>auf etwas angewiesen sein</em>), jede mit zwei Kontextsätzen samt Übersetzung. Über <em>Mehr Vokabeln (KI)</em> wächst jedes Feld um eigene, KI-generierte Vokabeln.',
+      '<strong>Fünf Stufen bis „gefestigt“.</strong> Die Lernsitzung führt 5–8 neue Vokabeln mit einer Rate-Karte ein (erst vermuten, dann aufdecken — falsch raten hilft dem Gedächtnis). Danach klettert jede Vokabel die Leiter <em>Erkennen → Lücke → Abruf → Anwendung</em>: von der Bedeutung wiedererkennen über den Lückensatz und den freien Abruf bis zum eigenen Satz, den die KI nach Flexion, Rektion und Register bewertet. Ein Fehler stuft eine Stufe zurück.',
+      '<strong>Wiederholen, wenn es fällig ist.</strong> Ein Gedächtnisplaner mit wachsenden Abständen terminiert jede Vokabel einzeln; die Wiederholsitzung mischt fällige Vokabeln über die Themenfelder hinweg, und der Tagesplan auf der Startseite zeigt, wie viele warten. Benotet wird streng lokal — Artikel-, Präpositions- und Endungsfehler zählen als falsch; ist die KI erreichbar, prüft sie strittige Antworten nach und merkt sich akzeptierte Formen.'
+    ]
+  },
   {
     version: '1.22.04', date: '2026-08-20', kind: 'polish',
     title: 'Schreiben · 20 neue Themen und 20 neue Aufträge',
