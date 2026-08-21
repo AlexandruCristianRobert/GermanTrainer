@@ -7,6 +7,9 @@ import type { ArchivedCorrection, CorrectionEvent } from '../composables/useSpre
 import type { CachedArgumentBank } from '../data/sprechenArguments'
 import type { CachedSchreibArgumentBank, SchreibenBeitrag } from '../data/schreiben'
 import type { CachedNachrichtBaukasten, SchreibenNachricht } from '../data/schreibenNachricht'
+import type { VokabelProgress } from '../composables/wortschatzScheduler'
+import type { Vokabel } from '../data/wortschatz'
+import type { CachedExtraSaetze } from '../composables/useWortschatzProgress'
 import nounsSeed from '../data/nouns.seed.json'
 import adjectivesSeed from '../data/adjectives.seed.json'
 
@@ -31,6 +34,12 @@ export class GermanTrainerDb extends Dexie {
   schreibenNachrichten!: Table<SchreibenNachricht, string>
   /** Cached AI-generated Inhalts-Baukasten per Schreibauftrag (see ../data/schreibenNachricht). */
   schreibenBaukaesten!: Table<CachedNachrichtBaukasten, string>
+  /** Wortschatz per-Vokabel FSRS + Stufe state (ADR-0027). */
+  wortschatzProgress!: Table<VokabelProgress, string>
+  /** Learner-owned AI-generated Vokabeln (CONTEXT.md → "Vokabel"). */
+  wortschatzCustom!: Table<Vokabel, string>
+  /** Cached AI-generated extra context sentences per Vokabel. */
+  wortschatzSaetze!: Table<CachedExtraSaetze, string>
 
   constructor() {
     super('GermanTrainerDb')
@@ -263,6 +272,29 @@ export class GermanTrainerDb extends Dexie {
       // existing row gains a required field.
       schreibenNachrichten: '&id, status, startedAt',
       schreibenBaukaesten: 'auftragId'
+    })
+    this.version(17).stores({
+      nouns: '++id, &german, gender, group',
+      adjectives: '++id, &german, group',
+      settings: 'id',
+      writingDrafts: '&id, promptId, gradedAt, createdAt',
+      simulatorSessions: '&id, status, startedAt',
+      sprechenDiscussions: '&id, status, startedAt',
+      sprechenCorrections: '&id, kind, createdAt, topicTitle',
+      sprechenCorrectionEvents: '&id, correctionId, at',
+      sprechenArgumentBanks: 'topicId',
+      sprechenVortraege: '&id, status, startedAt',
+      schreibenBeitraege: '&id, status, startedAt',
+      schreibenArgumentBanks: 'themaId',
+      schreibenNachrichten: '&id, status, startedAt',
+      schreibenBaukaesten: 'auftragId',
+      // Wortschatz module (ADR-0027): per-Vokabel FSRS + Stufe progress,
+      // learner-owned custom Vokabeln, and cached AI-generated extra
+      // sentences (see useWortschatzProgress.ts). Purely additive — no
+      // upgrade hook, because no existing row gains a required field.
+      wortschatzProgress: 'vokabelId',
+      wortschatzCustom: '&id, feld',
+      wortschatzSaetze: 'vokabelId'
     })
   }
 }

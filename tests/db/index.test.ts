@@ -23,6 +23,9 @@ describe('db', () => {
       'sprechenCorrections',
       'sprechenDiscussions',
       'sprechenVortraege',
+      'wortschatzCustom',
+      'wortschatzProgress',
+      'wortschatzSaetze',
       'writingDrafts'
     ])
   })
