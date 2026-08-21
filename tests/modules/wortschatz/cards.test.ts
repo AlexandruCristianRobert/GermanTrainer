@@ -159,6 +159,27 @@ describe('LueckeCard', () => {
     // must fail it with reason 'article', not the looser 'word'/'ending' path.
     expect(wrapper.find('.reason-chip').text()).toBe('Artikel')
   })
+
+  it('round 2: a satz-level blankVariant grades correct locally, with no rescue-check', async () => {
+    // Inline fixture — deliberately not a seed item: a sentence whose blank
+    // takes a plural filling that isn't the singular primary blank, wired
+    // via KontextSatz.blankVariants (per-sentence, not v.variants).
+    const satzWithVariant = {
+      de: 'Die Firma wollte schon lange {{eine Maßnahme ergreifen}}.',
+      en: 'The company had wanted to take a measure for a long time.',
+      blankVariants: ['Maßnahmen ergreifen'],
+    }
+    const wrapper = mount(LueckeCard, { props: { vokabel: wortverbindung, satz: satzWithVariant } })
+
+    await wrapper.find('input').setValue('Maßnahmen ergreifen')
+    await wrapper.find('input').trigger('keydown.enter')
+
+    expect(wrapper.emitted('rescue-check')).toBeFalsy()
+    expect(wrapper.text()).toContain('Richtig.')
+
+    await findButton(wrapper, 'Weiter')!.trigger('click')
+    expect(wrapper.emitted('answered')).toEqual([['correct', 'Maßnahmen ergreifen']])
+  })
 })
 
 describe('AbrufCard', () => {

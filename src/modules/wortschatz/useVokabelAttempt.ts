@@ -32,6 +32,10 @@ export interface UseVokabelAttemptOptions {
   expectedText: () => string
   /** Called on a local miss; the runner resolves online-AI rescue or an immediate false. */
   onRescueCheck: (given: string, resolve: (ok: boolean) => void) => void
+  /** Round 2 — per-sentence alternative blank fillings (KontextSatz.blankVariants),
+   * consulted regardless of expectedText. AbrufCard/IntroCard have none; only
+   * LueckeCard supplies this (its expected text is a cloze blank, not v.de). */
+  blankVariants?: () => string[] | undefined
 }
 
 export function useVokabelAttempt(opts: UseVokabelAttemptOptions) {
@@ -61,7 +65,7 @@ export function useVokabelAttempt(opts: UseVokabelAttemptOptions) {
   function submit() {
     if (outcome.value !== null || pending.value || !given.value.trim()) return
     const g = given.value
-    const grade = gradeVokabelAnswer(opts.vokabel, opts.expectedText(), g)
+    const grade = gradeVokabelAnswer(opts.vokabel, opts.expectedText(), g, undefined, opts.blankVariants?.())
     if (grade.correct) {
       finalize(hinted.value ? 'hint' : 'correct')
       return

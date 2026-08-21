@@ -23,6 +23,7 @@ const { given, revealedChars, pending, outcome, hintText, reasonLabel, hint, sub
     vokabel: props.vokabel,
     expectedText: () => parts.value.blank,
     onRescueCheck: (g, resolve) => emit('rescue-check', g, resolve),
+    blankVariants: () => props.satz.blankVariants,
   })
 
 const nextBtnRef = ref<HTMLButtonElement | null>(null)
