@@ -17,6 +17,12 @@ function findButton(wrapper: ReturnType<typeof mount>, text: string) {
   return wrapper.findAll('button').find(b => b.text() === text || b.text().startsWith(text))
 }
 
+/** Mirrors useVokabelAttempt's stripLeadingArticle — the hint reveals the head
+ * word, not a leading article, so expectations here must strip it too. */
+function stripLeadingArticle(s: string): string {
+  return s.replace(/^(der|die|das|ein|eine|einen|einem|einer|eines|den|dem|des)\s+/i, '')
+}
+
 describe('IntroCard', () => {
   it('mounts and shows the English cue', () => {
     const wrapper = mount(IntroCard, { props: { vokabel: wortverbindung } })
@@ -79,14 +85,20 @@ describe('LueckeCard', () => {
     expect(wrapper.text()).toContain(satz.en)
   })
 
-  it('typing the exact blank + submit emits answered correct', async () => {
+  it('typing the exact blank + submit reveals the verdict, but answered waits for Weiter', async () => {
     const wrapper = mountCard()
     await wrapper.find('input').setValue(parts.blank)
     await wrapper.find('input').trigger('keydown.enter')
+    // Fix round 1, finding 1: the reveal renders on the same tick the local
+    // grade settles, but 'answered' must not fire until the card is advanced.
+    expect(wrapper.text()).toContain('Richtig.')
+    expect(wrapper.emitted('answered')).toBeFalsy()
+
+    await findButton(wrapper, 'Weiter')!.trigger('click')
     expect(wrapper.emitted('answered')).toEqual([['correct', parts.blank]])
   })
 
-  it('typing garbage emits rescue-check; resolving false emits answered wrong', async () => {
+  it('typing garbage emits rescue-check; resolving false settles wrong, answered waits for Weiter', async () => {
     const wrapper = mountCard()
     await wrapper.find('input').setValue('komplett falscher Text')
     await wrapper.find('input').trigger('keydown.enter')
@@ -98,15 +110,24 @@ describe('LueckeCard', () => {
     expect(wrapper.emitted('answered')).toBeFalsy()
 
     resolve(false)
+    await nextTick()
+    expect(wrapper.text()).toContain('Nicht ganz.')
+    expect(wrapper.emitted('answered')).toBeFalsy()
+
+    await findButton(wrapper, 'Weiter')!.trigger('click')
     expect(wrapper.emitted('answered')).toEqual([['wrong', 'komplett falscher Text']])
   })
 
-  it('resolving a rescue-check true emits answered correct', async () => {
+  it('resolving a rescue-check true settles correct; Weiter emits answered correct', async () => {
     const wrapper = mountCard()
     await wrapper.find('input').setValue('etwas Falsches')
     await wrapper.find('input').trigger('keydown.enter')
     const [, resolve] = wrapper.emitted('rescue-check')![0] as [string, (ok: boolean) => void]
     resolve(true)
+    await nextTick()
+    expect(wrapper.emitted('answered')).toBeFalsy()
+
+    await findButton(wrapper, 'Weiter')!.trigger('click')
     expect(wrapper.emitted('answered')).toEqual([['correct', 'etwas Falsches']])
   })
 
@@ -115,17 +136,28 @@ describe('LueckeCard', () => {
     await findButton(wrapper, 'Erster Buchstabe')!.trigger('click')
     await wrapper.find('input').setValue(parts.blank)
     await wrapper.find('input').trigger('keydown.enter')
+    await findButton(wrapper, 'Weiter')!.trigger('click')
     expect(wrapper.emitted('answered')).toEqual([['hint', parts.blank]])
   })
 
-  it('shows a reason chip on a final wrong verdict', async () => {
+  it('caps the hint reveal at 3 presses', async () => {
+    const wrapper = mountCard()
+    for (let i = 0; i < 5; i++) {
+      await findButton(wrapper, 'Erster Buchstabe')!.trigger('click')
+    }
+    expect(wrapper.find('.hint-chars').text()).toBe(stripLeadingArticle(parts.blank).slice(0, 3))
+  })
+
+  it('shows the reason chip Artikel on a final wrong verdict', async () => {
     const wrapper = mountCard()
     await wrapper.find('input').setValue('komplett falscher Text')
     await wrapper.find('input').trigger('keydown.enter')
     const [, resolve] = wrapper.emitted('rescue-check')![0] as [string, (ok: boolean) => void]
     resolve(false)
     await nextTick()
-    expect(wrapper.text()).toMatch(/Wort|Endung|Artikel|Präposition/)
+    // 'eine' (the blank's first token) is a closed-class article — gradeAgainst
+    // must fail it with reason 'article', not the looser 'word'/'ending' path.
+    expect(wrapper.find('.reason-chip').text()).toBe('Artikel')
   })
 })
 
@@ -140,14 +172,18 @@ describe('AbrufCard', () => {
     expect(wrapper.text()).toContain('Nomen: mit Artikel')
   })
 
-  it('typing the exact de form emits answered correct', async () => {
+  it('typing the exact de form reveals the verdict, but answered waits for Weiter', async () => {
     const wrapper = mountCard()
     await wrapper.find('input').setValue(noun.de)
     await wrapper.find('input').trigger('keydown.enter')
+    expect(wrapper.text()).toContain('Richtig.')
+    expect(wrapper.emitted('answered')).toBeFalsy()
+
+    await findButton(wrapper, 'Weiter')!.trigger('click')
     expect(wrapper.emitted('answered')).toEqual([['correct', noun.de]])
   })
 
-  it('a wrong article emits rescue-check; resolving false emits answered wrong', async () => {
+  it('a wrong article emits rescue-check; resolving false settles wrong, answered waits for Weiter', async () => {
     const wrapper = mountCard()
     const wrongArticle = noun.de.replace(/^die\b/, 'der')
     await wrapper.find('input').setValue(wrongArticle)
@@ -159,7 +195,30 @@ describe('AbrufCard', () => {
     expect(given).toBe(wrongArticle)
 
     resolve(false)
+    await nextTick()
+    expect(wrapper.emitted('answered')).toBeFalsy()
+
+    await findButton(wrapper, 'Weiter')!.trigger('click')
     expect(wrapper.emitted('answered')).toEqual([['wrong', wrongArticle]])
+  })
+
+  it('Erster Buchstabe reveals the article-stripped head word, not the article', async () => {
+    const wrapper = mountCard()
+    await findButton(wrapper, 'Erster Buchstabe')!.trigger('click')
+    // noun.de is 'die Verpackung' — the hint source strips 'die ' so the
+    // first press shows 'V', not the already-obvious article's 'd'.
+    expect(wrapper.find('.hint-chars').text()).toBe('V')
+  })
+
+  it('pressing the hint then answering right caps the outcome at hint, after Weiter', async () => {
+    const wrapper = mountCard()
+    await findButton(wrapper, 'Erster Buchstabe')!.trigger('click')
+    await wrapper.find('input').setValue(noun.de)
+    await wrapper.find('input').trigger('keydown.enter')
+    expect(wrapper.emitted('answered')).toBeFalsy()
+
+    await findButton(wrapper, 'Weiter')!.trigger('click')
+    expect(wrapper.emitted('answered')).toEqual([['hint', noun.de]])
   })
 })
 
@@ -198,5 +257,39 @@ describe('AnwendungCard', () => {
     expect(wrapper.text()).toContain('Die Stadt ergreift eine Maßnahme.')
     await findButton(wrapper, 'Weiter')!.trigger('click')
     expect(wrapper.emitted('next')).toBeTruthy()
+  })
+
+  it('shows the learner\'s own submitted sentence above the verdict', async () => {
+    const sentence = 'Die Regierung wird bald eine Maßnahme ergreifen müssen.'
+    const wrapper = mount(AnwendungCard, { props: baseProps })
+    await wrapper.find('textarea').setValue(sentence)
+    await findButton(wrapper, 'Absenden')!.trigger('click')
+    await wrapper.setProps({ grading: true })
+    await wrapper.setProps({
+      grading: false,
+      result: { correct: true, feedback: 'Gut verwendet.' }
+    })
+    expect(wrapper.find('.anw-own-sentence').text()).toContain(sentence)
+  })
+
+  it('fix round 1, finding 2: a failed grading pass (grading back to false, result still null) re-enables Absenden', async () => {
+    const wrapper = mount(AnwendungCard, { props: baseProps })
+    const sentence = 'Die Regierung wird bald eine Maßnahme ergreifen müssen.'
+    await wrapper.find('textarea').setValue(sentence)
+    await findButton(wrapper, 'Absenden')!.trigger('click')
+    expect(wrapper.emitted('submit')).toEqual([[sentence]])
+
+    // Runner starts grading, then fails (AI error / offline) and drops back
+    // to grading=false with result still null — the composer must return.
+    await wrapper.setProps({ grading: true })
+    expect(wrapper.find('textarea').exists()).toBe(false)
+    await wrapper.setProps({ grading: false, result: null })
+
+    expect(wrapper.find('textarea').exists()).toBe(true)
+    const submitBtn = findButton(wrapper, 'Absenden')!
+    expect(submitBtn.attributes('disabled')).toBeUndefined()
+
+    await submitBtn.trigger('click')
+    expect(wrapper.emitted('submit')).toEqual([[sentence], [sentence]])
   })
 })

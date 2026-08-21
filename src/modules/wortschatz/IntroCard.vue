@@ -80,11 +80,9 @@ onMounted(() => {
         </p>
         <div class="reveal">
           <div class="reveal-l">Antwort</div>
-          <p class="reveal-t">
-            {{ vokabel.de }}
-            <span v-if="vokabel.plural" class="micro-mark">· Plural: {{ vokabel.plural }}</span>
-            <span v-if="vokabel.rektion" class="micro-mark">· {{ vokabel.rektion }}</span>
-          </p>
+          <p class="reveal-t">{{ vokabel.de }}</p>
+          <p v-if="vokabel.plural" class="reveal-b"><span class="micro-mark">Plural</span> {{ vokabel.plural }}</p>
+          <p v-if="vokabel.rektion" class="reveal-b"><span class="micro-mark">Rektion</span> {{ vokabel.rektion }}</p>
           <div v-for="(s, i) in revealSaetze" :key="i" class="intro-context">
             <p class="reveal-b">{{ s.before }}<strong>{{ s.blank }}</strong>{{ s.after }}</p>
             <p class="drill-en">{{ s.en }}</p>
@@ -100,4 +98,5 @@ onMounted(() => {
 
 <style scoped>
 .intro-context + .intro-context { margin-top: 12px; }
+.reveal-b .micro-mark { margin-right: 6px; }
 </style>

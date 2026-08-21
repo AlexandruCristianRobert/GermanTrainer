@@ -1,12 +1,13 @@
 <script setup lang="ts">
 // Task 9 — AbrufCard: cued production of the full canonical form (see
-// task-9-brief.md). Same local-grade → rescue-check → verdict flow as
-// LueckeCard, but the expected answer is the canonical v.de itself (no
-// context sentence). Rektion is revealed only after the verdict, never
-// before — showing it upfront would give the governance away.
-import { computed, nextTick, onMounted, ref } from 'vue'
+// task-9-brief.md). Same attempt state machine as LueckeCard, shared via
+// useVokabelAttempt; the expected text here is the canonical v.de itself.
+// Rektion is revealed only after the verdict, never before — showing it
+// upfront would give the governance away. Fix round 1, finding 1: `answered`
+// fires from „Weiter", not from finalize().
+import { computed, nextTick, ref, watch } from 'vue'
 import type { Vokabel } from '../../data/wortschatz'
-import { gradeVokabelAnswer, type WrongReason } from '../../composables/wortschatzGrading'
+import { useVokabelAttempt } from './useVokabelAttempt'
 
 const props = defineProps<{ vokabel: Vokabel }>()
 const emit = defineEmits<{
@@ -14,55 +15,25 @@ const emit = defineEmits<{
   (e: 'rescue-check', given: string, resolve: (ok: boolean) => void): void
 }>()
 
-const REASON_LABEL: Record<string, string> = {
-  article: 'Artikel',
-  preposition: 'Präposition',
-  ending: 'Endung',
-}
-
-const given = ref('')
-const revealedChars = ref(0)
-const pending = ref(false)
-const outcome = ref<'correct' | 'hint' | 'wrong' | null>(null)
-const reason = ref<WrongReason | undefined>(undefined)
-const inputRef = ref<HTMLInputElement | null>(null)
-
 const kindLabel = computed(() => (props.vokabel.kind === 'einzelwort' ? 'Einzelwort' : 'Wortverbindung'))
 const isArticleNoun = computed(() => /^(der|die|das)\s/.test(props.vokabel.de))
-const hinted = computed(() => revealedChars.value > 0)
-const hintText = computed(() => props.vokabel.de.slice(0, revealedChars.value))
-const reasonLabel = computed(() => (reason.value ? REASON_LABEL[reason.value] : undefined))
 
-function hint() {
-  if (outcome.value !== null || pending.value || revealedChars.value >= 3) return
-  revealedChars.value++
-}
-
-function finalize(o: 'correct' | 'hint' | 'wrong', g: string, r?: WrongReason) {
-  outcome.value = o
-  reason.value = o === 'wrong' ? r : undefined
-  emit('answered', o, g)
-}
-
-function submit() {
-  if (outcome.value !== null || pending.value || !given.value.trim()) return
-  const g = given.value
-  const grade = gradeVokabelAnswer(props.vokabel, props.vokabel.de, g)
-  if (grade.correct) {
-    finalize(hinted.value ? 'hint' : 'correct', g)
-    return
-  }
-  pending.value = true
-  emit('rescue-check', g, (ok: boolean) => {
-    pending.value = false
-    if (ok) finalize(hinted.value ? 'hint' : 'correct', g)
-    else finalize('wrong', g, grade.reason)
+const { given, revealedChars, pending, outcome, hintText, reasonLabel, hint, submit, inputRef } =
+  useVokabelAttempt({
+    vokabel: props.vokabel,
+    expectedText: () => props.vokabel.de,
+    onRescueCheck: (g, resolve) => emit('rescue-check', g, resolve),
   })
-}
 
-onMounted(() => {
-  nextTick(() => inputRef.value?.focus())
+const nextBtnRef = ref<HTMLButtonElement | null>(null)
+watch(outcome, (o) => {
+  if (o !== null) nextTick(() => nextBtnRef.value?.focus())
 })
+
+function advance() {
+  if (outcome.value === null) return
+  emit('answered', outcome.value, given.value)
+}
 </script>
 
 <template>
@@ -95,7 +66,7 @@ onMounted(() => {
         :disabled="pending || revealedChars >= 3"
         @click="hint"
       >Erster Buchstabe</button>
-      <span v-if="revealedChars > 0" class="micro-mark">Hinweis: {{ hintText }}…</span>
+      <span v-if="revealedChars > 0" class="micro-mark">Hinweis: <span class="hint-chars">{{ hintText }}</span>…</span>
     </div>
     <div v-if="pending" class="micro-mark">Wird geprüft…</div>
 
@@ -108,13 +79,18 @@ onMounted(() => {
       <div class="reveal" :class="{ 'is-wrong': outcome === 'wrong' }">
         <div class="reveal-l">Lösung</div>
         <p class="reveal-t">{{ vokabel.de }}</p>
-        <p v-if="vokabel.rektion" class="reveal-b">Rektion: {{ vokabel.rektion }}</p>
+        <p v-if="vokabel.rektion" class="reveal-b"><span class="micro-mark">Rektion</span> {{ vokabel.rektion }}</p>
         <span v-if="reasonLabel" class="tag tag-danger reason-chip">{{ reasonLabel }}</span>
       </div>
+      <button ref="nextBtnRef" type="button" class="btn btn-accent drill-advance" @keydown.enter.prevent="advance" @click="advance">
+        Weiter <span aria-hidden="true">→</span>
+      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
 .reason-chip { margin-top: 8px; display: inline-block; }
+.hint-chars { text-transform: none; }
+.reveal-b .micro-mark { margin-right: 6px; }
 </style>

@@ -42,6 +42,18 @@ watch(
     if (r) nextTick(() => nextBtnRef.value?.focus())
   }
 )
+
+// Fix round 1, finding 2: a runner that fails to grade (AI error, offline)
+// signals it by dropping `grading` back to false with `result` still null —
+// otherwise the composer never returns and „Absenden" stays disabled forever.
+watch(
+  () => props.grading,
+  (isGrading, wasGrading) => {
+    if (wasGrading && !isGrading && props.result === null) {
+      submittedLocally.value = false
+    }
+  }
+)
 </script>
 
 <template>
@@ -56,6 +68,7 @@ watch(
     </div>
 
     <div v-else-if="result" class="drill-feedback">
+      <p class="anw-own-sentence">„{{ sentence }}“</p>
       <p class="feedback-line" :class="result.correct ? 'correct' : 'wrong'">
         {{ result.correct ? 'Richtig verwendet.' : 'Noch nicht ganz.' }}
       </p>
@@ -100,4 +113,11 @@ watch(
   resize: vertical;
 }
 .anw-composer-f { margin-top: 6px; text-align: right; }
+.anw-own-sentence {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
 </style>

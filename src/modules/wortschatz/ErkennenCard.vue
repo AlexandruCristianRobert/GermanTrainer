@@ -38,8 +38,8 @@ onMounted(() => {
 <template>
   <div ref="rootRef" class="drill-stage" tabindex="-1">
     <div class="drill-prompt">
-      <p class="drill-sentence">{{ parts.before }}<strong>{{ parts.blank }}</strong>{{ parts.after }}</p>
-      <p class="drill-caption micro-mark">{{ vokabel.de }}</p>
+      <p class="drill-sentence">{{ vokabel.de }}</p>
+      <p class="drill-caption">{{ parts.before }}<strong>{{ parts.blank }}</strong>{{ parts.after }}</p>
     </div>
 
     <div class="choice-row quad">
@@ -55,6 +55,7 @@ onMounted(() => {
           disabled: selected !== null,
         }"
         :disabled="selected !== null"
+        :aria-disabled="selected !== null"
         @click="pick(opt)"
       >{{ opt }}</button>
     </div>
