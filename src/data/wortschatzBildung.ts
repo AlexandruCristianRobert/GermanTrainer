@@ -244,7 +244,8 @@ export const WORTSCHATZ_BILDUNG: Vokabel[] = [
       { de: 'Aus finanziellen Gründen müssen viele Studierende {{das Studium abbrechen}}.',
         en: 'For financial reasons many students have to drop out of university.' },
       { de: 'Nach zwei Semestern hat sie {{das Studium abgebrochen}} und eine Ausbildung begonnen.',
-        en: 'After two semesters she dropped out of university and started vocational training.' }
+        en: 'After two semesters she dropped out of university and started vocational training.',
+        blankVariants: ['ein Studium abgebrochen'] }
     ],
     source: 'seed'
   }

@@ -68,7 +68,7 @@ export const WORTSCHATZ_ARBEIT: Vokabel[] = [
     saetze: [
       { de: 'Vor dem {{Vorstellungsgespräch}} sollte man sich über das Unternehmen gründlich informieren.',
         en: 'Before the job interview you should inform yourself thoroughly about the company.' },
-      { de: 'Sie hat in zwei Wochen drei {{Vorstellungsgespräche}} bei Zulieferern geführt.',
+      { de: 'Sie hat innerhalb von zwei Wochen drei {{Vorstellungsgespräche}} bei Zulieferern geführt.',
         en: 'Within two weeks she had three job interviews with suppliers.' }
     ],
     source: 'seed'
@@ -228,7 +228,8 @@ export const WORTSCHATZ_ARBEIT: Vokabel[] = [
       { de: 'Viele Betriebe möchten {{die Arbeitszeit flexibel gestalten}}, scheuen aber den Aufwand.',
         en: 'Many companies would like to organize working hours flexibly, but shy away from the effort.' },
       { de: 'Unsere Abteilung hat {{die Arbeitszeit flexibel gestaltet}} und dadurch Fehlzeiten gesenkt.',
-        en: 'Our department organized working hours flexibly and thereby reduced absences.' }
+        en: 'Our department organized working hours flexibly and thereby reduced absences.',
+        blankVariants: ['die Arbeitszeiten flexibel gestaltet'] }
     ],
     source: 'seed'
   },

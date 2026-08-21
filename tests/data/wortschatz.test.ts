@@ -31,6 +31,18 @@ describe('wortschatz seed invariants', () => {
         expect(s.en.length).toBeGreaterThan(3)
         // the satz must not contain a second blank
         expect(s.de.indexOf('{{')).toBe(s.de.lastIndexOf('{{'))
+        // blankVariants: each is a real alternative filling of THIS blank
+        const seen = new Set<string>()
+        for (const bv of s.blankVariants ?? []) {
+          expect(typeof bv, `${v.id}: blankVariant must be a string`).toBe('string')
+          expect(bv.trim(), `${v.id}: blankVariant must be nonempty`).not.toBe('')
+          expect(bv, `${v.id}: blankVariant must not be the blank itself: ${bv}`)
+            .not.toBe(parts!.blank)
+          expect(bv, `${v.id}: blankVariant must not contain cloze markers: ${bv}`)
+            .not.toMatch(/[{}]/)
+          expect(seen.has(bv), `${v.id}: duplicate blankVariant ${bv}`).toBe(false)
+          seen.add(bv)
+        }
       }
       if (v.kind === 'einzelwort' && /^(der|die|das) /.test(v.de)) {
         expect(v.plural, `${v.id}: noun needs plural ('' if none)`).toBeDefined()

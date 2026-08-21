@@ -7,9 +7,11 @@ export const WORTSCHATZ_UMWELT: Vokabel[] = [
     variants: ['Maßnahmen ergreifen'],
     saetze: [
       { de: 'Die Stadt hat endlich {{eine Maßnahme ergriffen}}, um den Lärm zu senken.',
-        en: 'The city finally took a measure to reduce the noise.' },
+        en: 'The city finally took a measure to reduce the noise.',
+        blankVariants: ['Maßnahmen ergriffen'] },
       { de: 'Gegen die steigenden Emissionen müssen wir {{Maßnahmen ergreifen}}.',
-        en: 'We must take measures against rising emissions.' }
+        en: 'We must take measures against rising emissions.',
+        blankVariants: ['eine Maßnahme ergreifen'] }
     ],
     source: 'seed'
   },
@@ -18,8 +20,8 @@ export const WORTSCHATZ_UMWELT: Vokabel[] = [
     de: 'die Verpackung', en: 'packaging', plural: 'Verpackungen',
     variants: [],
     saetze: [
-      { de: 'Viele Produkte stecken in unnötig großer {{Verpackung}}.',
-        en: 'Many products come in needlessly large packaging.' },
+      { de: 'Viele Produkte stecken heutzutage in unnötig großer und aufwendiger {{Verpackung}}.',
+        en: 'Many products nowadays come in needlessly large and elaborate packaging.' },
       { de: 'Der Laden verzichtet vollständig auf {{Verpackungen}} aus Plastik.',
         en: 'The shop completely does without plastic packaging.' }
     ],
@@ -99,13 +101,13 @@ export const WORTSCHATZ_UMWELT: Vokabel[] = [
   },
   {
     id: 'vk-umwelt-oekobilanz', feld: 'Umwelt', kind: 'einzelwort',
-    de: 'die Ökobilanz', en: 'environmental footprint (life-cycle balance of a product)', plural: 'Ökobilanzen',
+    de: 'die Ökobilanz', en: 'life-cycle assessment (a product\'s overall environmental balance sheet)', plural: 'Ökobilanzen',
     variants: [],
     saetze: [
       { de: 'Ein Elektroauto hat über den gesamten Lebenszyklus die bessere {{Ökobilanz}}.',
-        en: 'Over its entire life cycle, an electric car has the better environmental footprint.' },
+        en: 'Over its entire life cycle, an electric car has the better environmental balance sheet.' },
       { de: 'Hersteller veröffentlichen die {{Ökobilanzen}} ihrer Produkte bislang nur selten freiwillig.',
-        en: 'So far, manufacturers rarely publish the environmental footprints of their products voluntarily.' }
+        en: 'So far, manufacturers rarely publish the life-cycle assessments of their products voluntarily.' }
     ],
     source: 'seed'
   },
@@ -166,7 +168,8 @@ export const WORTSCHATZ_UMWELT: Vokabel[] = [
       { de: 'Auch kleine Betriebe können {{einen Beitrag zum Klimaschutz leisten}}.',
         en: 'Small businesses can also make a contribution to climate protection.' },
       { de: 'Mit der neuen Dämmung hat die Gemeinde {{einen Beitrag zum Klimaschutz geleistet}}.',
-        en: 'With the new insulation, the municipality has made a contribution to climate protection.' }
+        en: 'With the new insulation, the municipality has made a contribution to climate protection.',
+        blankVariants: ['Beiträge zum Klimaschutz geleistet'] }
     ],
     source: 'seed'
   },
@@ -175,10 +178,11 @@ export const WORTSCHATZ_UMWELT: Vokabel[] = [
     de: 'den ökologischen Fußabdruck verringern', en: 'to reduce one\'s ecological footprint',
     variants: ['seinen ökologischen Fußabdruck verringern'],
     saetze: [
-      { de: 'Jeder kann im Alltag {{den ökologischen Fußabdruck verringern}}, etwa beim Einkaufen.',
-        en: 'Everyone can reduce their ecological footprint in everyday life, for instance when shopping.' },
+      { de: 'Schon kleine Änderungen im Alltag können {{den ökologischen Fußabdruck verringern}}, etwa beim Einkaufen.',
+        en: 'Even small changes in everyday life can reduce the ecological footprint, for instance when shopping.' },
       { de: 'Durch kürzere Transportwege hat der Konzern {{den ökologischen Fußabdruck verringert}}.',
-        en: 'Through shorter transport routes, the group has reduced its ecological footprint.' }
+        en: 'Through shorter transport routes, the group has reduced its ecological footprint.',
+        blankVariants: ['seinen ökologischen Fußabdruck verringert'] }
     ],
     source: 'seed'
   },
@@ -190,7 +194,8 @@ export const WORTSCHATZ_UMWELT: Vokabel[] = [
       { de: 'Viele Haushalte wissen nicht genau, wie sie {{Müll trennen}} sollen.',
         en: 'Many households do not know exactly how they are supposed to separate their waste.' },
       { de: 'Wer konsequent {{Müll trennt}}, erleichtert den Betrieben die Wiederverwertung erheblich.',
-        en: 'Anyone who separates waste consistently makes recycling considerably easier for the plants.' }
+        en: 'Anyone who separates waste consistently makes recycling considerably easier for the plants.',
+        blankVariants: ['den Müll trennt'] }
     ],
     source: 'seed'
   },

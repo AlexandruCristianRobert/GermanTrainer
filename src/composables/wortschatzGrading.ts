@@ -111,15 +111,28 @@ export function gradeAgainst(expected: string, given: string): GradeResult {
  * canonical `v.de`). Only when `expectedText === v.de` are `v.variants`
  * and `learnedVariants` (AI-rescued past answers) also tried — the first
  * correct match wins; otherwise the result against `expectedText` stands.
+ *
+ * `blankVariants` are the *sentence-specific* alternative fillings of the
+ * current cloze blank (KontextSatz.blankVariants). They are tried regardless
+ * of whether `expectedText === v.de`, because in cloze mode the expected text
+ * is the blank, not the canonical form. Each candidate goes through the same
+ * `gradeAgainst`, so strict-core stays strict: an article or preposition slip
+ * inside a candidate still fails that candidate.
  */
 export function gradeVokabelAnswer(
   v: Pick<Vokabel, 'de' | 'variants'>,
   expectedText: string,
   given: string,
-  learnedVariants?: string[]
+  learnedVariants?: string[],
+  blankVariants?: string[]
 ): GradeResult {
   const primary = gradeAgainst(expectedText, given)
   if (primary.correct) return primary
+
+  for (const alt of blankVariants ?? []) {
+    const result = gradeAgainst(alt, given)
+    if (result.correct) return result
+  }
 
   if (expectedText === v.de) {
     const extras = [...v.variants, ...(learnedVariants ?? [])]

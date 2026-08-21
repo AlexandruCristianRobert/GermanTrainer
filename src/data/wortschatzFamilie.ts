@@ -161,7 +161,8 @@ export const WORTSCHATZ_FAMILIE: Vokabel[] = [
       { de: 'Ohne Betreuungsplatz kann kaum jemand {{Beruf und Familie vereinbaren}}.',
         en: 'Without a childcare place hardly anyone can combine work and family.' },
       { de: 'Sie hat jahrelang {{Beruf und Familie vereinbart}}, allerdings nur mit Hilfe der Großeltern.',
-        en: 'For years she combined work and family, though only with the grandparents\' help.' }
+        en: 'For years she combined work and family, though only with the grandparents\' help.',
+        blankVariants: ['Familie und Beruf vereinbart'] }
     ],
     source: 'seed'
   },
@@ -181,7 +182,7 @@ export const WORTSCHATZ_FAMILIE: Vokabel[] = [
   {
     id: 'vk-familie-grenzen-setzen', feld: 'Familie', kind: 'wortverbindung',
     de: 'Grenzen setzen', en: 'to set limits (make clear what a child may not do)',
-    variants: ['eine Grenze setzen'],
+    variants: [],
     saetze: [
       { de: 'Kinder brauchen Zuwendung, aber man muss ihnen auch {{Grenzen setzen}}.',
         en: 'Children need affection, but you also have to set them limits.' },
@@ -198,14 +199,15 @@ export const WORTSCHATZ_FAMILIE: Vokabel[] = [
       { de: 'Mit zwanzig wollte ich unbedingt {{von zu Hause ausziehen}}.',
         en: 'At twenty I desperately wanted to move out of my parents\' home.' },
       { de: 'Ihr Bruder ist erst mit dreißig {{von zu Hause ausgezogen}}.',
-        en: 'Her brother only moved out of the parental home at thirty.' }
+        en: 'Her brother only moved out of the parental home at thirty.',
+        blankVariants: ['von zuhause ausgezogen'] }
     ],
     source: 'seed'
   },
   {
     id: 'vk-familie-unter-einem-dach-leben', feld: 'Familie', kind: 'wortverbindung',
     de: 'unter einem Dach leben', en: 'to live under one roof (share the same home)',
-    rektion: 'mit + Dat',
+    rektion: 'unter + Dat',
     variants: [],
     saetze: [
       { de: 'Drei Generationen wollen dort dauerhaft {{unter einem Dach leben}}.',

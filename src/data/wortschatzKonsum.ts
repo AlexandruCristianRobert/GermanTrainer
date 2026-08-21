@@ -35,8 +35,8 @@ export const WORTSCHATZ_KONSUM: Vokabel[] = [
     saetze: [
       { de: 'Das Möbelhaus bietet {{Ratenzahlung}} ohne Zinsen über zwölf Monate an.',
         en: 'The furniture store offers interest-free payment in instalments over twelve months.' },
-      { de: 'Mehrere {{Ratenzahlungen}} gleichzeitig bringen manche Haushalte in echte Schwierigkeiten.',
-        en: 'Several instalment plans at once get some households into real difficulty.' }
+      { de: 'Offene {{Ratenzahlungen}} für mehrere Käufe bringen manche Haushalte in echte Schwierigkeiten.',
+        en: 'Outstanding instalment plans for several purchases get some households into real difficulty.' }
     ],
     source: 'seed'
   },
@@ -48,8 +48,8 @@ export const WORTSCHATZ_KONSUM: Vokabel[] = [
     saetze: [
       { de: 'Der {{Verbraucher}} kann einen online geschlossenen Vertrag binnen zwei Wochen widerrufen.',
         en: 'The consumer can withdraw from a contract concluded online within two weeks.' },
-      { de: 'Viele {{Verbraucher}} vergleichen erst online und kaufen dann im Laden.',
-        en: 'Many consumers first compare online and then buy in the shop.' }
+      { de: 'Bei vielen {{Verbrauchern}} entscheidet am Ende doch der Preis im Laden.',
+        en: 'For many consumers it is the price in the shop that decides in the end after all.' }
     ],
     source: 'seed'
   },
@@ -160,8 +160,9 @@ export const WORTSCHATZ_KONSUM: Vokabel[] = [
     saetze: [
       { de: 'Vor größeren Anschaffungen sollte man immer {{Preise vergleichen}}.',
         en: 'Before bigger purchases you should always compare prices.' },
-      { de: 'Wir haben {{die Preise verglichen}} und dabei fast hundert Euro gespart.',
-        en: 'We compared the prices and saved almost a hundred euros doing so.' }
+      { de: 'Wir haben vorher {{Preise verglichen}} und dabei fast hundert Euro gespart.',
+        en: 'We compared prices beforehand and saved almost a hundred euros doing so.',
+        blankVariants: ['die Preise verglichen'] }
     ],
     source: 'seed'
   },

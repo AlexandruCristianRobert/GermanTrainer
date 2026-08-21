@@ -92,7 +92,7 @@ export const WORTSCHATZ_TECHNOLOGIE: Vokabel[] = [
     saetze: [
       { de: 'Ohne Passwort ist der {{Zugriff}} auf die Personaldaten nicht möglich.',
         en: 'Without a password, access to the personnel data is not possible.' },
-      { de: 'Das Protokoll zeigt alle {{Zugriffe}} auf die Datenbank der letzten Woche.',
+      { de: 'Das Protokoll zeigt alle {{Zugriffe}} der letzten Woche auf die Datenbank.',
         en: 'The log shows all accesses to the database over the past week.' }
     ],
     source: 'seed'
@@ -179,7 +179,8 @@ export const WORTSCHATZ_TECHNOLOGIE: Vokabel[] = [
       { de: 'Man sollte {{ein Update installieren}}, sobald der Hersteller es bereitstellt.',
         en: 'You should install an update as soon as the manufacturer provides it.' },
       { de: 'Die IT-Abteilung hat über Nacht {{ein Update installiert}} und alles getestet.',
-        en: 'The IT department installed an update overnight and tested everything.' }
+        en: 'The IT department installed an update overnight and tested everything.',
+        blankVariants: ['Updates installiert'] }
     ],
     source: 'seed'
   },

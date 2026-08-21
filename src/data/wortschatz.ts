@@ -26,6 +26,12 @@ export type VokabelKind = 'einzelwort' | 'wortverbindung'
 export interface KontextSatz {
   de: string   // contains exactly one {{…}} blank
   en: string
+  // Per-sentence alternative blank fillings. Each entry is a full replacement
+  // for the {{…}} content that is grammatically correct IN THAT SENTENCE —
+  // not a canonical variant of the Vokabel. (An infinitive would be a fine
+  // v.variants entry but a wrong blankVariant in a sentence that needs the
+  // participle, which is exactly why these live per Satz.)
+  blankVariants?: string[]
 }
 
 export interface Vokabel {
@@ -35,7 +41,14 @@ export interface Vokabel {
   de: string                 // canonical form: 'die Maßnahme' | 'eine Maßnahme ergreifen'
   en: string                 // gloss, also the Abruf cue
   plural?: string            // nouns only; '' = no plural
-  rektion?: string           // e.g. 'auf + Akk' when the item governs one
+  // Two authoring conventions are in use in this bank, both intentional:
+  //  * external complement government — the case the item imposes on a
+  //    complement outside the chunk: 'auf + Akk' for `Rücksicht nehmen auf`;
+  //  * chunk-internal restatement — the preposition+case already inside the
+  //    canonical form: 'unter + Dat' for `unter einem Dach leben`.
+  // A bare case ('Dat') is permitted for prepositionless government, e.g.
+  // `einer Krankheit vorbeugen`.
+  rektion?: string
   variants: string[]         // additional accepted full answers
   saetze: KontextSatz[]      // exactly 2 for seeds
   source: 'seed' | 'custom'

@@ -160,7 +160,8 @@ export const WORTSCHATZ_MEDIEN: Vokabel[] = [
       { de: 'Zeitungen sollten auch dann {{über ein Thema berichten}}, wenn es unbequem ist.',
         en: 'Newspapers should report on a topic even when it is inconvenient.' },
       { de: 'Es ist die Aufgabe der Presse, sachlich {{über ein Thema zu berichten}}.',
-        en: 'It is the job of the press to report on a topic objectively.' }
+        en: 'It is the job of the press to report on a topic objectively.',
+        blankVariants: ['über Themen zu berichten'] }
     ],
     source: 'seed'
   },

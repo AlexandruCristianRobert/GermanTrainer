@@ -48,8 +48,8 @@ export const WORTSCHATZ_REISEN: Vokabel[] = [
     saetze: [
       { de: 'Der {{Reiseveranstalter}} hat den Flug ohne Vorwarnung auf den Abend verlegt.',
         en: 'The tour operator moved the flight to the evening without warning.' },
-      { de: 'Viele {{Reiseveranstalter}} werben inzwischen mit klimafreundlichen Anreisen per Bahn.',
-        en: 'Many tour operators now advertise climate-friendly travel by train.' }
+      { de: 'Bei vielen {{Reiseveranstaltern}} kann man die Anreise inzwischen per Bahn buchen.',
+        en: 'With many tour operators you can now book the journey there by train.' }
     ],
     source: 'seed'
   },
@@ -143,7 +143,7 @@ export const WORTSCHATZ_REISEN: Vokabel[] = [
   },
   {
     id: 'vk-reisen-sehenswert', feld: 'Reisen', kind: 'einzelwort',
-    de: 'sehenswert', en: 'worth seeing (worth making the trip for)',
+    de: 'sehenswert', en: 'worth a visit (of a sight: repays going there)',
     variants: [],
     saetze: [
       { de: 'Das kleine Heimatmuseum ist überraschend {{sehenswert}} und kostet keinen Eintritt.',

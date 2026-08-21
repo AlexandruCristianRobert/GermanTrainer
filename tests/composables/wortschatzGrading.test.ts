@@ -48,6 +48,42 @@ describe('wortschatzGrading', () => {
     expect(gradeVokabelAnswer(v, v.de, 'zu einer Maßnahme greifen', ['zu einer Maßnahme greifen']).correct).toBe(true)
   })
 
+  it('blankVariants are accepted in cloze mode (expectedText !== v.de)', () => {
+    const v = { de: 'Müll trennen', variants: ['den Müll trennen'] }
+    const blank = 'Müll trennt' // the cloze blank, an inflected form — not v.de
+    // without blankVariants the canonical article version is (correctly) rejected
+    expect(gradeVokabelAnswer(v, blank, 'den Müll trennt').correct).toBe(false)
+    // with the sentence-specific variant it is accepted
+    expect(gradeVokabelAnswer(v, blank, 'den Müll trennt', undefined, ['den Müll trennt']).correct).toBe(true)
+  })
+
+  it('blankVariants do not loosen the strict core', () => {
+    const v = { de: 'eine Maßnahme ergreifen', variants: ['Maßnahmen ergreifen'] }
+    const blank = 'Maßnahmen ergreifen'
+    // an article slip inside the blankVariant candidate still fails that candidate
+    const r = gradeVokabelAnswer(v, blank, 'einen Maßnahme ergreifen', undefined, ['eine Maßnahme ergreifen'])
+    expect(r.correct).toBe(false)
+    expect(r.reason).toBe('word') // the primary result against the blank still stands
+    // and a preposition slip inside a candidate is not forgiven either
+    const p = gradeVokabelAnswer(
+      { de: 'über ein Thema berichten', variants: [] },
+      'über ein Thema zu berichten',
+      'für Themen zu berichten',
+      undefined,
+      ['über Themen zu berichten']
+    )
+    expect(p.correct).toBe(false)
+  })
+
+  it('absent or empty blankVariants leave behavior unchanged', () => {
+    const v = { de: 'eine Maßnahme ergreifen', variants: ['Maßnahmen ergreifen'] }
+    expect(gradeVokabelAnswer(v, 'eine Maßnahme ergriffen', 'eine Maßnahme ergriffen').correct).toBe(true)
+    expect(gradeVokabelAnswer(v, 'eine Maßnahme ergriffen', 'eine Maßnahme ergriffen', [], []).correct).toBe(true)
+    expect(gradeVokabelAnswer(v, 'eine Maßnahme ergriffen', 'Maßnahmen ergriffen', [], []).correct).toBe(false)
+    // the v.de path (variants + learnedVariants) is untouched when blankVariants are empty
+    expect(gradeVokabelAnswer(v, v.de, 'Maßnahmen ergreifen', undefined, []).correct).toBe(true)
+  })
+
   it('token-count mismatch and empty input are wrong', () => {
     expect(gradeAgainst('die Maßnahme', 'Maßnahme').reason).toBe('word')
     expect(gradeAgainst('die Maßnahme', '  ').reason).toBe('empty')

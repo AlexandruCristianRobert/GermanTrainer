@@ -3,7 +3,7 @@ import type { Vokabel } from './wortschatz'
 export const WORTSCHATZ_GESELLSCHAFT: Vokabel[] = [
   {
     id: 'vk-gesellschaft-ehrenamt', feld: 'Gesellschaft', kind: 'einzelwort',
-    de: 'das Ehrenamt', en: 'unpaid voluntary post (a role taken on for the community)',
+    de: 'das Ehrenamt', en: 'voluntary work (unpaid work for the community; also a single such post)',
     plural: 'Ehrenämter',
     variants: [],
     saetze: [
@@ -55,7 +55,7 @@ export const WORTSCHATZ_GESELLSCHAFT: Vokabel[] = [
   },
   {
     id: 'vk-gesellschaft-benachteiligung', feld: 'Gesellschaft', kind: 'einzelwort',
-    de: 'die Benachteiligung', en: 'disadvantaging (being systematically put at a disadvantage)',
+    de: 'die Benachteiligung', en: 'systematic disadvantage (being put at a disadvantage)',
     plural: 'Benachteiligungen',
     variants: [],
     saetze: [
@@ -68,7 +68,7 @@ export const WORTSCHATZ_GESELLSCHAFT: Vokabel[] = [
   },
   {
     id: 'vk-gesellschaft-missstand', feld: 'Gesellschaft', kind: 'einzelwort',
-    de: 'der Missstand', en: 'grievance (a state of affairs that clearly needs fixing)',
+    de: 'der Missstand', en: 'deplorable state of affairs (something wrong that needs fixing)',
     plural: 'Missstände',
     variants: [],
     saetze: [
@@ -197,9 +197,11 @@ export const WORTSCHATZ_GESELLSCHAFT: Vokabel[] = [
     variants: ['am Rande der Gesellschaft stehen'],
     saetze: [
       { de: 'Wer lange arbeitslos ist, {{steht am Rand der Gesellschaft}}.',
-        en: 'Anyone unemployed for a long time ends up on the margins of society.' },
+        en: 'Anyone unemployed for a long time ends up on the margins of society.',
+        blankVariants: ['steht am Rande der Gesellschaft'] },
       { de: 'Viele Obdachlose {{stehen am Rand der Gesellschaft}}, ohne es selbst zu wollen.',
-        en: 'Many homeless people are on the margins of society without wanting to be.' }
+        en: 'Many homeless people are on the margins of society without wanting to be.',
+        blankVariants: ['stehen am Rande der Gesellschaft'] }
     ],
     source: 'seed'
   },

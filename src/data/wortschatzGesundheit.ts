@@ -208,7 +208,8 @@ export const WORTSCHATZ_GESUNDHEIT: Vokabel[] = [
       { de: 'Ohne Bluttest lässt sich hier kaum {{eine Diagnose stellen}}.',
         en: 'Without a blood test it is hardly possible to make a diagnosis here.' },
       { de: 'Die Klinik hat erst nach mehreren Wochen {{eine Diagnose gestellt}}.',
-        en: 'The clinic made a diagnosis only after several weeks.' }
+        en: 'The clinic made a diagnosis only after several weeks.',
+        blankVariants: ['Diagnosen gestellt'] }
     ],
     source: 'seed'
   },
@@ -218,7 +219,8 @@ export const WORTSCHATZ_GESUNDHEIT: Vokabel[] = [
     variants: ['Behandlungskosten übernehmen'],
     saetze: [
       { de: 'Die Kasse weigert sich, {{die Behandlungskosten zu übernehmen}}.',
-        en: 'The insurer refuses to cover the cost of treatment.' },
+        en: 'The insurer refuses to cover the cost of treatment.',
+        blankVariants: ['Behandlungskosten zu übernehmen'] },
       { de: 'Die private Versicherung hat am Ende doch {{die Behandlungskosten übernommen}}.',
         en: 'In the end the private insurer did cover the cost of treatment after all.' }
     ],
