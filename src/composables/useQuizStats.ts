@@ -160,7 +160,9 @@ function zeroRunsByType(): Record<QuizHistoryType, number> {
     'dat-passive': 0,
     'dat-reflexive': 0,
     'relativ-pronomen': 0,
-    'ndekl-form': 0
+    'ndekl-form': 0,
+    'wortschatz-lernen': 0,
+    'wortschatz-wiederholen': 0
   }
 }
 
@@ -239,7 +241,9 @@ function zeroAccuracyByType(): Record<QuizHistoryType, BucketStat> {
     'dat-passive': emptyBucket(),
     'dat-reflexive': emptyBucket(),
     'relativ-pronomen': emptyBucket(),
-    'ndekl-form': emptyBucket()
+    'ndekl-form': emptyBucket(),
+    'wortschatz-lernen': emptyBucket(),
+    'wortschatz-wiederholen': emptyBucket()
   }
 }
 

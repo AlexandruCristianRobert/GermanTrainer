@@ -11,6 +11,7 @@
 
 import { openCorrections, dueCorrections } from './useSprechenArchive'
 import { shakyItems } from './useDativeLedger'
+import { dueVokabelCount } from './useWortschatzProgress'
 import { computeWeakPoints } from './usePrepRemedial'
 import { computeVerbWeakPoints } from './useVerbSentenceStats'
 import { computeDrillMastery } from './useDrillMastery'
@@ -71,7 +72,22 @@ export async function buildTagesplan(
     }
   } catch { /* fail-soft: row omitted */ }
 
-  // 2 — Dativ ledger: wackelige items, longest-unseen first. The order and the
+  // 2 — Wortschatz: fällige Vokabeln (ADR-0027 schedule, read through the
+  // module's own reader; the row deep-links to the hub, never samples).
+  try {
+    const due = await dueVokabelCount(now)
+    if (due > 0) {
+      rows.push({
+        id: 'wortschatz-faellig',
+        title: 'Wortschatz · Fällige Vokabeln',
+        detail: `${due} fällig`,
+        route: 'wortschatz',
+        count: due,
+      })
+    }
+  } catch { /* fail-soft */ }
+
+  // 3 — Dativ ledger: wackelige items, longest-unseen first. The order and the
   // filter live in useDativeLedger (shakyItems) so the hub's chip row and this
   // row can never disagree about which names are "the wackelige ones".
   try {
@@ -87,7 +103,7 @@ export async function buildTagesplan(
     }
   } catch { /* fail-soft */ }
 
-  // 3 + 4 — weak points (prep, verb): evidence-scored from the history window
+  // 4 + 5 — weak points (prep, verb): evidence-scored from the history window
   try {
     const weak = computeWeakPoints(entries).weakPreps.filter(p => p.score > 0)
     if (weak.length > 0) {
@@ -113,7 +129,7 @@ export async function buildTagesplan(
     }
   } catch { /* fail-soft */ }
 
-  // 5 — lowest mastery bands (1–2): the drills that most need work, capped at 3
+  // 6 — lowest mastery bands (1–2): the drills that most need work, capped at 3
   try {
     const mastery = Object.values(computeDrillMastery(entries))
       .filter(m => m.band >= 1 && m.band <= 2)

@@ -116,7 +116,9 @@ const QUIZ_TYPES: Record<QuizHistoryType, TypeMeta> = {
   'dat-free':         { label: 'Dative · free dative', de: 'Dativ · Freier Dativ', module: 'Dativ' },
   'dat-sentence':     { label: 'Dative · sentence (AI)', de: 'Dativ · Satz (KI)', module: 'Dativ' },
   'dat-passive':      { label: 'Dative · passive', de: 'Dativ · Passiv', module: 'Dativ' },
-  'dat-reflexive':    { label: 'Dative · reflexive', de: 'Dativ · Reflexiv', module: 'Dativ' }
+  'dat-reflexive':    { label: 'Dative · reflexive', de: 'Dativ · Reflexiv', module: 'Dativ' },
+  'wortschatz-lernen':      { label: 'Wortschatz · Lernen', de: 'Wortschatz · Lernen', module: 'Wortschatz' },
+  'wortschatz-wiederholen': { label: 'Wortschatz · Wiederholen', de: 'Wortschatz · Wiederholen', module: 'Wortschatz' }
 }
 
 // The count column shows `it.count` as a raw question tally, but for these
@@ -160,7 +162,9 @@ const typeOrder: QuizHistoryType[] = [
   'schreiben-teil1',
   'schreiben-teil2',
   'sprechen-teil2',
-  'sprechen-drill'
+  'sprechen-drill',
+  'wortschatz-lernen',
+  'wortschatz-wiederholen'
 ]
 
 const filtered = computed(() =>
