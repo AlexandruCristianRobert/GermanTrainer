@@ -3,7 +3,7 @@ import type { Vokabel } from './wortschatz'
 export const WORTSCHATZ_GESELLSCHAFT: Vokabel[] = [
   {
     id: 'vk-gesellschaft-ehrenamt', feld: 'Gesellschaft', kind: 'einzelwort',
-    de: 'das Ehrenamt', en: 'voluntary work (unpaid work for the community; also a single such post)',
+    de: 'das Ehrenamt', en: 'voluntary post (an unpaid role for the community; also such work in general)',
     plural: 'Ehrenämter',
     variants: [],
     saetze: [

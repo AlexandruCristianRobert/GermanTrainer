@@ -178,8 +178,8 @@ export const WORTSCHATZ_UMWELT: Vokabel[] = [
     de: 'den ökologischen Fußabdruck verringern', en: 'to reduce one\'s ecological footprint',
     variants: ['seinen ökologischen Fußabdruck verringern'],
     saetze: [
-      { de: 'Schon kleine Änderungen im Alltag können {{den ökologischen Fußabdruck verringern}}, etwa beim Einkaufen.',
-        en: 'Even small changes in everyday life can reduce the ecological footprint, for instance when shopping.' },
+      { de: 'Wer bewusst einkauft, kann im Alltag {{den ökologischen Fußabdruck verringern}} und Geld sparen.',
+        en: 'Anyone who shops consciously can reduce their ecological footprint in everyday life and save money.' },
       { de: 'Durch kürzere Transportwege hat der Konzern {{den ökologischen Fußabdruck verringert}}.',
         en: 'Through shorter transport routes, the group has reduced its ecological footprint.',
         blankVariants: ['seinen ökologischen Fußabdruck verringert'] }

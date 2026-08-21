@@ -161,24 +161,46 @@ describe('LueckeCard', () => {
   })
 
   it('round 2: a satz-level blankVariant grades correct locally, with no rescue-check', async () => {
-    // Inline fixture — deliberately not a seed item: a sentence whose blank
-    // takes a plural filling that isn't the singular primary blank, wired
-    // via KontextSatz.blankVariants (per-sentence, not v.variants).
+    // Inline fixture, built so the pass can ONLY come from the blankVariants
+    // wiring: the blank is a *participle* form, so it is NOT equal to v.de
+    // ('eine Maßnahme ergreifen') and the v.variants path is never consulted;
+    // and the typed answer ('Maßnahmen ergriffen') is NOT in v.variants
+    // (which holds the infinitive 'Maßnahmen ergreifen'). Drop the 5th
+    // argument at the LueckeCard call site and this test must fail.
     const satzWithVariant = {
-      de: 'Die Firma wollte schon lange {{eine Maßnahme ergreifen}}.',
-      en: 'The company had wanted to take a measure for a long time.',
-      blankVariants: ['Maßnahmen ergreifen'],
+      de: 'Die Firma hat damals bereits {{eine Maßnahme ergriffen}}.',
+      en: 'The company had already taken a measure back then.',
+      blankVariants: ['Maßnahmen ergriffen'],
     }
     const wrapper = mount(LueckeCard, { props: { vokabel: wortverbindung, satz: satzWithVariant } })
 
-    await wrapper.find('input').setValue('Maßnahmen ergreifen')
+    await wrapper.find('input').setValue('Maßnahmen ergriffen')
     await wrapper.find('input').trigger('keydown.enter')
 
     expect(wrapper.emitted('rescue-check')).toBeFalsy()
     expect(wrapper.text()).toContain('Richtig.')
 
     await findButton(wrapper, 'Weiter')!.trigger('click')
-    expect(wrapper.emitted('answered')).toEqual([['correct', 'Maßnahmen ergreifen']])
+    expect(wrapper.emitted('answered')).toEqual([['correct', 'Maßnahmen ergriffen']])
+  })
+
+  it('round 2: the identical blank WITHOUT blankVariants is a local miss', async () => {
+    // Negative control that keeps the test above honest: same fixture, same
+    // typed answer, only `blankVariants` removed. It must now MISS locally
+    // (→ rescue-check). If this one ever starts passing as correct, the blank
+    // has drifted into v.de / v.variants territory and its sibling has gone
+    // vacuous again.
+    const satzWithoutVariant = {
+      de: 'Die Firma hat damals bereits {{eine Maßnahme ergriffen}}.',
+      en: 'The company had already taken a measure back then.',
+    }
+    const wrapper = mount(LueckeCard, { props: { vokabel: wortverbindung, satz: satzWithoutVariant } })
+
+    await wrapper.find('input').setValue('Maßnahmen ergriffen')
+    await wrapper.find('input').trigger('keydown.enter')
+
+    expect(wrapper.emitted('rescue-check')).toBeTruthy()
+    expect(wrapper.text()).not.toContain('Richtig.')
   })
 })
 
