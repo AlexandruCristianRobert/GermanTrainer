@@ -41,6 +41,7 @@ vi.mock('../../../src/composables/localClaude', () => ({
 const DAY = 86_400_000
 const LUECKE_V = WORTSCHATZ_VOKABELN.find(v => v.id === 'vk-umwelt-verpackung')!
 const ABRUF_V = WORTSCHATZ_VOKABELN.find(v => v.id === 'vk-umwelt-massnahme-ergreifen')!
+const THIRD_V = WORTSCHATZ_VOKABELN.find(v => v.id === 'vk-umwelt-schadstoff')!
 
 /** A due progress row: newProgress, then stufe/due (and optionally reps) forced. */
 function dueRow(
@@ -175,8 +176,8 @@ describe('WiederholenRunner — offline session', () => {
     const second = clozeParts(LUECKE_V.saetze[1].de)!
     expect(wrapper.text()).toContain(second.before.trim())
 
-    // With one cached extra Satz the rotation is over three sentences, so
-    // reps 3 lands back on saetze[0].
+    // With one cached extra Satz the rotation runs over three sentences, so
+    // reps 2 lands on the extra one (2 % 3 === 2).
     await db.wortschatzSaetze.put({
       vokabelId: LUECKE_V.id,
       saetze: [{ de: 'Der Hersteller wirbt mit einer besonders leichten {{Verpackung}} aus Papier.', en: 'The producer advertises a particularly light paper packaging.' }],
@@ -218,6 +219,93 @@ describe('WiederholenRunner — offline session', () => {
     expect(wrapper.find('[data-testid="wz-empty"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('Nichts fällig')
     expect(loadHistory()).toHaveLength(0)
+  })
+})
+
+// The runner's "one outcome per card" invariant rests on two guards inside
+// commit() — `committing` and the item-identity check — that no other test
+// would notice the loss of. Both cards below are answered correctly, so a
+// leaked second outcome is visible as reps/gatePasses 2 instead of 1.
+describe('WiederholenRunner — one outcome per card', () => {
+  it('applies exactly one outcome when „Weiter" is clicked twice before the save settles', async () => {
+    await db.wortschatzProgress.bulkPut([
+      dueRow(LUECKE_V.id, 'abruf', 2),
+      dueRow(ABRUF_V.id, 'abruf', 1)
+    ])
+    const wrapper = await mountRunner()
+    await answerTyped(wrapper, LUECKE_V.de)
+
+    // Both clicks land in the same tick — deliberately no flush between them,
+    // so commit() is still suspended on saveProgress when the second arrives
+    // and `committing` is the only thing rejecting it. (The card itself does
+    // re-emit: its own guard only checks that an outcome has settled.)
+    const weiter = findButton(wrapper, 'Weiter')!
+    void weiter.trigger('click')
+    void weiter.trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    // Card 2 is up, and unanswered.
+    expect(wrapper.find('[data-testid="wz-counter"]').text()).toBe('2 / 2')
+    expect(wrapper.find('[data-testid="wz-summary"]').exists()).toBe(false)
+
+    // A stale click on card 1's „Weiter" must not answer card 2. Vue drops
+    // emits from an unmounted card, so this is the outer line of defence;
+    // commit()'s item-identity check is the inner one.
+    await weiter.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="wz-counter"]').text()).toBe('2 / 2')
+
+    // One outcome reached the scheduler: a second would have carried reps and
+    // gatePasses to 2, and card 2 must be untouched.
+    const first = await readProgress(LUECKE_V.id)
+    expect(first.fsrs.reps).toBe(1)
+    expect(first.gatePasses).toBe(1)
+    expect((await readProgress(ABRUF_V.id)).fsrs.reps).toBe(0)
+
+    // …and the sitting counted it exactly once.
+    await answerTyped(wrapper, ABRUF_V.de)
+    await clickWeiter(wrapper)
+    expect(wrapper.find('[data-testid="wz-score"]').text()).toBe('2 / 2')
+    expect(loadHistory().filter(r => r.type === 'wortschatz-wiederholen')[0].count).toBe(2)
+  })
+
+  it('keeps the progress write but excludes a late answer from the recorded Run', async () => {
+    await db.wortschatzProgress.bulkPut([
+      dueRow(LUECKE_V.id, 'abruf', 3),
+      dueRow(ABRUF_V.id, 'abruf', 2),
+      dueRow(THIRD_V.id, 'abruf', 1)
+    ])
+    const wrapper = await mountRunner()
+
+    // Card 1 answered and fully settled → counted in the Run.
+    await answerTyped(wrapper, LUECKE_V.de)
+    await clickWeiter(wrapper)
+
+    // Card 2: „Weiter" emits, then „Beenden" lands (synchronously, no flush in
+    // between) while commit() is still suspended on saveProgress.
+    await answerTyped(wrapper, ABRUF_V.de)
+    void findButton(wrapper, 'Weiter')!.trigger('click')
+    await findButton(wrapper, 'Beenden')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="wz-summary"]').exists()).toBe(true)
+
+    // The scheduler write stands — it is the source of truth…
+    const late = await readProgress(ABRUF_V.id)
+    expect(late.fsrs.reps).toBe(1)
+    expect(late.gatePasses).toBe(1)
+
+    // …but neither the summary nor the recorded Run counts that late answer.
+    expect(wrapper.find('[data-testid="wz-score"]').text()).toBe('1 / 1')
+    const runs = loadHistory().filter(r => r.type === 'wortschatz-wiederholen')
+    expect(runs).toHaveLength(1)
+    expect(runs[0].count).toBe(1)
+    expect(runs[0].correct).toBe(1)
+
+    // The third card was never served.
+    expect((await readProgress(THIRD_V.id)).fsrs.reps).toBe(0)
   })
 })
 

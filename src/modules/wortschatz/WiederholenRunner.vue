@@ -202,10 +202,17 @@ async function commit(item: ServedItem, outcome: AnswerOutcome): Promise<void> {
   if (committing || finished.value || item !== current.value) return
   committing = true
   const before = item.p
-  const next = applyOutcome(before, outcome, Date.now(), item.servedStufe)
-  item.p = next
+  // Scheduling and persistence share one try: a throw from either (a corrupt
+  // FSRS card, a rejected Dexie write) must never leave `committing` wedged —
+  // the sitting counts the answer and moves on either way, it just loses the
+  // stored progress for this card.
   try {
+    const next = applyOutcome(before, outcome, Date.now(), item.servedStufe)
+    item.p = next
     await saveProgress(next)
+    if (!before.gefestigt && next.gefestigt) {
+      newlyGefestigt.value = [...newlyGefestigt.value, item.v.de]
+    }
   } catch (err) {
     toast.error('Fortschritt konnte nicht gespeichert werden', {
       description: err instanceof Error ? err.message : String(err)
@@ -219,9 +226,6 @@ async function commit(item: ServedItem, outcome: AnswerOutcome): Promise<void> {
     return
   }
   answers.value = [...answers.value, { stufe: before.stufe, outcome }]
-  if (!before.gefestigt && next.gefestigt) {
-    newlyGefestigt.value = [...newlyGefestigt.value, item.v.de]
-  }
   advance()
 }
 
@@ -452,7 +456,7 @@ function goHub(): void {
         @rescue-check="cardHandlers.rescue"
       />
       <AnwendungCard
-        v-else
+        v-else-if="current.servedStufe === 'anwendung'"
         :key="`anw-${index}`"
         :vokabel="current.v"
         :grading="grading"
