@@ -44,11 +44,28 @@ describe('useWortschatzAi', () => {
       .rejects.toThrow()
   })
 
+  it('generateVokabeln accepts a mixed batch (one invalid + one valid) without retrying', async () => {
+    let calls = 0
+    const invalidItem = { ...GOOD_ITEM, saetze: [
+      { de: 'Kein Blank.', en: 'x' }, GOOD_ITEM.saetze[1]
+    ] }
+    const mixed = JSON.stringify({ vokabeln: [invalidItem, GOOD_ITEM] })
+    const client = { models: { generateContent: async () => { calls++; return { text: mixed } } } }
+    const items = await generateVokabeln(client, 'm', 'Umwelt', [], 8)
+    expect(items).toHaveLength(1)
+    expect(items[0].de).toBe('die Mülltrennung')
+    expect(calls).toBe(1)
+  })
+
   it('judgeRescue parses the verdict', async () => {
     const res = await judgeRescue(
       fakeClient([JSON.stringify({ acceptable: true, begruendung: 'Gleiche Wendung, andere Zahl.' })]),
       'm', V, V.de, 'Maßnahmen ergreifen')
     expect(res.acceptable).toBe(true)
+  })
+
+  it('judgeRescue throws on garbage text (single attempt, no silent success)', async () => {
+    await expect(judgeRescue(fakeClient(['not json']), 'm', V, V.de, 'x')).rejects.toThrow()
   })
 
   it('gradeAnwendung parses verdict + feedback', async () => {
